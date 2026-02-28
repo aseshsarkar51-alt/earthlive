@@ -1,4 +1,3 @@
-[dashboard.html](https://github.com/user-attachments/files/25622669/dashboard.html)
 <!DOCTYPE html>
 <html lang="en">
 <head>
