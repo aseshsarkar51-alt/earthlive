@@ -1,0 +1,554 @@
+[dashboard.html](https://github.com/user-attachments/files/25622669/dashboard.html)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EarthLive</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root{
+  --bg:#f5f0e8;
+  --bg2:#ede8dc;
+  --bg3:#e6e0d2;
+  --surface:#ffffff;
+  --surface2:#faf7f2;
+  --border:#d4cec2;
+  --border-dark:#b8b0a0;
+  --text:#1a1612;
+  --text2:#4a4540;
+  --text3:#8a847a;
+  --text4:#b0aaa0;
+  --accent:#1a1612;
+  --accent-soft:#2e2820;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;cursor:none}
+.cursor{width:10px;height:10px;background:var(--accent);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+.cursor-ring{width:32px;height:32px;border:1px solid rgba(26,22,18,.4);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .18s,height .18s}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 2.5rem;background:rgba(245,240,232,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.08em;display:flex;align-items:center;gap:.5rem;color:var(--text)}
+.logo-dot{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--text3);text-decoration:none;letter-spacing:.14em;text-transform:uppercase;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-signin{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text);background:transparent;padding:.5rem 1.2rem;border:1px solid var(--border-dark);cursor:none;transition:all .2s}
+.nav-signin:hover{border-color:var(--accent);color:var(--accent)}
+.nav-cta{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--surface);background:var(--accent);padding:.5rem 1.2rem;border:1px solid var(--accent);cursor:none;transition:all .2s}
+.nav-cta:hover{background:transparent;color:var(--accent)}
+
+.hero{height:100vh;position:relative;overflow:hidden}
+#map{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+.leaflet-tile{filter:sepia(.25) brightness(1.05) contrast(.95) !important}
+.leaflet-container{background:var(--bg2) !important}
+.leaflet-control-zoom{border:1px solid var(--border) !important;background:rgba(255,255,255,.9) !important;backdrop-filter:blur(10px) !important}
+.leaflet-control-zoom a{background:transparent !important;color:var(--text) !important;border-bottom:1px solid var(--border) !important;font-size:1rem !important;line-height:28px !important;width:28px !important;height:28px !important}
+.leaflet-control-zoom a:hover{background:var(--bg2) !important}
+.leaflet-control-attribution{display:none !important}
+.vignette{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse 80% 70% at 40% 50%,transparent 25%,rgba(245,240,232,.45) 100%),linear-gradient(to bottom,rgba(245,240,232,.55) 0%,transparent 18%,transparent 70%,rgba(245,240,232,.97) 100%),linear-gradient(to right,transparent 60%,rgba(245,240,232,.88) 100%)}
+.grid-bg{position:absolute;inset:0;z-index:2;pointer-events:none;background-image:linear-gradient(rgba(26,22,18,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(26,22,18,.04) 1px,transparent 1px);background-size:55px 55px}
+
+#trending-sidebar{position:absolute;top:62px;right:0;bottom:44px;width:310px;z-index:10;display:flex;flex-direction:column;pointer-events:none}
+.trending-header{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.1rem;background:rgba(255,255,255,.88);border-left:1px solid var(--border);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);pointer-events:auto}
+.trending-title{font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);display:flex;align-items:center;gap:.45rem}
+.trending-title::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);animation:blink 1.2s infinite}
+.trending-tabs{display:flex}
+.ttab{font-family:'Space Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;padding:.28rem .65rem;background:transparent;color:var(--text4);border:1px solid var(--border);cursor:none;transition:all .2s;pointer-events:auto}
+.ttab.active{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+.ttab:hover{color:var(--text)}
+.trending-feed{flex:1;overflow:hidden;position:relative;background:rgba(255,255,255,.82);border-left:1px solid var(--border);backdrop-filter:blur(16px)}
+.trending-scroll{position:absolute;top:0;left:0;right:0;display:flex;flex-direction:column;will-change:transform}
+.tpost{padding:.9rem 1.1rem;border-bottom:1px solid var(--border);transition:background .2s;pointer-events:auto;cursor:none;position:relative;overflow:hidden}
+.tpost::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--accent);opacity:0;transition:opacity .2s}
+.tpost:hover{background:var(--bg2)}
+.tpost:hover::before{opacity:.5}
+.tpost-rank{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;line-height:1;color:rgba(26,22,18,.08);position:absolute;right:.7rem;top:.5rem}
+.tpost-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.45rem}
+.tpost-av{width:24px;height:24px;border-radius:50%;background:var(--bg3);border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.48rem;font-weight:700;flex-shrink:0;color:var(--text)}
+.tpost-user{font-family:'Space Mono',monospace;font-size:.48rem;letter-spacing:.08em;color:var(--text2)}
+.tpost-loc{font-family:'Space Mono',monospace;font-size:.4rem;color:var(--text4);letter-spacing:.06em}
+.tpost-time{font-family:'Space Mono',monospace;font-size:.4rem;color:var(--text4);margin-left:auto}
+.tpost-cat{font-family:'Space Mono',monospace;font-size:.38rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--border-dark);padding:.13rem .38rem;color:var(--text3);display:inline-block;margin-bottom:.4rem}
+.tpost-text{font-size:.72rem;color:var(--text2);line-height:1.52;margin-bottom:.5rem}
+.tpost-stats{display:flex;align-items:center;gap:.7rem}
+.tpost-stat{font-family:'Space Mono',monospace;font-size:.4rem;color:var(--text4)}
+.tpost-bar{flex:1;height:1px;background:var(--border);margin-left:auto;position:relative;overflow:hidden}
+.tpost-bar-fill{height:100%;background:var(--accent);position:absolute;left:0;top:0}
+
+.hero-ui{position:absolute;bottom:0;left:0;right:310px;z-index:10;text-align:center;padding:0 2rem 3.8rem}
+.eyebrow{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--text3);margin-bottom:1.3rem;display:flex;align-items:center;justify-content:center;gap:1rem}
+.eyebrow::before,.eyebrow::after{content:'';width:32px;height:1px;background:var(--border-dark)}
+.actions{display:flex;gap:.85rem;justify-content:center;flex-wrap:wrap}
+.btn-w{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.13em;text-transform:uppercase;background:var(--accent);color:var(--surface);padding:.9rem 2.2rem;border:1px solid var(--accent);cursor:none;transition:all .2s}
+.btn-w:hover{background:transparent;color:var(--accent)}
+.btn-o{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.13em;text-transform:uppercase;background:rgba(255,255,255,.75);color:var(--text);padding:.9rem 2.2rem;border:1px solid var(--border-dark);cursor:none;transition:all .2s;display:flex;align-items:center;gap:.5rem;backdrop-filter:blur(8px)}
+.btn-o:hover{border-color:var(--accent);background:rgba(255,255,255,.95)}
+.ticker-wrap{position:absolute;bottom:0;left:0;right:310px;z-index:11;background:rgba(255,255,255,.82);border-top:1px solid var(--border);padding:.6rem 0;overflow:hidden;backdrop-filter:blur(10px)}
+.ticker-inner{display:flex;gap:4rem;animation:ticker 35s linear infinite;white-space:nowrap}
+.ticker-item{font-family:'Space Mono',monospace;font-size:.56rem;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;display:flex;align-items:center;gap:.5rem}
+.ticker-item::before{content:'●';color:var(--accent);font-size:.4rem;animation:blink 1.5s infinite}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.city-marker{width:10px;height:10px;background:var(--accent);border-radius:50%;position:relative;cursor:none}
+.city-marker::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:1px solid rgba(26,22,18,.4);animation:mripple 2.5s ease-out infinite}
+@keyframes mripple{0%{transform:scale(1);opacity:.6}100%{transform:scale(3.5);opacity:0}}
+#city-popup{position:fixed;z-index:1200;width:270px;background:var(--surface);border:1px solid var(--border-dark);pointer-events:none;opacity:0;transition:opacity .22s;box-shadow:0 24px 60px rgba(26,22,18,.18)}
+#city-popup.show{opacity:1}
+.pop-head{padding:.7rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2)}
+.pop-city{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.06em;color:var(--text)}
+.pop-live{font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);display:flex;align-items:center;gap:.3rem}
+.pop-live::before{content:'●';color:var(--accent);animation:blink 1s infinite}
+.pop-body{padding:.45rem}
+.pcard{padding:.6rem .75rem;margin-bottom:.35rem;background:var(--surface2);border:1px solid var(--border);border-left:2px solid var(--accent)}
+.pcard:last-child{margin-bottom:0}
+.pcard-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem}
+.pavatar{width:22px;height:22px;border-radius:50%;background:var(--bg3);border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-size:.5rem;font-weight:700;flex-shrink:0;font-family:'Space Mono',monospace;color:var(--text)}
+.puser{font-family:'Space Mono',monospace;font-size:.46rem;letter-spacing:.08em;color:var(--text2)}
+.ptime{font-family:'Space Mono',monospace;font-size:.4rem;color:var(--text4);margin-left:auto}
+.ptext{font-size:.68rem;color:var(--text2);line-height:1.5}
+.pcat{font-family:'Space Mono',monospace;font-size:.4rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-top:.22rem}
+.pengagement{font-family:'Space Mono',monospace;font-size:.4rem;color:var(--text4);margin-top:.25rem;display:flex;gap:.7rem}
+
+.stats-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:1.8rem 3rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:2rem}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--text);line-height:1}
+.stat-label{font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text4);margin-top:.2rem}
+
+#feed-section{min-height:100vh;background:var(--bg);border-top:1px solid var(--border)}
+.feed-header{padding:3rem 3rem 2.5rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1.5rem}
+.sec-label{font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text4);margin-bottom:.6rem}
+.feed-header h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,4.5vw,3.8rem);letter-spacing:.02em;line-height:.95;color:var(--text)}
+.feed-header h2 em{font-style:normal;-webkit-text-stroke:1px var(--accent);color:transparent}
+.live-badge{display:flex;align-items:center;gap:.5rem;font-family:'Space Mono',monospace;font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);background:var(--surface2);border:1px solid var(--border-dark);padding:.45rem .95rem}
+.live-badge::before{content:'';width:5px;height:5px;background:var(--accent);border-radius:50%;animation:blink 1.2s infinite}
+
+.filter-bar{border-bottom:1px solid var(--border);position:sticky;top:62px;background:var(--surface);z-index:50}
+.filter-row{display:flex;align-items:center;padding:0 3rem;border-bottom:1px solid var(--border);overflow-x:auto}
+.filter-row:last-child{border-bottom:none}
+.filter-row::-webkit-scrollbar{display:none}
+.ftxt{font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text4);padding:.85rem 1.1rem;background:transparent;border:none;border-bottom:2px solid transparent;cursor:none;transition:color .2s,border-color .2s;white-space:nowrap;flex-shrink:0}
+.ftxt:hover{color:var(--text2)}
+.ftxt.active{color:var(--text);border-bottom-color:var(--accent)}
+.ftxt-ct{font-size:.42rem;color:var(--text4);margin-left:.3rem;vertical-align:middle}
+.ftxt.active .ftxt-ct{color:var(--text3)}
+.filter-divider{width:1px;height:14px;background:var(--border);margin:0 .4rem;flex-shrink:0;align-self:center}
+.filter-right{display:flex;align-items:center;gap:.5rem;margin-left:auto;padding:.5rem 0;flex-shrink:0}
+.fsearch{display:flex;align-items:center;gap:.4rem;background:var(--bg2);border:1px solid var(--border);padding:.32rem .7rem}
+.fsearch input{background:transparent;border:none;outline:none;color:var(--text);font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.07em;width:130px}
+.fsearch input::placeholder{color:var(--text4)}
+.fsort{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;background:var(--bg2);border:1px solid var(--border);color:var(--text3);padding:.32rem .65rem;outline:none;cursor:none;-webkit-appearance:none}
+
+.city-search-wrap{position:relative;display:flex;align-items:center;gap:.5rem;background:var(--bg2);border:1px solid var(--border-dark);padding:.32rem .8rem;flex-shrink:0}
+.city-search-icon{font-size:.75rem;color:var(--text4)}
+.city-search-wrap input{background:transparent;border:none;outline:none;color:var(--text);font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.07em;width:160px}
+.city-search-wrap input::placeholder{color:var(--text4)}
+
+.feed-body{padding:2rem 0 4rem;overflow:hidden}
+.feed-track-wrap{overflow-x:auto;overflow-y:visible;padding:1rem 3rem 2rem;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;display:flex;gap:1.4rem;scrollbar-width:none;cursor:grab}
+.feed-track-wrap::-webkit-scrollbar{display:none}
+.feed-track-wrap:active{cursor:grabbing}
+.feed-grid{display:contents}
+
+.fstrip{flex:0 0 360px;min-height:480px;scroll-snap-align:start;position:relative;overflow:hidden;display:flex;flex-direction:column;background:var(--surface);border-radius:20px;border:1px solid var(--border);transition:transform .4s cubic-bezier(.25,.8,.25,1),box-shadow .4s cubic-bezier(.25,.8,.25,1);cursor:none;box-shadow:0 4px 18px rgba(26,22,18,.08)}
+.fstrip:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 32px 64px rgba(26,22,18,.16)}
+.fstrip-img{width:100%;height:220px;flex-shrink:0;position:relative;overflow:hidden;border-radius:20px 20px 0 0}
+.fstrip-img img{width:100%;height:100%;object-fit:cover;filter:sepia(.2) brightness(.85);transition:filter .6s,transform .7s;display:block}
+.fstrip:hover .fstrip-img img{filter:sepia(0) brightness(.95);transform:scale(1.07)}
+.fstrip-img-over{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 45%,rgba(255,255,255,.98) 100%)}
+.fstrip-rank{position:absolute;top:.8rem;left:.9rem;z-index:2;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--surface);background:rgba(26,22,18,.7);border:1px solid rgba(255,255,255,.3);padding:.12rem .5rem;backdrop-filter:blur(6px)}
+.fstrip-body{padding:1.2rem 1.4rem 1.4rem;display:flex;flex-direction:column;gap:.7rem;flex:1;background:var(--surface)}
+.fstrip-top{display:flex;align-items:center;justify-content:space-between}
+.fstrip-meta{display:flex;align-items:center;gap:.6rem}
+.fav{width:30px;height:30px;border-radius:50%;background:var(--bg3);border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.58rem;font-weight:700;flex-shrink:0;color:var(--text)}
+.fuser{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.08em;color:var(--text2)}
+.floc{font-family:'Space Mono',monospace;font-size:.4rem;color:var(--text4);margin-top:.1rem}
+.fstrip-right{display:flex;align-items:center;gap:.6rem}
+.fstrip-cat{font-family:'Space Mono',monospace;font-size:.38rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border-dark);padding-bottom:.1rem}
+.fstrip-vis{font-size:.4rem;color:var(--text4)}
+.ftime{font-family:'Space Mono',monospace;font-size:.38rem;color:var(--text4)}
+.ftext{font-family:'DM Sans',sans-serif;font-size:.92rem;color:var(--text2);line-height:1.65;flex:1;transition:color .25s}
+.fstrip:hover .ftext{color:var(--text)}
+.feng{display:flex;gap:1rem;align-items:center;padding-top:.8rem;border-top:1px solid var(--border)}
+.feng-stat{font-family:'Space Mono',monospace;font-size:.42rem;color:var(--text4);display:flex;align-items:center;gap:.28rem;transition:color .2s}
+.fstrip:hover .feng-stat{color:var(--text3)}
+.flike-btn{margin-left:auto;font-family:'Space Mono',monospace;font-size:.4rem;letter-spacing:.12em;text-transform:uppercase;background:transparent;color:var(--text4);border:none;border-bottom:1px solid var(--border);padding:.1rem 0;cursor:none;transition:all .2s}
+.flike-btn:hover,.flike-btn.liked{color:var(--accent);border-bottom-color:var(--accent)}
+
+.feed-scroll-hint{display:flex;align-items:center;justify-content:space-between;padding:.5rem 3rem 0}
+.feed-scroll-hint-txt{font-family:'Space Mono',monospace;font-size:.48rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text4);display:flex;align-items:center;gap:.5rem}
+.feed-scroll-hint-txt::after{content:'→→';color:var(--text4);letter-spacing:-.05em}
+.feed-arrows{display:flex;gap:.5rem}
+.farrow{width:34px;height:34px;border:1px solid var(--border-dark);background:var(--surface);color:var(--text3);font-size:.9rem;display:flex;align-items:center;justify-content:center;cursor:none;transition:all .2s;border-radius:50%}
+.farrow:hover{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+.feed-empty{padding:5rem 3rem;color:var(--text4);font-family:'Space Mono',monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase}
+@keyframes cardIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+.fstrip.animating{animation:cardIn .4s ease forwards}
+
+#accounts-section{padding:5rem 3rem 6rem;background:var(--bg2);border-top:1px solid var(--border)}
+.mosaic-grid{display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(3,200px);gap:3px;margin-top:2.5rem}
+.ac:nth-child(1){grid-column:1/5;grid-row:1/3}
+.ac:nth-child(2){grid-column:5/8;grid-row:1/2}
+.ac:nth-child(3){grid-column:8/13;grid-row:1/2}
+.ac:nth-child(4){grid-column:5/8;grid-row:2/3}
+.ac:nth-child(5){grid-column:8/11;grid-row:2/3}
+.ac:nth-child(6){grid-column:11/13;grid-row:2/3}
+.ac:nth-child(7){grid-column:1/5;grid-row:3/4}
+.ac:nth-child(8){grid-column:5/13;grid-row:3/4}
+.ac{position:relative;overflow:hidden;cursor:none;background:var(--bg3)}
+.ac-cover{position:absolute;inset:0}
+.ac-cover img{width:100%;height:100%;object-fit:cover;display:block;filter:sepia(.3) brightness(.7);transition:filter .6s ease,transform .8s ease}
+.ac:hover .ac-cover img{filter:sepia(.1) brightness(.85);transform:scale(1.06)}
+.ac-cover-fade{position:absolute;inset:0;background:linear-gradient(to top,rgba(245,240,232,.95) 0%,rgba(245,240,232,.3) 60%,transparent 100%)}
+.ac-body{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:flex-end;padding:1.1rem 1.2rem}
+.ac-av{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.85);border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.6rem;font-weight:700;margin-bottom:.5rem;flex-shrink:0;color:var(--text)}
+.ac-name{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.03em;line-height:1;color:var(--text)}
+.ac:nth-child(1) .ac-name,.ac:nth-child(8) .ac-name{font-size:2rem}
+.ac-handle{font-family:'Space Mono',monospace;font-size:.4rem;letter-spacing:.1em;color:var(--text3);margin-top:.15rem}
+.ac-badge{position:absolute;top:.75rem;right:.75rem;z-index:3;font-family:'Space Mono',monospace;font-size:.36rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);border:1px solid var(--border-dark);background:rgba(255,255,255,.82);backdrop-filter:blur(6px);padding:.12rem .4rem}
+.ac-hover-reveal{position:absolute;inset:0;z-index:4;background:rgba(255,255,255,.95);display:flex;flex-direction:column;justify-content:center;padding:1.3rem;opacity:0;transform:translateY(6px);transition:opacity .3s ease,transform .3s ease;pointer-events:none}
+.ac:hover .ac-hover-reveal{opacity:1;transform:translateY(0);pointer-events:auto}
+.ac-bio-reveal{font-size:.75rem;color:var(--text2);line-height:1.65;margin-bottom:.8rem}
+.ac-loc-reveal{font-family:'Space Mono',monospace;font-size:.4rem;color:var(--text3);letter-spacing:.08em;margin-bottom:.8rem}
+.ac-stats{display:flex;gap:1.2rem;margin-bottom:.8rem}
+.ac-stat-item .acs-num{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--text);line-height:1}
+.ac-stat-item .acs-lbl{font-family:'Space Mono',monospace;font-size:.34rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text4)}
+.ac-vis{display:flex;align-items:center;gap:.5rem}
+.ac-vis-label{font-family:'Space Mono',monospace;font-size:.38rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text4)}
+.vis-toggle{display:flex;border:1px solid var(--border-dark);border-radius:3px;overflow:hidden}
+.vis-btn{font-family:'Space Mono',monospace;font-size:.38rem;letter-spacing:.1em;text-transform:uppercase;padding:.2rem .5rem;background:transparent;color:var(--text4);border:none;cursor:none;transition:all .18s}
+.vis-btn.on{background:var(--accent);color:var(--surface)}
+.vis-btn:hover:not(.on){background:var(--bg3);color:var(--text3)}
+
+#signup-section{border-top:1px solid var(--border);padding:5rem 3rem;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start;background:var(--surface)}
+.perks{display:flex;flex-direction:column;gap:.6rem;margin-top:1.4rem}
+.perk{display:flex;align-items:center;gap:.65rem;font-size:.8rem;color:var(--text3)}
+.perk-chk{width:17px;height:17px;border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-size:.52rem;flex-shrink:0;color:var(--text2)}
+.scard{background:var(--surface2);border:1px solid var(--border-dark);padding:2.2rem;position:relative}
+.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent)}
+.scard-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.04em;margin-bottom:.22rem;color:var(--text)}
+.scard-sub{font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text4);margin-bottom:1.6rem}
+.fg{margin-bottom:.8rem}
+.fl{font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text4);display:block;margin-bottom:.35rem}
+.fi{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:.68rem;padding:.68rem .9rem;outline:none;transition:border-color .2s}
+.fi::placeholder{color:var(--text4)}
+.fi:focus{border-color:var(--accent)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:.65rem}
+.btn-sub{width:100%;font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;background:var(--accent);color:var(--surface);padding:.95rem;border:1px solid var(--accent);cursor:none;margin-top:1rem;transition:all .2s}
+.btn-sub:hover{background:transparent;color:var(--accent)}
+.ffine{font-family:'Space Mono',monospace;font-size:.46rem;color:var(--text4);letter-spacing:.08em;text-align:center;margin-top:.8rem;line-height:1.6}
+footer{background:var(--accent);border-top:1px solid var(--border);padding:2.2rem 3rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem}
+.footer-brand{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.05em;display:flex;align-items:center;gap:.5rem;color:var(--surface)}
+.footer-brand .logo-dot{background:var(--bg)}
+.footer-links{display:flex;gap:1.8rem;list-style:none}
+.footer-links a{font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,240,232,.5);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--bg)}
+.footer-copy{font-family:'Space Mono',monospace;font-size:.46rem;color:rgba(245,240,232,.35);letter-spacing:.1em}
+.fade-up{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+.fade-up.visible{opacity:1;transform:translateY(0)}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border-dark)}
+@media(max-width:1000px){#trending-sidebar{display:none}.hero-ui,.ticker-wrap{right:0}}
+@media(max-width:800px){nav{padding:1rem 1.5rem}.nav-links{display:none}.feed-header{padding:2rem 1.5rem}.filter-row{padding:0 1rem}.feed-body{padding:0 0 3rem}.fstrip{flex:0 0 300px}#accounts-section,#signup-section{padding:4rem 1.5rem}#signup-section{grid-template-columns:1fr;gap:3rem}footer{flex-direction:column;padding:2rem 1.5rem}}
+</style>
+</head>
+<body>
+<div class="cursor" id="C"></div>
+<div class="cursor-ring" id="CR"></div>
+<div id="city-popup">
+  <div class="pop-head"><div class="pop-city" id="pop-name"></div><div class="pop-live" id="pop-rate"></div></div>
+  <div class="pop-body" id="pop-body"></div>
+</div>
+
+<nav>
+  <div class="logo"><div class="logo-dot"></div>EARTHLIVE</div>
+  <ul class="nav-links">
+    <li><a href="#feed-section">Live Feed</a></li>
+    <li><a href="#accounts-section">Community</a></li>
+    <li><a href="#signup-section">Sign Up</a></li>
+  </ul>
+  <div style="display:flex;gap:.6rem;align-items:center">
+    <button class="nav-signin" onclick="openSignIn()">Sign In</button>
+    <button class="nav-cta" onclick="document.getElementById('signup-section').scrollIntoView({behavior:'smooth'})">Create Account</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div id="map"></div>
+  <div class="vignette"></div>
+  <div class="grid-bg"></div>
+  <div id="trending-sidebar">
+    <div class="trending-header">
+      <div class="trending-title">Trending Now</div>
+      <div class="trending-tabs">
+        <button class="ttab active" onclick="setTrendingTab('top',this)">Top</button>
+        <button class="ttab" onclick="setTrendingTab('live',this)">Live</button>
+        <button class="ttab" onclick="setTrendingTab('breaking',this)">Breaking</button>
+      </div>
+    </div>
+    <div class="trending-feed" id="trending-feed">
+      <div class="trending-scroll" id="trending-scroll"></div>
+    </div>
+  </div>
+  <div class="hero-ui">
+    <div class="eyebrow">Live · Real-Time · Everywhere</div>
+    <div class="actions">
+      <button class="btn-w" onclick="document.getElementById('feed-section').scrollIntoView({behavior:'smooth'})">Explore Live Feed</button>
+      <div class="btn-o" id="hero-search-box" style="padding:0;gap:0;width:280px">
+        <span style="font-family:'Space Mono',monospace;font-size:.68rem;padding:0 .9rem;color:var(--text3);flex-shrink:0">◎</span>
+        <input id="hsb-input" type="text" placeholder="City or country…" autocomplete="off"
+          oninput="onHsbInput()" onkeydown="onHsbKey(event)"
+          style="flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'Space Mono',monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;padding:.9rem 0">
+        <button onclick="doHsbSearch()"
+          style="font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;background:var(--accent);color:var(--surface);border:none;border-left:1px solid var(--border-dark);padding:.9rem 1rem;cursor:none;transition:background .2s;flex-shrink:0">Go →</button>
+        <div id="hsb-dropdown" style="position:absolute;bottom:calc(100% + 8px);left:0;right:0;background:var(--surface);border:1px solid var(--border-dark);border-radius:8px;z-index:500;display:none;flex-direction:column;box-shadow:0 -20px 50px rgba(26,22,18,.15);overflow:hidden"></div>
+      </div>
+    </div>
+  </div>
+  <div class="ticker-wrap"><div class="ticker-inner">
+    <span class="ticker-item">Typhoon approaching Philippines coast</span>
+    <span class="ticker-item">5,280 posts — Tokyo</span>
+    <span class="ticker-item">Trending: #CarbonNeutral — Europe</span>
+    <span class="ticker-item">Marathon — São Paulo</span>
+    <span class="ticker-item">High Activity: Mumbai</span>
+    <span class="ticker-item">Al Ahly wins CAF Champions League</span>
+    <span class="ticker-item">Typhoon approaching Philippines coast</span>
+    <span class="ticker-item">5,280 posts — Tokyo</span>
+    <span class="ticker-item">Trending: #CarbonNeutral — Europe</span>
+    <span class="ticker-item">Marathon — São Paulo</span>
+    <span class="ticker-item">High Activity: Mumbai</span>
+    <span class="ticker-item">Al Ahly wins CAF Champions League</span>
+  </div></div>
+</section>
+
+<div class="stats-bar fade-up">
+  <div><div class="stat-num" data-t="2847391">0</div><div class="stat-label">Posts Today</div></div>
+  <div><div class="stat-num" data-t="194">0</div><div class="stat-label">Countries Active</div></div>
+  <div><div class="stat-num" data-t="47">0</div><div class="stat-label">Live Hotspots</div></div>
+  <div><div class="stat-num" data-t="1240000">0</div><div class="stat-label">Users Online</div></div>
+  <div><div class="stat-num" data-t="99">0</div><div class="stat-label">% Uptime</div></div>
+</div>
+
+<section id="feed-section">
+  <div class="feed-header fade-up">
+    <div>
+      <div class="sec-label">Global Stream</div>
+      <h2>WHAT'S <em>HAPPENING NOW</em></h2>
+    </div>
+    <div class="live-badge" id="live-count">247 new posts</div>
+  </div>
+  <div class="filter-bar">
+    <div class="filter-row">
+      <button class="ftxt active" data-cat="all" onclick="setFilter('all',this)">All<span class="ftxt-ct" id="fc-all"></span></button>
+      <div class="filter-divider"></div>
+      <button class="ftxt" data-cat="breaking" onclick="setFilter('breaking',this)">Breaking<span class="ftxt-ct" id="fc-breaking"></span></button>
+      <button class="ftxt" data-cat="news" onclick="setFilter('news',this)">News<span class="ftxt-ct" id="fc-news"></span></button>
+      <button class="ftxt" data-cat="sports" onclick="setFilter('sports',this)">Sports<span class="ftxt-ct" id="fc-sports"></span></button>
+      <button class="ftxt" data-cat="tech" onclick="setFilter('tech',this)">Tech<span class="ftxt-ct" id="fc-tech"></span></button>
+      <button class="ftxt" data-cat="health" onclick="setFilter('health',this)">Health<span class="ftxt-ct" id="fc-health"></span></button>
+      <button class="ftxt" data-cat="social" onclick="setFilter('social',this)">Social<span class="ftxt-ct" id="fc-social"></span></button>
+      <button class="ftxt" data-cat="tourism" onclick="setFilter('tourism',this)">Tourism<span class="ftxt-ct" id="fc-tourism"></span></button>
+      <button class="ftxt" data-cat="event" onclick="setFilter('event',this)">Events<span class="ftxt-ct" id="fc-event"></span></button>
+    </div>
+    <div class="filter-row">
+      <div class="fsearch">
+        <span style="color:var(--text4);font-size:.7rem">⌕</span>
+        <input type="text" id="feed-search" placeholder="Search posts or users…" oninput="applyFilters()">
+      </div>
+      <div class="filter-divider"></div>
+      <select class="fsort" id="feed-sort" onchange="applyFilters()">
+        <option value="time">Latest first</option>
+        <option value="likes">Most liked</option>
+        <option value="views">Most viewed</option>
+      </select>
+    </div>
+  </div>
+  <div class="feed-body">
+    <div class="feed-scroll-hint">
+      <span class="feed-scroll-hint-txt">Swipe to explore</span>
+      <div class="feed-arrows">
+        <button class="farrow" onclick="slideCards(-1)">←</button>
+        <button class="farrow" onclick="slideCards(1)">→</button>
+      </div>
+    </div>
+    <div class="feed-track-wrap" id="feed-track">
+      <div class="feed-grid" id="feed-grid"></div>
+    </div>
+  </div>
+</section>
+
+<section id="accounts-section" class="fade-up">
+  <div class="sec-label">Our Community</div>
+  <h2 class="sec-title" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,4vw,3.5rem);color:var(--text)">MEET THE <em style="-webkit-text-stroke:1px var(--accent);color:transparent;font-style:normal">MAPPERS</em></h2>
+  <div class="mosaic-grid" id="accounts-grid"></div>
+</section>
+
+<section id="signup-section">
+  <div class="fade-up">
+    <div class="sec-label">Get Started</div>
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,4vw,3.5rem);color:var(--text);line-height:.95">JOIN THE<br><em style="-webkit-text-stroke:1px var(--accent);color:transparent;font-style:normal">GLOBAL</em><br>MAP</h2>
+    <p style="font-size:.86rem;color:var(--text3);line-height:1.75;max-width:340px;margin-top:1rem">Drop your first pin in under 60 seconds. Connect with what's happening on every continent in real time.</p>
+    <div class="perks">
+      <div class="perk"><div class="perk-chk">✓</div>Free forever — no credit card</div>
+      <div class="perk"><div class="perk-chk">✓</div>Geo-tag posts from anywhere on Earth</div>
+      <div class="perk"><div class="perk-chk">✓</div>Follow cities &amp; get live alerts</div>
+      <div class="perk"><div class="perk-chk">✓</div>Choose public or private for every post</div>
+    </div>
+  </div>
+  <div class="scard fade-up" style="transition-delay:.15s">
+    <div class="scard-title">Create Account</div>
+    <div class="scard-sub">Free · Takes 30 seconds</div>
+    <div class="frow">
+      <div class="fg"><label class="fl">First Name</label><input class="fi" type="text" placeholder="Ada"></div>
+      <div class="fg"><label class="fl">Last Name</label><input class="fi" type="text" placeholder="Lovelace"></div>
+    </div>
+    <div class="fg"><label class="fl">Email</label><input class="fi" type="email" placeholder="ada@earthlive.io"></div>
+    <div class="fg"><label class="fl">Username</label><input class="fi" type="text" placeholder="@ada_on_earth"></div>
+    <div class="fg"><label class="fl">Password</label><input class="fi" type="password" placeholder="••••••••••••"></div>
+    <button class="btn-sub" onclick="handleSignup(this)">Create My Account →</button>
+    <div class="ffine">By signing up you agree to our Terms &amp; Privacy Policy.<br>Already have an account? <span style="color:var(--text3);cursor:default">Sign In</span></div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-brand"><div class="logo-dot"></div>EARTHLIVE</div>
+  <ul class="footer-links"><li><a href="#">About</a></li><li><a href="#">Privacy</a></li><li><a href="#">API</a></li><li><a href="#">Blog</a></li><li><a href="#">Careers</a></li></ul>
+  <div class="footer-copy">© 2025 EarthLive. All rights reserved.</div>
+</footer>
+
+<script>
+const IMG_POOL=['https://images.unsplash.com/photo-1499346030926-9a72daac6c63?w=800&q=85','https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&q=85','https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=85','https://images.unsplash.com/photo-1618522285056-498ddd4f4fb8?w=800&q=85','https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=800&q=85','https://images.unsplash.com/photo-1543059080-f9b1272213d5?w=800&q=85','https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&q=85','https://images.unsplash.com/photo-1539650116574-75c0c6d88f22?w=800&q=85','https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=85','https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&q=85','https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=800&q=85','https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=85','https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&q=85','https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&q=85','https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=85','https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=85','https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&q=85','https://images.unsplash.com/photo-1567653418887-3c18516acb75?w=800&q=85'];
+const ALL_POSTS=[{id:1,user:"@nova_nyc",av:"NK",city:"New York",time:1,cat:"breaking",text:"Massive flash mob filling Times Square — hundreds gathering right now!",likes:312,views:8200,vis:"public",img:'https://images.unsplash.com/photo-1499346030926-9a72daac6c63?w=800&q=85'},{id:2,user:"@sakura_live",av:"SI",city:"Tokyo",time:1,cat:"breaking",text:"Cherry blossom front reaching Shinjuku Gyoen — already packed!",likes:1420,views:28000,vis:"public",img:'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=85'},{id:3,user:"@london_fc",av:"LF",city:"London",time:18,cat:"sports",text:"Chelsea 2–1 Arsenal. Dramatic stoppage-time winner at Stamford Bridge.",likes:1840,views:32000,vis:"public",img:'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=85'},{id:4,user:"@al_ahly_sc",av:"AA",city:"Cairo",time:32,cat:"sports",text:"Al Ahly wins CAF Champions League — 12th title. Cairo is erupting!",likes:2240,views:41000,vis:"public",img:'https://images.unsplash.com/photo-1539650116574-75c0c6d88f22?w=800&q=85'},{id:5,user:"@tokyobytes",av:"TB",city:"Tokyo",time:5,cat:"tech",text:"New robotics demo at Akihabara — a humanoid just served espresso.",likes:645,views:9800,vis:"public",img:'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&q=85'},{id:6,user:"@chai_chron",av:"PN",city:"Mumbai",time:2,cat:"social",text:"Marine Drive at sunset — nothing beats this in any city anywhere.",likes:768,views:12400,vis:"public",img:'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=800&q=85'},{id:7,user:"@elara_ldn",av:"EL",city:"London",time:2,cat:"event",text:"Thousands at the South Bank for the free outdoor screening tonight.",likes:228,views:5100,vis:"public",img:'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&q=85'},{id:8,user:"@afrobeat_lgs",av:"JO",city:"Lagos",time:3,cat:"event",text:"Street festival in Victoria Island — the energy is incredible!",likes:445,views:7600,vis:"public",img:'https://images.unsplash.com/photo-1567653418887-3c18516acb75?w=800&q=85'},{id:9,user:"@harbour_cam",av:"LO",city:"Sydney",time:5,cat:"social",text:"Opera House lit for Vivid Festival — reflections on the water are magical.",likes:892,views:15600,vis:"public",img:'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&q=85'},{id:10,user:"@pyramid_watch",av:"FH",city:"Cairo",time:6,cat:"tourism",text:"New lighting at Giza — the pyramids glow gold after sunset now.",likes:650,views:11200,vis:"public",img:'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=85'},{id:11,user:"@mumbai_pulse",av:"MP",city:"Mumbai",time:7,cat:"breaking",text:"Heavy monsoon rains causing flooding on Western Express Highway.",likes:312,views:8900,vis:"public",img:'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=85'},{id:12,user:"@sp_futbol",av:"SF",city:"São Paulo",time:25,cat:"sports",text:"Corinthians vs Palmeiras in the Paulistão final. City is at a standstill.",likes:1650,views:29000,vis:"public",img:'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&q=85'},{id:13,user:"@nhs_updates",av:"NH",city:"London",time:30,cat:"health",text:"NHS launches new AI-assisted triage system at St Thomas' Hospital.",likes:445,views:8900,vis:"public",img:'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=800&q=85'},{id:14,user:"@sydney_tour",av:"ST",city:"Sydney",time:48,cat:"tourism",text:"Best kept secret: Blue Mountains sunset tour. Booking out fast for winter.",likes:612,views:10200,vis:"public",img:'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&q=85'},{id:15,user:"@nightwalk_jp",av:"NJ",city:"Tokyo",time:11,cat:"social",text:"Shibuya crossing at midnight: still the greatest show on Earth.",likes:892,views:17500,vis:"public",img:'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&q=85'},{id:16,user:"@sampa_street",av:"CM",city:"São Paulo",time:4,cat:"event",text:"Annual Marathon runners flooding Paulista Avenue. 30,000+ participants!",likes:534,views:9200,vis:"public",img:'https://images.unsplash.com/photo-1543059080-f9b1272213d5?w=800&q=85'}];
+const ACCOUNTS=[{name:"Nova Kim",handle:"@nova_nyc",av:"NK",bio:"Documenting New York one block at a time.",loc:"New York, USA",posts:1842,followers:12400,following:380,badge:"Top Contributor",defaultVis:"public"},{name:"Elara Singh",handle:"@elara_ldn",av:"ES",bio:"London-based journalist and urban explorer.",loc:"London, UK",posts:3210,followers:28700,following:512,badge:"Verified Reporter",defaultVis:"private"},{name:"Sakura Inoue",handle:"@sakura_live",av:"SI",bio:"Tokyo nightlife, street fashion & ramen reviews.",loc:"Tokyo, Japan",posts:5680,followers:44200,following:890,badge:"City Insider",defaultVis:"public"},{name:"Jide Okafor",handle:"@afrobeat_lgs",av:"JO",bio:"Lagos music scene curator. If it grooves, you'll read it here.",loc:"Lagos, Nigeria",posts:982,followers:7800,following:245,badge:"Rising Star",defaultVis:"public"},{name:"Priya Nair",handle:"@chai_chronicles",av:"PN",bio:"Mumbai storyteller. Monsoon rain > everything.",loc:"Mumbai, India",posts:2345,followers:19600,following:423,badge:"Verified Reporter",defaultVis:"private"},{name:"Carlos Melo",handle:"@sampa_street",av:"CM",bio:"São Paulo street photographer & event hunter.",loc:"São Paulo, Brazil",posts:1560,followers:11300,following:310,badge:"Top Contributor",defaultVis:"public"},{name:"Liam O'Brien",handle:"@harbour_cam",av:"LO",bio:"Sydney sunrise chaser. Opera House & the odd kangaroo.",loc:"Sydney, Australia",posts:2780,followers:21500,following:600,badge:"City Insider",defaultVis:"public"},{name:"Fatima Hassan",handle:"@pyramid_watch",av:"FH",bio:"Egyptologist by day, Cairo street documenter by night.",loc:"Cairo, Egypt",posts:1120,followers:9400,following:198,badge:"Verified Reporter",defaultVis:"private"}];
+const ACCOUNT_IMGS=['https://images.unsplash.com/photo-1499346030926-9a72daac6c63?w=600&q=80','https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80','https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=80','https://images.unsplash.com/photo-1618522285056-498ddd4f4fb8?w=600&q=80','https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=600&q=80','https://images.unsplash.com/photo-1543059080-f9b1272213d5?w=600&q=80','https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=600&q=80','https://images.unsplash.com/photo-1539650116574-75c0c6d88f22?w=600&q=80'];
+const CITIES_MAP=[{name:"New York",rate:"4.1k/hr",lat:40.7128,lng:-74.006},{name:"London",rate:"2.8k/hr",lat:51.5074,lng:-0.1278},{name:"Tokyo",rate:"5.2k/hr",lat:35.6762,lng:139.6503},{name:"Lagos",rate:"1.9k/hr",lat:6.5244,lng:3.3792},{name:"Mumbai",rate:"3.5k/hr",lat:19.076,lng:72.8777},{name:"São Paulo",rate:"2.2k/hr",lat:-23.5505,lng:-46.6333},{name:"Sydney",rate:"1.6k/hr",lat:-33.8688,lng:151.2093},{name:"Cairo",rate:"1.4k/hr",lat:30.0444,lng:31.2357}];
+const CITY_LIST=[{city:"New York",country:"USA"},{city:"London",country:"UK"},{city:"Tokyo",country:"Japan"},{city:"Lagos",country:"Nigeria"},{city:"Mumbai",country:"India"},{city:"São Paulo",country:"Brazil"},{city:"Sydney",country:"Australia"},{city:"Cairo",country:"Egypt"}];
+
+var activeFilter='all', activeCityFilter='', likedPosts=new Set(), liveCount=247, trendingTab='top', trendingY=0, isPaused=false;
+
+['all','breaking','news','sports','tech','health','social','tourism','event'].forEach(function(c){var el=document.getElementById('fc-'+c);if(!el)return;el.textContent=c==='all'?ALL_POSTS.length:ALL_POSTS.filter(function(p){return p.cat===c;}).length;});
+
+function buildCard(p,rank){
+  var d=document.createElement('div');d.className='fstrip';
+  var v=p.views>=1000?(p.views/1000).toFixed(1)+'k':p.views;
+  var liked=likedPosts.has(p.id);
+  var n=String(rank).padStart(2,'0');
+  var imgSrc=p.img||IMG_POOL[rank%IMG_POOL.length];
+  d.innerHTML='<div class="fstrip-img"><img src="'+imgSrc+'" alt="" loading="lazy"><div class="fstrip-img-over"></div><div class="fstrip-rank">'+n+'</div></div><div class="fstrip-body"><div class="fstrip-top"><div class="fstrip-meta"><div class="fav">'+p.av+'</div><div><div class="fuser">'+p.user+'</div><div class="floc">◎ '+p.city+'</div></div></div><div class="fstrip-right"><span class="fstrip-cat">'+p.cat+'</span><span class="fstrip-vis">'+(p.vis==='public'?'🌐':'🔒')+'</span><span class="ftime">'+p.time+'m</span></div></div><div class="ftext">'+p.text+'</div><div class="feng"><div class="feng-stat">👁 '+v+'</div><div class="feng-stat">❤ <span id="likes-'+p.id+'">'+(liked?p.likes+1:p.likes).toLocaleString()+'</span></div><button class="flike-btn'+(liked?' liked':'')+'" onclick="toggleLike('+p.id+',this)">'+(liked?'♥ Liked':'♡ Like')+'</button></div></div>';
+  return d;
+}
+
+function renderFeed(posts){
+  var grid=document.getElementById('feed-grid');grid.innerHTML='';
+  if(!posts.length){grid.innerHTML='<div class="feed-empty">No posts match this filter</div>';return;}
+  posts.slice(0,6).forEach(function(p,i){var c=buildCard(p,i+1);c.style.animationDelay=(i*.05)+'s';c.classList.add('animating');grid.appendChild(c);});
+}
+
+function slideCards(dir){document.getElementById('feed-track').scrollBy({left:dir*400,behavior:'smooth'});}
+
+setTimeout(function(){
+  var el=document.getElementById('feed-track');if(!el)return;
+  var isDown=false,startX,scrollLeft;
+  el.addEventListener('mousedown',function(e){isDown=true;startX=e.pageX-el.offsetLeft;scrollLeft=el.scrollLeft;el.style.cursor='grabbing';});
+  el.addEventListener('mouseleave',function(){isDown=false;el.style.cursor='grab';});
+  el.addEventListener('mouseup',function(){isDown=false;el.style.cursor='grab';});
+  el.addEventListener('mousemove',function(e){if(!isDown)return;e.preventDefault();var x=e.pageX-el.offsetLeft;el.scrollLeft=scrollLeft-(x-startX)*1.2;});
+},300);
+
+function applyFilters(){
+  var q=document.getElementById('feed-search').value.toLowerCase();
+  var sort=document.getElementById('feed-sort').value;
+  var posts=ALL_POSTS.filter(function(p){return(activeFilter==='all'||p.cat===activeFilter)&&(!q||p.text.toLowerCase().includes(q)||p.city.toLowerCase().includes(q)||p.user.toLowerCase().includes(q))&&(!activeCityFilter||p.city===activeCityFilter);});
+  if(sort==='likes')posts.sort(function(a,b){return b.likes-a.likes;});
+  else if(sort==='views')posts.sort(function(a,b){return b.views-a.views;});
+  else posts.sort(function(a,b){return a.time-b.time;});
+  renderFeed(posts);
+}
+
+function setFilter(cat,btn){activeFilter=cat;document.querySelectorAll('.ftxt').forEach(function(p){p.classList.remove('active');});btn.classList.add('active');applyFilters();}
+function toggleLike(id,btn){var p=ALL_POSTS.find(function(x){return x.id===id;});if(likedPosts.has(id)){likedPosts.delete(id);btn.textContent='♡ Like';btn.classList.remove('liked');document.getElementById('likes-'+id).textContent=p.likes.toLocaleString();}else{likedPosts.add(id);btn.textContent='♥ Liked';btn.classList.add('liked');document.getElementById('likes-'+id).textContent=(p.likes+1).toLocaleString();}}
+applyFilters();
+
+var hsbFocused=-1;
+function onHsbInput(){var q=document.getElementById('hsb-input').value.toLowerCase().trim();var dd=document.getElementById('hsb-dropdown');hsbFocused=-1;if(!q){dd.style.display='none';dd.innerHTML='';return;}var matches=CITY_LIST.filter(function(c){return c.city.toLowerCase().includes(q)||c.country.toLowerCase().includes(q);});if(!matches.length){dd.style.display='none';dd.innerHTML='';return;}dd.innerHTML=matches.map(function(c){return'<div onclick="selectHsb(\''+c.city+'\')" style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 1rem;font-family:Space Mono,monospace;font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);cursor:default;transition:background .15s,color .15s" onmouseenter="this.style.background=\'var(--bg2)\';this.style.color=\'var(--text)\'" onmouseleave="this.style.background=\'transparent\';this.style.color=\'var(--text3)\'">'+c.city+'<span style="font-size:.42rem;color:var(--text4)">'+c.country+'</span></div>';}).join('');dd.style.display='flex';}
+function onHsbKey(e){if(e.key==='Enter'){doHsbSearch();}else if(e.key==='Escape'){document.getElementById('hsb-dropdown').style.display='none';}}
+function selectHsb(city){activeCityFilter=city;document.getElementById('hsb-input').value=city;document.getElementById('hsb-dropdown').style.display='none';document.getElementById('feed-section').scrollIntoView({behavior:'smooth'});setTimeout(applyFilters,500);}
+function doHsbSearch(){var val=document.getElementById('hsb-input').value.trim();if(!val)return;var match=CITY_LIST.find(function(c){return c.city.toLowerCase()===val.toLowerCase()||c.country.toLowerCase()===val.toLowerCase();});if(match)selectHsb(match.city);else{activeCityFilter='';document.getElementById('feed-search').value=val;document.getElementById('feed-section').scrollIntoView({behavior:'smooth'});setTimeout(applyFilters,500);}}
+document.addEventListener('click',function(e){if(!e.target.closest('#hero-search-box'))document.getElementById('hsb-dropdown').style.display='none';});
+
+var ag=document.getElementById('accounts-grid');
+var accountVis={};
+ACCOUNTS.forEach(function(a,idx){
+  accountVis[a.handle]=a.defaultVis;
+  var d=document.createElement('div');d.className='ac';
+  var foll=a.followers>=1000?(a.followers/1000).toFixed(1)+'k':a.followers;
+  d.innerHTML='<div class="ac-cover"><img src="'+ACCOUNT_IMGS[idx]+'" alt="" loading="lazy"><div class="ac-cover-fade"></div></div><div class="ac-badge">'+a.badge+'</div><div class="ac-body"><div class="ac-av">'+a.av+'</div><div class="ac-name">'+a.name+'</div><div class="ac-handle">'+a.handle+'</div></div><div class="ac-hover-reveal"><div class="ac-bio-reveal">'+a.bio+'</div><div class="ac-loc-reveal">◎ '+a.loc+'</div><div class="ac-stats"><div class="ac-stat-item"><div class="acs-num">'+a.posts.toLocaleString()+'</div><div class="acs-lbl">Posts</div></div><div class="ac-stat-item"><div class="acs-num">'+foll+'</div><div class="acs-lbl">Followers</div></div><div class="ac-stat-item"><div class="acs-num">'+a.following+'</div><div class="acs-lbl">Following</div></div></div><div class="ac-vis"><span class="ac-vis-label">Posts:</span><div class="vis-toggle"><button class="vis-btn'+(a.defaultVis==='public'?' on':'')+'" onclick="setAV(\''+a.handle+'\',\'public\',this)">Public</button><button class="vis-btn'+(a.defaultVis==='private'?' on':'')+'" onclick="setAV(\''+a.handle+'\',\'private\',this)">Private</button></div></div></div>';
+  ag.appendChild(d);
+});
+function setAV(handle,vis,btn){accountVis[handle]=vis;btn.closest('.vis-toggle').querySelectorAll('.vis-btn').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');}
+
+function getTrendingPosts(tab){var p=ALL_POSTS.slice();if(tab==='top')p.sort(function(a,b){return b.views-a.views;});if(tab==='live')p.sort(function(a,b){return a.time-b.time;});if(tab==='breaking')p=p.filter(function(x){return x.cat==='breaking'||x.cat==='news';}).sort(function(a,b){return b.views-a.views;});return p;}
+function buildTrendingCard(p,rank){var v=p.views>=1000?(p.views/1000).toFixed(1)+'k':p.views;var barW=Math.round((p.views/41000)*100);var c=document.createElement('div');c.className='tpost';c.innerHTML='<div class="tpost-rank">'+String(rank).padStart(2,'0')+'</div><div class="tpost-top"><div class="tpost-av">'+p.av+'</div><div><div class="tpost-user">'+p.user+'</div><div class="tpost-loc">◎ '+p.city+'</div></div><div class="tpost-time">'+p.time+'m</div></div><div class="tpost-cat">'+p.cat.toUpperCase()+'</div><div class="tpost-text">'+p.text+'</div><div class="tpost-stats"><div class="tpost-stat">👁 '+v+'</div><div class="tpost-stat">❤ '+p.likes.toLocaleString()+'</div><div class="tpost-bar"><div class="tpost-bar-fill" style="width:'+barW+'%"></div></div></div>';return c;}
+function renderTrending(tab){var scroll=document.getElementById('trending-scroll');scroll.innerHTML='';var posts=getTrendingPosts(tab);posts.concat(posts).forEach(function(p,i){scroll.appendChild(buildTrendingCard(p,(i%posts.length)+1));});trendingY=0;scroll.style.transform='translateY(0px)';}
+function startTrendingScroll(){var scroll=document.getElementById('trending-scroll');var feed=document.getElementById('trending-feed');feed.addEventListener('mouseenter',function(){isPaused=true;});feed.addEventListener('mouseleave',function(){isPaused=false;});(function tick(){if(!isPaused){trendingY-=.5;var half=scroll.scrollHeight/2;if(Math.abs(trendingY)>=half)trendingY=0;scroll.style.transform='translateY('+trendingY+'px)';}requestAnimationFrame(tick);})();}
+function setTrendingTab(tab,btn){trendingTab=tab;document.querySelectorAll('.ttab').forEach(function(t){t.classList.remove('active');});btn.classList.add('active');renderTrending(tab);}
+renderTrending('top');startTrendingScroll();
+setInterval(function(){liveCount+=Math.floor(Math.random()*8+2);var el=document.getElementById('live-count');if(el)el.textContent=liveCount.toLocaleString()+' new posts';},3000);
+
+var map=L.map('map',{center:[20,10],zoom:2,minZoom:2,maxZoom:18,zoomControl:true,scrollWheelZoom:true,worldCopyJump:true,attributionControl:false});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,subdomains:['a','b','c']}).addTo(map);
+var mkIcon=L.divIcon({className:'',html:'<div class="city-marker"></div>',iconSize:[10,10],iconAnchor:[5,5]});
+var popup=document.getElementById('city-popup');
+var hideTimer=null;
+function buildMapPopup(c){document.getElementById('pop-name').textContent=c.name;document.getElementById('pop-rate').textContent=c.rate;var pb=document.getElementById('pop-body');pb.innerHTML='';ALL_POSTS.filter(function(p){return p.city===c.name;}).slice(0,3).forEach(function(p){var card=document.createElement('div');card.className='pcard';var v=p.views>=1000?(p.views/1000).toFixed(1)+'k':p.views;card.innerHTML='<div class="pcard-top"><div class="pavatar">'+p.av+'</div><div class="puser">'+p.user+'</div><div class="ptime">'+p.time+'m</div></div><div class="ptext">'+p.text+'</div><div class="pcat">'+p.cat.toUpperCase()+'</div><div class="pengagement"><span>👁 '+v+'</span><span>❤ '+p.likes+'</span></div>';pb.appendChild(card);});}
+function placePopup(e){var pw=270,ph=popup.offsetHeight||360,vw=window.innerWidth,vh=window.innerHeight;var l=e.clientX+20,t=e.clientY-55;if(l+pw>vw-20)l=e.clientX-pw-20;if(l<10)l=10;if(t+ph>vh-16)t=vh-ph-16;if(t<70)t=70;popup.style.left=l+'px';popup.style.top=t+'px';}
+CITIES_MAP.forEach(function(c){var m=L.marker([c.lat,c.lng],{icon:mkIcon}).addTo(map);m.on('mouseover',function(){clearTimeout(hideTimer);buildMapPopup(c);popup.classList.add('show');});m.on('mousemove',function(e){placePopup(e.originalEvent);});m.on('mouseout',function(){hideTimer=setTimeout(function(){popup.classList.remove('show');},300);});});
+
+var C=document.getElementById('C'),CR=document.getElementById('CR'),mx=0,my=0,lx=0,ly=0;
+document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;C.style.transform='translate('+mx+'px,'+my+'px) translate(-50%,-50%)';});
+(function loop(){lx+=(mx-lx)*.12;ly+=(my-ly)*.12;CR.style.transform='translate('+lx+'px,'+ly+'px) translate(-50%,-50%)';requestAnimationFrame(loop);})();
+document.querySelectorAll('button,a,.ac,.fstrip,.fi,.ftxt,.tpost,.vis-btn').forEach(function(el){el.addEventListener('mouseenter',function(){CR.style.width='50px';CR.style.height='50px';});el.addEventListener('mouseleave',function(){CR.style.width='32px';CR.style.height='32px';});});
+
+var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('visible');});},{threshold:.1});
+document.querySelectorAll('.fade-up').forEach(function(el){io.observe(el);});
+function animCount(el,t){var dur=2000,s=performance.now(),sf=el.dataset.t==='99'?'%':'';(function f(n){var p=Math.min((n-s)/dur,1);el.textContent=Math.floor((1-Math.pow(1-p,3))*t).toLocaleString()+sf;if(p<1)requestAnimationFrame(f);else el.textContent=t.toLocaleString()+sf;})(s);}
+var sio=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.querySelectorAll('[data-t]').forEach(function(n){animCount(n,+n.dataset.t);});sio.unobserve(x.target);}});},{threshold:.4});
+sio.observe(document.querySelector('.stats-bar'));
+function openSignIn(){
+  var modal=document.createElement('div');
+  modal.id='signin-modal';
+  modal.style.cssText='position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(26,22,18,.55);backdrop-filter:blur(8px)';
+  modal.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border-dark);width:380px;max-width:92vw;position:relative">
+    <div style="height:2px;background:var(--accent);position:absolute;top:0;left:0;right:0"></div>
+    <div style="padding:1.8rem 2rem 2rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.6rem">
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:.04em;color:var(--text)">Sign In</div>
+          <div style="font-family:'Space Mono',monospace;font-size:.46rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text4);margin-top:.15rem">Welcome back to EarthLive</div>
+        </div>
+        <button onclick="document.getElementById('signin-modal').remove()" style="background:transparent;border:none;color:var(--text3);font-size:1.1rem;cursor:none;line-height:1;padding:.2rem">✕</button>
+      </div>
+      <div class="fg"><label class="fl">Email</label><input class="fi" type="email" id="si-email" placeholder="ada@earthlive.io"></div>
+      <div class="fg" style="margin-top:.7rem"><label class="fl">Password</label><input class="fi" type="password" id="si-pass" placeholder="••••••••••••"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:.35rem;margin-bottom:1rem">
+        <span style="font-family:'Space Mono',monospace;font-size:.44rem;color:var(--text4);cursor:default;letter-spacing:.08em">Forgot password?</span>
+      </div>
+      <button onclick="handleSignIn(this)" style="width:100%;font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;background:var(--accent);color:var(--surface);padding:.9rem;border:1px solid var(--accent);cursor:none;transition:all .2s" onmouseenter="this.style.background='transparent';this.style.color='var(--accent)'" onmouseleave="this.style.background='var(--accent)';this.style.color='var(--surface)'">Sign In →</button>
+      <div style="font-family:'Space Mono',monospace;font-size:.46rem;color:var(--text4);letter-spacing:.08em;text-align:center;margin-top:.9rem">Don't have an account? <span onclick="document.getElementById('signin-modal').remove();document.getElementById('signup-section').scrollIntoView({behavior:'smooth'})" style="color:var(--text3);cursor:default">Sign Up</span></div>
+    </div>
+  </div>`;
+  modal.addEventListener('click',function(e){if(e.target===modal)modal.remove();});
+  document.body.appendChild(modal);
+  document.querySelectorAll('button,a,.ac,.fstrip,.fi,.ftxt,.tpost,.vis-btn').forEach(function(el){el.addEventListener('mouseenter',function(){CR.style.width='50px';CR.style.height='50px';});el.addEventListener('mouseleave',function(){CR.style.width='32px';CR.style.height='32px';});});
+}
+function handleSignIn(btn){
+  var e=document.getElementById('si-email'),p=document.getElementById('si-pass'),ok=true;
+  [e,p].forEach(function(i){if(!i.value.trim()){i.style.borderColor='var(--accent)';ok=false;}else{i.style.borderColor='var(--border)';}});
+  if(!ok){btn.textContent='Please fill all fields';setTimeout(function(){btn.textContent='Sign In →';},2000);return;}
+  btn.textContent='✓ Signed In!';setTimeout(function(){document.getElementById('signin-modal').remove();},1200);
+}
+function handleSignup(btn){var inputs=document.querySelectorAll('.fi'),ok=true;inputs.forEach(function(i){if(!i.value.trim()){i.style.borderColor='var(--accent)';ok=false;}else{i.style.borderColor='var(--border)';}});if(!ok){btn.textContent='Please fill all fields';setTimeout(function(){btn.textContent='Create My Account →';},2200);return;}btn.textContent='✓ Welcome to EarthLive!';btn.style.background='transparent';btn.style.color='var(--accent)';}
+</script>
+</body>
+</html>
