@@ -1311,20 +1311,26 @@ document.querySelectorAll('#page-landing .fade-up').forEach(function(el){io.obse
 var sio=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.querySelectorAll('[data-t]').forEach(function(n){var t=+n.dataset.t,s=performance.now(),sf=n.dataset.t==='99'?'%':'';(function f(ts){var p=Math.min((ts-s)/2000,1);n.textContent=Math.floor((1-Math.pow(1-p,3))*t).toLocaleString()+sf;if(p<1)requestAnimationFrame(f);else n.textContent=t.toLocaleString()+sf;})(s);});sio.unobserve(x.target);}});},{threshold:.4});
 var sb=document.querySelector('.stats-bar');if(sb)sio.observe(sb);
 initLandingMap();mapLandInit=true;
-</script>
-  <!-- Your existing scripts above -->
-
+</script><!-- SUPABASE CONNECTION -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
   const { createClient } = supabase;
 
-  const supabaseClient = createClient(
-    "https://clkdrmnfrhsnysfazsxe.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsa2RybW5mcmhzbnlzZmF6c3hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyNTgyNDMsImV4cCI6MjA4NzgzNDI0M30.OJ3zMUUSXCXUIMoLcZym_TkbDw9Z5lO2r_fSMXBu2MI"
-  );
+  const SUPABASE_URL = "https://clkdrmnfrhsnysfazsxe.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsa2RybW5mcmhzbnlzZmF6c3hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyNTgyNDMsImV4cCI6MjA4NzgzNDI0M30.OJ3zMUUSXCXUIMoLcZym_TkbDw9Z5lO2r_fSMXBu2MI"
 
-  console.log("Supabase connected");
+  const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  console.log("Supabase initialized");
+
+  async function testSupabase() {
+    const { data, error } = await supabaseClient.from("posts").select("*");
+    console.log("DATA:", data);
+    console.log("ERROR:", error);
+  }
+
+  testSupabase();
 </script>
 
 </body>
