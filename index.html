@@ -69,11 +69,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;ove
 /* Force warm theme as default before JS loads */
 body:not([data-theme]) { --bg:#f5f0e8;--bg2:#ede8dc;--bg3:#e6e0d2;--surface:#fff;--surface2:#faf7f2;--border:#d4cec2;--border-dark:#b8b0a0;--text:#1a1612;--text2:#4a4540;--text3:#8a847a;--text4:#b0aaa0;--accent:#1a1612;--accent-inv:#f5f0e8;--tile-filter:sepia(.25) brightness(1.05) contrast(.95);--nav-bg:rgba(245,240,232,.96);--hero-vignette1:rgba(245,240,232,.55);--hero-vignette2:rgba(245,240,232,.45);--hero-vignette3:rgba(245,240,232,.97);--hero-vignette4:rgba(245,240,232,.88); }
 /* ── THEME DOTS (landing page, bottom-left) ── */
-.theme-dots{position:fixed;bottom:30px;left:20px;z-index:99999;display:flex;flex-direction:column;gap:8px;align-items:center}
+.theme-dots{position:fixed;bottom:3.8rem;left:2.5rem;z-index:99999;display:flex;flex-direction:row;gap:5px;align-items:center}
 .theme-dots *{pointer-events:auto !important;visibility:visible !important;opacity:1 !important;}
-.th-btn{width:14px;height:14px;border-radius:50%;cursor:pointer !important;border:2px solid #888;transition:transform .2s,box-shadow .2s;flex-shrink:0;position:relative;display:block !important;visibility:visible !important;}
-.th-btn:hover{transform:scale(1.5);border-color:var(--accent)}
-.th-btn.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent);transform:scale(1.2)}
+.th-btn{width:10px;height:10px;border-radius:2px;cursor:pointer !important;border:none;outline:none;transition:transform .2s,box-shadow .2s;flex-shrink:0;position:relative;display:block !important;visibility:visible !important;}
+.th-btn:hover{transform:scale(1.5);}
+.th-btn.active{box-shadow:0 0 0 2px #fff,0 0 0 3px #555;transform:scale(1.2)}
 .th-warm{background:#c8b89a}
 .th-bw{background:#222}
 .th-white{background:#fff;border-color:#bbb}
@@ -199,14 +199,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
 .filter-row{display:flex;align-items:center;padding:0 3rem;border-bottom:1px solid var(--border);overflow-x:auto}
 .filter-row:last-child{border-bottom:none}
 .filter-row::-webkit-scrollbar{display:none}
-.ftxt{font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text4);padding:.85rem 1.1rem;background:transparent;border:none;border-bottom:2px solid transparent;cursor:none;transition:color .2s,border-color .2s;white-space:nowrap;flex-shrink:0}
-.ftxt:hover{color:var(--text2)}.ftxt.active{color:var(--text);border-bottom-color:var(--accent)}
-.ftxt-ct{font-size:.42rem;color:var(--text4);margin-left:.3rem;vertical-align:middle}
+.ftxt{font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text) !important;padding:.85rem 1.1rem;background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:color .2s,border-color .2s;white-space:nowrap;flex-shrink:0}
+.ftxt:hover{color:var(--text) !important}.ftxt.active{color:var(--text) !important;border-bottom-color:var(--accent)}
+.ftxt-ct{font-size:.42rem;color:var(--text3);margin-left:.3rem;vertical-align:middle}
 .filter-divider{width:1px;height:14px;background:var(--border);margin:0 .4rem;flex-shrink:0;align-self:center}
 .fsearch{display:flex;align-items:center;gap:.4rem;background:var(--bg2);border:1px solid var(--border);padding:.32rem .7rem}
-.fsearch input{background:transparent;border:none;outline:none;color:var(--text);font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.07em;width:130px}
-.fsearch input::placeholder{color:var(--text4)}
-.fsort{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;background:var(--bg2);border:1px solid var(--border);color:var(--text3);padding:.32rem .65rem;outline:none;cursor:none;-webkit-appearance:none}
+.fsearch input{background:transparent;border:none;outline:none;color:var(--text) !important;font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.07em;width:130px}
+.fsearch input::placeholder{color:var(--text3)}
+.fsort{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;background:var(--bg2);border:1px solid var(--border);color:var(--text) !important;padding:.32rem .65rem;outline:none;cursor:pointer;-webkit-appearance:none}
 .feed-body{padding:2rem 0 4rem;overflow:hidden}
 .feed-track-wrap{overflow-x:auto;overflow-y:visible;padding:1rem 3rem 2rem;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;display:flex;gap:1.4rem;scrollbar-width:none;cursor:grab}
 .feed-track-wrap::-webkit-scrollbar{display:none}
@@ -578,6 +578,12 @@ footer{background:var(--accent);border-top:1px solid var(--border);padding:2.2re
 <div id="city-popup"><div class="pop-head"><div class="pop-city" id="pop-name"></div><div class="pop-live" id="pop-rate"></div></div><div class="pop-body" id="pop-body"></div></div>
 <div class="map-popup-prof" id="map-popup-prof"><div class="mp-head"><div class="mp-city" id="mp-city"></div><div class="mp-tag" id="mp-tag"></div></div><div class="mp-body" id="mp-body"></div></div>
 
+<!-- ═══ THEME SWITCHER (global - shows on all pages) ═══ -->
+<div class="theme-dots">
+  <button class="th-btn th-warm active" id="tb-warm"  onclick="setTheme('warm')"  title="Warm"></button>
+  <button class="th-btn th-bw"          id="tb-bw"    onclick="setTheme('bw')"    title="Dark"></button>
+  <button class="th-btn th-white"       id="tb-white" onclick="setTheme('white')" title="White"></button>
+</div>
 <!-- ═══════════════ NAV ═══════════════ -->
 <nav>
   <div class="logo" onclick="goTo('landing')" style="cursor:none"><div class="logo-dot"></div>EARTHLIVE</div>
@@ -605,12 +611,7 @@ footer{background:var(--accent);border-top:1px solid var(--border);padding:2.2re
 </nav>
 
 <!-- ═══════════════ PAGE: LANDING ═══════════════ -->
-<!-- ── THEME DOTS ── -->
-<div class="theme-dots">
-  <button class="th-btn th-warm active" id="tb-warm" onclick="setTheme('warm')" title="Warm"></button>
-  <button class="th-btn th-bw"          id="tb-bw"   onclick="setTheme('bw')"   title="Dark"></button>
-  <button class="th-btn th-white"       id="tb-white" onclick="setTheme('white')" title="White"></button>
-</div>
+
 <div id="page-landing" class="page active">
   <section class="hero">
     <div id="map-land"></div>
@@ -673,11 +674,11 @@ footer{background:var(--accent);border-top:1px solid var(--border);padding:2.2re
         <button class="ftxt" onclick="setFilter('sports',this)">Sports<span class="ftxt-ct" id="fc-sports"></span></button>
         <button class="ftxt" onclick="setFilter('tech',this)">Tech<span class="ftxt-ct" id="fc-tech"></span></button>
         <button class="ftxt" onclick="setFilter('health',this)">Health<span class="ftxt-ct" id="fc-health"></span></button>
+        <button class="ftxt" onclick="setFilter('research',this)">Research<span class="ftxt-ct" id="fc-research"></span></button>
         <button class="ftxt" onclick="setFilter('social',this)">Social<span class="ftxt-ct" id="fc-social"></span></button>
         <button class="ftxt" onclick="setFilter('tourism',this)">Tourism<span class="ftxt-ct" id="fc-tourism"></span></button>
         <button class="ftxt" onclick="setFilter('event',this)">Events<span class="ftxt-ct" id="fc-event"></span></button>
-      </div>
-      <div class="filter-row">
+        <div class="filter-divider"></div>
         <div class="fsearch"><span style="color:var(--text4);font-size:.7rem">⌕</span><input type="text" id="feed-search" placeholder="Search posts or users…" oninput="applyFilters()"></div>
         <div class="filter-divider"></div>
         <select class="fsort" id="feed-sort" onchange="applyFilters()"><option value="time">Latest first</option><option value="likes">Most liked</option><option value="views">Most viewed</option></select>
