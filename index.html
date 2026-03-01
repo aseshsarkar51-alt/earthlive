@@ -66,6 +66,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;ove
 @keyframes slideIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 
 /* ═══ THEME SWITCHER ═══ */
+/* Force warm theme as default before JS loads */
+body:not([data-theme]) { --bg:#f5f0e8;--bg2:#ede8dc;--bg3:#e6e0d2;--surface:#fff;--surface2:#faf7f2;--border:#d4cec2;--border-dark:#b8b0a0;--text:#1a1612;--text2:#4a4540;--text3:#8a847a;--text4:#b0aaa0;--accent:#1a1612;--accent-inv:#f5f0e8;--tile-filter:sepia(.25) brightness(1.05) contrast(.95);--nav-bg:rgba(245,240,232,.96);--hero-vignette1:rgba(245,240,232,.55);--hero-vignette2:rgba(245,240,232,.45);--hero-vignette3:rgba(245,240,232,.97);--hero-vignette4:rgba(245,240,232,.88); }
 /* ── THEME DOTS (landing page, bottom-left) ── */
 .theme-dots{position:fixed;bottom:3.6rem;left:1.4rem;z-index:1200;display:flex;flex-direction:column;justify-content:space-between;height:2.6rem;align-items:center}
 .th-btn{width:9px;height:9px;border-radius:50%;cursor:none;border:1.5px solid var(--border-dark);transition:transform .2s,border-color .2s,box-shadow .2s;flex-shrink:0;position:relative}
@@ -569,7 +571,7 @@ footer{background:var(--accent);border-top:1px solid var(--border);padding:2.2re
 @media(max-width:800px){nav{padding:1rem 1.5rem}.nav-links{display:none}.fstrip{flex:0 0 300px}.dash-stat-row{grid-template-columns:1fr 1fr}.following-featured{grid-template-columns:1fr}}
 </style>
 </head>
-<body data-theme="warm">
+<body>
 <div class="cursor" id="C"></div>
 <div class="cursor-ring" id="CR"></div>
 <div id="city-popup"><div class="pop-head"><div class="pop-city" id="pop-name"></div><div class="pop-live" id="pop-rate"></div></div><div class="pop-body" id="pop-body"></div></div>
@@ -910,11 +912,19 @@ footer{background:var(--accent);border-top:1px solid var(--border);padding:2.2re
 <script>
 /* ═══ THEME ═══ */
 var currentTheme='warm';
+// Apply saved theme immediately on load
+(function(){
+  var saved=localStorage.getItem('el-theme')||'warm';
+  currentTheme=saved;
+  document.body.setAttribute('data-theme',saved);
+})();
 function setTheme(t){
   currentTheme=t;
   document.body.setAttribute('data-theme',t);
+  // Save to localStorage so it persists
+  try{localStorage.setItem('el-theme',t);}catch(e){}
   document.querySelectorAll('.th-btn').forEach(function(b){b.classList.remove('active');});
-  document.getElementById('tb-'+t).classList.add('active');
+  var tb=document.getElementById('tb-'+t);if(tb)tb.classList.add('active');
   // Update map tiles
   document.querySelectorAll('.leaflet-tile').forEach(function(tile){
     var f=t==='bw'?'grayscale(1) brightness(.45) contrast(1.1)':t==='white'?'brightness(1.1) contrast(.9) saturate(.85)':'sepia(.25) brightness(1.05) contrast(.95)';
@@ -925,6 +935,12 @@ function setTheme(t){
     el.style.background=t==='bw'?'rgba(20,20,20,.9)':'rgba(255,255,255,.9)';
   });
 }
+// Sync dots to saved theme on DOM ready
+document.addEventListener('DOMContentLoaded',function(){
+  var saved=localStorage.getItem('el-theme')||'warm';
+  document.querySelectorAll('.th-btn').forEach(function(b){b.classList.remove('active');});
+  var tb=document.getElementById('tb-'+saved);if(tb)tb.classList.add('active');
+});
 
 /* ═══ DATA ═══ */
 var USER={first:'Ada',last:'Earth',username:'@ada_on_earth',email:'ada@earthlive.io',initials:'AE'};
