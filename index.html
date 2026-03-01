@@ -1312,5 +1312,22 @@ var sio=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isInters
 var sb=document.querySelector('.stats-bar');if(sb)sio.observe(sb);
 initLandingMap();mapLandInit=true;
 </script>
+  <!-- Your existing scripts above -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const { createClient } = supabase;
+
+  const supabaseClient = createClient(
+    "https://clkdrmnfrhsnysfazsxe.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsa2RybW5mcmhzbnlzZmF6c3hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyNTgyNDMsImV4cCI6MjA4NzgzNDI0M30.OJ3zMUUSXCXUIMoLcZym_TkbDw9Z5lO2r_fSMXBu2MI"
+  );
+
+  console.log("Supabase connected");
+</script>
+
+</body>
+</html>
 </body>
 </html>
