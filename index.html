@@ -1332,7 +1332,28 @@ initLandingMap();mapLandInit=true;
 
   testSupabase();
 </script>
+<script>
+async function signUpUser() {
+  const emailInput = document.querySelector('input[type="email"]');
+  const passwordInput = document.querySelector('input[type="password"]');
 
+  const email = emailInput.value;
+  const password = passwordInput.value;
+
+  const { data, error } = await supabaseClient.auth.signUp({
+    email: email,
+    password: password
+  });
+
+  if (error) {
+    alert("Signup Error: " + error.message);
+    console.log(error);
+  } else {
+    alert("Signup successful! Check your email.");
+    console.log(data);
+  }
+}
+</script>
 </body>
 </html>
 </body>
