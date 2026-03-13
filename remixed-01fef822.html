@@ -1,0 +1,2174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EarthLive</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#f5f0e8;--bg2:#ede8dc;--bg3:#e6e0d2;--surface:#fff;--surface2:#faf7f2;--border:#d4cec2;--border-dark:#b8b0a0;--text:#1a1612;--text2:#4a4540;--text3:#8a847a;--text4:#b0aaa0;--accent:#1a1612;--accent-inv:#f5f0e8;--tile-filter:sepia(.25) brightness(1.05) contrast(.95);--nav-bg:rgba(245,240,232,.96);--hv1:rgba(245,240,232,.55);--hv2:rgba(245,240,232,.45);--hv3:rgba(245,240,232,.97);--hv4:rgba(245,240,232,.88)}
+[data-theme="bw"]{--bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--surface:#141414;--surface2:#1e1e1e;--border:#2a2a2a;--border-dark:#3a3a3a;--text:#f0f0f0;--text2:#c0c0c0;--text3:#888;--text4:#555;--accent:#f0f0f0;--accent-inv:#0a0a0a;--tile-filter:grayscale(1) brightness(.45) contrast(1.1);--nav-bg:rgba(10,10,10,.97);--hv1:rgba(10,10,10,.6);--hv2:rgba(10,10,10,.5);--hv3:rgba(10,10,10,.97);--hv4:rgba(10,10,10,.9)}
+[data-theme="white"]{--bg:#fff;--bg2:#f8f8f8;--bg3:#f0f0f0;--surface:#fff;--surface2:#fafafa;--border:#e5e5e5;--border-dark:#ccc;--text:#111;--text2:#444;--text3:#888;--text4:#bbb;--accent:#111;--accent-inv:#fff;--tile-filter:brightness(1.1) contrast(.9) saturate(.85);--nav-bg:rgba(255,255,255,.97);--hv1:rgba(255,255,255,.55);--hv2:rgba(255,255,255,.4);--hv3:rgba(255,255,255,.97);--hv4:rgba(255,255,255,.88)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;cursor:none;transition:background .35s,color .35s}
+.cursor{width:10px;height:10px;background:var(--accent);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+.cursor-ring{width:32px;height:32px;border:1px solid rgba(26,22,18,.4);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .18s,height .18s}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes mripple{0%{transform:scale(1);opacity:.6}100%{transform:scale(3.5);opacity:0}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── THEME ── */
+.theme-dots{position:fixed;bottom:3.8rem;left:2.5rem;z-index:99999;display:flex;gap:5px}
+.th-btn{width:10px;height:10px;border-radius:2px;cursor:pointer;border:none;outline:none;transition:transform .2s,box-shadow .2s}
+.th-btn:hover{transform:scale(1.5)}
+.th-btn.active{box-shadow:0 0 0 2px #fff,0 0 0 3px #555;transform:scale(1.2)}
+.th-warm{background:#c8b89a}.th-bw{background:#222}.th-white{background:#fff;border:1px solid #bbb}
+
+/* ── AUTH OVERLAY ── */
+#auth-overlay{position:fixed;inset:0;z-index:9998;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .5s}
+#auth-overlay.hidden{opacity:0;pointer-events:none}
+.auth-logo{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:.08em;color:var(--text);text-align:center;margin-bottom:.4rem}
+.auth-sub{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text4);text-align:center;margin-bottom:2rem}
+.auth-card{background:var(--surface);border:1px solid var(--border-dark);width:400px;max-width:95vw;position:relative}
+.auth-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent)}
+.auth-inner{padding:2rem}
+.auth-tabs{display:flex;border-bottom:1px solid var(--border);margin:-2rem -2rem 1.6rem}
+.auth-tab{flex:1;font-family:'Space Mono',monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;padding:.9rem;background:transparent;border:none;color:var(--text4);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.auth-tab.active{color:var(--text);border-bottom-color:var(--accent)}
+.auth-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.04em;color:var(--text);margin-bottom:.2rem}
+.auth-desc{font-family:'Space Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text4);margin-bottom:1.4rem}
+.fg{margin-bottom:.8rem}
+.fl{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text4);display:block;margin-bottom:.35rem}
+.fi{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:.7rem;padding:.7rem .9rem;outline:none;transition:border-color .2s}
+.fi::placeholder{color:var(--text4)}.fi:focus{border-color:var(--accent)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.auth-btn{width:100%;font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;background:var(--accent);color:var(--accent-inv);padding:.95rem;border:1px solid var(--accent);cursor:pointer;margin-top:.6rem;transition:all .35s;display:flex;align-items:center;justify-content:center;gap:.6rem}
+.auth-btn:hover{background:transparent;color:var(--accent)}
+.auth-btn:disabled{opacity:.5;cursor:not-allowed}
+.auth-err{font-family:'Space Mono',monospace;font-size:.5rem;color:#c0392b;letter-spacing:.08em;margin-top:.6rem;padding:.5rem .7rem;background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.2);display:none}
+.auth-err.show{display:block}
+.auth-ok{font-family:'Space Mono',monospace;font-size:.5rem;color:#27ae60;letter-spacing:.08em;margin-top:.6rem;padding:.5rem .7rem;background:rgba(39,174,96,.06);border:1px solid rgba(39,174,96,.2);display:none}
+.auth-ok.show{display:block}
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:var(--accent-inv);border-radius:50%;animation:spin .7s linear infinite;display:none;flex-shrink:0}
+.auth-btn.loading .spinner{display:block}
+.auth-fine{font-family:'Space Mono',monospace;font-size:.44rem;color:var(--text4);text-align:center;margin-top:.8rem;line-height:1.6}
+
+/* ── NAV ── */
+.page{display:none}.page.active{display:block;animation:fadeIn .4s ease}
+nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 2.5rem;background:var(--nav-bg);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);transition:background .35s}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.08em;display:flex;align-items:center;gap:.5rem;color:var(--text);cursor:pointer}
+.logo-dot{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:blink 1.5s infinite}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--text3);text-decoration:none;letter-spacing:.14em;text-transform:uppercase;transition:color .2s;cursor:pointer}
+.nav-links a:hover{color:var(--text)}
+.nav-right{display:flex;align-items:center;gap:.8rem}
+.nav-btn{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text);background:transparent;padding:.5rem 1.2rem;border:1px solid var(--border-dark);cursor:pointer;transition:all .2s}
+.nav-btn:hover{border-color:var(--accent)}
+.nav-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accent-inv);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.6rem;font-weight:700;cursor:pointer;border:2px solid var(--border-dark);overflow:hidden;transition:all .35s}
+.nav-avatar:hover{border-color:var(--accent);transform:scale(1.08)}
+
+/* ── HERO ── */
+.hero{height:100vh;position:relative;overflow:hidden}
+#map-land{position:absolute;inset:0;z-index:1}
+.leaflet-tile{filter:var(--tile-filter)!important}
+.leaflet-container{background:var(--bg2)!important}
+.leaflet-control-zoom{border:1px solid var(--border)!important;background:rgba(255,255,255,.9)!important;backdrop-filter:blur(10px)!important}
+.leaflet-control-zoom a{background:transparent!important;color:var(--text)!important;border-bottom:1px solid var(--border)!important;font-size:1rem!important;line-height:28px!important;width:28px!important;height:28px!important}
+.leaflet-control-attribution{display:none!important}
+.vignette{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse 80% 70% at 40% 50%,transparent 25%,var(--hv2) 100%),linear-gradient(to bottom,var(--hv1) 0%,transparent 18%,transparent 70%,var(--hv3) 100%),linear-gradient(to right,transparent 60%,var(--hv4) 100%)}
+.grid-bg{position:absolute;inset:0;z-index:2;pointer-events:none;background-image:linear-gradient(rgba(26,22,18,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(26,22,18,.04) 1px,transparent 1px);background-size:55px 55px}
+[data-theme="bw"] .grid-bg{background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px)}
+#trending-sidebar{position:absolute;top:62px;right:0;bottom:44px;width:310px;z-index:10;display:flex;flex-direction:column;pointer-events:none}
+.trending-header{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.1rem;background:rgba(255,255,255,.88);border-left:1px solid var(--border);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);pointer-events:auto}
+[data-theme="bw"] .trending-header{background:rgba(14,14,14,.92)}
+.trending-title{font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);display:flex;align-items:center;gap:.45rem}
+.trending-title::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);animation:blink 1.2s infinite}
+.ttab{font-family:'Space Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;padding:.28rem .65rem;background:transparent;color:var(--text4);border:1px solid var(--border);cursor:pointer;transition:all .2s;pointer-events:auto}
+.ttab.active{background:var(--accent);color:var(--accent-inv);border-color:var(--accent)}
+.trending-feed{flex:1;overflow:hidden;position:relative;background:rgba(255,255,255,.82);border-left:1px solid var(--border);backdrop-filter:blur(16px)}
+[data-theme="bw"] .trending-feed{background:rgba(14,14,14,.9)}
+.trending-scroll{position:absolute;top:0;left:0;right:0;display:flex;flex-direction:column;will-change:transform}
+.tpost{padding:.9rem 1.1rem;border-bottom:1px solid var(--border);transition:background .2s;pointer-events:auto;cursor:pointer;position:relative}
+.tpost:hover{background:var(--bg2)}
+.tpost-rank{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;line-height:1;color:rgba(26,22,18,.08);position:absolute;right:.7rem;top:.5rem}
+[data-theme="bw"] .tpost-rank{color:rgba(255,255,255,.06)}
+.tpost-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.45rem}
+.tpost-av{width:24px;height:24px;border-radius:50%;background:var(--bg3);border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.48rem;font-weight:700;color:var(--text)}
+.tpost-user{font-family:'Space Mono',monospace;font-size:.48rem;letter-spacing:.08em;color:var(--text2)}
+.tpost-loc{font-family:'Space Mono',monospace;font-size:.4rem;color:var(--text4)}
+.tpost-time{font-family:'Space Mono',monospace;font-size:.4rem;color:var(--text4);margin-left:auto}
+.tpost-cat{font-family:'Space Mono',monospace;font-size:.38rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--border-dark);padding:.13rem .38rem;color:var(--text3);display:inline-block;margin-bottom:.4rem}
+.tpost-text{font-size:.72rem;color:var(--text2);line-height:1.52;margin-bottom:.5rem}
+.tpost-stats{display:flex;align-items:center;gap:.7rem}
+.tpost-stat{font-family:'Space Mono',monospace;font-size:.4rem;color:var(--text4)}
+.tpost-bar{flex:1;height:1px;background:var(--border);margin-left:auto;position:relative;overflow:hidden}
+.tpost-bar-fill{height:100%;background:var(--accent);position:absolute;left:0;top:0}
+.hero-ui{position:absolute;bottom:0;left:0;right:310px;z-index:10;text-align:center;padding:0 2rem 3.8rem}
+.eyebrow{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--text3);margin-bottom:1.3rem;display:flex;align-items:center;justify-content:center;gap:1rem}
+.eyebrow::before,.eyebrow::after{content:'';width:32px;height:1px;background:var(--border-dark)}
+.actions{display:flex;gap:.85rem;justify-content:center;flex-wrap:wrap}
+.btn-w{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.13em;text-transform:uppercase;background:var(--accent);color:var(--accent-inv);padding:.9rem 2.2rem;border:1px solid var(--accent);cursor:pointer;transition:all .35s}
+.btn-w:hover{background:transparent;color:var(--accent)}
+.btn-o{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.13em;text-transform:uppercase;background:rgba(255,255,255,.75);color:var(--text);padding:.9rem 2.2rem;border:1px solid var(--border-dark);cursor:pointer;transition:all .2s;backdrop-filter:blur(8px)}
+.btn-o:hover{border-color:var(--accent)}
+.ticker-wrap{position:absolute;bottom:0;left:0;right:310px;z-index:11;background:rgba(255,255,255,.82);border-top:1px solid var(--border);padding:.6rem 0;overflow:hidden;backdrop-filter:blur(10px)}
+[data-theme="bw"] .ticker-wrap{background:rgba(14,14,14,.9)}
+.ticker-inner{display:flex;gap:4rem;animation:ticker 35s linear infinite;white-space:nowrap}
+.ticker-item{font-family:'Space Mono',monospace;font-size:.56rem;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;display:flex;align-items:center;gap:.5rem}
+.ticker-item::before{content:'●';color:var(--accent);font-size:.4rem;animation:blink 1.5s infinite}
+.city-marker{width:10px;height:10px;background:var(--accent);border-radius:50%;position:relative;cursor:pointer}
+.city-marker::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:1px solid var(--border-dark);animation:mripple 2.5s ease-out infinite}
+#city-popup{position:fixed;z-index:1200;width:270px;background:var(--surface);border:1px solid var(--border-dark);pointer-events:none;opacity:0;transition:opacity .22s;box-shadow:0 24px 60px rgba(26,22,18,.18)}
+#city-popup.show{opacity:1}
+.pop-head{padding:.7rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2)}
+.pop-city{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.06em;color:var(--text)}
+.pop-live{font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);display:flex;align-items:center;gap:.3rem}
+.pop-live::before{content:'●';color:var(--accent);animation:blink 1s infinite}
+.pop-body{padding:.45rem}
+.pcard{padding:.6rem .75rem;margin-bottom:.35rem;background:var(--surface2);border:1px solid var(--border);border-left:2px solid var(--accent)}
+.pcard:last-child{margin-bottom:0}
+.pcard-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem}
+.pavatar{width:22px;height:22px;border-radius:50%;background:var(--bg3);border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-size:.5rem;font-weight:700;font-family:'Space Mono',monospace;color:var(--text)}
+.puser{font-family:'Space Mono',monospace;font-size:.46rem;letter-spacing:.08em;color:var(--text2)}
+.ptime{font-family:'Space Mono',monospace;font-size:.4rem;color:var(--text4);margin-left:auto}
+.ptext{font-size:.68rem;color:var(--text2);line-height:1.5}
+.pengagement{font-family:'Space Mono',monospace;font-size:.4rem;color:var(--text4);margin-top:.25rem;display:flex;gap:.7rem}
+
+/* ── STATS BAR ── */
+.stats-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:1.8rem 3rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:2rem}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--text);line-height:1}
+.stat-label{font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text4);margin-top:.2rem}
+
+/* ── FEED ── */
+#feed-section{min-height:100vh;background:var(--bg);border-top:1px solid var(--border)}
+.feed-header{padding:3rem 3rem 2.5rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1.5rem}
+.sec-label{font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text4);margin-bottom:.6rem}
+.feed-header h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,4.5vw,3.8rem);letter-spacing:.02em;line-height:.95;color:var(--text)}
+.feed-header h2 em{font-style:normal;-webkit-text-stroke:1px var(--accent);color:transparent}
+.live-badge{display:flex;align-items:center;gap:.5rem;font-family:'Space Mono',monospace;font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);background:var(--surface2);border:1px solid var(--border-dark);padding:.45rem .95rem}
+.live-badge::before{content:'';width:5px;height:5px;background:var(--accent);border-radius:50%;animation:blink 1.2s infinite}
+.filter-bar{border-bottom:1px solid var(--border);position:sticky;top:62px;background:var(--surface);z-index:50}
+.filter-row{display:flex;align-items:center;padding:0 3rem;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.filter-row:last-child{border-bottom:none}
+.filter-row::-webkit-scrollbar{display:none}
+.ftxt{font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text);padding:.85rem 1.1rem;background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0}
+.ftxt.active{border-bottom-color:var(--accent)}
+.ftxt-ct{font-size:.42rem;color:var(--text3);margin-left:.3rem}
+.filter-divider{width:1px;height:14px;background:var(--border);margin:0 .4rem;flex-shrink:0;align-self:center}
+.fsearch{display:flex;align-items:center;gap:.4rem;background:var(--bg2);border:1px solid var(--border);padding:.32rem .7rem}
+.fsearch input{background:transparent;border:none;outline:none;color:var(--text);font-family:'Space Mono',monospace;font-size:.54rem;width:130px}
+.fsearch input::placeholder{color:var(--text3)}
+.fsort{font-family:'Space Mono',monospace;font-size:.5rem;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:.32rem .65rem;outline:none;cursor:pointer;-webkit-appearance:none}
+.feed-body{padding:2rem 0 4rem}
+.feed-track-wrap{overflow-x:auto;overflow-y:visible;padding:1rem 3rem 2rem;scroll-snap-type:x mandatory;display:flex;gap:1.4rem;scrollbar-width:none;cursor:grab}
+.feed-track-wrap::-webkit-scrollbar{display:none}
+.feed-grid{display:contents}
+.fstrip{flex:0 0 360px;min-height:480px;scroll-snap-align:start;position:relative;overflow:hidden;display:flex;flex-direction:column;background:var(--surface);border-radius:20px;border:1px solid var(--border);transition:transform .4s,box-shadow .4s;cursor:pointer;box-shadow:0 4px 18px rgba(26,22,18,.08)}
+.fstrip:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 32px 64px rgba(26,22,18,.16)}
+.fstrip-img{width:100%;height:220px;flex-shrink:0;position:relative;overflow:hidden;border-radius:20px 20px 0 0}
+.fstrip-img img{width:100%;height:100%;object-fit:cover;filter:sepia(.2) brightness(.85);transition:filter .6s,transform .7s;display:block}
+[data-theme="bw"] .fstrip-img img{filter:grayscale(1) brightness(.7)}
+.fstrip:hover .fstrip-img img{filter:sepia(0) brightness(.95);transform:scale(1.07)}
+.fstrip-img-over{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 45%,var(--surface) 100%)}
+.fstrip-rank{position:absolute;top:.8rem;left:.9rem;z-index:2;font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--accent-inv);background:var(--accent);opacity:.85;padding:.12rem .5rem}
+.fstrip-body{padding:1.2rem 1.4rem 1.4rem;display:flex;flex-direction:column;gap:.7rem;flex:1}
+.fstrip-top{display:flex;align-items:center;justify-content:space-between}
+.fstrip-meta{display:flex;align-items:center;gap:.6rem}
+.fav{width:30px;height:30px;border-radius:50%;background:var(--bg3);border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.58rem;font-weight:700;flex-shrink:0;color:var(--text);overflow:hidden}
+.fuser{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.08em;color:var(--text2)}
+.floc{font-family:'Space Mono',monospace;font-size:.4rem;color:var(--text4);margin-top:.1rem}
+.fstrip-cat{font-family:'Space Mono',monospace;font-size:.38rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border-dark);padding-bottom:.1rem}
+.ftime{font-family:'Space Mono',monospace;font-size:.38rem;color:var(--text4)}
+.ftext{font-size:.92rem;color:var(--text2);line-height:1.65;flex:1}
+.feng{display:flex;gap:.7rem;align-items:center;padding-top:.8rem;border-top:1px solid var(--border)}
+.feng-stat{font-family:'Space Mono',monospace;font-size:.42rem;color:var(--text4)}
+.flike-btn{margin-left:auto;font-family:'Space Mono',monospace;font-size:.4rem;letter-spacing:.12em;text-transform:uppercase;background:transparent;color:var(--text4);border:none;border-bottom:1px solid var(--border);padding:.1rem 0;cursor:pointer;transition:all .2s}
+.flike-btn:hover,.flike-btn.liked{color:var(--accent);border-bottom-color:var(--accent)}
+.feed-scroll-hint{display:flex;align-items:center;justify-content:space-between;padding:.5rem 3rem 0}
+.feed-scroll-hint-txt{font-family:'Space Mono',monospace;font-size:.48rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text4)}
+.feed-arrows{display:flex;gap:.5rem}
+.farrow{width:34px;height:34px;border:1px solid var(--border-dark);background:var(--surface);color:var(--text3);font-size:.9rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;border-radius:50%}
+.farrow:hover{background:var(--accent);color:var(--accent-inv);border-color:var(--accent)}
+.feed-empty{padding:5rem 3rem;color:var(--text4);font-family:'Space Mono',monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase}
+
+/* ── ACCOUNTS MOSAIC ── */
+#accounts-section{padding:5rem 3rem 6rem;background:var(--bg2);border-top:1px solid var(--border)}
+.mosaic-grid{display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(3,200px);gap:3px;margin-top:2.5rem}
+.ac:nth-child(1){grid-column:1/5;grid-row:1/3}.ac:nth-child(2){grid-column:5/8;grid-row:1/2}.ac:nth-child(3){grid-column:8/13;grid-row:1/2}.ac:nth-child(4){grid-column:5/8;grid-row:2/3}.ac:nth-child(5){grid-column:8/11;grid-row:2/3}.ac:nth-child(6){grid-column:11/13;grid-row:2/3}.ac:nth-child(7){grid-column:1/5;grid-row:3/4}.ac:nth-child(8){grid-column:5/13;grid-row:3/4}
+.ac{position:relative;overflow:hidden;cursor:pointer;background:var(--bg3)}
+.ac-cover{position:absolute;inset:0}
+.ac-cover img{width:100%;height:100%;object-fit:cover;display:block;filter:sepia(.3) brightness(.7);transition:filter .6s,transform .8s}
+[data-theme="bw"] .ac-cover img{filter:grayscale(1) brightness(.55)}
+.ac:hover .ac-cover img{filter:sepia(.1) brightness(.85);transform:scale(1.06)}
+.ac-cover-fade{position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,rgba(0,0,0,.1) 60%,transparent 100%)}
+.ac-body{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:flex-end;padding:1.1rem 1.2rem}
+.ac-av{width:32px;height:32px;border-radius:50%;background:var(--surface2);border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.6rem;font-weight:700;margin-bottom:.5rem;color:var(--text)}
+.ac-name{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.03em;line-height:1;color:var(--text)}
+.ac:nth-child(1) .ac-name,.ac:nth-child(8) .ac-name{font-size:2rem}
+.ac-handle{font-family:'Space Mono',monospace;font-size:.4rem;letter-spacing:.1em;color:var(--text3);margin-top:.15rem}
+.ac-badge{position:absolute;top:.75rem;right:.75rem;z-index:3;font-family:'Space Mono',monospace;font-size:.36rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);border:1px solid var(--border-dark);background:var(--surface2);backdrop-filter:blur(6px);padding:.12rem .4rem}
+.ac-hover-reveal{position:absolute;inset:0;z-index:4;background:var(--surface);display:flex;flex-direction:column;justify-content:center;padding:1.3rem;opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s;pointer-events:none}
+.ac:hover .ac-hover-reveal{opacity:1;transform:translateY(0);pointer-events:auto}
+.ac-bio-reveal{font-size:.75rem;color:var(--text2);line-height:1.65;margin-bottom:.8rem}
+.ac-loc-reveal{font-family:'Space Mono',monospace;font-size:.4rem;color:var(--text3);letter-spacing:.08em;margin-bottom:.8rem}
+.ac-stats{display:flex;gap:1.2rem;margin-bottom:.8rem}
+.ac-stat-item .acs-num{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--text);line-height:1}
+.ac-stat-item .acs-lbl{font-family:'Space Mono',monospace;font-size:.34rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text4)}
+
+/* ── ONBOARDING ── */
+#page-onboarding{background:var(--bg);padding-top:70px;min-height:100vh}
+.ob-wrap{max-width:680px;margin:0 auto;padding:4rem 2rem 5rem}
+.ob-step-bar{display:flex;align-items:center;margin-bottom:3.5rem}
+.ob-step{display:flex;align-items:center;flex:1}
+.ob-step-dot{width:28px;height:28px;border-radius:50%;border:1px solid var(--border-dark);background:var(--surface);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.44rem;font-weight:700;color:var(--text4);flex-shrink:0;transition:all .3s;z-index:2}
+.ob-step-dot.active{background:var(--accent);color:var(--accent-inv);border-color:var(--accent)}
+.ob-step-dot.done{background:var(--accent);color:var(--accent-inv);border-color:var(--accent)}
+.ob-step-dot.done::after{content:'✓';font-size:.6rem}
+.ob-step-line{flex:1;height:1px;background:var(--border);transition:background .4s}
+.ob-step-line.done{background:var(--accent)}
+.ob-step-label{font-family:'Space Mono',monospace;font-size:.38rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text4);margin-top:.4rem;white-space:nowrap}
+.ob-step-label.active{color:var(--text)}
+.ob-panel{display:none;animation:slideUp .4s ease}
+.ob-panel.active{display:block}
+.ob-heading{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,3.5rem);letter-spacing:.03em;line-height:.95;color:var(--text);margin-bottom:.5rem}
+.ob-heading em{font-style:normal;-webkit-text-stroke:1px var(--accent);color:transparent}
+.ob-sub{font-size:.88rem;color:var(--text3);line-height:1.7;margin-bottom:2rem;max-width:480px}
+.ob-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.7rem;margin-bottom:2rem}
+.ob-chip{border:1px solid var(--border-dark);padding:.7rem 1rem;background:var(--surface2);cursor:pointer;transition:all .25s;position:relative}
+.ob-chip.sel{border-color:var(--accent)}
+.ob-chip-icon{font-size:1.3rem;margin-bottom:.3rem}
+.ob-chip-label{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text2)}
+.ob-chip.sel .ob-chip-label{color:var(--accent)}
+.ob-chip-check{position:absolute;top:.45rem;right:.5rem;font-size:.55rem;color:var(--accent);opacity:0;transition:opacity .2s}
+.ob-chip.sel .ob-chip-check{opacity:1}
+.ob-city-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.7rem;margin-bottom:2rem}
+.ob-city{border:1px solid var(--border-dark);padding:.8rem 1rem;background:var(--surface2);cursor:pointer;transition:all .25s;position:relative}
+.ob-city.sel{border-color:var(--accent)}
+.ob-city-name{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.04em;color:var(--text);line-height:1}
+.ob-city-country{font-family:'Space Mono',monospace;font-size:.38rem;letter-spacing:.1em;color:var(--text4);text-transform:uppercase;margin-top:.15rem}
+.ob-city-check{position:absolute;top:.5rem;right:.6rem;font-size:.55rem;color:var(--accent);opacity:0;transition:opacity .2s}
+.ob-city.sel .ob-city-check{opacity:1}
+.ob-nav{display:flex;justify-content:space-between;align-items:center;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.ob-btn-back{font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;background:transparent;color:var(--text3);border:1px solid var(--border);padding:.7rem 1.5rem;cursor:pointer;transition:all .2s}
+.ob-btn-next{font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;background:var(--accent);color:var(--accent-inv);border:1px solid var(--accent);padding:.7rem 2rem;cursor:pointer;transition:all .35s}
+.ob-complete-icon{font-size:3rem;margin-bottom:1rem}
+
+/* ── DASHBOARD ── */
+#page-dashboard{background:var(--bg);padding-top:70px;min-height:100vh}
+.dash-header{padding:2rem 3rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.dash-greet{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.5rem,3vw,2.5rem);letter-spacing:.03em;color:var(--text)}
+.dash-greet span{-webkit-text-stroke:1px var(--accent);color:transparent}
+.dash-greet-sub{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text4);margin-top:.2rem}
+.dash-actions{display:flex;gap:.6rem}
+.dash-btn{font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;background:var(--accent);color:var(--accent-inv);border:1px solid var(--accent);padding:.55rem 1.2rem;cursor:pointer;transition:all .35s}
+.dash-btn:hover{background:transparent;color:var(--accent)}
+.dash-btn-o{font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;background:transparent;color:var(--text);border:1px solid var(--border-dark);padding:.55rem 1.2rem;cursor:pointer;transition:all .2s}
+.dash-btn-o:hover{border-color:var(--accent)}
+.dash-body{display:grid;grid-template-columns:1fr 340px;min-height:calc(100vh - 160px)}
+.dash-main{padding:2rem 3rem;border-right:1px solid var(--border)}
+.dash-side{padding:1.5rem}
+.dash-section-title{font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text4);margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between}
+.dash-stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:2rem}
+.dash-stat{background:var(--surface);padding:1.2rem;text-align:center}
+.dash-stat-num{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--text);line-height:1}
+.dash-stat-lbl{font-family:'Space Mono',monospace;font-size:.38rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text4);margin-top:.2rem}
+.dash-post-btn{width:100%;background:var(--surface2);border:1px dashed var(--border-dark);padding:1.2rem;text-align:center;cursor:pointer;transition:all .3s;margin-bottom:1.5rem}
+.dash-post-btn:hover{border-color:var(--accent)}
+.dash-post-label{font-family:'Space Mono',monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text4)}
+.dash-feed-item{display:grid;grid-template-columns:auto 1fr auto;gap:1rem;padding:.9rem 0;border-bottom:1px solid var(--border);align-items:start;cursor:pointer;transition:opacity .2s}
+.dash-feed-item:last-child{border-bottom:none}
+.dash-feed-item:hover{opacity:.75}
+.dfi-num{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--border-dark);line-height:1;margin-top:.1rem;width:30px;text-align:right}
+.dfi-body{min-width:0}
+.dfi-cat{font-family:'Space Mono',monospace;font-size:.36rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--border-dark);padding:.08rem .3rem;color:var(--text3);display:inline-block;margin-bottom:.35rem}
+.dfi-text{font-size:.8rem;color:var(--text2);line-height:1.55;margin-bottom:.3rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dfi-meta{font-family:'Space Mono',monospace;font-size:.36rem;color:var(--text4);display:flex;gap:.6rem}
+.dfi-stat{font-family:'Space Mono',monospace;font-size:.38rem;color:var(--text3);text-align:right;white-space:nowrap}
+.dfi-stat-num{font-family:'Bebas Neue',sans-serif;font-size:.95rem;color:var(--text);display:block;line-height:1}
+.dash-side-card{background:var(--surface2);border:1px solid var(--border);padding:1rem;margin-bottom:1rem}
+.dash-side-card-title{font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text4);margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem}
+.dash-side-card-title::before{content:'';width:4px;height:4px;background:var(--accent);border-radius:50%;animation:blink 1.5s infinite}
+.dash-notif{display:flex;gap:.6rem;padding:.55rem 0;border-bottom:1px solid var(--border);align-items:flex-start;cursor:pointer}
+.dash-notif:last-child{border-bottom:none}
+.dash-notif-av{width:26px;height:26px;border-radius:50%;background:var(--bg3);border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.46rem;font-weight:700;flex-shrink:0;color:var(--text)}
+.dash-notif-text{font-size:.68rem;color:var(--text2);line-height:1.5}
+.dash-notif-time{font-family:'Space Mono',monospace;font-size:.34rem;color:var(--text4);margin-top:.15rem}
+.dash-map-mini{width:100%;height:180px;border-radius:4px;overflow:hidden;border:1px solid var(--border);margin-bottom:1rem}
+.dash-city-row{display:flex;align-items:center;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);cursor:pointer}
+.dash-city-row:last-child{border-bottom:none}
+.dash-city-name{font-family:'Space Mono',monospace;font-size:.46rem;color:var(--text2)}
+.dash-city-posts{font-family:'Bebas Neue',sans-serif;font-size:.9rem;color:var(--text3)}
+.dash-city-bar{flex:1;height:1px;background:var(--border);margin:0 .6rem;position:relative;overflow:hidden}
+.dash-city-bar-fill{height:100%;background:var(--accent);position:absolute;left:0;top:0}
+
+/* ── PROFILE ── */
+#page-profile{background:var(--bg);padding-top:70px;min-height:100vh}
+.prof-hero{height:100vh;position:relative;display:flex;overflow:hidden}
+.prof-left{position:relative;width:55%;height:100%;flex-shrink:0}
+#map-prof{position:absolute;inset:0;z-index:1}
+.prof-vignette{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse 80% 70% at 35% 50%,transparent 15%,var(--hv2) 100%),linear-gradient(to bottom,var(--hv1) 0%,transparent 20%,transparent 65%,var(--hv3) 100%),linear-gradient(to right,transparent 80%,var(--hv4) 100%)}
+.profile-card{position:absolute;bottom:7rem;left:2.5rem;z-index:10;width:290px}
+.pc-avatar{width:56px;height:56px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:1.1rem;font-weight:700;margin-bottom:.8rem;color:var(--text);overflow:hidden}
+.pc-name{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:.03em;line-height:1;margin-bottom:.15rem;color:var(--text)}
+.pc-handle{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.1em;color:var(--text3);margin-bottom:.8rem}
+.pc-stats{display:flex;gap:1.4rem;margin-bottom:.9rem}
+.pc-stat-num{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;line-height:1;color:var(--text)}
+.pc-stat-lbl{font-family:'Space Mono',monospace;font-size:.38rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text4);margin-top:.08rem}
+.pc-loc{font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.1em;color:var(--text3);margin-bottom:1.1rem}
+.pc-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+.pc-btn{font-family:'Space Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;padding:.45rem .9rem;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .2s}
+.pc-btn:hover,.pc-btn.solid{border-color:var(--accent);color:var(--text)}
+.pc-btn.solid{background:var(--accent);color:var(--accent-inv)}
+.prof-ticker-wrap{position:absolute;bottom:0;left:0;right:45%;z-index:11;background:var(--nav-bg);border-top:1px solid var(--border);padding:.55rem 0;overflow:hidden}
+.prof-right{width:45%;height:100%;position:relative;z-index:10;background:var(--surface2);border-left:1px solid var(--border);display:flex;flex-direction:column}
+.feed-panel-header{padding:1.1rem 1.4rem .6rem;border-bottom:1px solid var(--border);flex-shrink:0}
+.feed-panel-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.04em;margin-bottom:.3rem;color:var(--text)}
+
+/* Search bar in profile */
+.prof-search{display:flex;align-items:center;gap:.4rem;background:var(--bg2);border:1px solid var(--border);padding:.35rem .7rem;margin-bottom:.6rem}
+.prof-search input{background:transparent;border:none;outline:none;color:var(--text);font-family:'Space Mono',monospace;font-size:.52rem;width:100%}
+.prof-search input::placeholder{color:var(--text3)}
+
+.feed-tabs{display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+.feed-tabs::-webkit-scrollbar{display:none}
+.ftab{font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text4);padding:.4rem 0;border:none;border-bottom:2px solid transparent;background:transparent;cursor:pointer;transition:all .2s;margin-right:1rem;white-space:nowrap;flex-shrink:0}
+.ftab.active{color:var(--text);border-bottom-color:var(--accent)}
+.live-dot{display:flex;align-items:center;gap:.35rem;font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)}
+.live-dot::before{content:'';width:5px;height:5px;background:var(--accent);border-radius:50%;animation:blink 1.2s infinite}
+.feed-scroll{flex:1;overflow-y:auto;padding:1rem 1.2rem;display:flex;flex-direction:column;gap:.9rem;scrollbar-width:thin;scrollbar-color:var(--bg3) transparent}
+.post-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .3s,transform .3s;cursor:pointer;flex-shrink:0}
+.post-card:hover{border-color:var(--border-dark);transform:translateX(-3px)}
+.post-img{width:100%;height:160px;overflow:hidden;position:relative}
+.post-img img{width:100%;height:100%;object-fit:cover;filter:sepia(.2) brightness(.85);transition:filter .5s,transform .6s;display:block}
+.post-card:hover .post-img img{filter:sepia(.05) brightness(.95);transform:scale(1.04)}
+.post-img-fade{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,var(--surface2) 100%)}
+.post-cat-badge{position:absolute;top:.55rem;left:.65rem;font-family:'Space Mono',monospace;font-size:.36rem;letter-spacing:.12em;text-transform:uppercase;background:var(--surface2);border:1px solid var(--border);padding:.1rem .38rem;color:var(--text2)}
+.post-body{padding:.8rem 1rem 1rem;display:flex;flex-direction:column;gap:.5rem}
+.post-user-row{display:flex;align-items:center;gap:.45rem}
+.post-av{width:24px;height:24px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.48rem;font-weight:700;flex-shrink:0;color:var(--text);overflow:hidden}
+.post-user{font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.08em;color:var(--text2)}
+.post-loc{font-family:'Space Mono',monospace;font-size:.36rem;color:var(--text4);margin-top:.04rem}
+.post-time{font-family:'Space Mono',monospace;font-size:.36rem;color:var(--text4);margin-left:auto}
+.post-text{font-size:.78rem;color:var(--text2);line-height:1.6}
+.post-eng{display:flex;align-items:center;gap:.6rem;padding-top:.5rem;border-top:1px solid var(--border);flex-wrap:wrap}
+.post-eng-stat{font-family:'Space Mono',monospace;font-size:.38rem;color:var(--text4)}
+.eng-btn{font-family:'Space Mono',monospace;font-size:.36rem;letter-spacing:.1em;text-transform:uppercase;background:transparent;color:var(--text4);border:none;border-bottom:1px solid var(--border);padding:.04rem 0;cursor:pointer;transition:all .2s}
+.eng-btn:hover,.eng-btn.liked{color:var(--accent);border-bottom-color:var(--accent)}
+.eng-btn.ml{margin-left:auto}
+
+/* ── POST VIEW MODAL ── */
+.post-modal{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(26,22,18,.65);backdrop-filter:blur(12px);padding:1rem;overflow-y:auto}
+.post-modal-inner{background:var(--surface);border:1px solid var(--border-dark);width:620px;max-width:98vw;position:relative;border-radius:6px;margin:auto;max-height:90vh;overflow-y:auto}
+.post-modal-inner::-webkit-scrollbar{width:3px}
+.post-modal-inner::-webkit-scrollbar-thumb{background:var(--bg3)}
+.pm-top-bar{height:2px;background:var(--accent);position:sticky;top:0;z-index:2}
+.pm-header{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 1.6rem .9rem;border-bottom:1px solid var(--border);position:sticky;top:2px;background:var(--surface);z-index:1}
+.pm-user{display:flex;align-items:center;gap:.7rem}
+.pm-av{width:42px;height:42px;border-radius:50%;background:var(--bg3);border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.7rem;font-weight:700;color:var(--text);overflow:hidden;flex-shrink:0}
+.pm-name{font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.08em;color:var(--text)}
+.pm-meta{font-family:'Space Mono',monospace;font-size:.4rem;color:var(--text4);margin-top:.1rem}
+.pm-cat{font-family:'Space Mono',monospace;font-size:.4rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--border-dark);padding:.15rem .45rem;color:var(--text3)}
+.pm-close{background:transparent;border:none;font-size:1.1rem;cursor:pointer;color:var(--text3);padding:.2rem}
+.pm-body{padding:1.4rem 1.6rem}
+.pm-text{font-size:1rem;color:var(--text);line-height:1.78;font-family:'DM Sans',sans-serif;margin-bottom:1rem}
+.pm-media{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
+.pm-media img{max-width:100%;border-radius:8px;border:1px solid var(--border)}
+.pm-media video{max-width:100%;border-radius:8px;border:1px solid var(--border)}
+.pm-actions{display:flex;align-items:center;gap:1rem;padding:.9rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.pm-act-btn{font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.12em;text-transform:uppercase;background:transparent;color:var(--text4);border:none;border-bottom:1px solid var(--border);padding:.08rem 0;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.35rem}
+.pm-act-btn:hover,.pm-act-btn.on{color:var(--accent);border-bottom-color:var(--accent)}
+.pm-follow-btn{margin-left:auto;font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.12em;text-transform:uppercase;background:transparent;color:var(--text3);border:1px solid var(--border-dark);padding:.3rem .8rem;cursor:pointer;transition:all .2s}
+.pm-follow-btn:hover,.pm-follow-btn.following{border-color:var(--accent);color:var(--text)}
+.pm-follow-btn.following::before{content:'✓ '}
+/* Comments */
+.pm-comments{padding-top:.9rem}
+.pm-comments-title{font-family:'Space Mono',monospace;font-size:.48rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text4);margin-bottom:.8rem}
+.pm-comment{display:flex;gap:.6rem;margin-bottom:.8rem}
+.pm-c-av{width:26px;height:26px;border-radius:50%;background:var(--bg3);border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.44rem;font-weight:700;color:var(--text);flex-shrink:0;overflow:hidden}
+.pm-c-body{flex:1;min-width:0}
+.pm-c-user{font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.08em;color:var(--text2);margin-bottom:.2rem}
+.pm-c-text{font-size:.76rem;color:var(--text2);line-height:1.55}
+.pm-c-reply{font-family:'Space Mono',monospace;font-size:.36rem;color:var(--text4);cursor:pointer;border:none;background:none;margin-top:.2rem;transition:color .2s}
+.pm-c-reply:hover{color:var(--accent)}
+.pm-c-time{font-family:'Space Mono',monospace;font-size:.34rem;color:var(--text4);margin-left:.4rem}
+.pm-c-input-wrap{display:flex;gap:.6rem;align-items:flex-end;margin-top:.8rem;padding-top:.8rem;border-top:1px solid var(--border)}
+.pm-c-av-me{width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-inv);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.5rem;font-weight:700;flex-shrink:0;overflow:hidden}
+.pm-c-textarea{flex:1;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.78rem;padding:.5rem .7rem;outline:none;resize:none;transition:border-color .2s;min-height:36px}
+.pm-c-textarea:focus{border-color:var(--accent)}
+.pm-c-send{font-family:'Space Mono',monospace;font-size:.42rem;letter-spacing:.12em;text-transform:uppercase;background:var(--accent);color:var(--accent-inv);border:1px solid var(--accent);padding:.45rem .85rem;cursor:pointer;transition:all .35s;flex-shrink:0}
+.pm-c-send:hover{background:transparent;color:var(--accent)}
+
+/* ── MESSAGING ── */
+.msg-modal{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(26,22,18,.6);backdrop-filter:blur(10px);padding:1rem}
+.msg-inner{background:var(--surface);border:1px solid var(--border-dark);width:520px;max-width:98vw;height:560px;max-height:90vh;display:flex;flex-direction:column;position:relative;border-radius:6px}
+.msg-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);border-radius:6px 6px 0 0}
+.msg-header{padding:1rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.7rem;flex-shrink:0}
+.msg-to-av{width:34px;height:34px;border-radius:50%;background:var(--bg3);border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.6rem;font-weight:700;color:var(--text);overflow:hidden;flex-shrink:0}
+.msg-to-name{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.04em;color:var(--text)}
+.msg-to-handle{font-family:'Space Mono',monospace;font-size:.38rem;color:var(--text4)}
+.msg-close{margin-left:auto;background:transparent;border:none;font-size:1.1rem;cursor:pointer;color:var(--text3)}
+.msg-body{flex:1;overflow-y:auto;padding:1rem 1.4rem;display:flex;flex-direction:column;gap:.6rem;scrollbar-width:thin}
+.msg-bubble{max-width:75%;padding:.6rem .9rem;border-radius:12px;font-size:.8rem;line-height:1.55;font-family:'DM Sans',sans-serif}
+.msg-bubble.me{background:var(--accent);color:var(--accent-inv);align-self:flex-end;border-radius:12px 12px 4px 12px}
+.msg-bubble.them{background:var(--bg2);color:var(--text2);align-self:flex-start;border-radius:12px 12px 12px 4px;border:1px solid var(--border)}
+.msg-bubble-time{font-family:'Space Mono',monospace;font-size:.3rem;opacity:.5;margin-top:.2rem;display:block}
+.msg-footer{padding:.8rem 1.2rem;border-top:1px solid var(--border);display:flex;gap:.6rem;align-items:flex-end;flex-shrink:0}
+.msg-input{flex:1;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.82rem;padding:.55rem .8rem;outline:none;resize:none;max-height:80px;transition:border-color .2s;border-radius:4px}
+.msg-input:focus{border-color:var(--accent)}
+.msg-send{font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.12em;text-transform:uppercase;background:var(--accent);color:var(--accent-inv);border:1px solid var(--accent);padding:.55rem 1rem;cursor:pointer;transition:all .35s;flex-shrink:0}
+.msg-send:hover{background:transparent;color:var(--accent)}
+.msg-empty{font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text4);text-align:center;margin:auto;padding:2rem}
+
+/* MAP POPUP */
+#city-popup{position:fixed;z-index:1200;width:270px;background:var(--surface);border:1px solid var(--border-dark);pointer-events:none;opacity:0;transition:opacity .22s;box-shadow:0 24px 60px rgba(26,22,18,.18)}
+#city-popup.show{opacity:1}
+.pop-head{padding:.7rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2)}
+.pop-city{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.06em;color:var(--text)}
+.pop-live{font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);display:flex;align-items:center;gap:.3rem}
+.pop-live::before{content:'●';color:var(--accent);animation:blink 1s infinite}
+
+/* FOOTER */
+footer{background:var(--accent);border-top:1px solid var(--border);padding:2.2rem 3rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem}
+.footer-brand{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.05em;display:flex;align-items:center;gap:.5rem;color:var(--accent-inv)}
+.footer-links{display:flex;gap:1.8rem;list-style:none}
+.footer-links a{font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,240,232,.5);text-decoration:none;transition:color .2s;cursor:pointer}
+.footer-links a:hover{color:var(--accent-inv)}
+.footer-copy{font-family:'Space Mono',monospace;font-size:.46rem;color:rgba(245,240,232,.35);letter-spacing:.1em}
+.fade-up{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+.fade-up.visible{opacity:1;transform:translateY(0)}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border-dark)}
+@media(max-width:1000px){#trending-sidebar{display:none}.hero-ui,.ticker-wrap{right:0}.dash-body{grid-template-columns:1fr}.prof-hero{flex-direction:column}.prof-left,.prof-right{width:100%;height:50vh}}
+@media(max-width:800px){nav{padding:1rem 1.5rem}.nav-links{display:none}.fstrip{flex:0 0 300px}.dash-stat-row{grid-template-columns:1fr 1fr}}
+
+/* ── HASHTAG & MENTION ── */
+.hashtag{color:var(--accent);font-weight:500;cursor:pointer}
+.mention{color:var(--text2);font-weight:600;cursor:pointer;border-bottom:1px solid var(--border-dark)}
+
+/* ── SHARE SHEET ── */
+.share-sheet{position:fixed;inset:0;z-index:9500;display:flex;align-items:flex-end;justify-content:center;background:rgba(26,22,18,.5);backdrop-filter:blur(8px)}
+.share-inner{background:var(--surface);border:1px solid var(--border-dark);width:420px;max-width:100vw;border-radius:12px 12px 0 0;padding:1.6rem 1.8rem 2.2rem}
+.share-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.04em;color:var(--text);margin-bottom:1.2rem}
+.share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.4rem}
+.share-btn{display:flex;flex-direction:column;align-items:center;gap:.4rem;padding:.8rem .4rem;border:1px solid var(--border);background:var(--bg2);cursor:pointer;border-radius:8px;transition:all .2s}
+.share-btn:hover{border-color:var(--accent);background:var(--bg)}
+.share-btn-icon{font-size:1.4rem;line-height:1}
+.share-btn-label{font-family:'Space Mono',monospace;font-size:.38rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)}
+.share-link-row{display:flex;gap:.5rem;align-items:center}
+.share-link-input{flex:1;background:var(--bg2);border:1px solid var(--border);color:var(--text3);font-family:'Space Mono',monospace;font-size:.52rem;padding:.55rem .8rem;outline:none;border-radius:4px}
+.share-copy-btn{font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;background:var(--accent);color:var(--accent-inv);border:1px solid var(--accent);padding:.55rem 1rem;cursor:pointer;border-radius:4px;transition:all .2s;white-space:nowrap}
+
+/* ── TOAST NOTIFICATION ── */
+.toast{position:fixed;bottom:5.5rem;left:50%;transform:translateX(-50%) translateY(20px);z-index:99999;background:var(--accent);color:var(--accent-inv);font-family:'Space Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;padding:.6rem 1.4rem;border-radius:4px;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── REPORT/BLOCK MODAL ── */
+.report-modal{position:fixed;inset:0;z-index:9600;display:flex;align-items:center;justify-content:center;background:rgba(26,22,18,.6);backdrop-filter:blur(10px);padding:1rem}
+.report-inner{background:var(--surface);border:1px solid var(--border-dark);width:360px;max-width:96vw;border-radius:8px;overflow:hidden}
+.report-option{display:flex;align-items:center;gap:.8rem;padding:.85rem 1.2rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.report-option:last-child{border-bottom:none}
+.report-option:hover{background:var(--bg2)}
+.report-option-label{font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.08em;color:var(--text2)}
+.report-option-sub{font-family:'Space Mono',monospace;font-size:.38rem;color:var(--text4);margin-top:.15rem}
+
+/* ── NOTIFICATIONS PANEL ── */
+.notif-panel{position:fixed;top:62px;right:1.5rem;z-index:9000;width:340px;background:var(--surface);border:1px solid var(--border-dark);border-radius:8px;overflow:hidden;box-shadow:0 16px 40px rgba(26,22,18,.15);display:none}
+.notif-panel.open{display:block;animation:fadeIn .2s ease}
+.notif-header{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.1rem;border-bottom:1px solid var(--border);background:var(--bg2)}
+.notif-title{font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text3)}
+.notif-clear{font-family:'Space Mono',monospace;font-size:.42rem;letter-spacing:.1em;color:var(--text4);background:transparent;border:none;cursor:pointer;transition:color .2s}
+.notif-clear:hover{color:var(--accent)}
+.notif-item{display:flex;align-items:flex-start;gap:.7rem;padding:.8rem 1.1rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;position:relative}
+.notif-item:hover{background:var(--bg2)}
+.notif-item.unread::before{content:'';position:absolute;left:.45rem;top:50%;transform:translateY(-50%);width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.notif-av{width:30px;height:30px;border-radius:50%;background:var(--bg3);border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.5rem;font-weight:700;color:var(--text);flex-shrink:0}
+.notif-text{font-size:.72rem;color:var(--text2);line-height:1.5}
+.notif-time{font-family:'Space Mono',monospace;font-size:.38rem;color:var(--text4);margin-top:.2rem}
+.notif-badge{position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:#c0392b;color:#fff;font-family:'Space Mono',monospace;font-size:.42rem;display:flex;align-items:center;justify-content:center;border:2px solid var(--surface)}
+
+/* ── BOOKMARKS ── */
+.bookmark-active{color:var(--accent)!important;border-bottom-color:var(--accent)!important}
+
+/* ── HASHTAG FEED MODAL ── */
+.hashtag-modal{position:fixed;inset:0;z-index:9200;display:flex;align-items:center;justify-content:center;background:rgba(26,22,18,.65);backdrop-filter:blur(12px);padding:1rem}
+.hashtag-inner{background:var(--surface);border:1px solid var(--border-dark);width:580px;max-width:98vw;max-height:85vh;display:flex;flex-direction:column;border-radius:8px;overflow:hidden}
+
+/* ── LAT/LNG DISPLAY ── */
+.coord-badge{font-family:'Space Mono',monospace;font-size:.38rem;letter-spacing:.08em;color:var(--text4);background:var(--bg2);border:1px solid var(--border);padding:.12rem .4rem;border-radius:3px;display:inline-flex;align-items:center;gap:.3rem}
+.coord-badge::before{content:'◎';font-size:.5rem;opacity:.6}
+</style>
+</head>
+<body>
+<div class="cursor" id="C"></div>
+<div class="cursor-ring" id="CR"></div>
+<div id="city-popup"><div class="pop-head"><div class="pop-city" id="pop-name"></div><div class="pop-live" id="pop-rate"></div></div><div class="pop-body" id="pop-body"></div></div>
+
+<!-- TOAST -->
+<div class="toast" id="global-toast"></div>
+
+<!-- NOTIFICATIONS PANEL -->
+<div class="notif-panel" id="notif-panel">
+  <div class="notif-header">
+    <div class="notif-title">Notifications</div>
+    <button class="notif-clear" onclick="clearNotifs()">Mark all read</button>
+  </div>
+  <div id="notif-list" style="max-height:400px;overflow-y:auto"></div>
+</div>
+
+<!-- THEME -->
+<div class="theme-dots">
+  <button class="th-btn th-warm active" id="tb-warm"  onclick="setTheme('warm')"></button>
+  <button class="th-btn th-bw"          id="tb-bw"    onclick="setTheme('bw')"></button>
+  <button class="th-btn th-white"       id="tb-white" onclick="setTheme('white')"></button>
+</div>
+
+<!-- AUTH OVERLAY (hidden by default for preview - re-enable for production) -->
+<div id="auth-overlay" class="hidden">
+  <div style="width:100%;max-width:440px;padding:0 1rem">
+    <div class="auth-logo">🌍 EARTHLIVE</div>
+    <div class="auth-sub">Live · Real-Time · Everywhere</div>
+    <div class="auth-card">
+      <div class="auth-inner">
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tab-signin" onclick="switchAuthTab('signin')">Sign In</button>
+          <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Create Account</button>
+        </div>
+        <div id="form-signin">
+          <div class="auth-title">Welcome Back</div>
+          <div class="auth-desc">Sign in to your EarthLive account</div>
+          <div class="fg"><label class="fl">Email</label><input class="fi" type="email" id="si-email" placeholder="you@earthlive.io" autocomplete="email"></div>
+          <div class="fg"><label class="fl">Password</label><input class="fi" type="password" id="si-pass" placeholder="••••••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doSignIn()"></div>
+          <div class="auth-err" id="si-err"></div>
+          <button class="auth-btn" id="si-btn" onclick="doSignIn()"><div class="spinner"></div>Sign In →</button>
+          <div class="auth-fine">Don't have an account? <span onclick="switchAuthTab('signup')" style="color:var(--text3);cursor:pointer">Sign Up</span></div>
+        </div>
+        <div id="form-signup" style="display:none">
+          <div class="auth-title">Create Account</div>
+          <div class="auth-desc">Free · Takes 30 seconds</div>
+          <div class="frow">
+            <div class="fg"><label class="fl">First Name</label><input class="fi" type="text" id="su-first" placeholder="Ada" autocomplete="given-name"></div>
+            <div class="fg"><label class="fl">Last Name</label><input class="fi" type="text" id="su-last" placeholder="Lovelace" autocomplete="family-name"></div>
+          </div>
+          <div class="fg"><label class="fl">Username</label><input class="fi" type="text" id="su-user" placeholder="ada_on_earth" autocomplete="username"></div>
+          <div class="fg"><label class="fl">Email</label><input class="fi" type="email" id="su-email" placeholder="ada@example.com" autocomplete="email"></div>
+          <div class="fg"><label class="fl">Password</label><input class="fi" type="password" id="su-pass" placeholder="Min 6 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')doSignUp()"></div>
+          <div class="auth-err" id="su-err"></div>
+          <div class="auth-ok" id="su-ok"></div>
+          <button class="auth-btn" id="su-btn" onclick="doSignUp()"><div class="spinner"></div>Create Account →</button>
+          <div class="auth-fine">Already have an account? <span onclick="switchAuthTab('signin')" style="color:var(--text3);cursor:pointer">Sign In</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo" onclick="goTo('landing')"><div class="logo-dot"></div>EARTHLIVE</div>
+  <ul class="nav-links" id="nav-links-land">
+    <li><a onclick="scrollTo2('feed-section')">Live Feed</a></li>
+    <li><a onclick="scrollTo2('accounts-section')">Community</a></li>
+  </ul>
+  <ul class="nav-links" id="nav-links-dash" style="display:none">
+    <li><a onclick="goTo('dashboard')">Dashboard</a></li>
+    <li><a onclick="goTo('profile')">My Profile</a></li>
+  </ul>
+  <div class="nav-right">
+      <button class="nav-btn" onclick="toggleNotifPanel()" style="position:relative" id="notif-btn">🔔 <span id="notif-count-badge" class="notif-badge" style="display:none">0</span></button>
+    <div class="nav-avatar" id="nav-av" onclick="goTo('profile')">?</div>
+    <button class="nav-btn" onclick="doSignOut()">Sign Out</button>
+  </div>
+</nav>
+
+<!-- ═══ LANDING ═══ -->
+<div id="page-landing" class="page active">
+  <section class="hero">
+    <div id="map-land"></div>
+    <div class="vignette"></div><div class="grid-bg"></div>
+    <div id="trending-sidebar">
+      <div class="trending-header">
+        <div class="trending-title">Trending Now</div>
+        <div style="display:flex">
+          <button class="ttab active" onclick="setTrendingTab('top',this)">Top</button>
+          <button class="ttab" onclick="setTrendingTab('live',this)">Live</button>
+          <button class="ttab" onclick="setTrendingTab('breaking',this)">Breaking</button>
+        </div>
+      </div>
+      <div class="trending-feed" id="trending-feed"><div class="trending-scroll" id="trending-scroll"></div></div>
+    </div>
+    <div class="hero-ui">
+      <div class="eyebrow">Live · Real-Time · Everywhere</div>
+      <div class="actions">
+        <button class="btn-w" onclick="scrollTo2('feed-section')">Explore Live Feed</button>
+        <button class="btn-o" onclick="goTo('onboarding')">Set Up Profile →</button>
+      </div>
+    </div>
+    <div class="ticker-wrap"><div class="ticker-inner">
+      <span class="ticker-item">Typhoon approaching Philippines coast</span>
+      <span class="ticker-item">5,280 posts — Tokyo</span>
+      <span class="ticker-item">Trending: #CarbonNeutral — Europe</span>
+      <span class="ticker-item">Marathon — São Paulo</span>
+      <span class="ticker-item">High Activity: Mumbai</span>
+      <span class="ticker-item">Al Ahly wins CAF Champions League</span>
+      <span class="ticker-item">Typhoon approaching Philippines coast</span>
+      <span class="ticker-item">5,280 posts — Tokyo</span>
+    </div></div>
+  </section>
+  <div class="stats-bar fade-up">
+    <div><div class="stat-num" data-t="2847391">0</div><div class="stat-label">Posts Today</div></div>
+    <div><div class="stat-num" data-t="194">0</div><div class="stat-label">Countries Active</div></div>
+    <div><div class="stat-num" data-t="47">0</div><div class="stat-label">Live Hotspots</div></div>
+    <div><div class="stat-num" data-t="1240000">0</div><div class="stat-label">Users Online</div></div>
+    <div><div class="stat-num" data-t="99">0</div><div class="stat-label">% Uptime</div></div>
+  </div>
+  <section id="feed-section">
+    <div class="feed-header fade-up">
+      <div><div class="sec-label">Global Stream</div><h2>WHAT'S <em>HAPPENING NOW</em></h2></div>
+      <div class="live-badge" id="live-count">247 new posts</div>
+    </div>
+    <div class="filter-bar">
+      <div class="filter-row">
+        <button class="ftxt active" onclick="setFilter('all',this)">All<span class="ftxt-ct" id="fc-all"></span></button>
+        <div class="filter-divider"></div>
+        <button class="ftxt" onclick="setFilter('breaking',this)">Breaking<span class="ftxt-ct" id="fc-breaking"></span></button>
+        <button class="ftxt" onclick="setFilter('news',this)">News<span class="ftxt-ct" id="fc-news"></span></button>
+        <button class="ftxt" onclick="setFilter('sports',this)">Sports<span class="ftxt-ct" id="fc-sports"></span></button>
+        <button class="ftxt" onclick="setFilter('tech',this)">Tech<span class="ftxt-ct" id="fc-tech"></span></button>
+        <button class="ftxt" onclick="setFilter('health',this)">Health<span class="ftxt-ct" id="fc-health"></span></button>
+        <button class="ftxt" onclick="setFilter('research',this)">Research<span class="ftxt-ct" id="fc-research"></span></button>
+        <button class="ftxt" onclick="setFilter('social',this)">Social<span class="ftxt-ct" id="fc-social"></span></button>
+        <button class="ftxt" onclick="setFilter('tourism',this)">Tourism<span class="ftxt-ct" id="fc-tourism"></span></button>
+        <button class="ftxt" onclick="setFilter('event',this)">Events<span class="ftxt-ct" id="fc-event"></span></button>
+        <div class="filter-divider"></div>
+        <div class="fsearch"><span style="color:var(--text4);font-size:.7rem">⌕</span><input type="text" id="feed-search" placeholder="Search…" oninput="applyFilters()"></div>
+        <div class="filter-divider"></div>
+        <select class="fsort" id="feed-sort" onchange="applyFilters()"><option value="time">Latest</option><option value="likes">Most liked</option><option value="views">Most viewed</option></select>
+      </div>
+    </div>
+    <div class="feed-body">
+      <div class="feed-scroll-hint">
+        <span class="feed-scroll-hint-txt">Swipe to explore →</span>
+        <div class="feed-arrows"><button class="farrow" onclick="slideCards(-1)">←</button><button class="farrow" onclick="slideCards(1)">→</button></div>
+      </div>
+      <div class="feed-track-wrap" id="feed-track"><div class="feed-grid" id="feed-grid"></div></div>
+    </div>
+  </section>
+  <section id="accounts-section" class="fade-up">
+    <div style="padding:5rem 3rem 6rem;background:var(--bg2);border-top:1px solid var(--border)">
+      <div class="sec-label">Our Community</div>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,4vw,3.5rem);color:var(--text)">MEET THE <em style="-webkit-text-stroke:1px var(--accent);color:transparent;font-style:normal">MAPPERS</em></h2>
+      <div class="mosaic-grid" id="accounts-grid"></div>
+    </div>
+  </section>
+  <footer>
+    <div class="footer-brand"><div class="logo-dot"></div>EARTHLIVE</div>
+    <ul class="footer-links"><li><a>About</a></li><li><a>Privacy</a></li><li><a>API</a></li><li><a>Blog</a></li></ul>
+    <div class="footer-copy">© 2025 EarthLive. All rights reserved.</div>
+  </footer>
+</div>
+
+<!-- ═══ ONBOARDING ═══ -->
+<div id="page-onboarding" class="page">
+  <div class="ob-wrap">
+    <div class="ob-step-bar">
+      <div class="ob-step"><div style="display:flex;flex-direction:column;align-items:center;gap:.3rem"><div class="ob-step-dot active" id="sd1">1</div><div class="ob-step-label active" id="sl1">Interests</div></div><div class="ob-step-line" id="sline1"></div></div>
+      <div class="ob-step"><div style="display:flex;flex-direction:column;align-items:center;gap:.3rem"><div class="ob-step-dot" id="sd2">2</div><div class="ob-step-label" id="sl2">Cities</div></div><div class="ob-step-line" id="sline2" style="display:none"></div></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem"><div class="ob-step-dot" id="sd3">3</div><div class="ob-step-label" id="sl3">Done</div></div>
+    </div>
+    <div class="ob-panel active" id="ob-step1">
+      <div class="ob-heading">WHAT DO YOU <em>CARE ABOUT?</em></div>
+      <p class="ob-sub">Pick at least 3 topics to personalise your global feed.</p>
+      <div class="ob-grid" id="ob-interest-grid"></div>
+      <div class="ob-nav"><span></span><button class="ob-btn-next" onclick="obNext(1)">Continue →</button></div>
+    </div>
+    <div class="ob-panel" id="ob-step2">
+      <div class="ob-heading">FOLLOW YOUR <em>CITIES</em></div>
+      <p class="ob-sub">Get live posts from cities that matter to you.</p>
+      <div class="ob-city-grid">
+        <div class="ob-city sel" onclick="this.classList.toggle('sel')"><div class="ob-city-name">Tokyo</div><div class="ob-city-country">Japan</div><div class="ob-city-check">✓</div></div>
+        <div class="ob-city sel" onclick="this.classList.toggle('sel')"><div class="ob-city-name">New York</div><div class="ob-city-country">USA</div><div class="ob-city-check">✓</div></div>
+        <div class="ob-city" onclick="this.classList.toggle('sel')"><div class="ob-city-name">London</div><div class="ob-city-country">UK</div><div class="ob-city-check">✓</div></div>
+        <div class="ob-city" onclick="this.classList.toggle('sel')"><div class="ob-city-name">Mumbai</div><div class="ob-city-country">India</div><div class="ob-city-check">✓</div></div>
+        <div class="ob-city" onclick="this.classList.toggle('sel')"><div class="ob-city-name">Lagos</div><div class="ob-city-country">Nigeria</div><div class="ob-city-check">✓</div></div>
+        <div class="ob-city" onclick="this.classList.toggle('sel')"><div class="ob-city-name">São Paulo</div><div class="ob-city-country">Brazil</div><div class="ob-city-check">✓</div></div>
+        <div class="ob-city" onclick="this.classList.toggle('sel')"><div class="ob-city-name">Sydney</div><div class="ob-city-country">Australia</div><div class="ob-city-check">✓</div></div>
+        <div class="ob-city" onclick="this.classList.toggle('sel')"><div class="ob-city-name">Cairo</div><div class="ob-city-country">Egypt</div><div class="ob-city-check">✓</div></div>
+        <div class="ob-city" onclick="this.classList.toggle('sel')"><div class="ob-city-name">Bengaluru</div><div class="ob-city-country">India</div><div class="ob-city-check">✓</div></div>
+        <div class="ob-city" onclick="this.classList.toggle('sel')"><div class="ob-city-name">Paris</div><div class="ob-city-country">France</div><div class="ob-city-check">✓</div></div>
+      </div>
+      <div class="ob-nav"><button class="ob-btn-back" onclick="obBack(2)">← Back</button><button class="ob-btn-next" onclick="obNext(2)">Finish Setup →</button></div>
+    </div>
+    <div class="ob-panel" id="ob-step3" style="text-align:center">
+      <div class="ob-complete-icon">🌍</div>
+      <div class="ob-heading">YOU'RE <em>ALL SET!</em></div>
+      <p class="ob-sub" style="margin:0 auto 2rem;text-align:center">Your profile is ready. Start exploring what's happening everywhere on Earth.</p>
+      <div style="display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap">
+        <button class="ob-btn-next" onclick="goTo('dashboard')">Go to Dashboard →</button>
+        <button class="ob-btn-back" onclick="goTo('profile')">View My Profile</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="page-dashboard" class="page">
+  <div class="dash-header">
+    <div><div class="dash-greet">WELCOME BACK, <span id="dash-name">—</span></div><div class="dash-greet-sub" id="dash-sub">—</div></div>
+    <div class="dash-actions">
+      <button class="dash-btn" onclick="openNewPost()">+ New Post</button>
+      <button class="dash-btn-o" onclick="goTo('profile')">My Profile →</button>
+    </div>
+  </div>
+  <div class="dash-body">
+    <div class="dash-main">
+      <div class="dash-section-title">Your Stats</div>
+      <div class="dash-stat-row">
+        <div class="dash-stat"><div class="dash-stat-num" id="ds-posts">0</div><div class="dash-stat-lbl">Posts</div></div>
+        <div class="dash-stat"><div class="dash-stat-num" id="ds-followers">0</div><div class="dash-stat-lbl">Followers</div></div>
+        <div class="dash-stat"><div class="dash-stat-num" id="ds-following">0</div><div class="dash-stat-lbl">Following</div></div>
+        <div class="dash-stat"><div class="dash-stat-num">0</div><div class="dash-stat-lbl">Views</div></div>
+      </div>
+      <div class="dash-post-btn" onclick="openNewPost()"><div class="dash-post-label">+ Drop a new pin — what's happening near you?</div></div>
+      <div class="dash-section-title">Global Trending Feed</div>
+      <div id="dash-feed"></div>
+    </div>
+    <div class="dash-side">
+      <div class="dash-side-card"><div class="dash-side-card-title">Live Activity Map</div><div class="dash-map-mini" id="dash-map"></div><div class="dash-section-title" style="margin-top:.8rem;margin-bottom:.6rem">Hot Cities</div><div id="dash-cities"></div></div>
+      <div class="dash-side-card"><div class="dash-side-card-title">Notifications</div><div id="dash-notifs"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PROFILE ═══ -->
+<div id="page-profile" class="page">
+  <section class="prof-hero">
+    <div class="prof-left">
+      <div id="map-prof"></div>
+      <div class="prof-vignette"></div><div class="grid-bg"></div>
+      <div class="profile-card">
+        <div class="pc-avatar" id="pc-av">?</div>
+        <div class="pc-name" id="pc-name">—</div>
+        <div class="pc-handle" id="pc-handle">—</div>
+        <div class="pc-loc">◎ <span id="pc-loc">—</span></div>
+        <div class="pc-stats" style="margin-top:.5rem">
+          <div><div class="pc-stat-num" id="pc-posts">0</div><div class="pc-stat-lbl">Posts</div></div>
+          <div><div class="pc-stat-num" id="pc-following">0</div><div class="pc-stat-lbl">Following</div></div>
+          <div><div class="pc-stat-num" id="pc-followers">0</div><div class="pc-stat-lbl">Followers</div></div>
+        </div>
+        <div class="pc-actions" style="margin-top:.8rem">
+          <button class="pc-btn solid" onclick="openNewPost()">+ Post</button>
+          <button class="pc-btn" onclick="openEditProfile()">Edit Profile</button>
+          <button class="pc-btn" onclick="openSearch()">⌕ Search</button>
+        </div>
+      </div>
+      <div class="prof-ticker-wrap"><div class="ticker-inner">
+        <span class="ticker-item">Chelsea 2–1 Arsenal · London</span>
+        <span class="ticker-item">New post from @harbour_cam · Sydney</span>
+        <span class="ticker-item">Trending: #CarbonNeutral · Europe</span>
+        <span class="ticker-item">Al Ahly wins CAF · Cairo</span>
+        <span class="ticker-item">Chelsea 2–1 Arsenal · London</span>
+      </div></div>
+    </div>
+    <div class="prof-right">
+      <div class="feed-panel-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
+          <div class="feed-panel-title">PUBLIC FEED</div><div class="live-dot">Live</div>
+        </div>
+        <div class="prof-search">
+          <span style="color:var(--text4);font-size:.7rem">⌕</span>
+          <input type="text" id="prof-search-input" placeholder="Search by @name or keyword…" oninput="filterProfFeed()">
+        </div>
+        <div class="feed-tabs">
+          <button class="ftab active" onclick="switchProfTab('following',this)">Following</button>
+          <button class="ftab" onclick="switchProfTab('discover',this)">Discover</button>
+          <button class="ftab" onclick="switchProfTab('nearby',this)">Nearby</button>
+          <button class="ftab" onclick="switchProfTab('myposts',this)">My Posts</button>
+        </div>
+      </div>
+      <div class="feed-scroll" id="prof-feed-scroll"></div>
+    </div>
+  </section>
+  </section>
+
+  <!-- PROFILE EXTENDED SECTIONS -->
+  <div id="prof-extended" style="background:var(--bg);border-top:1px solid var(--border)">
+
+    <!-- BIO + STATS + ACHIEVEMENTS ROW -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border-bottom:1px solid var(--border)">
+      <div style="background:var(--surface);padding:2.2rem 2.8rem">
+        <div style="font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text4);margin-bottom:.7rem">About Me</div>
+        <div id="prof-bio-display" style="font-size:.9rem;color:var(--text2);line-height:1.75;min-height:2.5rem">No bio yet — click <strong>Edit Profile</strong> to add one.</div>
+        <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap" id="prof-interest-tags"></div>
+      </div>
+      <div style="background:var(--surface);padding:2.2rem 2.8rem">
+        <div style="font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text4);margin-bottom:1rem">Activity Overview</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem">
+          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--text);line-height:1" id="pext-posts">0</div><div style="font-family:'Space Mono',monospace;font-size:.42rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text4);margin-top:.2rem">Total Posts</div></div>
+          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--text);line-height:1" id="pext-views">0</div><div style="font-family:'Space Mono',monospace;font-size:.42rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text4);margin-top:.2rem">Total Views</div></div>
+          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--text);line-height:1" id="pext-likes">0</div><div style="font-family:'Space Mono',monospace;font-size:.42rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text4);margin-top:.2rem">Likes Given</div></div>
+          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--text);line-height:1" id="pext-cities">0</div><div style="font-family:'Space Mono',monospace;font-size:.42rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text4);margin-top:.2rem">Cities Covered</div></div>
+        </div>
+      </div>
+      <div style="background:var(--surface);padding:2.2rem 2.8rem">
+        <div style="font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text4);margin-bottom:1rem">Achievements</div>
+        <div id="prof-achievements" style="display:flex;flex-direction:column;gap:.6rem"></div>
+      </div>
+    </div>
+
+    <!-- ACTIVITY HEATMAP -->
+    <div style="background:var(--surface2);border-bottom:1px solid var(--border);padding:2.2rem 2.8rem">
+      <div style="font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text4);margin-bottom:1.2rem">Post Activity — Last 52 Weeks</div>
+      <div id="prof-heatmap" style="overflow-x:auto;padding-bottom:.5rem"></div>
+    </div>
+
+    <!-- TOP POSTS BY THE USER -->
+    <div style="background:var(--bg);border-bottom:1px solid var(--border);padding:2.2rem 2.8rem">
+      <div style="font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text4);margin-bottom:1.2rem">Pinned / Top Posts</div>
+      <div id="prof-top-posts" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem"></div>
+    </div>
+
+    <!-- FOLLOWING LIST -->
+    <div style="background:var(--surface);border-bottom:1px solid var(--border);padding:2.2rem 2.8rem">
+      <div style="font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text4);margin-bottom:1.2rem">People You Follow</div>
+      <div id="prof-following-list" style="display:flex;flex-wrap:wrap;gap:.7rem"></div>
+    </div>
+
+    <!-- CITIES POSTED FROM -->
+    <div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:2.2rem 2.8rem">
+      <div style="font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text4);margin-bottom:1.2rem">Cities Posted From</div>
+      <div id="prof-cities-list" style="display:flex;flex-wrap:wrap;gap:.5rem"></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-brand"><div class="logo-dot"></div>EARTHLIVE</div>
+    <ul class="footer-links"><li><a>About</a></li><li><a>Privacy</a></li><li><a>API</a></li><li><a>Blog</a></li></ul>
+    <div class="footer-copy" id="prof-footer-copy">© 2025 EarthLive</div>
+  </footer>
+</div>
+
+<script>
+/* ═══ SUPABASE ═══ */
+var SUPA_URL='https://clkdrmnfrhsnysfazsxe.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsa2RybW5mcmhzbnlzZmF6c3hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyNTgyNDMsImV4cCI6MjA4NzgzNDI0M30.OJ3zMUUSXCXUIMoLcZym_TkbDw9Z5lO2r_fSMXBu2MI';
+var sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+var CU={id:null,email:null,first:'',last:'',username:'',initials:'?',avatar_url:null,interests:[]};
+var followingSet=new Set();
+var likedPosts=new Set();
+
+/* ═══ INTERESTS LIST (consistent everywhere) ═══ */
+var INTERESTS=[
+  {icon:'✈️',label:'Travel'},{icon:'⚡',label:'Breaking'},{icon:'⚽',label:'Sports'},
+  {icon:'💻',label:'Tech'},{icon:'🏥',label:'Health'},{icon:'🔬',label:'Research'},
+  {icon:'🎭',label:'Events'},{icon:'🌍',label:'Social'},{icon:'📰',label:'News'},
+  {icon:'🏛️',label:'Tourism'},{icon:'🌿',label:'Climate'},{icon:'🎵',label:'Music'},
+  {icon:'🍜',label:'Food'}
+];
+
+/* render interest chips anywhere */
+function renderInterestChips(containerId,selected){
+  var el=document.getElementById(containerId);if(!el)return;
+  el.innerHTML=INTERESTS.map(function(it){
+    var s=selected&&selected.includes(it.label);
+    return'<div class="ob-chip'+(s?' sel':'')+'" onclick="this.classList.toggle(\'sel\')"><div class="ob-chip-icon">'+it.icon+'</div><div class="ob-chip-label">'+it.label+'</div><div class="ob-chip-check">✓</div></div>';
+  }).join('');
+}
+
+/* ═══ THEME ═══ */
+function setTheme(t){
+  document.body.setAttribute('data-theme',t);
+  try{localStorage.setItem('el-theme',t);}catch(e){}
+  document.querySelectorAll('.th-btn').forEach(function(b){b.classList.remove('active');});
+  var tb=document.getElementById('tb-'+t);if(tb)tb.classList.add('active');
+}
+(function(){var s=localStorage.getItem('el-theme')||'warm';document.body.setAttribute('data-theme',s);var tb=document.getElementById('tb-'+s);if(tb)tb.classList.add('active');})();
+
+/* ═══ AUTH ═══ */
+function switchAuthTab(tab){
+  document.getElementById('form-signin').style.display=tab==='signin'?'block':'none';
+  document.getElementById('form-signup').style.display=tab==='signup'?'block':'none';
+  document.getElementById('tab-signin').classList.toggle('active',tab==='signin');
+  document.getElementById('tab-signup').classList.toggle('active',tab==='signup');
+  ['si-err','su-err','su-ok'].forEach(function(id){var e=document.getElementById(id);if(e){e.textContent='';e.classList.remove('show');}});
+}
+function setBtnLoading(id,on){var b=document.getElementById(id);if(!b)return;b.disabled=on;b.classList.toggle('loading',on);}
+function showErr(id,msg){var e=document.getElementById(id);if(e){e.textContent=msg;e.classList.add('show');}}
+function showOk(id,msg){var e=document.getElementById(id);if(e){e.textContent=msg;e.classList.add('show');}}
+
+async function doSignIn(){
+  var email=document.getElementById('si-email').value.trim();
+  var pass=document.getElementById('si-pass').value;
+  var err=document.getElementById('si-err');err.textContent='';err.classList.remove('show');
+  if(!email||!pass){showErr('si-err','Please fill in all fields.');return;}
+  setBtnLoading('si-btn',true);
+  try{var r=await sb.auth.signInWithPassword({email,password:pass});if(r.error)throw r.error;}
+  catch(e){showErr('si-err',e.message||'Sign in failed.');setBtnLoading('si-btn',false);}
+}
+async function doSignUp(){
+  var first=document.getElementById('su-first').value.trim();
+  var last=document.getElementById('su-last').value.trim();
+  var username=document.getElementById('su-user').value.trim().replace(/^@/,'');
+  var email=document.getElementById('su-email').value.trim();
+  var pass=document.getElementById('su-pass').value;
+  var err=document.getElementById('su-err');err.textContent='';err.classList.remove('show');
+  if(!first||!last||!username||!email||!pass){showErr('su-err','Please fill in all fields.');return;}
+  if(pass.length<6){showErr('su-err','Password must be at least 6 characters.');return;}
+  if(!/^[a-zA-Z0-9_]+$/.test(username)){showErr('su-err','Username: letters, numbers and underscores only.');return;}
+  setBtnLoading('su-btn',true);
+  try{
+    var r=await sb.auth.signUp({email,password:pass,options:{data:{first_name:first,last_name:last,username,full_name:first+' '+last}}});
+    if(r.error)throw r.error;
+    if(r.data&&r.data.user){
+      await sb.from('profiles').upsert({id:r.data.user.id,email,first_name:first,last_name:last,username,full_name:first+' '+last,created_at:new Date().toISOString()});
+    }
+    if(r.data&&r.data.session){/* auto confirmed */}
+    else{showOk('su-ok','✓ Account created! Check your email to confirm, then sign in.');setBtnLoading('su-btn',false);}
+  }catch(e){showErr('su-err',e.message||'Sign up failed.');setBtnLoading('su-btn',false);}
+}
+async function doSignOut(){await sb.auth.signOut();CU={id:null,email:null,first:'',last:'',username:'',initials:'?',avatar_url:null,interests:[]};followingSet.clear();showAuthOverlay();goTo('landing');}
+function showAuthOverlay(){document.getElementById('auth-overlay').classList.remove('hidden');setBtnLoading('si-btn',false);setBtnLoading('su-btn',false);}
+function hideAuthOverlay(){document.getElementById('auth-overlay').classList.add('hidden');}
+
+async function loadProfile(userId){
+  try{
+    var r=await sb.from('profiles').select('*').eq('id',userId).single();
+    if(r.data){
+      CU.first=r.data.first_name||'';CU.last=r.data.last_name||'';
+      CU.username=r.data.username||'';CU.avatar_url=r.data.avatar_url||null;
+      CU.interests=r.data.interests||[];
+    } else {
+      var meta=((await sb.auth.getUser()).data.user||{}).user_metadata||{};
+      CU.first=meta.first_name||'';CU.last=meta.last_name||'';CU.username=meta.username||CU.email.split('@')[0];
+    }
+  }catch(e){}
+  CU.initials=((CU.first[0]||'')+(CU.last[0]||'')).toUpperCase()||'?';
+  applyUserToUI();
+}
+function applyUserToUI(){
+  var av=CU.avatar_url?'<img src="'+CU.avatar_url+'" style="width:100%;height:100%;object-fit:cover">':CU.initials;
+  document.getElementById('nav-av').innerHTML=av;
+  document.getElementById('pc-av').innerHTML=av;
+  document.getElementById('pc-name').textContent=(CU.first+' '+CU.last).trim()||CU.username;
+  document.getElementById('pc-handle').textContent='@'+(CU.username||'');
+  document.getElementById('pc-loc').textContent='Anekal, Karnataka, India';
+  document.getElementById('dash-name').textContent=(CU.first||CU.username||'').toUpperCase();
+  document.getElementById('dash-sub').textContent='Welcome to EarthLive · '+new Date().toLocaleDateString('en-IN',{weekday:'long',month:'short',day:'numeric',year:'numeric'});
+  document.getElementById('prof-footer-copy').textContent='© 2025 EarthLive · @'+(CU.username||'');
+  document.getElementById('nav-links-land').style.display='flex';
+  document.getElementById('nav-links-dash').style.display='flex';
+}
+
+sb.auth.onAuthStateChange(async function(event,session){
+  if(session&&session.user){
+    CU.id=session.user.id;CU.email=session.user.email;
+    await loadProfile(CU.id);
+    hideAuthOverlay();setBtnLoading('si-btn',false);
+    if(event==='SIGNED_IN'){
+      var r=await sb.from('profiles').select('created_at').eq('id',CU.id).single();
+      goTo(!r.data?'onboarding':'dashboard');
+    }
+  }
+  /* auth overlay hidden for preview mode */
+});
+// PREVIEW MODE: load demo user without login
+(async function(){
+  var r=await sb.auth.getSession();
+  if(!r.data.session){
+    // Demo mode — set up a guest profile
+    CU={id:'demo-user-001',email:'demo@earthlive.io',first:'Ashesh',last:'Demo',username:'ashesh_demo',initials:'AD',avatar_url:null,interests:['Travel','Tech','Social']};
+    hideAuthOverlay();
+    applyUserToUI();
+    goTo('dashboard');
+  }
+})();
+
+/* ═══ DATA ═══ */
+var ALL_POSTS=[
+  {id:1,user:"@nova_nyc",av:"NK",city:"New York",lat:40.7128,lng:-74.006,time:1,cat:"breaking",text:"Massive flash mob filling Times Square — hundreds gathering right now!",likes:312,views:8200,img:'https://images.unsplash.com/photo-1499346030926-9a72daac6c63?w=800&q=85',comments:[{av:'SI',user:'@sakura_live',text:'Wow! Saw this on the news too!',time:'2m'},{av:'LO',user:'@harbour_cam',text:'Times Square energy is unmatched 🔥',time:'5m'}]},
+  {id:2,user:"@sakura_live",av:"SI",city:"Tokyo",lat:35.6762,lng:139.6503,time:1,cat:"breaking",text:"Cherry blossom front reaching Shinjuku Gyoen — already packed!",likes:1420,views:28000,img:'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=85',comments:[{av:'NK',user:'@nova_nyc',text:'Stunning! How is the crowd?',time:'3m'}]},
+  {id:3,user:"@london_fc",av:"LF",city:"London",lat:51.5074,lng:-0.1278,time:18,cat:"sports",text:"Chelsea 2–1 Arsenal. Dramatic stoppage-time winner at Stamford Bridge.",likes:1840,views:32000,img:'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=85',comments:[{av:'CM',user:'@sampa_street',text:'Incredible match! Chelsea deserved it',time:'20m'},{av:'FH',user:'@pyramid_watch',text:'@london_fc did you watch from the stands?',time:'22m'},{av:'LF',user:'@london_fc',text:'@pyramid_watch yes! Section 7, row C!',time:'24m'}]},
+  {id:4,user:"@al_ahly_sc",av:"AA",city:"Cairo",lat:30.0444,lng:31.2357,time:32,cat:"sports",text:"Al Ahly wins CAF Champions League — 12th title. Cairo is erupting!",likes:2240,views:41000,img:'https://images.unsplash.com/photo-1539650116574-75c0c6d88f22?w=800&q=85',comments:[{av:'FH',user:'@pyramid_watch',text:'Historic! The city is alive tonight!',time:'35m'}]},
+  {id:5,user:"@tokyobytes",av:"TB",city:"Tokyo",lat:35.6762,lng:139.6503,time:5,cat:"tech",text:"New robotics demo at Akihabara — a humanoid just served espresso.",likes:645,views:9800,img:'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&q=85',comments:[{av:'SI',user:'@sakura_live',text:'Was there! The precision was insane',time:'7m'}]},
+  {id:6,user:"@chai_chron",av:"PN",city:"Mumbai",lat:19.076,lng:72.8777,time:2,cat:"social",text:"Marine Drive at sunset — nothing beats this in any city anywhere.",likes:768,views:12400,img:'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=800&q=85',comments:[]},
+  {id:7,user:"@elara_ldn",av:"EL",city:"London",lat:51.5074,lng:-0.1278,time:2,cat:"event",text:"Thousands at the South Bank for the free outdoor screening tonight.",likes:228,views:5100,img:'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&q=85',comments:[]},
+  {id:8,user:"@afrobeat_lgs",av:"JO",city:"Lagos",lat:6.5244,lng:3.3792,time:3,cat:"event",text:"Street festival in Victoria Island — the energy is incredible!",likes:445,views:7600,img:'https://images.unsplash.com/photo-1618522285056-498ddd4f4fb8?w=800&q=85',comments:[]},
+  {id:9,user:"@harbour_cam",av:"LO",city:"Sydney",lat:-33.8688,lng:151.2093,time:5,cat:"social",text:"Opera House lit for Vivid Festival — reflections on the water are magical.",likes:892,views:15600,img:'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&q=85',comments:[]},
+  {id:10,user:"@pyramid_watch",av:"FH",city:"Cairo",lat:30.0444,lng:31.2357,time:6,cat:"tourism",text:"New lighting at Giza — the pyramids glow gold after sunset now.",likes:650,views:11200,img:'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=85',comments:[]},
+  {id:11,user:"@mumbai_pulse",av:"MP",city:"Mumbai",lat:19.076,lng:72.8777,time:7,cat:"breaking",text:"Heavy monsoon rains causing flooding on Western Express Highway.",likes:312,views:8900,img:'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=85',comments:[]},
+  {id:12,user:"@sp_futbol",av:"SF",city:"São Paulo",lat:-23.5505,lng:-46.6333,time:25,cat:"sports",text:"Corinthians vs Palmeiras in the Paulistão final. City is at a standstill.",likes:1650,views:29000,img:'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&q=85',comments:[]},
+  {id:13,user:"@sci_watch",av:"SW",city:"Geneva",lat:46.2044,lng:6.1432,time:15,cat:"research",text:"CERN announces breakthrough in particle physics — potential new force discovered.",likes:1100,views:18000,img:'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=800&q=85',comments:[{av:'TB',user:'@tokyobytes',text:'Incredible! Following this closely.',time:'17m'}]},
+];
+var ACCOUNTS=[
+  {name:"Nova Kim",handle:"@nova_nyc",av:"NK",bio:"Documenting New York one block at a time.",loc:"New York, USA",posts:1842,followers:12400,badge:"Top Contributor"},
+  {name:"Elara Singh",handle:"@elara_ldn",av:"ES",bio:"London-based journalist and urban explorer.",loc:"London, UK",posts:3210,followers:28700,badge:"Verified Reporter"},
+  {name:"Sakura Inoue",handle:"@sakura_live",av:"SI",bio:"Tokyo nightlife, street fashion & ramen reviews.",loc:"Tokyo, Japan",posts:5680,followers:44200,badge:"City Insider"},
+  {name:"Jide Okafor",handle:"@afrobeat_lgs",av:"JO",bio:"Lagos music scene curator.",loc:"Lagos, Nigeria",posts:982,followers:7800,badge:"Rising Star"},
+  {name:"Priya Nair",handle:"@chai_chronicles",av:"PN",bio:"Mumbai storyteller. Monsoon rain > everything.",loc:"Mumbai, India",posts:2345,followers:19600,badge:"Verified Reporter"},
+  {name:"Carlos Melo",handle:"@sampa_street",av:"CM",bio:"São Paulo street photographer & event hunter.",loc:"São Paulo, Brazil",posts:1560,followers:11300,badge:"Top Contributor"},
+  {name:"Liam O'Brien",handle:"@harbour_cam",av:"LO",bio:"Sydney sunrise chaser.",loc:"Sydney, Australia",posts:2780,followers:21500,badge:"City Insider"},
+  {name:"Fatima Hassan",handle:"@pyramid_watch",av:"FH",bio:"Cairo street documenter by night.",loc:"Cairo, Egypt",posts:1120,followers:9400,badge:"Verified Reporter"}
+];
+var ACCOUNT_IMGS=['https://images.unsplash.com/photo-1499346030926-9a72daac6c63?w=600&q=80','https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80','https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=80','https://images.unsplash.com/photo-1618522285056-498ddd4f4fb8?w=600&q=80','https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=600&q=80','https://images.unsplash.com/photo-1543059080-f9b1272213d5?w=600&q=80','https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=600&q=80','https://images.unsplash.com/photo-1539650116574-75c0c6d88f22?w=600&q=80'];
+var CITIES_MAP=[{name:"New York",rate:"4.1k/hr",lat:40.7128,lng:-74.006},{name:"London",rate:"2.8k/hr",lat:51.5074,lng:-0.1278},{name:"Tokyo",rate:"5.2k/hr",lat:35.6762,lng:139.6503},{name:"Lagos",rate:"1.9k/hr",lat:6.5244,lng:3.3792},{name:"Mumbai",rate:"3.5k/hr",lat:19.076,lng:72.8777},{name:"São Paulo",rate:"2.2k/hr",lat:-23.5505,lng:-46.6333},{name:"Sydney",rate:"1.6k/hr",lat:-33.8688,lng:151.2093},{name:"Cairo",rate:"1.4k/hr",lat:30.0444,lng:31.2357}];
+var PROF_POSTS={
+  following:ALL_POSTS.slice(0,6),
+  discover:ALL_POSTS.slice(6,10),
+  nearby:ALL_POSTS.slice(10,13),
+  myposts:[] // will populate with user's own posts
+};
+var currentProfTab='following';
+var profMapMarkers=[];
+var profMapInstance=null;
+
+function parseHashtags(text){
+  return text.replace(/#(\w+)/g,'<span class="hashtag" onclick="openHashtagFeed(\'$1\')">#$1</span>')
+             .replace(/@(\w+)/g,'<span class="mention">@$1</span>');
+}
+function openPost(p){
+  var liked=likedPosts.has(p.id);
+  var bookmarked=bookmarkedPosts.has(p.id);
+  var following=followingSet.has(p.user);
+  var isMyPost=(p.user==='@'+(CU.username||'__none__'));
+  var mediaHtml='';
+  if(p.media&&p.media.length){
+    mediaHtml='<div class="pm-media">'+p.media.map(function(m){
+      return m.type==='video'?'<video src="'+m.url+'" controls style="max-width:100%;border-radius:8px"></video>':'<img src="'+m.url+'" style="max-width:100%;border-radius:8px">';
+    }).join('')+'</div>';
+  } else if(p.img){
+    mediaHtml='<img src="'+p.img+'" style="width:100%;max-height:340px;object-fit:cover;border-radius:8px;margin-bottom:1rem;display:block">';
+  }
+  var commentsHtml=(p.comments||[]).map(function(c){
+    return'<div class="pm-comment"><div class="pm-c-av">'+c.av+'</div><div class="pm-c-body"><div class="pm-c-user">'+c.user+'<span class="pm-c-time">'+c.time+' ago</span></div><div class="pm-c-text">'+parseHashtags(c.text)+'</div><button class="pm-c-reply" onclick="replyTo(\''+c.user+'\')">↩ Reply</button></div></div>';
+  }).join('');
+  var v=p.views>=1000?(p.views/1000).toFixed(1)+'k':p.views;
+  var coordHtml='';
+  if(p.lat&&p.lng){coordHtml='<span class="coord-badge">'+p.lat.toFixed(4)+', '+p.lng.toFixed(4)+'</span>';}
+  var ov=document.createElement('div');ov.className='post-modal';ov.id='post-view';
+  ov.innerHTML=`<div class="post-modal-inner">
+    <div class="pm-top-bar"></div>
+    <div class="pm-header">
+      <div class="pm-user">
+        <div class="pm-av">${p.av}</div>
+        <div><div class="pm-name">${p.user}</div><div class="pm-meta">◎ ${p.city} · ${p.time}m ago ${coordHtml}</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.7rem">
+        <span class="pm-cat">${p.cat}</span>
+        ${isMyPost?`<button class="pm-act-btn" title="Edit post" onclick="openEditPost(${p.id})">✎ Edit</button>`:''}
+        ${isMyPost?`<button class="pm-act-btn" title="Delete post" style="color:#c0392b;border-bottom-color:#c0392b" onclick="deletePost(${p.id})">🗑 Delete</button>`:''}
+        <button class="pm-close" onclick="document.getElementById('post-view').remove()">✕</button>
+      </div>
+    </div>
+    <div class="pm-body">
+      <div class="pm-text">${parseHashtags(p.text)}</div>
+      ${mediaHtml}
+      <div class="pm-actions">
+        <button class="pm-act-btn${liked?' on':''}" id="pv-like-btn" onclick="pvToggleLike(${p.id},${p.likes})">❤ <span id="pv-likes">${liked?p.likes+1:p.likes}</span> Likes</button>
+        <button class="pm-act-btn" onclick="document.getElementById('pv-comment-input').focus()">💬 ${(p.comments||[]).length} Comments</button>
+        <button class="pm-act-btn${bookmarked?' bookmark-active':''}" id="pv-bm-btn" onclick="toggleBookmark(${p.id})">🔖 ${bookmarked?'Saved':'Save'}</button>
+        <button class="pm-act-btn" onclick="openShareSheet('${encodeURIComponent(p.text.substring(0,80))}','${p.city}','${p.id}')">↗ Share</button>
+        <span style="font-family:Space Mono,monospace;font-size:.4rem;color:var(--text4)">👁 ${v}</span>
+        ${!isMyPost?`<button class="pm-act-btn" onclick="openReport('${p.user}','post')" style="color:var(--text4);margin-left:.3rem">⚑ Report</button>`:''}
+        <button class="pm-follow-btn${following?' following':''}" id="pv-follow-btn" onclick="pvToggleFollow('${p.user}')">${following?'Following':'Follow'}</button>
+      </div>
+      <div class="pm-comments">
+        <div class="pm-comments-title">${(p.comments||[]).length} Comments</div>
+        <div id="pv-comments-list">${commentsHtml}</div>
+        <div class="pm-c-input-wrap">
+          <div class="pm-c-av-me">${CU.initials}</div>
+          <textarea class="pm-c-textarea" id="pv-comment-input" placeholder="Write a comment… use @name or #hashtag" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitComment(${p.id})}"></textarea>
+          <button class="pm-c-send" onclick="submitComment(${p.id})">Post</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
+  document.body.appendChild(ov);
+}
+function pvToggleLike(id,base){
+  var liked=likedPosts.has(id);
+  var btn=document.getElementById('pv-like-btn');
+  var lkel=document.getElementById('pv-likes');
+  var fkel=document.getElementById('lk'+id);
+  if(liked){likedPosts.delete(id);btn.classList.remove('on');lkel.textContent=base;if(fkel)fkel.textContent=base.toLocaleString();}
+  else{likedPosts.add(id);btn.classList.add('on');lkel.textContent=base+1;if(fkel)fkel.textContent=(base+1).toLocaleString();}
+}
+function pvToggleFollow(username){
+  var btn=document.getElementById('pv-follow-btn');
+  if(followingSet.has(username)){followingSet.delete(username);btn.textContent='Follow';btn.classList.remove('following');}
+  else{followingSet.add(username);btn.textContent='Following';btn.classList.add('following');}
+}
+function replyTo(username){
+  var ta=document.getElementById('pv-comment-input');
+  if(ta){ta.value=username+' ';ta.focus();}
+}
+function submitComment(postId){
+  var ta=document.getElementById('pv-comment-input');
+  var text=ta.value.trim();if(!text)return;
+  var p=ALL_POSTS.find(function(x){return x.id===postId;});
+  if(p){if(!p.comments)p.comments=[];p.comments.push({av:CU.initials,user:'@'+(CU.username||'you'),text:text,time:'now'});}
+  var list=document.getElementById('pv-comments-list');
+  var d=document.createElement('div');d.className='pm-comment';
+  d.innerHTML='<div class="pm-c-av">'+CU.initials+'</div><div class="pm-c-body"><div class="pm-c-user">@'+CU.username+'<span class="pm-c-time">now</span></div><div class="pm-c-text">'+text+'</div><button class="pm-c-reply" onclick="replyTo(\'@'+CU.username+'\')">↩ Reply</button></div>';
+  list.appendChild(d);ta.value='';
+}
+/* ── TOAST ── */
+function showToast(msg){var t=document.getElementById('global-toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
+
+/* ── BOOKMARKS ── */
+var bookmarkedPosts=new Set();
+function toggleBookmark(id){
+  var btn=document.getElementById('pv-bm-btn');
+  if(bookmarkedPosts.has(id)){bookmarkedPosts.delete(id);if(btn){btn.textContent='🔖 Save';btn.classList.remove('bookmark-active');}showToast('Removed from saved');}
+  else{bookmarkedPosts.add(id);if(btn){btn.textContent='🔖 Saved';btn.classList.add('bookmark-active');}showToast('Post saved!');}
+}
+
+/* ── DELETE POST ── */
+function deletePost(id){
+  if(!confirm('Delete this post? This cannot be undone.'))return;
+  var idx=ALL_POSTS.findIndex(function(p){return p.id===id;});
+  if(idx>-1)ALL_POSTS.splice(idx,1);
+  var idx2=PROF_POSTS.myposts.findIndex(function(p){return p.id===id;});
+  if(idx2>-1)PROF_POSTS.myposts.splice(idx2,1);
+  try{sb.from('posts').delete().eq('id',id);}catch(e){}
+  var modal=document.getElementById('post-view');if(modal)modal.remove();
+  applyFilters();
+  if(profMapInstance)renderProfMapMarkers(PROF_POSTS[currentProfTab]);
+  showToast('Post deleted');
+}
+
+/* ── EDIT POST ── */
+function openEditPost(id){
+  var p=ALL_POSTS.find(function(x){return x.id===id;});if(!p)return;
+  var pv=document.getElementById('post-view');if(pv)pv.remove();
+  var m=document.createElement('div');m.id='edit-post-modal';
+  m.style.cssText='position:fixed;inset:0;z-index:9100;display:flex;align-items:center;justify-content:center;background:rgba(26,22,18,.6);backdrop-filter:blur(8px);padding:1rem';
+  m.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border-dark);width:480px;max-width:96vw;border-radius:6px;overflow:hidden">
+    <div style="height:2px;background:var(--accent)"></div>
+    <div style="padding:1.6rem 2rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem">
+        <div style="font-family:Bebas Neue,sans-serif;font-size:1.4rem;letter-spacing:.04em;color:var(--text)">Edit Post</div>
+        <button onclick="document.getElementById('edit-post-modal').remove()" style="background:transparent;border:none;font-size:1.1rem;cursor:pointer;color:var(--text3)">✕</button>
+      </div>
+      <div class="fg"><label class="fl">What's happening?</label><textarea class="fi" id="ep-text-edit" rows="4" style="resize:none">${p.text}</textarea></div>
+      <div class="fg"><label class="fl">City</label><input class="fi" id="ep-city-edit" type="text" value="${p.city}"></div>
+      <div style="font-family:Space Mono,monospace;font-size:.42rem;color:var(--text4);margin-bottom:.8rem">Lat: ${p.lat?p.lat.toFixed(6):'—'} · Lng: ${p.lng?p.lng.toFixed(6):'—'}</div>
+      <button onclick="saveEditPost(${id})" style="width:100%;font-family:Space Mono,monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;background:var(--accent);color:var(--accent-inv);padding:.85rem;border:1px solid var(--accent);cursor:pointer">Save Changes →</button>
+    </div>
+  </div>`;
+  m.addEventListener('click',function(e){if(e.target===m)m.remove();});
+  document.body.appendChild(m);
+}
+function saveEditPost(id){
+  var p=ALL_POSTS.find(function(x){return x.id===id;});if(!p)return;
+  var newText=document.getElementById('ep-text-edit').value.trim();
+  var newCity=document.getElementById('ep-city-edit').value.trim();
+  if(!newText){showToast('Text cannot be empty');return;}
+  p.text=newText;p.city=newCity;
+  try{sb.from('posts').update({text:newText,city:newCity}).eq('id',id);}catch(e){}
+  document.getElementById('edit-post-modal').remove();
+  applyFilters();
+  showToast('Post updated ✓');
+}
+
+/* ── SHARE SHEET ── */
+function openShareSheet(encodedText,city,postId){
+  var text=decodeURIComponent(encodedText);
+  var url=window.location.href.split('?')[0]+'?post='+postId;
+  var existing=document.getElementById('share-sheet-modal');if(existing)existing.remove();
+  var m=document.createElement('div');m.id='share-sheet-modal';m.className='share-sheet';
+  m.innerHTML=`<div class="share-inner">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem">
+      <div class="share-title">Share Post</div>
+      <button onclick="document.getElementById('share-sheet-modal').remove()" style="background:transparent;border:none;font-size:1.1rem;cursor:pointer;color:var(--text3)">✕</button>
+    </div>
+    <div class="share-grid">
+      <button class="share-btn" onclick="shareToWhatsApp('${encodedText}','${url}')"><div class="share-btn-icon">💬</div><div class="share-btn-label">WhatsApp</div></button>
+      <button class="share-btn" onclick="shareToTwitter('${encodedText}','${url}')"><div class="share-btn-icon">𝕏</div><div class="share-btn-label">Twitter/X</div></button>
+      <button class="share-btn" onclick="shareToLinkedIn('${url}')"><div class="share-btn-icon">in</div><div class="share-btn-label">LinkedIn</div></button>
+      <button class="share-btn" onclick="shareToTelegram('${encodedText}','${url}')"><div class="share-btn-icon">✈</div><div class="share-btn-label">Telegram</div></button>
+      <button class="share-btn" onclick="shareToFacebook('${url}')"><div class="share-btn-icon">f</div><div class="share-btn-label">Facebook</div></button>
+      <button class="share-btn" onclick="shareNative('${encodedText}','${url}')"><div class="share-btn-icon">↗</div><div class="share-btn-label">More</div></button>
+      <button class="share-btn" onclick="copyPostLink('${url}')"><div class="share-btn-icon">🔗</div><div class="share-btn-label">Copy Link</div></button>
+      <button class="share-btn" onclick="shareViaEmail('${encodedText}','${city}','${url}')"><div class="share-btn-icon">✉</div><div class="share-btn-label">Email</div></button>
+    </div>
+    <div class="share-link-row">
+      <input class="share-link-input" value="${url}" readonly id="share-url-input">
+      <button class="share-copy-btn" onclick="copyPostLink('${url}')">Copy</button>
+    </div>
+  </div>`;
+  m.addEventListener('click',function(e){if(e.target===m)m.remove();});
+  document.body.appendChild(m);
+}
+function shareToWhatsApp(enc,url){window.open('https://wa.me/?text='+enc+'%20'+encodeURIComponent(url),'_blank');}
+function shareToTwitter(enc,url){window.open('https://twitter.com/intent/tweet?text='+enc+'&url='+encodeURIComponent(url)+'&via=EarthLive','_blank');}
+function shareToLinkedIn(url){window.open('https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(url),'_blank');}
+function shareToTelegram(enc,url){window.open('https://t.me/share/url?url='+encodeURIComponent(url)+'&text='+enc,'_blank');}
+function shareToFacebook(url){window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(url),'_blank');}
+function shareNative(enc,url){if(navigator.share){navigator.share({title:'EarthLive',text:decodeURIComponent(enc),url:url}).catch(function(){});}else{copyPostLink(url);}}
+function copyPostLink(url){navigator.clipboard.writeText(url).then(function(){showToast('Link copied!');var m=document.getElementById('share-sheet-modal');if(m)m.remove();}).catch(function(){showToast('Link: '+url);});}
+function shareViaEmail(enc,city,url){var sub=encodeURIComponent('EarthLive post from '+city);var body=encodeURIComponent(decodeURIComponent(enc)+'\n\n'+url);window.open('mailto:?subject='+sub+'&body='+body);}
+
+/* ── REPORT / BLOCK ── */
+var blockedUsers=new Set();
+function openReport(username,type){
+  var existing=document.getElementById('report-modal');if(existing)existing.remove();
+  var m=document.createElement('div');m.id='report-modal';m.className='report-modal';
+  var opts=[
+    {label:'Spam or misleading',sub:'Repeated irrelevant or false content'},
+    {label:'Harassment or hate',sub:'Targeted abuse or discriminatory language'},
+    {label:'Misinformation',sub:'False facts or dangerous claims'},
+    {label:'Inappropriate content',sub:'Graphic or adult content'},
+    {label:'Block this user',sub:'You won\'t see posts from '+username,action:'block'},
+  ];
+  m.innerHTML=`<div class="report-inner">
+    <div style="height:2px;background:#c0392b"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.2rem;border-bottom:1px solid var(--border)">
+      <div style="font-family:Bebas Neue,sans-serif;font-size:1.2rem;letter-spacing:.04em;color:var(--text)">Report ${username}</div>
+      <button onclick="document.getElementById('report-modal').remove()" style="background:transparent;border:none;font-size:1rem;cursor:pointer;color:var(--text3)">✕</button>
+    </div>
+    ${opts.map(function(o){return'<div class="report-option" onclick="'+(o.action?'blockUser(\''+username+'\')':'submitReport(\''+username+'\',\''+o.label+'\')')+'"><div><div class="report-option-label">'+o.label+'</div><div class="report-option-sub">'+o.sub+'</div></div></div>';}).join('')}
+  </div>`;
+  m.addEventListener('click',function(e){if(e.target===m)m.remove();});
+  document.body.appendChild(m);
+}
+function submitReport(username,reason){
+  document.getElementById('report-modal').remove();
+  showToast('Reported: '+reason);
+}
+function blockUser(username){
+  blockedUsers.add(username);
+  document.getElementById('report-modal').remove();
+  var pv=document.getElementById('post-view');if(pv)pv.remove();
+  showToast('Blocked '+username);
+  applyFilters();
+}
+
+/* ── NOTIFICATIONS ── */
+var NOTIFICATIONS=[
+  {av:'SI',text:'@sakura_live liked your post from Tokyo',time:'2m',unread:true},
+  {av:'NK',text:'@nova_nyc started following you',time:'5m',unread:true},
+  {av:'LF',text:'@london_fc commented: "Amazing post!"',time:'12m',unread:true},
+  {av:'AA',text:'@al_ahly_sc liked your post',time:'28m',unread:false},
+  {av:'TB',text:'@tokyobytes mentioned you in a post',time:'1h',unread:false},
+  {av:'JO',text:'@afrobeat_lgs started following you',time:'2h',unread:false},
+];
+function renderNotifs(){
+  var list=document.getElementById('notif-list');if(!list)return;
+  var unread=NOTIFICATIONS.filter(function(n){return n.unread;}).length;
+  var badge=document.getElementById('notif-count-badge');
+  if(badge){if(unread>0){badge.textContent=unread;badge.style.display='flex';}else{badge.style.display='none';}}
+  list.innerHTML=NOTIFICATIONS.map(function(n,i){
+    return'<div class="notif-item'+(n.unread?' unread':'')+'" onclick="readNotif('+i+')">'
+      +'<div class="notif-av">'+n.av+'</div>'
+      +'<div><div class="notif-text">'+n.text+'</div><div class="notif-time">'+n.time+' ago</div></div>'
+      +'</div>';
+  }).join('');
+  if(!NOTIFICATIONS.length)list.innerHTML='<div style="font-family:Space Mono,monospace;font-size:.48rem;color:var(--text4);text-align:center;padding:2rem;letter-spacing:.12em;text-transform:uppercase">No notifications yet</div>';
+}
+function readNotif(i){NOTIFICATIONS[i].unread=false;renderNotifs();}
+function clearNotifs(){NOTIFICATIONS.forEach(function(n){n.unread=false;});renderNotifs();}
+function toggleNotifPanel(){
+  var panel=document.getElementById('notif-panel');
+  panel.classList.toggle('open');
+  renderNotifs();
+  document.addEventListener('click',function handler(e){
+    if(!panel.contains(e.target)&&!document.getElementById('notif-btn').contains(e.target)){panel.classList.remove('open');document.removeEventListener('click',handler);}
+  });
+}
+renderNotifs();
+
+/* ── HASHTAG FEED ── */
+function openHashtagFeed(tag){
+  var existing=document.getElementById('hashtag-modal');if(existing)existing.remove();
+  var posts=ALL_POSTS.filter(function(p){return p.text.toLowerCase().includes('#'+tag.toLowerCase());});
+  var m=document.createElement('div');m.id='hashtag-modal';m.className='hashtag-modal';
+  var cardsHtml=posts.length?posts.map(function(p){
+    return'<div style="padding:.9rem 1.4rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s" onmouseover="this.style.background=\'var(--bg2)\'" onmouseout="this.style.background=\'transparent\'" onclick="document.getElementById(\'hashtag-modal\').remove();openPost('+JSON.stringify(p).replace(/"/g,"'")+')">'
+      +'<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem"><div style="width:22px;height:22px;border-radius:50%;background:var(--bg3);border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-family:Space Mono,monospace;font-size:.44rem;font-weight:700;color:var(--text)">'+p.av+'</div><span style="font-family:Space Mono,monospace;font-size:.44rem;color:var(--text3)">'+p.user+'</span><span style="font-family:Space Mono,monospace;font-size:.38rem;color:var(--text4)">· ◎ '+p.city+'</span></div>'
+      +'<div style="font-size:.8rem;color:var(--text2);line-height:1.55">'+parseHashtags(p.text)+'</div>'
+      +'<div style="font-family:Space Mono,monospace;font-size:.38rem;color:var(--text4);margin-top:.4rem">❤ '+p.likes+' · 👁 '+p.views+'</div>'
+      +'</div>';
+  }).join(''):'<div style="font-family:Space Mono,monospace;font-size:.5rem;color:var(--text4);text-align:center;padding:3rem;letter-spacing:.12em;text-transform:uppercase">No posts with #'+tag+' yet</div>';
+  m.innerHTML=`<div class="hashtag-inner">
+    <div style="height:2px;background:var(--accent)"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.4rem;border-bottom:1px solid var(--border);flex-shrink:0">
+      <div style="font-family:Bebas Neue,sans-serif;font-size:1.4rem;letter-spacing:.04em;color:var(--text)">#${tag} <span style="font-size:.9rem;font-family:Space Mono,monospace;color:var(--text4)">${posts.length} posts</span></div>
+      <button onclick="document.getElementById('hashtag-modal').remove()" style="background:transparent;border:none;font-size:1.1rem;cursor:pointer;color:var(--text3)">✕</button>
+    </div>
+    <div style="overflow-y:auto;flex:1">${cardsHtml}</div>
+  </div>`;
+  m.addEventListener('click',function(e){if(e.target===m)m.remove();});
+  document.body.appendChild(m);
+}
+
+/* ── LAT/LNG shown in new post modal label ── */
+function updateLatLngDisplay(){
+  var el=document.getElementById('np-latlng-display');
+  if(el&&np_lat&&np_lng){el.textContent=np_lat.toFixed(5)+', '+np_lng.toFixed(5);el.style.display='inline';}
+}
+
+/* ── SHARE POST (legacy kept for compatibility) ── */
+function sharePost(text){openShareSheet(encodeURIComponent(text),'',0);}
+
+
+
+/* ═══ FEED ═══ */
+var activeFilter='all',liveCount=247,trendingY=0,isPaused=false;
+function buildCard(p,rank){
+  var d=document.createElement('div');d.className='fstrip';
+  var v=p.views>=1000?(p.views/1000).toFixed(1)+'k':p.views;
+  var liked=likedPosts.has(p.id);
+  d.innerHTML='<div class="fstrip-img"><img src="'+p.img+'" alt="" loading="lazy"><div class="fstrip-img-over"></div><div class="fstrip-rank">'+String(rank).padStart(2,'0')+'</div></div><div class="fstrip-body"><div class="fstrip-top"><div class="fstrip-meta"><div class="fav">'+p.av+'</div><div><div class="fuser">'+p.user+'</div><div class="floc">◎ '+p.city+'</div></div></div><div style="display:flex;align-items:center;gap:.6rem"><span class="fstrip-cat">'+p.cat+'</span><span class="ftime">'+p.time+'m</span></div></div><div class="ftext">'+p.text+'</div><div class="feng"><div class="feng-stat">👁 '+v+'</div><div class="feng-stat">❤ <span id="lk'+p.id+'">'+((liked?p.likes+1:p.likes)).toLocaleString()+'</span></div><div class="feng-stat">💬 '+(p.comments||[]).length+'</div><button class="flike-btn'+(liked?' liked':'')+'" onclick="event.stopPropagation();toggleLike('+p.id+','+p.likes+',this)">'+(liked?'♥':'♡')+'</button></div></div>';
+  d.addEventListener('click',function(){openPost(p);});
+  return d;
+}
+function renderFeed(posts){
+  var grid=document.getElementById('feed-grid');grid.innerHTML='';
+  if(!posts.length){grid.innerHTML='<div class="feed-empty">No posts match this filter</div>';return;}
+  posts.slice(0,10).forEach(function(p,i){var c=buildCard(p,i+1);c.style.animationDelay=(i*.05)+'s';c.classList.add('animating');grid.appendChild(c);});
+}
+function applyFilters(){
+  var q=(document.getElementById('feed-search').value||'').toLowerCase();
+  var sort=document.getElementById('feed-sort').value;
+  var posts=ALL_POSTS.filter(function(p){return(activeFilter==='all'||p.cat===activeFilter)&&(!q||p.text.toLowerCase().includes(q)||p.city.toLowerCase().includes(q)||p.user.toLowerCase().includes(q))&&!blockedUsers.has(p.user);});
+  if(sort==='likes')posts.sort(function(a,b){return b.likes-a.likes;});
+  else if(sort==='views')posts.sort(function(a,b){return b.views-a.views;});
+  renderFeed(posts);
+}
+function setFilter(cat,btn){activeFilter=cat;document.querySelectorAll('.ftxt').forEach(function(p){p.classList.remove('active');});btn.classList.add('active');applyFilters();}
+function toggleLike(id,base,btn){
+  var liked=likedPosts.has(id),el=document.getElementById('lk'+id);
+  if(liked){likedPosts.delete(id);btn.textContent='♡';btn.classList.remove('liked');el.textContent=base.toLocaleString();}
+  else{likedPosts.add(id);btn.textContent='♥';btn.classList.add('liked');el.textContent=(base+1).toLocaleString();}
+}
+function slideCards(dir){document.getElementById('feed-track').scrollBy({left:dir*400,behavior:'smooth'});}
+['all','breaking','news','sports','tech','health','research','social','tourism','event'].forEach(function(c){
+  var el=document.getElementById('fc-'+c);if(!el)return;
+  el.textContent=c==='all'?ALL_POSTS.length:ALL_POSTS.filter(function(p){return p.cat===c;}).length;
+});
+applyFilters();
+
+/* Accounts mosaic */
+var ag=document.getElementById('accounts-grid');
+ACCOUNTS.forEach(function(a,idx){
+  var d=document.createElement('div');d.className='ac';var foll=a.followers>=1000?(a.followers/1000).toFixed(1)+'k':a.followers;
+  d.innerHTML='<div class="ac-cover"><img src="'+ACCOUNT_IMGS[idx]+'" alt="" loading="lazy"><div class="ac-cover-fade"></div></div><div class="ac-badge">'+a.badge+'</div><div class="ac-body"><div class="ac-av">'+a.av+'</div><div class="ac-name">'+a.name+'</div><div class="ac-handle">'+a.handle+'</div></div><div class="ac-hover-reveal"><div class="ac-bio-reveal">'+a.bio+'</div><div class="ac-loc-reveal">◎ '+a.loc+'</div><div class="ac-stats"><div class="ac-stat-item"><div class="acs-num">'+a.posts.toLocaleString()+'</div><div class="acs-lbl">Posts</div></div><div class="ac-stat-item"><div class="acs-num">'+foll+'</div><div class="acs-lbl">Followers</div></div></div></div>';
+  ag.appendChild(d);
+});
+
+/* Trending */
+function getTrendingPosts(tab){var p=ALL_POSTS.slice();if(tab==='top')p.sort(function(a,b){return b.views-a.views;});else if(tab==='live')p.sort(function(a,b){return a.time-b.time;});else if(tab==='breaking')p=p.filter(function(x){return x.cat==='breaking'||x.cat==='news';}).sort(function(a,b){return b.views-a.views;});return p;}
+function buildTrendingCard(p,rank){
+  var v=p.views>=1000?(p.views/1000).toFixed(1)+'k':p.views;var barW=Math.round((p.views/41000)*100);
+  var c=document.createElement('div');c.className='tpost';
+  c.innerHTML='<div class="tpost-rank">'+String(rank).padStart(2,'0')+'</div><div class="tpost-top"><div class="tpost-av">'+p.av+'</div><div><div class="tpost-user">'+p.user+'</div><div class="tpost-loc">◎ '+p.city+'</div></div><div class="tpost-time">'+p.time+'m</div></div><div class="tpost-cat">'+p.cat.toUpperCase()+'</div><div class="tpost-text">'+p.text+'</div><div class="tpost-stats"><div class="tpost-stat">👁 '+v+'</div><div class="tpost-stat">❤ '+p.likes.toLocaleString()+'</div><div class="tpost-stat">💬 '+(p.comments||[]).length+'</div><div class="tpost-bar"><div class="tpost-bar-fill" style="width:'+barW+'%"></div></div></div>';
+  c.addEventListener('click',function(){openPost(p);});
+  return c;
+}
+function renderTrending(tab){var scroll=document.getElementById('trending-scroll');scroll.innerHTML='';var posts=getTrendingPosts(tab);posts.concat(posts).forEach(function(p,i){scroll.appendChild(buildTrendingCard(p,(i%posts.length)+1));});trendingY=0;scroll.style.transform='translateY(0)';}
+function startTrendingScroll(){var scroll=document.getElementById('trending-scroll');var feed=document.getElementById('trending-feed');feed.addEventListener('mouseenter',function(){isPaused=true;});feed.addEventListener('mouseleave',function(){isPaused=false;});(function tick(){if(!isPaused){trendingY-=.5;var half=scroll.scrollHeight/2;if(Math.abs(trendingY)>=half)trendingY=0;scroll.style.transform='translateY('+trendingY+'px)';}requestAnimationFrame(tick);})();}
+function setTrendingTab(tab,btn){document.querySelectorAll('.ttab').forEach(function(t){t.classList.remove('active');});btn.classList.add('active');renderTrending(tab);}
+renderTrending('top');startTrendingScroll();
+setInterval(function(){liveCount+=Math.floor(Math.random()*8+2);var el=document.getElementById('live-count');if(el)el.textContent=liveCount.toLocaleString()+' new posts';},3000);
+
+/* ═══ LANDING MAP ═══ */
+var mapLandInit=false,mapDashInit=false,mapProfInit=false;
+function initLandingMap(){
+  var m=L.map('map-land',{center:[20,10],zoom:2,minZoom:2,maxZoom:18,zoomControl:true,scrollWheelZoom:true,worldCopyJump:true,attributionControl:false});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,subdomains:['a','b','c']}).addTo(m);
+  var mkIcon=L.divIcon({className:'',html:'<div class="city-marker"></div>',iconSize:[10,10],iconAnchor:[5,5]});
+  var popup=document.getElementById('city-popup'),hideTimer=null;
+  CITIES_MAP.forEach(function(c){
+    var mk=L.marker([c.lat,c.lng],{icon:mkIcon}).addTo(m);
+    mk.on('mouseover',function(){clearTimeout(hideTimer);buildMapPopup(c);popup.classList.add('show');});
+    mk.on('mousemove',function(e){placePopup(e.originalEvent,popup,270);});
+    mk.on('mouseout',function(){hideTimer=setTimeout(function(){popup.classList.remove('show');},300);});
+  });
+}
+function buildMapPopup(c){
+  document.getElementById('pop-name').textContent=c.name;document.getElementById('pop-rate').textContent=c.rate;
+  var pb=document.getElementById('pop-body');pb.innerHTML='';
+  ALL_POSTS.filter(function(p){return p.city===c.name;}).slice(0,3).forEach(function(p){
+    var v=p.views>=1000?(p.views/1000).toFixed(1)+'k':p.views;
+    var d=document.createElement('div');d.className='pcard';d.style.cursor='pointer';
+    d.innerHTML='<div class="pcard-top"><div class="pavatar">'+p.av+'</div><div class="puser">'+p.user+'</div><div class="ptime">'+p.time+'m</div></div><div class="ptext">'+p.text+'</div><div class="pengagement"><span>👁 '+v+'</span><span>❤ '+p.likes+'</span><span>💬 '+(p.comments||[]).length+'</span></div>';
+    d.addEventListener('click',function(){popup.classList.remove('show');openPost(p);});
+    pb.appendChild(d);
+  });
+}
+function placePopup(e,popup,pw){
+  var ph=popup.offsetHeight||360,vw=window.innerWidth,vh=window.innerHeight;
+  var l=e.clientX+20,t=e.clientY-55;
+  if(l+pw>vw-20)l=e.clientX-pw-20;if(l<10)l=10;if(t+ph>vh-16)t=vh-ph-16;if(t<70)t=70;
+  popup.style.left=l+'px';popup.style.top=t+'px';
+}
+
+/* ═══ DASHBOARD ═══ */
+function initDashMap(){
+  var m=L.map('dash-map',{center:[20,10],zoom:1,minZoom:1,maxZoom:4,zoomControl:false,scrollWheelZoom:false,attributionControl:false,dragging:false});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,subdomains:['a','b','c']}).addTo(m);
+  var mk=L.divIcon({className:'',html:'<div style="width:6px;height:6px;background:var(--accent);border-radius:50%"></div>',iconSize:[6,6],iconAnchor:[3,3]});
+  CITIES_MAP.forEach(function(c){L.marker([c.lat,c.lng],{icon:mk}).addTo(m);});
+}
+function initDashContent(){
+  var df=document.getElementById('dash-feed');df.innerHTML='';
+  ALL_POSTS.slice(0,6).forEach(function(p,i){
+    var v=p.views>=1000?(p.views/1000).toFixed(1)+'k':p.views;var row=document.createElement('div');row.className='dash-feed-item';
+    row.innerHTML='<div class="dfi-num">'+String(i+1).padStart(2,'0')+'</div><div class="dfi-body"><div class="dfi-cat">'+p.cat+'</div><div class="dfi-text">'+p.text+'</div><div class="dfi-meta"><span>◎ '+p.city+'</span><span>'+p.time+'m ago</span></div></div><div class="dfi-stat"><span class="dfi-stat-num">'+v+'</span>views</div>';
+    row.addEventListener('click',function(){openPost(p);});df.appendChild(row);
+  });
+  var dc=document.getElementById('dash-cities');dc.innerHTML='';
+  CITIES_MAP.forEach(function(c,i){var pct=Math.round((1-i*.1)*100);var row=document.createElement('div');row.className='dash-city-row';row.innerHTML='<span class="dash-city-name">'+c.name+'</span><div class="dash-city-bar"><div class="dash-city-bar-fill" style="width:'+pct+'%"></div></div><span class="dash-city-posts">'+c.rate+'</span>';dc.appendChild(row);});
+  var dn=document.getElementById('dash-notifs');dn.innerHTML='';
+  [{av:CU.initials,user:'You',text:'Joined EarthLive! 🌍',time:'Just now'},{av:'GL',user:'@globe_watch',text:'Welcome to EarthLive!',time:'1m ago'}].forEach(function(n){var d=document.createElement('div');d.className='dash-notif';d.innerHTML='<div class="dash-notif-av">'+n.av+'</div><div><div class="dash-notif-text"><strong>'+n.user+'</strong> '+n.text+'</div><div class="dash-notif-time">'+n.time+'</div></div>';dn.appendChild(d);});
+}
+
+/* ═══ PROFILE MAP WITH POST MARKERS ═══ */
+function initProfMap(){
+  profMapInstance=L.map('map-prof',{center:[20,10],zoom:2,minZoom:2,maxZoom:6,zoomControl:true,scrollWheelZoom:false,worldCopyJump:true,attributionControl:false});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,subdomains:['a','b','c']}).addTo(profMapInstance);
+  renderProfMapMarkers(PROF_POSTS[currentProfTab]);
+}
+function renderProfMapMarkers(posts){
+  if(!profMapInstance)return;
+  profMapMarkers.forEach(function(m){profMapInstance.removeLayer(m);});profMapMarkers=[];
+  var seen={};
+  (posts||[]).forEach(function(p){
+    if(!p.lat||!p.lng)return;
+    var key=p.lat+'_'+p.lng;var offset=seen[key]?seen[key]*0.15:0;seen[key]=(seen[key]||0)+1;
+    var dotColor=p.cat==='breaking'?'#e74c3c':p.cat==='sports'?'#2ecc71':p.cat==='tech'?'#3498db':p.cat==='research'?'#9b59b6':'var(--accent)';
+    var icon=L.divIcon({className:'',html:'<div title="'+p.user+': '+p.text.substring(0,40)+'..." style="width:12px;height:12px;background:'+dotColor+';border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer;position:relative"><div style="position:absolute;inset:-6px;border-radius:50%;border:1px solid '+dotColor+';opacity:.4;animation:mripple 2.5s ease-out infinite"></div></div>',iconSize:[12,12],iconAnchor:[6,6]});
+    var mk=L.marker([p.lat+offset,p.lng],{icon:icon}).addTo(profMapInstance);
+    mk.bindPopup('<div style="font-family:Space Mono,monospace;font-size:.5rem;color:var(--text);min-width:160px"><strong>'+p.user+'</strong><br>◎ '+p.city+'<br><span style="color:#888;font-size:.42rem">'+p.cat+'</span><br><div style="margin-top:.3rem;font-size:.56rem;color:var(--text2)">'+p.text.substring(0,70)+'…</div></div>',{maxWidth:220});
+    mk.on('click',function(){openPost(p);});
+    profMapMarkers.push(mk);
+  });
+}
+
+/* ═══ PROFILE FEED & SEARCH ═══ */
+var profSearchQuery='';
+function filterProfFeed(){
+  profSearchQuery=document.getElementById('prof-search-input').value.toLowerCase();
+  renderProfFeed(currentProfTab);
+}
+function switchProfTab(tab,btn){
+  currentProfTab=tab;
+  document.querySelectorAll('.ftab').forEach(function(t){t.classList.remove('active');});if(btn)btn.classList.add('active');
+  if(tab==='myposts'){
+    PROF_POSTS.myposts=ALL_POSTS.filter(function(p){return p.user==='@'+(CU.username||'you');});
+    if(!PROF_POSTS.myposts.length){PROF_POSTS.myposts=[{id:99,user:'@'+(CU.username||'you'),av:CU.initials,city:'Anekal',lat:12.7104,lng:77.6967,time:1,cat:'social',text:'Your first post will appear here! Drop a pin to get started.',likes:0,views:0,img:'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=600&q=80',comments:[]}];}
+  }
+  renderProfFeed(tab);
+  renderProfMapMarkers(PROF_POSTS[tab]);
+}
+function renderProfFeed(tab){
+  var sc=document.getElementById('prof-feed-scroll');sc.innerHTML='';
+  var posts=(PROF_POSTS[tab]||[]).filter(function(p){
+    if(!profSearchQuery)return true;
+    return p.text.toLowerCase().includes(profSearchQuery)||p.user.toLowerCase().includes(profSearchQuery)||(p.city||'').toLowerCase().includes(profSearchQuery);
+  });
+  if(!posts.length){var empty=document.createElement('div');empty.style.cssText='font-family:Space Mono,monospace;font-size:.52rem;color:var(--text4);text-align:center;padding:3rem 1rem;letter-spacing:.12em;text-transform:uppercase';empty.textContent='No posts found';sc.appendChild(empty);return;}
+  posts.forEach(function(p){
+    var card=document.createElement('div');card.className='post-card';
+    card.innerHTML='<div class="post-img"><img src="'+p.img+'" alt="" loading="lazy"><div class="post-img-fade"></div><div class="post-cat-badge">'+p.cat+'</div></div><div class="post-body"><div class="post-user-row"><div class="post-av">'+p.av+'</div><div><div class="post-user">'+p.user+'</div><div class="post-loc">◎ '+p.city+(p.lat&&p.lng?' <span style="font-family:Space Mono,monospace;font-size:.32rem;color:var(--text4);letter-spacing:.04em">('+p.lat.toFixed(3)+', '+p.lng.toFixed(3)+')</span>':'')+'</div></div><div class="post-time">'+p.time+'m ago</div></div><div class="post-text">'+parseHashtags(p.text)+'</div><div class="post-eng"><div class="post-eng-stat">👁 '+p.views+'</div><div class="post-eng-stat">❤ '+p.likes+'</div><div class="post-eng-stat">💬 '+(p.comments||[]).length+'</div><button class="eng-btn ml" onclick="event.stopPropagation();openPost('+JSON.stringify(p).replace(/"/g,"'")+')">Open ↗</button></div></div>';
+    card.addEventListener('click',function(){openPost(p);});sc.appendChild(card);
+  });
+}
+renderProfFeed('following');
+
+/* ═══ EXTENDED PROFILE SECTIONS ═══ */
+function renderExtendedProfile(){
+  // Bio
+  var bioEl=document.getElementById('prof-bio-display');
+  if(bioEl)bioEl.textContent=CU.bio||'No bio yet — click Edit Profile to add one.';
+
+  // Interest tags
+  var tagsEl=document.getElementById('prof-interest-tags');
+  if(tagsEl){
+    tagsEl.innerHTML=(CU.interests||[]).map(function(i){
+      return'<span style="font-family:Space Mono,monospace;font-size:.42rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--border-dark);padding:.2rem .55rem;color:var(--text3)">'+i+'</span>';
+    }).join('');
+  }
+
+  // Stats
+  var myPosts=ALL_POSTS.filter(function(p){return p.user==='@'+(CU.username||'you');});
+  var totalViews=myPosts.reduce(function(s,p){return s+p.views;},0);
+  var totalCities=[...new Set(myPosts.map(function(p){return p.city;}))].length;
+  var el=document.getElementById('pext-posts');if(el)el.textContent=myPosts.length||'—';
+  var el2=document.getElementById('pext-views');if(el2)el2.textContent=totalViews>=1000?(totalViews/1000).toFixed(1)+'k':totalViews||'—';
+  var el3=document.getElementById('pext-likes');if(el3)el3.textContent=likedPosts.size||'—';
+  var el4=document.getElementById('pext-cities');if(el4)el4.textContent=totalCities||'—';
+
+  // Achievements
+  var ach=document.getElementById('prof-achievements');
+  if(ach){
+    var badges=[
+      {icon:'🌍',label:'Global Explorer',sub:'Joined EarthLive',earned:true},
+      {icon:'📍',label:'First Pin',sub:'Post your first update',earned:myPosts.length>0},
+      {icon:'❤️',label:'Post Appreciated',sub:'Get 10 likes on a post',earned:myPosts.some(function(p){return p.likes>=10;})},
+      {icon:'🔥',label:'Trending',sub:'Hit 1k views on a post',earned:myPosts.some(function(p){return p.views>=1000;})},
+      {icon:'🌐',label:'World Traveler',sub:'Post from 3+ cities',earned:totalCities>=3},
+    ];
+    ach.innerHTML=badges.map(function(b){
+      return'<div style="display:flex;align-items:center;gap:.7rem;opacity:'+(b.earned?1:.35)+'"><span style="font-size:1.1rem">'+b.icon+'</span><div><div style="font-family:Space Mono,monospace;font-size:.48rem;letter-spacing:.08em;color:var(--text)'+(b.earned?'':';text-decoration:line-through')+'">'+b.label+'</div><div style="font-family:Space Mono,monospace;font-size:.36rem;color:var(--text4)">'+b.sub+'</div></div>'+(b.earned?'<span style="margin-left:auto;font-family:Space Mono,monospace;font-size:.36rem;color:#27ae60;letter-spacing:.08em">✓ EARNED</span>':'')+'</div>';
+    }).join('');
+  }
+
+  // Heatmap (52 weeks x 7 days)
+  var hm=document.getElementById('prof-heatmap');
+  if(hm){
+    var weeks=52,cellSz=11,gap=2;
+    var svg='<svg width="'+(weeks*(cellSz+gap))+'" height="'+(7*(cellSz+gap))+'" style="display:block">';
+    for(var w=0;w<weeks;w++){
+      for(var d=0;d<7;d++){
+        var intensity=Math.random()<0.25?0:Math.floor(Math.random()*4);
+        var opacity=[0.06,0.18,0.42,0.7,1][intensity];
+        var x=w*(cellSz+gap),y=d*(cellSz+gap);
+        svg+='<rect x="'+x+'" y="'+y+'" width="'+cellSz+'" height="'+cellSz+'" rx="2" fill="var(--accent)" opacity="'+opacity+'" />';
+      }
+    }
+    svg+='</svg>';
+    hm.innerHTML=svg;
+  }
+
+  // Top posts
+  var tp=document.getElementById('prof-top-posts');
+  if(tp){
+    var topPosts=ALL_POSTS.slice(0,4);
+    tp.innerHTML=topPosts.map(function(p){
+      return'<div onclick="openPost('+JSON.stringify(p).replace(/"/g,"'")+'.replace(/true/g,\'!0\').replace(/false/g,\'!1\'))" style="cursor:pointer;border:1px solid var(--border);background:var(--surface2);overflow:hidden;border-radius:6px;transition:transform .2s,box-shadow .2s" onmouseover="this.style.transform=\'translateY(-3px)\';this.style.boxShadow=\'0 8px 24px rgba(26,22,18,.12)\'" onmouseout="this.style.transform=\'\';this.style.boxShadow=\'\'">'
+        +'<img src="'+p.img+'" style="width:100%;height:130px;object-fit:cover;display:block;filter:sepia(.2) brightness(.85)">'
+        +'<div style="padding:.8rem 1rem">'
+        +'<div style="font-family:Space Mono,monospace;font-size:.38rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:.3rem">'+p.cat+' · ◎ '+p.city+'</div>'
+        +'<div style="font-size:.78rem;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">'+p.text+'</div>'
+        +'<div style="display:flex;gap:.7rem;margin-top:.5rem;font-family:Space Mono,monospace;font-size:.38rem;color:var(--text4)"><span>❤ '+p.likes+'</span><span>👁 '+p.views+'</span><span>💬 '+(p.comments||[]).length+'</span></div>'
+        +'</div></div>';
+    }).join('');
+  }
+
+  // Following list
+  var fl=document.getElementById('prof-following-list');
+  if(fl){
+    var shown=ACCOUNTS.slice(0,8);
+    if(!shown.length){fl.innerHTML='<span style="font-family:Space Mono,monospace;font-size:.48rem;color:var(--text4)">Not following anyone yet</span>';return;}
+    fl.innerHTML=shown.map(function(a){
+      return'<div onclick="openMsg(\''+a.av+'\',\''+a.name+'\',\''+a.handle+'\')" style="display:flex;align-items:center;gap:.55rem;border:1px solid var(--border);padding:.55rem .8rem;background:var(--surface2);cursor:pointer;transition:border-color .2s;border-radius:4px" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
+        +'<div style="width:28px;height:28px;border-radius:50%;background:var(--bg3);border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-family:Space Mono,monospace;font-size:.5rem;font-weight:700;color:var(--text);flex-shrink:0">'+a.av+'</div>'
+        +'<div><div style="font-family:Space Mono,monospace;font-size:.46rem;color:var(--text)">'+a.name+'</div><div style="font-family:Space Mono,monospace;font-size:.36rem;color:var(--text4)">'+a.handle+'</div></div>'
+        +'</div>';
+    }).join('');
+  }
+
+  // Cities
+  var cl=document.getElementById('prof-cities-list');
+  if(cl){
+    cl.innerHTML=CITIES_MAP.map(function(c){
+      return'<span style="font-family:Space Mono,monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--border-dark);padding:.3rem .75rem;color:var(--text2);cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border-dark)\'">◎ '+c.name+'</span>';
+    }).join('');
+  }
+}
+
+/* ═══ SEARCH MODAL ═══ */
+function openSearch(){
+  var m=document.createElement('div');m.id='search-modal';
+  m.style.cssText='position:fixed;inset:0;z-index:9000;display:flex;align-items:flex-start;justify-content:center;background:rgba(26,22,18,.6);backdrop-filter:blur(10px);padding:5rem 1rem 1rem';
+  m.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border-dark);width:560px;max-width:98vw;border-radius:6px;overflow:hidden;position:relative">
+    <div style="height:2px;background:var(--accent)"></div>
+    <div style="display:flex;align-items:center;gap:.5rem;padding:.7rem 1rem;border-bottom:1px solid var(--border)">
+      <span style="color:var(--text4);font-size:1rem">⌕</span>
+      <input id="sm-input" type="text" placeholder="Search @username, keyword, or city…" autocomplete="off" oninput="doSearch()" style="flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem">
+      <button onclick="document.getElementById('search-modal').remove()" style="background:transparent;border:none;font-size:1rem;cursor:pointer;color:var(--text3)">✕</button>
+    </div>
+    <div id="sm-results" style="max-height:400px;overflow-y:auto;padding:.5rem 0">
+      <div style="font-family:Space Mono,monospace;font-size:.48rem;color:var(--text4);letter-spacing:.14em;text-transform:uppercase;padding:.8rem 1rem">Start typing to search posts and people</div>
+    </div>
+  </div>`;
+  m.addEventListener('click',function(e){if(e.target===m)m.remove();});
+  document.body.appendChild(m);
+  setTimeout(function(){document.getElementById('sm-input').focus();},100);
+}
+function doSearch(){
+  var q=document.getElementById('sm-input').value.toLowerCase().trim();
+  var res=document.getElementById('sm-results');res.innerHTML='';
+  if(!q){res.innerHTML='<div style="font-family:Space Mono,monospace;font-size:.48rem;color:var(--text4);letter-spacing:.14em;text-transform:uppercase;padding:.8rem 1rem">Start typing to search</div>';return;}
+  // Search posts
+  var posts=ALL_POSTS.filter(function(p){return p.text.toLowerCase().includes(q)||p.user.toLowerCase().includes(q)||p.city.toLowerCase().includes(q);});
+  // Search people
+  var people=ACCOUNTS.filter(function(a){return a.handle.toLowerCase().includes(q)||a.name.toLowerCase().includes(q)||a.loc.toLowerCase().includes(q);});
+  if(!posts.length&&!people.length){res.innerHTML='<div style="font-family:Space Mono,monospace;font-size:.48rem;color:var(--text4);letter-spacing:.14em;text-transform:uppercase;padding:.8rem 1rem">No results for "'+q+'"</div>';return;}
+  if(people.length){
+    var ph=document.createElement('div');ph.style.cssText='font-family:Space Mono,monospace;font-size:.44rem;color:var(--text4);letter-spacing:.16em;text-transform:uppercase;padding:.6rem 1rem .3rem;border-bottom:1px solid var(--border)';ph.textContent='People';res.appendChild(ph);
+    people.forEach(function(a){
+      var d=document.createElement('div');d.style.cssText='display:flex;align-items:center;gap:.8rem;padding:.7rem 1rem;cursor:pointer;border-bottom:1px solid var(--border);transition:background .2s';d.onmouseenter=function(){this.style.background='var(--bg2)';};d.onmouseleave=function(){this.style.background='transparent';};
+      var following=followingSet.has(a.handle);
+      d.innerHTML='<div style="width:34px;height:34px;border-radius:50%;background:var(--bg3);border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-family:Space Mono,monospace;font-size:.6rem;font-weight:700;color:var(--text);flex-shrink:0">'+a.av+'</div><div style="flex:1;min-width:0"><div style="font-family:Space Mono,monospace;font-size:.52rem;color:var(--text)">'+a.name+'</div><div style="font-family:Space Mono,monospace;font-size:.4rem;color:var(--text4)">'+a.handle+' · '+a.loc+'</div></div><button onclick="event.stopPropagation();toggleFollowBtn(this,\''+a.handle+'\')" style="font-family:Space Mono,monospace;font-size:.4rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--border-dark);padding:.25rem .65rem;background:transparent;color:var(--text3);cursor:pointer;flex-shrink:0">'+(following?'✓ Following':'Follow')+'</button><button onclick="event.stopPropagation();openMsg(\''+a.av+'\',\''+a.name+'\',\''+a.handle+'\')" style="font-family:Space Mono,monospace;font-size:.4rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--border-dark);padding:.25rem .65rem;background:transparent;color:var(--text3);cursor:pointer;flex-shrink:0">Message</button>';
+      res.appendChild(d);
+    });
+  }
+  if(posts.length){
+    var pp=document.createElement('div');pp.style.cssText='font-family:Space Mono,monospace;font-size:.44rem;color:var(--text4);letter-spacing:.16em;text-transform:uppercase;padding:.6rem 1rem .3rem;border-bottom:1px solid var(--border)';pp.textContent='Posts';res.appendChild(pp);
+    posts.slice(0,5).forEach(function(p){
+      var d=document.createElement('div');d.style.cssText='display:flex;align-items:center;gap:.7rem;padding:.7rem 1rem;cursor:pointer;border-bottom:1px solid var(--border);transition:background .2s';d.onmouseenter=function(){this.style.background='var(--bg2)';};d.onmouseleave=function(){this.style.background='transparent';};
+      d.innerHTML='<img src="'+p.img+'" style="width:44px;height:44px;object-fit:cover;border-radius:4px;flex-shrink:0"><div style="flex:1;min-width:0"><div style="font-size:.78rem;color:var(--text2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.45">'+p.text+'</div><div style="font-family:Space Mono,monospace;font-size:.36rem;color:var(--text4);margin-top:.2rem">'+p.user+' · ◎ '+p.city+' · '+p.cat+'</div></div>';
+      d.addEventListener('click',function(){document.getElementById('search-modal').remove();openPost(p);});
+      res.appendChild(d);
+    });
+  }
+}
+function toggleFollowBtn(btn,handle){
+  if(followingSet.has(handle)){followingSet.delete(handle);btn.textContent='Follow';}
+  else{followingSet.add(handle);btn.textContent='✓ Following';}
+}
+
+/* ═══ MESSAGING ═══ */
+var msgHistory={};
+function openMsg(av,name,handle){
+  var key=handle;if(!msgHistory[key])msgHistory[key]=[];
+  var m=document.createElement('div');m.className='msg-modal';m.id='msg-modal';
+  m.innerHTML=`<div class="msg-inner">
+    <div class="msg-header">
+      <div class="msg-to-av">${av}</div>
+      <div><div class="msg-to-name">${name}</div><div class="msg-to-handle">${handle}</div></div>
+      <button class="msg-close" onclick="document.getElementById('msg-modal').remove()">✕</button>
+    </div>
+    <div class="msg-body" id="msg-body">
+      ${msgHistory[key].length?'':'<div class="msg-empty">Start a conversation with '+name+'</div>'}
+      ${msgHistory[key].map(function(msg){return'<div style="display:flex;flex-direction:column;align-items:'+(msg.me?'flex-end':'flex-start')+'"><div class="msg-bubble '+(msg.me?'me':'them')+'">'+msg.text+'<span class="msg-bubble-time">'+msg.time+'</span></div></div>';}).join('')}
+    </div>
+    <div class="msg-footer">
+      <textarea class="msg-input" id="msg-input" placeholder="Type a message…" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg('${key}','${av}','${name}','${handle}')}"></textarea>
+      <button class="msg-send" onclick="sendMsg('${key}','${av}','${name}','${handle}')">Send →</button>
+    </div>
+  </div>`;
+  m.addEventListener('click',function(e){if(e.target===m)m.remove();});
+  document.body.appendChild(m);
+  setTimeout(function(){var b=document.getElementById('msg-body');if(b)b.scrollTop=b.scrollHeight;},100);
+}
+function sendMsg(key,av,name,handle){
+  var input=document.getElementById('msg-input');var text=input.value.trim();if(!text)return;
+  if(!msgHistory[key])msgHistory[key]=[];
+  var now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  msgHistory[key].push({me:true,text:text,time:now});
+  var body=document.getElementById('msg-body');
+  var d=document.createElement('div');d.style.cssText='display:flex;flex-direction:column;align-items:flex-end';
+  d.innerHTML='<div class="msg-bubble me">'+text+'<span class="msg-bubble-time">'+now+'</span></div>';
+  body.appendChild(d);body.scrollTop=body.scrollHeight;input.value='';
+  // Simulate reply
+  setTimeout(function(){
+    var replies=['Interesting! Tell me more.','Thanks for reaching out!','Happy to connect 🌍','That\'s great to hear!'];
+    var r=replies[Math.floor(Math.random()*replies.length)];
+    msgHistory[key].push({me:false,text:r,time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})});
+    var rd=document.createElement('div');rd.style.cssText='display:flex;flex-direction:column;align-items:flex-start';
+    rd.innerHTML='<div class="msg-bubble them">'+r+'<span class="msg-bubble-time">now</span></div>';
+    body.appendChild(rd);body.scrollTop=body.scrollHeight;
+  },1200+Math.random()*800);
+}
+
+/* ═══ EDIT PROFILE ═══ */
+function openEditProfile(){
+  var m=document.createElement('div');m.id='edit-modal';
+  m.style.cssText='position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(26,22,18,.55);backdrop-filter:blur(8px);overflow-y:auto;padding:1rem 0';
+  m.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border-dark);width:480px;max-width:95vw;position:relative;margin:auto">
+    <div style="height:2px;background:var(--accent)"></div>
+    <div style="padding:1.8rem 2rem 2rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.4rem">
+        <div style="font-family:Bebas Neue,sans-serif;font-size:1.6rem;letter-spacing:.04em;color:var(--text)">Edit Profile</div>
+        <button onclick="document.getElementById('edit-modal').remove()" style="background:transparent;border:none;font-size:1.1rem;cursor:pointer;color:var(--text3)">✕</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.4rem;padding-bottom:1.4rem;border-bottom:1px solid var(--border)">
+        <div id="ep-av-preview" style="width:64px;height:64px;border-radius:50%;background:var(--bg3);border:1px solid var(--border-dark);display:flex;align-items:center;justify-content:center;font-family:Space Mono,monospace;font-size:1.2rem;font-weight:700;color:var(--text);overflow:hidden;flex-shrink:0">${CU.avatar_url?'<img src="'+CU.avatar_url+'" style="width:100%;height:100%;object-fit:cover">':CU.initials}</div>
+        <div>
+          <div style="font-family:Space Mono,monospace;font-size:.48rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text4);margin-bottom:.5rem">Profile Picture</div>
+          <label style="font-family:Space Mono,monospace;font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;background:transparent;color:var(--text);border:1px solid var(--border-dark);padding:.4rem .9rem;cursor:pointer;display:inline-block">Upload Photo<input type="file" id="ep-avatar" accept="image/*" style="display:none" onchange="previewAvatar(this)"></label>
+          <div style="font-family:Space Mono,monospace;font-size:.38rem;color:var(--text4);margin-top:.35rem">JPG, PNG · Max 2MB</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+        <div class="fg"><label class="fl">First Name</label><input class="fi" id="ep-first" type="text" value="${CU.first}"></div>
+        <div class="fg"><label class="fl">Last Name</label><input class="fi" id="ep-last" type="text" value="${CU.last}"></div>
+      </div>
+      <div class="fg"><label class="fl">Username</label><input class="fi" id="ep-user" type="text" value="${CU.username}"></div>
+      <div class="fg"><label class="fl">Bio</label><textarea class="fi" id="ep-bio" rows="2" placeholder="Tell the world who you are…" style="resize:none">${CU.bio||''}</textarea></div>
+      <div style="font-family:Space Mono,monospace;font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text4);margin-bottom:.6rem;margin-top:.2rem">Your Interests</div>
+      <div id="ep-chips" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:.4rem;margin-bottom:1.2rem"></div>
+      <div id="ep-err" style="font-family:Space Mono,monospace;font-size:.5rem;color:#c0392b;margin-top:.4rem;display:none"></div>
+      <button onclick="saveProfile(this)" style="width:100%;font-family:Space Mono,monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;background:var(--accent);color:var(--accent-inv);padding:.9rem;border:1px solid var(--accent);cursor:pointer;margin-top:.2rem;display:flex;align-items:center;justify-content:center;gap:.5rem"><div class="spinner" id="ep-spin" style="border-top-color:var(--accent-inv)"></div>Save Changes →</button>
+    </div>
+  </div>`;
+  m.addEventListener('click',function(e){if(e.target===m)m.remove();});
+  document.body.appendChild(m);
+  renderInterestChips('ep-chips',CU.interests);
+}
+function previewAvatar(input){
+  if(!input.files||!input.files[0])return;
+  var f=input.files[0];if(f.size>2*1024*1024){alert('Image must be under 2MB');return;}
+  var r=new FileReader();r.onload=function(e){
+    var src=e.target.result;
+    document.getElementById('ep-av-preview').innerHTML='<img src="'+src+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+    // Live preview: update nav avatar and profile card avatar immediately
+    var imgTag='<img src="'+src+'" style="width:100%;height:100%;object-fit:cover">';
+    document.getElementById('nav-av').innerHTML=imgTag;
+    document.getElementById('pc-av').innerHTML=imgTag;
+    // Store temp URL so save works even if Supabase upload fails
+    window._avatarPreviewSrc=src;
+  };r.readAsDataURL(f);
+}
+async function saveProfile(btn){
+  var first=document.getElementById('ep-first').value.trim();
+  var last=document.getElementById('ep-last').value.trim();
+  var username=document.getElementById('ep-user').value.trim().replace(/^@/,'');
+  var bio=document.getElementById('ep-bio')?document.getElementById('ep-bio').value.trim():'';
+  var interests=Array.from(document.querySelectorAll('#ep-chips .ob-chip.sel')).map(function(c){return c.querySelector('.ob-chip-label').textContent;});
+  var errEl=document.getElementById('ep-err');
+  if(!first||!username){errEl.textContent='Name and username required.';errEl.style.display='block';return;}
+  btn.disabled=true;document.getElementById('ep-spin').style.display='block';
+  var avatarFile=document.getElementById('ep-avatar').files[0];
+  var avatarUrl=CU.avatar_url;
+  if(avatarFile){
+    try{
+      var ext=avatarFile.name.split('.').pop();var path='avatars/'+CU.id+'.'+ext;
+      var up=await sb.storage.from('avatars').upload(path,avatarFile,{upsert:true});
+      if(!up.error){avatarUrl=sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;}
+      else{avatarUrl=window._avatarPreviewSrc||avatarUrl;} // fallback to local preview
+    }catch(e){avatarUrl=window._avatarPreviewSrc||avatarUrl;}
+  }
+  // Save to DB (best-effort — works in demo mode too)
+  try{
+    await sb.from('profiles').upsert({id:CU.id,first_name:first,last_name:last,username:username,full_name:first+' '+last,email:CU.email,interests:interests,avatar_url:avatarUrl,bio:bio});
+  }catch(e){}
+  CU.first=first;CU.last=last;CU.username=username;CU.interests=interests;CU.bio=bio;
+  CU.initials=((first[0]||'')+(last[0]||'')).toUpperCase();
+  if(avatarUrl)CU.avatar_url=avatarUrl;
+  applyUserToUI();
+  document.getElementById('edit-modal').remove();
+  btn.disabled=false;document.getElementById('ep-spin').style.display='none';
+}
+
+/* ═══ NEW POST ═══ */
+var np_media_files=[];
+var np_lat=null,np_lng=null,np_map=null,np_marker=null;
+function openNewPost(){
+  np_media_files=[];np_lat=null;np_lng=null;np_map=null;np_marker=null;
+  var m=document.createElement('div');m.id='np-modal';
+  m.style.cssText='position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(26,22,18,.55);backdrop-filter:blur(8px);overflow-y:auto;padding:1rem 0';
+  m.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border-dark);width:500px;max-width:95vw;position:relative;margin:auto">
+    <div style="height:2px;background:var(--accent)"></div>
+    <div style="padding:1.8rem 2rem 2rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.4rem">
+        <div style="font-family:Bebas Neue,sans-serif;font-size:1.6rem;letter-spacing:.04em;color:var(--text)">New Post</div>
+        <button onclick="document.getElementById('np-modal').remove()" style="background:transparent;border:none;font-size:1.1rem;cursor:pointer;color:var(--text3)">✕</button>
+      </div>
+      <div class="fg"><label class="fl">What's happening?</label><textarea class="fi" id="np-text" rows="3" placeholder="Describe the moment…" style="resize:none"></textarea></div>
+      <div class="fg" style="position:relative">
+        <label class="fl" style="display:flex;align-items:center;justify-content:space-between">City <span id="np-city-status" style="font-size:.38rem;color:var(--text4);font-weight:normal">Detecting location…</span></label>
+        <input class="fi" id="np-city" type="text" placeholder="Detecting…" oninput="npCityTyped(this.value)" autocomplete="off">
+        <div style="font-family:Space Mono,monospace;font-size:.38rem;color:var(--text4);margin-top:.3rem;display:flex;align-items:center;gap:.4rem">
+          <span>Coordinates:</span>
+          <span id="np-latlng-display" class="coord-badge" style="display:none">—</span>
+          <span id="np-latlng-none" style="color:var(--text4)">Will be detected automatically</span>
+        </div>
+        <div id="np-city-suggestions" style="position:absolute;left:0;right:0;top:calc(100% - 22px);z-index:500"></div>
+      </div>
+      <div id="np-map-preview" style="width:100%;height:145px;border:1px solid var(--border);margin-bottom:.9rem;display:none;position:relative;overflow:hidden;border-radius:4px">
+        <div id="np-map-inner" style="width:100%;height:100%"></div>
+        <div style="position:absolute;bottom:.4rem;left:.5rem;font-family:Space Mono,monospace;font-size:.36rem;color:var(--text);background:var(--surface);padding:.2rem .5rem;border:1px solid var(--border);pointer-events:none;z-index:1000" id="np-map-label">📍 Drag pin to adjust</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem">
+        <div class="fg"><label class="fl">Category</label><select class="fi" id="np-cat" style="height:auto;padding:.68rem .9rem"><option>social</option><option>breaking</option><option>sports</option><option>tech</option><option>health</option><option>research</option><option>tourism</option><option>event</option><option>news</option></select></div>
+        <div class="fg"><label class="fl">Visibility</label><select class="fi" id="np-vis" style="height:auto;padding:.68rem .9rem"><option value="public">🌐 Public</option><option value="followers">🔒 Followers Only</option></select></div>
+      </div>
+      <div style="margin-bottom:.9rem">
+        <div style="font-family:Space Mono,monospace;font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text4);margin-bottom:.5rem">Photos & Videos</div>
+        <label style="display:flex;align-items:center;gap:.6rem;border:1px dashed var(--border-dark);padding:.9rem 1rem;cursor:pointer;background:var(--bg2)">
+          <span style="font-size:1.2rem">📎</span>
+          <div><div style="font-family:Space Mono,monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text2)">Attach Media</div><div style="font-family:Space Mono,monospace;font-size:.38rem;color:var(--text4);margin-top:.15rem">JPG, PNG, MP4 · Max 50MB each</div></div>
+          <input type="file" id="np-media" accept="image/*,video/*" multiple style="display:none" onchange="handleMediaSelect(this)">
+        </label>
+        <div id="np-media-preview" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem"></div>
+      </div>
+      <div id="np-err" style="font-family:Space Mono,monospace;font-size:.5rem;color:#c0392b;margin-top:.4rem;padding:.4rem .6rem;background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.2);display:none"></div>
+      <div id="np-progress" style="font-family:Space Mono,monospace;font-size:.48rem;color:var(--text4);margin-top:.4rem;display:none">Uploading media…</div>
+      <button id="np-btn" onclick="submitPost(this)" style="width:100%;font-family:Space Mono,monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;background:var(--accent);color:var(--accent-inv);padding:.9rem;border:1px solid var(--accent);cursor:pointer;margin-top:.8rem;display:flex;align-items:center;justify-content:center;gap:.5rem"><div class="spinner" id="np-spin" style="border-top-color:var(--accent-inv)"></div>Drop Pin →</button>
+    </div>
+  </div>`;
+  m.addEventListener('click',function(e){if(e.target===m)m.remove();});
+  document.body.appendChild(m);
+  // Geolocation auto-detect
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(async function(pos){
+      np_lat=pos.coords.latitude;np_lng=pos.coords.longitude;
+      try{
+        var res=await fetch('https://nominatim.openstreetmap.org/reverse?lat='+np_lat+'&lon='+np_lng+'&format=json');
+        var d=await res.json();
+        var city=d.address.city||d.address.town||d.address.village||d.address.county||'';
+        var cityInput=document.getElementById('np-city');if(cityInput)cityInput.value=city;
+        var stEl=document.getElementById('np-city-status');if(stEl){stEl.textContent='📍 Location detected';stEl.style.color='#27ae60';}
+        var latlngEl=document.getElementById('np-latlng-display');var noneEl=document.getElementById('np-latlng-none');
+        if(latlngEl){latlngEl.textContent=np_lat.toFixed(5)+', '+np_lng.toFixed(5);latlngEl.style.display='inline-flex';}
+        if(noneEl)noneEl.style.display='none';
+        npShowMapPreview(np_lat,np_lng,city);
+      }catch(e){var stEl=document.getElementById('np-city-status');if(stEl)stEl.textContent='Enter manually';}
+    },function(){
+      var stEl=document.getElementById('np-city-status');if(stEl)stEl.textContent='Enter manually';
+      var ci=document.getElementById('np-city');if(ci)ci.placeholder='City name';
+    });
+  } else {var stEl=document.getElementById('np-city-status');if(stEl)stEl.textContent='Enter manually';}
+}
+
+function npShowMapPreview(lat,lng,cityName){
+  var wrap=document.getElementById('np-map-preview');if(!wrap)return;
+  wrap.style.display='block';
+  if(np_map){try{np_map.remove();}catch(e){}}
+  np_map=L.map('np-map-inner',{center:[lat,lng],zoom:12,zoomControl:true,scrollWheelZoom:false,attributionControl:false});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,subdomains:['a','b','c']}).addTo(np_map);
+  var icon=L.divIcon({className:'',html:'<div style="width:14px;height:14px;background:var(--accent);border-radius:50%;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4)"></div>',iconSize:[14,14],iconAnchor:[7,7]});
+  np_marker=L.marker([lat,lng],{icon:icon,draggable:true}).addTo(np_map);
+  np_marker.on('dragend',async function(e){
+    var pos=e.target.getLatLng();np_lat=pos.lat;np_lng=pos.lng;
+    var latlngEl=document.getElementById('np-latlng-display');var noneEl=document.getElementById('np-latlng-none');
+    if(latlngEl){latlngEl.textContent=np_lat.toFixed(5)+', '+np_lng.toFixed(5);latlngEl.style.display='inline-flex';}
+    if(noneEl)noneEl.style.display='none';
+    try{
+      var res=await fetch('https://nominatim.openstreetmap.org/reverse?lat='+np_lat+'&lon='+np_lng+'&format=json');
+      var d=await res.json();
+      var city=d.address.city||d.address.town||d.address.village||d.address.county||'';
+      var ci=document.getElementById('np-city');if(ci)ci.value=city;
+      var lbl=document.getElementById('np-map-label');if(lbl)lbl.textContent='📍 '+city;
+    }catch(e){}
+  });
+  var lbl=document.getElementById('np-map-label');if(lbl)lbl.textContent='📍 '+(cityName||'');
+  setTimeout(function(){if(np_map)np_map.invalidateSize();},200);
+}
+
+/* ═══ WORLD CITIES DATABASE (instant offline autocomplete) ═══ */
+var WORLD_CITIES=[
+  {n:"Bengaluru",c:"India",lat:12.9716,lng:77.5946},{n:"Bangalore",c:"India",lat:12.9716,lng:77.5946},
+  {n:"Mumbai",c:"India",lat:19.0760,lng:72.8777},{n:"Delhi",c:"India",lat:28.7041,lng:77.1025},
+  {n:"New Delhi",c:"India",lat:28.6139,lng:77.2090},{n:"Chennai",c:"India",lat:13.0827,lng:80.2707},
+  {n:"Hyderabad",c:"India",lat:17.3850,lng:78.4867},{n:"Ahmedabad",c:"India",lat:23.0225,lng:72.5714},
+  {n:"Pune",c:"India",lat:18.5204,lng:73.8567},{n:"Kolkata",c:"India",lat:22.5726,lng:88.3639},
+  {n:"Jaipur",c:"India",lat:26.9124,lng:75.7873},{n:"Surat",c:"India",lat:21.1702,lng:72.8311},
+  {n:"Lucknow",c:"India",lat:26.8467,lng:80.9462},{n:"Kanpur",c:"India",lat:26.4499,lng:80.3319},
+  {n:"Nagpur",c:"India",lat:21.1458,lng:79.0882},{n:"Indore",c:"India",lat:22.7196,lng:75.8577},
+  {n:"Thane",c:"India",lat:19.2183,lng:72.9781},{n:"Bhopal",c:"India",lat:23.2599,lng:77.4126},
+  {n:"Visakhapatnam",c:"India",lat:17.6868,lng:83.2185},{n:"Pimpri",c:"India",lat:18.6298,lng:73.7997},
+  {n:"Patna",c:"India",lat:25.5941,lng:85.1376},{n:"Vadodara",c:"India",lat:22.3072,lng:73.1812},
+  {n:"Ghaziabad",c:"India",lat:28.6692,lng:77.4538},{n:"Ludhiana",c:"India",lat:30.9010,lng:75.8573},
+  {n:"Agra",c:"India",lat:27.1767,lng:78.0081},{n:"Nashik",c:"India",lat:19.9975,lng:73.7898},
+  {n:"Faridabad",c:"India",lat:28.4089,lng:77.3178},{n:"Meerut",c:"India",lat:28.9845,lng:77.7064},
+  {n:"Rajkot",c:"India",lat:22.3039,lng:70.8022},{n:"Kalyan",c:"India",lat:19.2437,lng:73.1355},
+  {n:"Mysuru",c:"India",lat:12.2958,lng:76.6394},{n:"Mysore",c:"India",lat:12.2958,lng:76.6394},
+  {n:"Vasai",c:"India",lat:19.3919,lng:72.8397},{n:"Coimbatore",c:"India",lat:11.0168,lng:76.9558},
+  {n:"Mangalore",c:"India",lat:12.9141,lng:74.8560},{n:"Kochi",c:"India",lat:9.9312,lng:76.2673},
+  {n:"Guwahati",c:"India",lat:26.1445,lng:91.7362},{n:"Chandigarh",c:"India",lat:30.7333,lng:76.7794},
+  {n:"Amritsar",c:"India",lat:31.6340,lng:74.8723},{n:"Bhubaneswar",c:"India",lat:20.2961,lng:85.8245},
+  {n:"Anekal",c:"India",lat:12.7104,lng:77.6967},{n:"Whitefield",c:"India",lat:12.9698,lng:77.7500},
+  {n:"Electronic City",c:"India",lat:12.8399,lng:77.6770},
+  {n:"New York",c:"USA",lat:40.7128,lng:-74.0060},{n:"Los Angeles",c:"USA",lat:34.0522,lng:-118.2437},
+  {n:"Chicago",c:"USA",lat:41.8781,lng:-87.6298},{n:"Houston",c:"USA",lat:29.7604,lng:-95.3698},
+  {n:"Phoenix",c:"USA",lat:33.4484,lng:-112.0740},{n:"Philadelphia",c:"USA",lat:39.9526,lng:-75.1652},
+  {n:"San Antonio",c:"USA",lat:29.4241,lng:-98.4936},{n:"San Diego",c:"USA",lat:32.7157,lng:-117.1611},
+  {n:"Dallas",c:"USA",lat:32.7767,lng:-96.7970},{n:"San Jose",c:"USA",lat:37.3382,lng:-121.8863},
+  {n:"Austin",c:"USA",lat:30.2672,lng:-97.7431},{n:"Jacksonville",c:"USA",lat:30.3322,lng:-81.6557},
+  {n:"Fort Worth",c:"USA",lat:32.7555,lng:-97.3308},{n:"Columbus",c:"USA",lat:39.9612,lng:-82.9988},
+  {n:"Charlotte",c:"USA",lat:35.2271,lng:-80.8431},{n:"San Francisco",c:"USA",lat:37.7749,lng:-122.4194},
+  {n:"Indianapolis",c:"USA",lat:39.7684,lng:-86.1581},{n:"Seattle",c:"USA",lat:47.6062,lng:-122.3321},
+  {n:"Denver",c:"USA",lat:39.7392,lng:-104.9903},{n:"Washington DC",c:"USA",lat:38.9072,lng:-77.0369},
+  {n:"Nashville",c:"USA",lat:36.1627,lng:-86.7816},{n:"Oklahoma City",c:"USA",lat:35.4676,lng:-97.5164},
+  {n:"El Paso",c:"USA",lat:31.7619,lng:-106.4850},{n:"Boston",c:"USA",lat:42.3601,lng:-71.0589},
+  {n:"Portland",c:"USA",lat:45.5051,lng:-122.6750},{n:"Las Vegas",c:"USA",lat:36.1699,lng:-115.1398},
+  {n:"Memphis",c:"USA",lat:35.1495,lng:-90.0490},{n:"Louisville",c:"USA",lat:38.2527,lng:-85.7585},
+  {n:"Baltimore",c:"USA",lat:39.2904,lng:-76.6122},{n:"Milwaukee",c:"USA",lat:43.0389,lng:-87.9065},
+  {n:"Albuquerque",c:"USA",lat:35.0844,lng:-106.6504},{n:"Tucson",c:"USA",lat:32.2226,lng:-110.9747},
+  {n:"Fresno",c:"USA",lat:36.7378,lng:-119.7871},{n:"Sacramento",c:"USA",lat:38.5816,lng:-121.4944},
+  {n:"Atlanta",c:"USA",lat:33.7490,lng:-84.3880},{n:"Miami",c:"USA",lat:25.7617,lng:-80.1918},
+  {n:"Minneapolis",c:"USA",lat:44.9778,lng:-93.2650},{n:"New Orleans",c:"USA",lat:29.9511,lng:-90.0715},
+  {n:"Cleveland",c:"USA",lat:41.4993,lng:-81.6944},{n:"Raleigh",c:"USA",lat:35.7796,lng:-78.6382},
+  {n:"Tampa",c:"USA",lat:27.9506,lng:-82.4572},{n:"Pittsburgh",c:"USA",lat:40.4406,lng:-79.9959},
+  {n:"London",c:"UK",lat:51.5074,lng:-0.1278},{n:"Birmingham",c:"UK",lat:52.4862,lng:-1.8904},
+  {n:"Manchester",c:"UK",lat:53.4808,lng:-2.2426},{n:"Glasgow",c:"UK",lat:55.8642,lng:-4.2518},
+  {n:"Liverpool",c:"UK",lat:53.4084,lng:-2.9916},{n:"Edinburgh",c:"UK",lat:55.9533,lng:-3.1883},
+  {n:"Bristol",c:"UK",lat:51.4545,lng:-2.5879},{n:"Leeds",c:"UK",lat:53.8008,lng:-1.5491},
+  {n:"Sheffield",c:"UK",lat:53.3811,lng:-1.4701},{n:"Cardiff",c:"UK",lat:51.4816,lng:-3.1791},
+  {n:"Tokyo",c:"Japan",lat:35.6762,lng:139.6503},{n:"Osaka",c:"Japan",lat:34.6937,lng:135.5023},
+  {n:"Nagoya",c:"Japan",lat:35.1815,lng:136.9066},{n:"Sapporo",c:"Japan",lat:43.0618,lng:141.3545},
+  {n:"Fukuoka",c:"Japan",lat:33.5904,lng:130.4017},{n:"Kobe",c:"Japan",lat:34.6901,lng:135.1956},
+  {n:"Kyoto",c:"Japan",lat:35.0116,lng:135.7681},{n:"Kawasaki",c:"Japan",lat:35.5308,lng:139.7030},
+  {n:"Saitama",c:"Japan",lat:35.8617,lng:139.6455},{n:"Hiroshima",c:"Japan",lat:34.3853,lng:132.4553},
+  {n:"Beijing",c:"China",lat:39.9042,lng:116.4074},{n:"Shanghai",c:"China",lat:31.2304,lng:121.4737},
+  {n:"Guangzhou",c:"China",lat:23.1291,lng:113.2644},{n:"Shenzhen",c:"China",lat:22.5431,lng:114.0579},
+  {n:"Chongqing",c:"China",lat:29.4316,lng:106.9123},{n:"Tianjin",c:"China",lat:39.3434,lng:117.3616},
+  {n:"Wuhan",c:"China",lat:30.5928,lng:114.3055},{n:"Dongguan",c:"China",lat:23.0207,lng:113.7518},
+  {n:"Chengdu",c:"China",lat:30.5728,lng:104.0668},{n:"Nanjing",c:"China",lat:32.0603,lng:118.7969},
+  {n:"Xi'an",c:"China",lat:34.3416,lng:108.9398},{n:"Hangzhou",c:"China",lat:30.2741,lng:120.1551},
+  {n:"Shenyang",c:"China",lat:41.8057,lng:123.4315},{n:"Harbin",c:"China",lat:45.8038,lng:126.5349},
+  {n:"Qingdao",c:"China",lat:36.0671,lng:120.3826},{n:"Dalian",c:"China",lat:38.9140,lng:121.6147},
+  {n:"Zhengzhou",c:"China",lat:34.7466,lng:113.6253},{n:"Jinan",c:"China",lat:36.6512,lng:117.1201},
+  {n:"Lagos",c:"Nigeria",lat:6.5244,lng:3.3792},{n:"Kano",c:"Nigeria",lat:12.0022,lng:8.5920},
+  {n:"Ibadan",c:"Nigeria",lat:7.3775,lng:3.9470},{n:"Abuja",c:"Nigeria",lat:9.0579,lng:7.4951},
+  {n:"Port Harcourt",c:"Nigeria",lat:4.8156,lng:7.0498},{n:"Benin City",c:"Nigeria",lat:6.3350,lng:5.6037},
+  {n:"Cairo",c:"Egypt",lat:30.0444,lng:31.2357},{n:"Alexandria",c:"Egypt",lat:31.2001,lng:29.9187},
+  {n:"Giza",c:"Egypt",lat:30.0131,lng:31.2089},{n:"Shubra El Kheima",c:"Egypt",lat:30.1286,lng:31.2422},
+  {n:"Nairobi",c:"Kenya",lat:-1.2921,lng:36.8219},{n:"Mombasa",c:"Kenya",lat:-4.0435,lng:39.6682},
+  {n:"Johannesburg",c:"South Africa",lat:-26.2041,lng:28.0473},{n:"Cape Town",c:"South Africa",lat:-33.9249,lng:18.4241},
+  {n:"Durban",c:"South Africa",lat:-29.8587,lng:31.0218},{n:"Pretoria",c:"South Africa",lat:-25.7479,lng:28.2293},
+  {n:"Accra",c:"Ghana",lat:5.6037,lng:-0.1870},{n:"Kumasi",c:"Ghana",lat:6.6885,lng:-1.6244},
+  {n:"Addis Ababa",c:"Ethiopia",lat:9.0320,lng:38.7469},{n:"Dar es Salaam",c:"Tanzania",lat:-6.7924,lng:39.2083},
+  {n:"Casablanca",c:"Morocco",lat:33.5731,lng:-7.5898},{n:"Rabat",c:"Morocco",lat:34.0209,lng:-6.8416},
+  {n:"Tunis",c:"Tunisia",lat:36.8065,lng:10.1815},{n:"Algiers",c:"Algeria",lat:36.7372,lng:3.0865},
+  {n:"Khartoum",c:"Sudan",lat:15.5007,lng:32.5599},{n:"Kampala",c:"Uganda",lat:0.3476,lng:32.5825},
+  {n:"Paris",c:"France",lat:48.8566,lng:2.3522},{n:"Marseille",c:"France",lat:43.2965,lng:5.3698},
+  {n:"Lyon",c:"France",lat:45.7640,lng:4.8357},{n:"Toulouse",c:"France",lat:43.6047,lng:1.4442},
+  {n:"Nice",c:"France",lat:43.7102,lng:7.2620},{n:"Nantes",c:"France",lat:47.2184,lng:-1.5536},
+  {n:"Berlin",c:"Germany",lat:52.5200,lng:13.4050},{n:"Hamburg",c:"Germany",lat:53.5753,lng:10.0153},
+  {n:"Munich",c:"Germany",lat:48.1351,lng:11.5820},{n:"Cologne",c:"Germany",lat:50.9333,lng:6.9500},
+  {n:"Frankfurt",c:"Germany",lat:50.1109,lng:8.6821},{n:"Stuttgart",c:"Germany",lat:48.7758,lng:9.1829},
+  {n:"Dusseldorf",c:"Germany",lat:51.2217,lng:6.7762},{n:"Dortmund",c:"Germany",lat:51.5136,lng:7.4653},
+  {n:"Essen",c:"Germany",lat:51.4556,lng:7.0116},{n:"Leipzig",c:"Germany",lat:51.3397,lng:12.3731},
+  {n:"Madrid",c:"Spain",lat:40.4168,lng:-3.7038},{n:"Barcelona",c:"Spain",lat:41.3851,lng:2.1734},
+  {n:"Valencia",c:"Spain",lat:39.4699,lng:-0.3763},{n:"Seville",c:"Spain",lat:37.3891,lng:-5.9845},
+  {n:"Zaragoza",c:"Spain",lat:41.6488,lng:-0.8891},{n:"Málaga",c:"Spain",lat:36.7213,lng:-4.4214},
+  {n:"Rome",c:"Italy",lat:41.9028,lng:12.4964},{n:"Milan",c:"Italy",lat:45.4642,lng:9.1900},
+  {n:"Naples",c:"Italy",lat:40.8518,lng:14.2681},{n:"Turin",c:"Italy",lat:45.0703,lng:7.6869},
+  {n:"Palermo",c:"Italy",lat:38.1157,lng:13.3615},{n:"Genoa",c:"Italy",lat:44.4056,lng:8.9463},
+  {n:"Amsterdam",c:"Netherlands",lat:52.3676,lng:4.9041},{n:"Rotterdam",c:"Netherlands",lat:51.9244,lng:4.4777},
+  {n:"The Hague",c:"Netherlands",lat:52.0705,lng:4.3007},{n:"Utrecht",c:"Netherlands",lat:52.0907,lng:5.1214},
+  {n:"Brussels",c:"Belgium",lat:50.8503,lng:4.3517},{n:"Antwerp",c:"Belgium",lat:51.2194,lng:4.4025},
+  {n:"Zurich",c:"Switzerland",lat:47.3769,lng:8.5417},{n:"Geneva",c:"Switzerland",lat:46.2044,lng:6.1432},
+  {n:"Vienna",c:"Austria",lat:48.2082,lng:16.3738},{n:"Warsaw",c:"Poland",lat:52.2297,lng:21.0122},
+  {n:"Krakow",c:"Poland",lat:50.0647,lng:19.9450},{n:"Prague",c:"Czech Republic",lat:50.0755,lng:14.4378},
+  {n:"Budapest",c:"Hungary",lat:47.4979,lng:19.0402},{n:"Bucharest",c:"Romania",lat:44.4268,lng:26.1025},
+  {n:"Sofia",c:"Bulgaria",lat:42.6977,lng:23.3219},{n:"Athens",c:"Greece",lat:37.9838,lng:23.7275},
+  {n:"Thessaloniki",c:"Greece",lat:40.6401,lng:22.9444},{n:"Lisbon",c:"Portugal",lat:38.7223,lng:-9.1393},
+  {n:"Porto",c:"Portugal",lat:41.1579,lng:-8.6291},{n:"Stockholm",c:"Sweden",lat:59.3293,lng:18.0686},
+  {n:"Gothenburg",c:"Sweden",lat:57.7089,lng:11.9746},{n:"Oslo",c:"Norway",lat:59.9139,lng:10.7522},
+  {n:"Copenhagen",c:"Denmark",lat:55.6761,lng:12.5683},{n:"Helsinki",c:"Finland",lat:60.1699,lng:24.9384},
+  {n:"Reykjavik",c:"Iceland",lat:64.1265,lng:-21.8174},{n:"Dublin",c:"Ireland",lat:53.3498,lng:-6.2603},
+  {n:"Moscow",c:"Russia",lat:55.7558,lng:37.6173},{n:"Saint Petersburg",c:"Russia",lat:59.9311,lng:30.3609},
+  {n:"Novosibirsk",c:"Russia",lat:54.9884,lng:82.9357},{n:"Yekaterinburg",c:"Russia",lat:56.8389,lng:60.6057},
+  {n:"Nizhny Novgorod",c:"Russia",lat:56.2965,lng:43.9361},{n:"Kazan",c:"Russia",lat:55.8304,lng:49.0661},
+  {n:"Istanbul",c:"Turkey",lat:41.0082,lng:28.9784},{n:"Ankara",c:"Turkey",lat:39.9334,lng:32.8597},
+  {n:"Izmir",c:"Turkey",lat:38.4192,lng:27.1287},{n:"Bursa",c:"Turkey",lat:40.1885,lng:29.0610},
+  {n:"Seoul",c:"South Korea",lat:37.5665,lng:126.9780},{n:"Busan",c:"South Korea",lat:35.1796,lng:129.0756},
+  {n:"Incheon",c:"South Korea",lat:37.4563,lng:126.7052},{n:"Daegu",c:"South Korea",lat:35.8714,lng:128.6014},
+  {n:"Bangkok",c:"Thailand",lat:13.7563,lng:100.5018},{n:"Chiang Mai",c:"Thailand",lat:18.7883,lng:98.9853},
+  {n:"Jakarta",c:"Indonesia",lat:-6.2088,lng:106.8456},{n:"Surabaya",c:"Indonesia",lat:-7.2575,lng:112.7521},
+  {n:"Bandung",c:"Indonesia",lat:-6.9175,lng:107.6191},{n:"Medan",c:"Indonesia",lat:3.5952,lng:98.6722},
+  {n:"Manila",c:"Philippines",lat:14.5995,lng:120.9842},{n:"Cebu City",c:"Philippines",lat:10.3157,lng:123.8854},
+  {n:"Kuala Lumpur",c:"Malaysia",lat:3.1390,lng:101.6869},{n:"George Town",c:"Malaysia",lat:5.4141,lng:100.3288},
+  {n:"Singapore",c:"Singapore",lat:1.3521,lng:103.8198},
+  {n:"Hanoi",c:"Vietnam",lat:21.0285,lng:105.8542},{n:"Ho Chi Minh City",c:"Vietnam",lat:10.8231,lng:106.6297},
+  {n:"Saigon",c:"Vietnam",lat:10.8231,lng:106.6297},{n:"Da Nang",c:"Vietnam",lat:16.0544,lng:108.2022},
+  {n:"Dhaka",c:"Bangladesh",lat:23.8103,lng:90.4125},{n:"Chittagong",c:"Bangladesh",lat:22.3569,lng:91.7832},
+  {n:"Karachi",c:"Pakistan",lat:24.8607,lng:67.0011},{n:"Lahore",c:"Pakistan",lat:31.5204,lng:74.3587},
+  {n:"Faisalabad",c:"Pakistan",lat:31.4187,lng:73.0790},{n:"Islamabad",c:"Pakistan",lat:33.7294,lng:73.0931},
+  {n:"Colombo",c:"Sri Lanka",lat:6.9271,lng:79.8612},{n:"Kathmandu",c:"Nepal",lat:27.7172,lng:85.3240},
+  {n:"Kabul",c:"Afghanistan",lat:34.5553,lng:69.2075},{n:"Tashkent",c:"Uzbekistan",lat:41.2995,lng:69.2401},
+  {n:"Almaty",c:"Kazakhstan",lat:43.2220,lng:76.8512},{n:"Tehran",c:"Iran",lat:35.6892,lng:51.3890},
+  {n:"Mashhad",c:"Iran",lat:36.2605,lng:59.6168},{n:"Baghdad",c:"Iraq",lat:33.3152,lng:44.3661},
+  {n:"Riyadh",c:"Saudi Arabia",lat:24.6877,lng:46.7219},{n:"Jeddah",c:"Saudi Arabia",lat:21.5433,lng:39.1728},
+  {n:"Mecca",c:"Saudi Arabia",lat:21.3891,lng:39.8579},{n:"Medina",c:"Saudi Arabia",lat:24.5247,lng:39.5692},
+  {n:"Dubai",c:"UAE",lat:25.2048,lng:55.2708},{n:"Abu Dhabi",c:"UAE",lat:24.4539,lng:54.3773},
+  {n:"Sharjah",c:"UAE",lat:25.3573,lng:55.4033},{n:"Doha",c:"Qatar",lat:25.2854,lng:51.5310},
+  {n:"Kuwait City",c:"Kuwait",lat:29.3759,lng:47.9774},{n:"Amman",c:"Jordan",lat:31.9554,lng:35.9450},
+  {n:"Beirut",c:"Lebanon",lat:33.8938,lng:35.5018},{n:"Damascus",c:"Syria",lat:33.5138,lng:36.2765},
+  {n:"Tel Aviv",c:"Israel",lat:32.0853,lng:34.7818},{n:"Jerusalem",c:"Israel",lat:31.7683,lng:35.2137},
+  {n:"Muscat",c:"Oman",lat:23.6100,lng:58.5922},{n:"Manama",c:"Bahrain",lat:26.2235,lng:50.5876},
+  {n:"São Paulo",c:"Brazil",lat:-23.5505,lng:-46.6333},{n:"Rio de Janeiro",c:"Brazil",lat:-22.9068,lng:-43.1729},
+  {n:"Brasília",c:"Brazil",lat:-15.8267,lng:-47.9218},{n:"Salvador",c:"Brazil",lat:-12.9714,lng:-38.5014},
+  {n:"Fortaleza",c:"Brazil",lat:-3.7172,lng:-38.5433},{n:"Belo Horizonte",c:"Brazil",lat:-19.9167,lng:-43.9345},
+  {n:"Manaus",c:"Brazil",lat:-3.1190,lng:-60.0217},{n:"Curitiba",c:"Brazil",lat:-25.4284,lng:-49.2733},
+  {n:"Recife",c:"Brazil",lat:-8.0578,lng:-34.8829},{n:"Porto Alegre",c:"Brazil",lat:-30.0346,lng:-51.2177},
+  {n:"Buenos Aires",c:"Argentina",lat:-34.6037,lng:-58.3816},{n:"Córdoba",c:"Argentina",lat:-31.4201,lng:-64.1888},
+  {n:"Rosario",c:"Argentina",lat:-32.9442,lng:-60.6505},{n:"Mendoza",c:"Argentina",lat:-32.8895,lng:-68.8458},
+  {n:"Santiago",c:"Chile",lat:-33.4489,lng:-70.6693},{n:"Valparaíso",c:"Chile",lat:-33.0472,lng:-71.6127},
+  {n:"Lima",c:"Peru",lat:-12.0464,lng:-77.0428},{n:"Arequipa",c:"Peru",lat:-16.4090,lng:-71.5375},
+  {n:"Bogotá",c:"Colombia",lat:4.7110,lng:-74.0721},{n:"Medellín",c:"Colombia",lat:6.2442,lng:-75.5812},
+  {n:"Cali",c:"Colombia",lat:3.4516,lng:-76.5320},{n:"Caracas",c:"Venezuela",lat:10.4806,lng:-66.9036},
+  {n:"Quito",c:"Ecuador",lat:-0.1807,lng:-78.4678},{n:"Guayaquil",c:"Ecuador",lat:-2.1894,lng:-79.8891},
+  {n:"La Paz",c:"Bolivia",lat:-16.5000,lng:-68.1500},{n:"Asunción",c:"Paraguay",lat:-25.2867,lng:-57.6470},
+  {n:"Montevideo",c:"Uruguay",lat:-34.9011,lng:-56.1645},{n:"Mexico City",c:"Mexico",lat:19.4326,lng:-99.1332},
+  {n:"Guadalajara",c:"Mexico",lat:20.6597,lng:-103.3496},{n:"Monterrey",c:"Mexico",lat:25.6866,lng:-100.3161},
+  {n:"Puebla",c:"Mexico",lat:19.0414,lng:-98.2063},{n:"Tijuana",c:"Mexico",lat:32.5027,lng:-117.0037},
+  {n:"Ciudad Juárez",c:"Mexico",lat:31.6904,lng:-106.4245},{n:"León",c:"Mexico",lat:21.1236,lng:-101.6824},
+  {n:"Toronto",c:"Canada",lat:43.6532,lng:-79.3832},{n:"Montreal",c:"Canada",lat:45.5017,lng:-73.5673},
+  {n:"Vancouver",c:"Canada",lat:49.2827,lng:-123.1207},{n:"Calgary",c:"Canada",lat:51.0447,lng:-114.0719},
+  {n:"Edmonton",c:"Canada",lat:53.5461,lng:-113.4938},{n:"Ottawa",c:"Canada",lat:45.4215,lng:-75.6972},
+  {n:"Winnipeg",c:"Canada",lat:49.8951,lng:-97.1384},{n:"Quebec City",c:"Canada",lat:46.8139,lng:-71.2080},
+  {n:"Sydney",c:"Australia",lat:-33.8688,lng:151.2093},{n:"Melbourne",c:"Australia",lat:-37.8136,lng:144.9631},
+  {n:"Brisbane",c:"Australia",lat:-27.4698,lng:153.0251},{n:"Perth",c:"Australia",lat:-31.9505,lng:115.8605},
+  {n:"Adelaide",c:"Australia",lat:-34.9285,lng:138.6007},{n:"Gold Coast",c:"Australia",lat:-28.0167,lng:153.4000},
+  {n:"Auckland",c:"New Zealand",lat:-36.8485,lng:174.7633},{n:"Wellington",c:"New Zealand",lat:-41.2866,lng:174.7756},
+  {n:"Christchurch",c:"New Zealand",lat:-43.5321,lng:172.6362},
+  {n:"Havana",c:"Cuba",lat:23.1136,lng:-82.3666},{n:"Santo Domingo",c:"Dominican Republic",lat:18.4861,lng:-69.9312},
+  {n:"San Juan",c:"Puerto Rico",lat:18.4655,lng:-66.1057},{n:"Port-au-Prince",c:"Haiti",lat:18.5944,lng:-72.3074},
+  {n:"Kingston",c:"Jamaica",lat:17.9970,lng:-76.7936},{n:"Guatemala City",c:"Guatemala",lat:14.6349,lng:-90.5069},
+  {n:"San Salvador",c:"El Salvador",lat:13.6929,lng:-89.2182},{n:"Tegucigalpa",c:"Honduras",lat:14.0723,lng:-87.2016},
+  {n:"Managua",c:"Nicaragua",lat:12.1149,lng:-86.2362},{n:"San José",c:"Costa Rica",lat:9.9281,lng:-84.0907},
+  {n:"Panama City",c:"Panama",lat:8.9936,lng:-79.5197},{n:"Kinshasa",c:"Congo",lat:-4.3224,lng:15.3222},
+  {n:"Luanda",c:"Angola",lat:-8.8368,lng:13.2343},{n:"Maputo",c:"Mozambique",lat:-25.9692,lng:32.5732},
+  {n:"Lusaka",c:"Zambia",lat:-15.4166,lng:28.2833},{n:"Harare",c:"Zimbabwe",lat:-17.8292,lng:31.0522},
+  {n:"Antananarivo",c:"Madagascar",lat:-18.9137,lng:47.5361},{n:"Dakar",c:"Senegal",lat:14.7167,lng:-17.4677},
+  {n:"Abidjan",c:"Ivory Coast",lat:5.3600,lng:-4.0083},{n:"Bamako",c:"Mali",lat:12.6392,lng:-8.0029},
+  {n:"Conakry",c:"Guinea",lat:9.5370,lng:-13.6773},{n:"Freetown",c:"Sierra Leone",lat:8.4897,lng:-13.2344},
+  {n:"Monrovia",c:"Liberia",lat:6.2907,lng:-10.7605},{n:"Lome",c:"Togo",lat:6.1375,lng:1.2123},
+  {n:"Cotonou",c:"Benin",lat:6.3654,lng:2.4183},{n:"Niamey",c:"Niger",lat:13.5137,lng:2.1098},
+  {n:"Ouagadougou",c:"Burkina Faso",lat:12.3569,lng:-1.5352},{n:"N'Djamena",c:"Chad",lat:12.1048,lng:15.0445},
+  {n:"Yaoundé",c:"Cameroon",lat:3.8480,lng:11.5021},{n:"Douala",c:"Cameroon",lat:4.0511,lng:9.7679},
+  {n:"Libreville",c:"Gabon",lat:0.3901,lng:9.4544},{n:"Brazzaville",c:"Congo",lat:-4.2694,lng:15.2716},
+  {n:"Mogadishu",c:"Somalia",lat:2.0469,lng:45.3182},{n:"Djibouti",c:"Djibouti",lat:11.5720,lng:43.1450},
+  {n:"Asmara",c:"Eritrea",lat:15.3229,lng:38.9251},{n:"Kigali",c:"Rwanda",lat:-1.9441,lng:30.0619},
+  {n:"Bujumbura",c:"Burundi",lat:-3.3614,lng:29.3599},{n:"Lilongwe",c:"Malawi",lat:-13.9669,lng:33.7873},
+  {n:"Gaborone",c:"Botswana",lat:-24.6282,lng:25.9231},{n:"Windhoek",c:"Namibia",lat:-22.5597,lng:17.0832},
+  {n:"Mbabane",c:"Eswatini",lat:-26.3054,lng:31.1367},{n:"Maseru",c:"Lesotho",lat:-29.3167,lng:27.4833},
+  {n:"Colombo",c:"Sri Lanka",lat:6.9271,lng:79.8612},{n:"Yangon",c:"Myanmar",lat:16.8661,lng:96.1951},
+  {n:"Naypyidaw",c:"Myanmar",lat:19.7633,lng:96.0785},{n:"Phnom Penh",c:"Cambodia",lat:11.5564,lng:104.9282},
+  {n:"Vientiane",c:"Laos",lat:17.9757,lng:102.6331},{n:"Taipei",c:"Taiwan",lat:25.0330,lng:121.5654},
+  {n:"Kaohsiung",c:"Taiwan",lat:22.6273,lng:120.3014},{n:"Hong Kong",c:"China",lat:22.3193,lng:114.1694},
+  {n:"Macau",c:"China",lat:22.1987,lng:113.5439},{n:"Pyongyang",c:"North Korea",lat:39.0392,lng:125.7625},
+  {n:"Ulaanbaatar",c:"Mongolia",lat:47.8864,lng:106.9057},{n:"Bishkek",c:"Kyrgyzstan",lat:42.8746,lng:74.5698},
+  {n:"Dushanbe",c:"Tajikistan",lat:38.5598,lng:68.7870},{n:"Ashgabat",c:"Turkmenistan",lat:37.9601,lng:58.3261},
+  {n:"Baku",c:"Azerbaijan",lat:40.4093,lng:49.8671},{n:"Yerevan",c:"Armenia",lat:40.1872,lng:44.5152},
+  {n:"Tbilisi",c:"Georgia",lat:41.6938,lng:44.8015},{n:"Kyiv",c:"Ukraine",lat:50.4501,lng:30.5234},
+  {n:"Kharkiv",c:"Ukraine",lat:49.9935,lng:36.2304},{n:"Odessa",c:"Ukraine",lat:46.4825,lng:30.7233},
+  {n:"Dnipro",c:"Ukraine",lat:48.4647,lng:35.0462},{n:"Minsk",c:"Belarus",lat:53.9045,lng:27.5615},
+  {n:"Riga",c:"Latvia",lat:56.9496,lng:24.1052},{n:"Tallinn",c:"Estonia",lat:59.4370,lng:24.7536},
+  {n:"Vilnius",c:"Lithuania",lat:54.6872,lng:25.2797},{n:"Ljubljana",c:"Slovenia",lat:46.0569,lng:14.5058},
+  {n:"Zagreb",c:"Croatia",lat:45.8150,lng:15.9819},{n:"Sarajevo",c:"Bosnia",lat:43.8563,lng:18.4131},
+  {n:"Belgrade",c:"Serbia",lat:44.7866,lng:20.4489},{n:"Podgorica",c:"Montenegro",lat:42.4304,lng:19.2594},
+  {n:"Tirana",c:"Albania",lat:41.3275,lng:19.8187},{n:"Skopje",c:"North Macedonia",lat:41.9973,lng:21.4280},
+  {n:"Pristina",c:"Kosovo",lat:42.6629,lng:21.1655},{n:"Valletta",c:"Malta",lat:35.8997,lng:14.5147},
+  {n:"Nicosia",c:"Cyprus",lat:35.1856,lng:33.3823},{n:"Luxembourg City",c:"Luxembourg",lat:49.6116,lng:6.1319},
+  {n:"Monaco",c:"Monaco",lat:43.7384,lng:7.4246},{n:"Andorra la Vella",c:"Andorra",lat:42.5078,lng:1.5211},
+  {n:"San Marino",c:"San Marino",lat:43.9424,lng:12.4578},{n:"Vaduz",c:"Liechtenstein",lat:47.1410,lng:9.5215},
+];
+
+function npCityTyped(val){
+  var sug=document.getElementById('np-city-suggestions');
+  if(!val||val.length<1){if(sug)sug.innerHTML='';return;}
+  var q=val.toLowerCase();
+  var matches=WORLD_CITIES.filter(function(city){
+    return city.n.toLowerCase().startsWith(q)||city.n.toLowerCase().includes(q);
+  }).sort(function(a,b){
+    // Prefer cities that START with the query
+    var as=a.n.toLowerCase().startsWith(q)?0:1;
+    var bs=b.n.toLowerCase().startsWith(q)?0:1;
+    return as-bs||a.n.localeCompare(b.n);
+  }).slice(0,8);
+  if(!sug)return;
+  if(!matches.length){sug.innerHTML='';return;}
+  sug.innerHTML='<div style="background:var(--surface);border:1px solid var(--border-dark);border-top:none;z-index:500;box-shadow:0 8px 24px rgba(26,22,18,.12)">'
+    +matches.map(function(city){
+      var safeN=city.n.replace(/'/g,"\\'");
+      return'<div onclick="npSelectCity(\''+safeN+'\',\''+city.c+'\','+city.lat+','+city.lng+')" '
+        +'style="font-family:Space Mono,monospace;font-size:.5rem;padding:.6rem .9rem;cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:.5rem;transition:background .12s" '
+        +'onmouseover="this.style.background=\'var(--bg2)\'" onmouseout="this.style.background=\'\'">'
+        +'<span style="color:var(--text2)">◎ '+city.n+'</span>'
+        +'<span style="color:var(--text4);font-size:.38rem">'+city.c+'</span>'
+        +'</div>';
+    }).join('')+'</div>';
+}
+
+function npSelectCity(name,country,lat,lng){
+  var cityInput=document.getElementById('np-city');if(cityInput)cityInput.value=name;
+  var sug=document.getElementById('np-city-suggestions');if(sug)sug.innerHTML='';
+  np_lat=lat;np_lng=lng;
+  var stEl=document.getElementById('np-city-status');
+  if(stEl){stEl.textContent='📍 '+name+', '+country;stEl.style.color='#27ae60';}
+  npShowMapPreview(np_lat,np_lng,name);
+}
+function handleMediaSelect(input){
+  var preview=document.getElementById('np-media-preview');
+  Array.from(input.files).forEach(function(f){
+    if(f.size>50*1024*1024){alert(f.name+' is over 50MB');return;}
+    np_media_files.push(f);
+    var wrap=document.createElement('div');wrap.style.cssText='position:relative;width:70px;height:70px;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0';
+    if(f.type.startsWith('image/')){var r=new FileReader();r.onload=function(e){wrap.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover"><button onclick="this.parentNode.remove()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:.5rem;cursor:pointer">✕</button>';};r.readAsDataURL(f);}
+    else{wrap.innerHTML='<div style="width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.3rem">🎬</div><button onclick="this.parentNode.remove()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:.5rem;cursor:pointer">✕</button>';}
+    preview.appendChild(wrap);
+  });
+}
+async function submitPost(btn){
+  var text=document.getElementById('np-text').value.trim();var city=document.getElementById('np-city').value.trim();var cat=document.getElementById('np-cat').value;var vis=document.getElementById('np-vis').value;
+  var errEl=document.getElementById('np-err');
+  if(!text){errEl.textContent='Please write something!';errEl.style.display='block';return;}
+  if(!city){errEl.textContent='City is required.';errEl.style.display='block';return;}
+  btn.disabled=true;document.getElementById('np-spin').style.display='block';
+  var mediaUrls=[];
+  if(np_media_files.length){
+    document.getElementById('np-progress').style.display='block';
+    for(var i=0;i<np_media_files.length;i++){
+      var f=np_media_files[i];var ext=f.name.split('.').pop();var path='posts/'+CU.id+'/'+Date.now()+'_'+i+'.'+ext;
+      try{var up=await sb.storage.from('post-media').upload(path,f);if(!up.error){var pub=sb.storage.from('post-media').getPublicUrl(path);mediaUrls.push({url:pub.data.publicUrl,type:f.type.startsWith('image/')?'image':'video'});}}catch(e){}
+    }
+    document.getElementById('np-progress').style.display='none';
+  }
+  var postData={user_id:CU.id,username:CU.username,first_name:CU.first,last_name:CU.last,city:city,lat:np_lat,lng:np_lng,category:cat,text:text,visibility:vis,media:mediaUrls,likes:0,views:0,created_at:new Date().toISOString()};
+  // Try DB insert (best-effort)
+  try{await sb.from('posts').insert(postData);}catch(e){}
+  // Add to local data so it shows on map + feed immediately
+  var localPost={id:Date.now(),user:'@'+(CU.username||'you'),av:CU.initials,city:city,lat:np_lat||0,lng:np_lng||0,time:0,cat:cat,text:text,visibility:vis,media:mediaUrls,likes:0,views:0,img:'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=80',comments:[]};
+  ALL_POSTS.unshift(localPost);
+  PROF_POSTS.myposts.unshift(localPost);
+  // Update profile map if open
+  if(profMapInstance)renderProfMapMarkers(PROF_POSTS[currentProfTab]);
+  // Update feed
+  applyFilters();
+  btn.innerHTML='✓ Posted!';
+  setTimeout(function(){document.getElementById('np-modal').remove();},800);
+}
+
+/* ═══ ONBOARDING ═══ */
+renderInterestChips('ob-interest-grid',[]);
+var obCurrent=1;
+function obNext(step){
+  if(step===1){var sel=document.querySelectorAll('#ob-interest-grid .ob-chip.sel');if(sel.length<3){alert('Please pick at least 3 interests.');return;}}
+  obCurrent=step+1;updateObSteps();
+  document.querySelectorAll('.ob-panel').forEach(function(p){p.classList.remove('active');});document.getElementById('ob-step'+obCurrent).classList.add('active');
+}
+function obBack(step){obCurrent=step-1;updateObSteps();document.querySelectorAll('.ob-panel').forEach(function(p){p.classList.remove('active');});document.getElementById('ob-step'+obCurrent).classList.add('active');}
+function updateObSteps(){
+  [1,2,3].forEach(function(i){
+    var dot=document.getElementById('sd'+i),lbl=document.getElementById('sl'+i);
+    if(i<obCurrent){if(dot)dot.textContent='';if(dot)dot.className='ob-step-dot done';}
+    else if(i===obCurrent){if(dot)dot.className='ob-step-dot active';if(dot)dot.textContent=i;}
+    else{if(dot)dot.className='ob-step-dot';if(dot)dot.textContent=i;}
+    if(lbl)lbl.className='ob-step-label'+(i===obCurrent?' active':'');
+    var line=document.getElementById('sline'+i);if(line)line.classList.toggle('done',i<obCurrent);
+  });
+}
+
+/* ═══ PAGE NAV ═══ */
+function goTo(page){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('page-'+page).classList.add('active');window.scrollTo(0,0);
+  if(page==='landing'&&!mapLandInit){initLandingMap();mapLandInit=true;}
+  if(page==='dashboard'&&!mapDashInit){initDashMap();mapDashInit=true;initDashContent();}
+  if(page==='profile'&&!mapProfInit){initProfMap();mapProfInit=true;}
+  if(page==='profile'){setTimeout(renderExtendedProfile,100);}
+  setTimeout(function(){document.querySelectorAll('#page-'+page+' .fade-up').forEach(function(el){io.observe(el);});},100);
+}
+function scrollTo2(id){document.getElementById(id)&&document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+
+/* ═══ CURSOR & IO ═══ */
+var C=document.getElementById('C'),CR=document.getElementById('CR');var mx=0,my=0,lx=0,ly=0;
+document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;C.style.transform='translate('+mx+'px,'+my+'px) translate(-50%,-50%)';});
+(function loop(){lx+=(mx-lx)*.12;ly+=(my-ly)*.12;CR.style.transform='translate('+lx+'px,'+ly+'px) translate(-50%,-50%)';requestAnimationFrame(loop);})();
+document.addEventListener('mouseover',function(e){if(e.target.matches('button,a,.ac,.fstrip,.fi,.ftxt,.tpost,.post-card,.dash-feed-item')){CR.style.width='46px';CR.style.height='46px';}});
+document.addEventListener('mouseout',function(e){if(e.target.matches('button,a,.ac,.fstrip,.fi,.ftxt,.tpost,.post-card,.dash-feed-item')){CR.style.width='32px';CR.style.height='32px';}});
+var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('visible');});},{threshold:.1});
+document.querySelectorAll('#page-landing .fade-up').forEach(function(el){io.observe(el);});
+var sio=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.querySelectorAll('[data-t]').forEach(function(n){var t=+n.dataset.t,s=performance.now();(function f(ts){var p=Math.min((ts-s)/2000,1);n.textContent=Math.floor((1-Math.pow(1-p,3))*t).toLocaleString();if(p<1)requestAnimationFrame(f);else n.textContent=t.toLocaleString();})(s);});sio.unobserve(x.target);}});},{threshold:.4});
+var sbar=document.querySelector('.stats-bar');if(sbar)sio.observe(sbar);
+initLandingMap();mapLandInit=true;
+</script>
+</body>
+</html>
