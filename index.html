@@ -2,11 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>EarthLive</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
@@ -394,7 +396,25 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
 /* POST VIEW MODAL */
 .post-modal{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(26,22,18,.65);backdrop-filter:blur(12px);padding:1rem;overflow-y:auto}
 .post-modal-inner{background:var(--sf);border:1px solid var(--bdk);width:600px;max-width:98vw;position:relative;border-radius:6px;margin:auto;max-height:90vh;overflow-y:auto}
-.post-modal-inner::-webkit-scrollbar{width:3px}
+.post-modal-inner
+/* Live dot popup */
+.live-dot-popup .leaflet-popup-content-wrapper{
+  background:var(--sf);
+  border:1px solid var(--bdk);
+  border-radius:6px;
+  box-shadow:0 8px 28px rgba(26,22,18,.18);
+  padding:0;
+}
+.live-dot-popup .leaflet-popup-content{
+  margin:10px 12px;
+}
+.live-dot-popup .leaflet-popup-tip-container{display:none}
+.live-dot-popup .leaflet-popup-close-button{
+  font-size:14px;
+  color:var(--tx3);
+  top:4px;right:6px;
+}
+::-webkit-scrollbar{width:3px}
 .post-modal-inner::-webkit-scrollbar-thumb{background:var(--bg3)}
 .pm-top-bar{height:2px;background:var(--ac);position:sticky;top:0;z-index:2}
 .pm-header{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.5rem .85rem;border-bottom:1px solid var(--bd);position:sticky;top:2px;background:var(--sf);z-index:1}
@@ -574,8 +594,117 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
 .news-body{display:none;padding:.5rem .8rem .7rem;border-top:1px solid var(--bd);background:var(--bg2);animation:fadeIn .2s ease}
 .news-chevron{transition:transform .2s;font-size:8px;color:var(--tx4);flex-shrink:0;margin-top:3px}
 ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--bdk)}
-@media(max-width:1000px){#trending-sidebar{display:none}.hero-ui,.ticker-wrap{right:0}.dash-body{grid-template-columns:1fr}.prof-hero{flex-direction:column}.prof-left,.prof-right{width:100%;height:50vh}}
-@media(max-width:800px){nav{padding:.8rem 1.2rem}.nlink{padding:.4rem .5rem;font-size:.5rem}.fstrip{flex:0 0 290px}.dash-stat-row{grid-template-columns:1fr 1fr}.msg-list{width:220px}.events-grid,.live-streams-grid{grid-template-columns:1fr}}
+
+/* ── RESPONSIVE: TABLET (≤1000px) ── */
+@media(max-width:1000px){
+  #trending-sidebar{display:none}
+  .hero-ui,.ticker-wrap{right:0}
+  .dash-body{grid-template-columns:1fr}
+  .dash-side{height:auto;position:static;overflow:visible}
+  .prof-hero{flex-direction:column}
+  .prof-left,.prof-right{width:100%;height:50vh}
+  #page-events>div:last-of-type{grid-template-columns:1fr}
+  .ev-featured-card{grid-template-columns:1fr}
+  .ev-fc-img{height:180px}
+}
+
+/* ── RESPONSIVE: MOBILE (≤768px) ── */
+@media(max-width:768px){
+  /* Nav */
+  nav{padding:.7rem 1rem;padding-top:max(.7rem,env(safe-area-inset-top));gap:.4rem}
+  .nav-links{display:none}
+  .logo{font-size:1.3rem}
+  body{cursor:auto}
+  .cursor,.cursor-ring{display:none}
+
+  /* Mobile nav drawer — hamburger */
+  .mob-menu-btn{display:flex;width:32px;height:32px;border:1px solid var(--bdk);background:transparent;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;flex-shrink:0}
+  .mob-nav-drawer{position:fixed;top:0;left:0;bottom:0;width:72vw;max-width:280px;background:var(--sf);z-index:99999;transform:translateX(-100%);transition:transform .3s ease;border-right:1px solid var(--bdk);display:flex;flex-direction:column;padding:1.5rem 1.2rem;gap:.2rem;overflow-y:auto}
+  .mob-nav-drawer.open{transform:translateX(0)}
+  .mob-nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99998}
+  .mob-nav-overlay.open{display:block}
+  .mob-nlink{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tx2);background:transparent;border:none;border-bottom:1px solid var(--bd);padding:.75rem .4rem;cursor:pointer;text-align:left;width:100%;transition:color .2s}
+  .mob-nlink:hover{color:var(--tx)}
+
+  /* Hero */
+  .hero{height:100svh}
+  .hero-ui{padding:0 1rem 3rem}
+  .eyebrow{font-size:.48rem;letter-spacing:.18em}
+  .btn-w,.btn-o{padding:.7rem 1.4rem;font-size:.54rem}
+  .actions{gap:.5rem}
+
+  /* Stats bar */
+  .stats-bar{padding:1rem 1.2rem;gap:1rem;justify-content:space-around}
+  .stat-num{font-size:1.6rem}
+
+  /* Feed */
+  .feed-header{padding:1.5rem 1.2rem 1rem}
+  .feed-header h2{font-size:1.8rem}
+  .feed-track-wrap{padding:.6rem 1rem 1.2rem;gap:.8rem}
+  .fstrip{flex:0 0 88vw}
+  .filter-row{padding:0 1rem}
+  .feed-body{padding:.8rem 0 2rem}
+  .feed-scroll-hint{padding:.3rem 1rem 0}
+
+  /* Dashboard */
+  #page-dashboard{padding-top:62px}
+  .dash-header{padding:1.2rem 1.2rem;flex-direction:column;align-items:flex-start;gap:.8rem}
+  .dash-greet{font-size:1.4rem}
+  .dash-actions{flex-wrap:wrap;gap:.4rem}
+  .dash-btn,.dash-btn-o{font-size:.44rem;padding:.4rem .8rem}
+  .dash-main{padding:1.2rem 1rem}
+  .dash-stat-row{grid-template-columns:repeat(2,1fr)}
+  #news-feed{grid-template-columns:1fr !important}
+
+  /* Messages */
+  .msg-page-wrap{flex-direction:column}
+  .msg-list{width:100%;border-right:none;border-bottom:1px solid var(--bd);max-height:35vh}
+  .msg-chat{min-height:55vh}
+
+  /* Profile */
+  .prof-left{height:40vh}
+  .prof-right{height:auto;min-height:300px}
+  .profile-card{padding:1rem 1.2rem}
+  .pc-name{font-size:1.2rem}
+  .pc-actions{gap:.35rem}
+  #prof-ext-tabs{padding:0 .8rem}
+  .pext-tab{padding:.7rem .7rem;font-size:.44rem}
+
+  /* Events */
+  .events-grid{grid-template-columns:1fr}
+  #page-events>div:nth-child(4){display:block}
+  #ev-map{height:180px}
+  .events-wrap{padding:1.2rem 1rem}
+
+  /* Live */
+  .live-wrap{padding:1.2rem 1rem}
+  .live-streams-grid{grid-template-columns:1fr}
+
+  /* News page */
+  #page-news{padding-top:62px}
+  #news-page-grid{grid-template-columns:1fr !important}
+  #news-page-body{padding:1rem 1rem 3rem}
+
+  /* News summary modal */
+  #news-summary-modal > div{border-radius:0 !important;width:100% !important;max-width:100% !important;min-height:50vh;margin:auto 0 0 !important}
+
+  /* Generic modals */
+  .generic-modal-inner{width:95vw !important;margin:1rem auto}
+
+  /* Footer */
+  .footer-top{grid-template-columns:1fr !important}
+  .footer-inner{padding:2rem 1.2rem 1rem}
+  .theme-dots{bottom:1.5rem;left:1.2rem}
+}
+
+/* ── RESPONSIVE: SMALL MOBILE (≤480px) ── */
+@media(max-width:480px){
+  .fstrip{flex:0 0 92vw}
+  .btn-w,.btn-o{padding:.65rem 1rem;font-size:.5rem}
+  .dash-stat-row{grid-template-columns:repeat(2,1fr)}
+  .nav-right .nav-btn{display:none}
+  .msg-list{max-height:30vh}
+}
 .hashtag{color:var(--ac);font-weight:500;cursor:pointer}
 .mention{color:var(--tx2);font-weight:600;cursor:pointer;border-bottom:1px solid var(--bdk)}
 </style>
@@ -599,7 +728,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
           <div class="fg"><label class="fl">Password</label><input class="fi" id="auth-password" type="password" placeholder="••••••••"></div>
           <div style="font-family:'Space Mono',monospace;font-size:.42rem;color:var(--tx4);margin-bottom:1rem;text-align:right;cursor:pointer" onclick="showToast('Password reset link sent!')">Forgot password?</div>
           <button id="signin-btn" onclick="doSignIn()" style="width:100%;background:var(--ac);color:var(--aci);border:1px solid var(--ac);padding:.9rem;font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .3s">Sign In →</button>
-          <div style="font-family:'Space Mono',monospace;font-size:.42rem;color:var(--tx4);text-align:center;margin-top:.8rem">Or just click <strong style="cursor:pointer;text-decoration:underline" onclick="demoSignIn()">Demo Login</strong> to explore instantly</div>
         </div>
         <div id="auth-signup-form" style="display:none">
           <div class="frow">
@@ -643,6 +771,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
 <!-- NAV -->
 <nav>
   <div class="logo" onclick="goTo('landing')"><div class="logo-dot"></div>EARTHLIVE</div>
+  <button class="mob-menu-btn" id="mob-menu-btn" onclick="toggleMobNav()" style="display:none">☰</button>
   <div class="nav-links">
     <button class="nlink active" id="nl-landing" onclick="goTo('landing')">Home</button>
     <button class="nlink" id="nl-dashboard" onclick="goTo('dashboard')">My Page</button>
@@ -654,11 +783,31 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
     <button class="nlink" id="nl-community" onclick="goTo('community')">Community</button>
   </div>
   <div class="nav-right">
-    <button class="icon-btn" onclick="toggleNotifPanel()" id="notif-btn">🔔<span class="nbadge" id="notif-count-badge">3</span></button>
+    <button class="icon-btn" id="push-bell-btn" title="Enable notifications" onclick="togglePushBell()" style="position:relative">🔔<span class="nbadge" id="notif-count-badge" style="display:none">0</span></button>
     <div class="nav-av" id="nav-av" onclick="goTo('profile')">AD</div>
     <button class="nav-btn" onclick="doSignOut()">Sign Out</button>
   </div>
 </nav>
+
+<!-- MOBILE NAV DRAWER -->
+<div class="mob-nav-overlay" id="mob-nav-overlay" onclick="closeMobNav()"></div>
+<div class="mob-nav-drawer" id="mob-nav-drawer">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;padding-bottom:.8rem;border-bottom:1px solid var(--bd)">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.08em;color:var(--tx);display:flex;align-items:center;gap:.4rem"><div class="logo-dot"></div>EARTHLIVE</div>
+    <button onclick="closeMobNav()" style="background:transparent;border:none;font-size:1.2rem;cursor:pointer;color:var(--tx3)">✕</button>
+  </div>
+  <button class="mob-nlink" onclick="closeMobNav();goTo('landing')">Home</button>
+  <button class="mob-nlink" onclick="closeMobNav();goTo('dashboard')">My Page</button>
+  <button class="mob-nlink" onclick="closeMobNav();goTo('messages')">Messages</button>
+  <button class="mob-nlink" onclick="closeMobNav();goTo('news')">News</button>
+  <button class="mob-nlink" onclick="closeMobNav();goTo('events')">Events</button>
+  <button class="mob-nlink" style="color:#e74c3c" onclick="closeMobNav();goTo('live')">🔴 Live</button>
+  <button class="mob-nlink" onclick="closeMobNav();goTo('profile')">Profile</button>
+  <button class="mob-nlink" onclick="closeMobNav();goTo('community')">Community</button>
+  <div style="margin-top:auto;padding-top:1.2rem;border-top:1px solid var(--bd)">
+    <button onclick="closeMobNav();doSignOut()" style="font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);background:transparent;border:1px solid var(--bd);padding:.5rem 1rem;cursor:pointer;width:100%">Sign Out</button>
+  </div>
+</div>
 
 <!-- ═══ LANDING ═══ -->
 <div id="page-landing" class="page active">
@@ -695,16 +844,16 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
     </div></div>
   </section>
   <div class="stats-bar fade-up">
-    <div><div class="stat-num" data-t="2847391">0</div><div class="stat-label">Posts Today</div></div>
-    <div><div class="stat-num" data-t="194">0</div><div class="stat-label">Countries Active</div></div>
-    <div><div class="stat-num" data-t="3">0</div><div class="stat-label">Live Streams</div></div>
-    <div><div class="stat-num" data-t="47">0</div><div class="stat-label">Live Hotspots</div></div>
-    <div><div class="stat-num" data-t="1240000">0</div><div class="stat-label">Users Online</div></div>
+    <div><div class="stat-num" data-t="0">0</div><div class="stat-label">Posts Today</div></div>
+    <div><div class="stat-num" data-t="0">0</div><div class="stat-label">Countries Active</div></div>
+    <div><div class="stat-num" data-t="0">0</div><div class="stat-label">Live Streams</div></div>
+    <div><div class="stat-num" data-t="0">0</div><div class="stat-label">Live Hotspots</div></div>
+    <div><div class="stat-num" data-t="0">0</div><div class="stat-label">Users Online</div></div>
   </div>
   <section id="feed-section">
     <div class="feed-header fade-up">
       <div><div class="sec-label">Global Stream</div><h2>WHAT'S <em>HAPPENING NOW</em></h2></div>
-      <div class="live-badge" id="live-count">247 new posts</div>
+      <div class="live-badge" id="live-count">0 new posts</div>
     </div>
     <div class="filter-bar">
       <div class="filter-row">
@@ -822,6 +971,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
       <button class="dash-btn-o" onclick="goTo('events')">+ Create Event</button>
       <button class="dash-btn dash-btn-live" onclick="goTo('live')">🔴 Go Live</button>
       <button class="dash-btn-o" onclick="goTo('profile')">My Profile →</button>
+      <button class="dash-btn-o" id="dash-notif-btn" onclick="requestPushPermission()" title="Enable push notifications" style="display:flex;align-items:center;gap:.35rem">🔔 Notifications</button>
     </div>
   </div>
   <div class="dash-body">
@@ -829,8 +979,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
       <div class="dash-section-title">Your Stats</div>
       <div class="dash-stat-row">
         <div class="dash-stat"><div class="dash-stat-num">0</div><div class="dash-stat-lbl">Posts</div></div>
-        <div class="dash-stat"><div class="dash-stat-num">248</div><div class="dash-stat-lbl">Followers</div></div>
-        <div class="dash-stat"><div class="dash-stat-num">92</div><div class="dash-stat-lbl">Following</div></div>
+        <div class="dash-stat"><div class="dash-stat-num">0</div><div class="dash-stat-lbl">Followers</div></div>
+        <div class="dash-stat"><div class="dash-stat-num">0</div><div class="dash-stat-lbl">Following</div></div>
         <div class="dash-stat"><div class="dash-stat-num">0</div><div class="dash-stat-lbl">Views</div></div>
       </div>
       <div class="dash-post-btn" onclick="openNewPost()"><div class="dash-post-label">+ Drop a new pin — what's happening near you?</div></div>
@@ -854,11 +1004,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
     <div style="padding:1.8rem 2.5rem 1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;background:var(--sf)">
       <div>
         <div class="sec-label">Personalised</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.03em;color:var(--tx)">YOUR NEWS</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.03em;color:var(--tx)">MY NEWS</div>
       </div>
       <div style="display:flex;align-items:center;gap:.7rem">
         <div style="font-family:'Space Mono',monospace;font-size:.34rem;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);background:var(--bg2);border:1px solid var(--bd);padding:.08rem .38rem;display:flex;align-items:center;gap:.28rem"><span style="width:4px;height:4px;background:#27ae60;border-radius:50%;display:inline-block"></span>Live Feed</div>
-        <button id="news-refresh-btn" onclick="refreshDashNews()" style="font-family:'Space Mono',monospace;font-size:.34rem;letter-spacing:.08em;text-transform:uppercase;background:transparent;border:1px solid var(--bd);color:var(--tx3);padding:.28rem .65rem;cursor:pointer;transition:all .2s">&#8635; Refresh</button>
+        <button onclick="openNewsApiSettings()" style="font-family:'Space Mono',monospace;font-size:.34rem;letter-spacing:.08em;text-transform:uppercase;background:transparent;border:1px solid var(--bd);color:var(--tx3);padding:.28rem .65rem;cursor:pointer;transition:all .2s">⚙ API Key</button><button id="news-refresh-btn" onclick="refreshDashNews()" style="font-family:'Space Mono',monospace;font-size:.34rem;letter-spacing:.08em;text-transform:uppercase;background:transparent;border:1px solid var(--bd);color:var(--tx3);padding:.28rem .65rem;cursor:pointer;transition:all .2s">&#8635; Refresh</button>
       </div>
     </div>
     <div style="background:var(--ac);color:var(--aci);height:24px;overflow:hidden;display:flex;align-items:center">
@@ -868,12 +1018,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
     <div style="padding:0 2.5rem;border-bottom:1px solid var(--bd);background:var(--sf)">
       <div style="display:flex;overflow-x:auto;scrollbar-width:none;gap:0" id="news-tabs"></div>
     </div>
-    <div style="padding:0 2.5rem 3rem;background:var(--sf2)">
+    <div style="padding:1rem 2.5rem 3.5rem;background:var(--sf2)">
       <div id="news-loading" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem;gap:.6rem">
         <div style="width:14px;height:14px;border:2px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite"></div>
         <div style="font-family:'Space Mono',monospace;font-size:.4rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tx4)">Fetching news...</div>
       </div>
-      <div id="news-feed" style="display:none;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:1px;background:var(--bd);border:1px solid var(--bd);margin-top:1.5rem"></div>
+      <div id="news-feed" style="display:none;grid-template-columns:repeat(auto-fill,minmax(500px,1fr));gap:0;background:var(--bd);border:1px solid var(--bd);margin-top:1.8rem"></div>
       <div style="font-family:'Space Mono',monospace;font-size:.32rem;color:var(--tx4);margin-top:.8rem;display:flex;justify-content:space-between">
         <span>BBC · Reuters · AP · Al Jazeera</span>
         <span id="news-updated"></span>
@@ -999,7 +1149,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
     <div>
       <div style="font-family:'Space Mono',monospace;font-size:.46rem;letter-spacing:.22em;text-transform:uppercase;opacity:.6;margin-bottom:.4rem">Live · Worldwide</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,4vw,3.4rem);letter-spacing:.04em;line-height:.9">DISCOVER <span style="-webkit-text-stroke:1.5px var(--aci);color:transparent">EVENTS</span></div>
-      <div style="font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.1em;margin-top:.55rem;opacity:.65" id="ev-hero-count">12 events across 8 cities worldwide</div>
+      <div style="font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.1em;margin-top:.55rem;opacity:.65" id="ev-hero-count">No events yet — be the first to create one!</div>
     </div>
     <button onclick="openCreateEvent()" style="font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.12em;text-transform:uppercase;background:rgba(255,255,255,.13);color:var(--aci);border:1px solid rgba(255,255,255,.3);padding:.7rem 1.4rem;cursor:pointer;transition:all .2s">+ Create Event</button>
   </div>
@@ -1083,8 +1233,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
         <div class="pc-loc">◎ Anekal, Karnataka, India</div>
         <div class="pc-stats" style="margin-top:.45rem">
           <div><div class="pc-stat-num">0</div><div class="pc-stat-lbl">Posts</div></div>
-          <div><div class="pc-stat-num">248</div><div class="pc-stat-lbl">Followers</div></div>
-          <div><div class="pc-stat-num">92</div><div class="pc-stat-lbl">Following</div></div>
+          <div><div class="pc-stat-num" id="pc-followers">0</div><div class="pc-stat-lbl">Followers</div></div>
+          <div><div class="pc-stat-num" id="pc-following">0</div><div class="pc-stat-lbl">Following</div></div>
         </div>
         <div class="pc-actions" style="margin-top:.75rem;flex-wrap:nowrap;gap:.45rem;overflow-x:auto;padding-bottom:.2rem;display:flex;align-items:center">
           <button class="pc-btn solid" onclick="openNewPost()" style="white-space:nowrap;flex-shrink:0">+ Post</button>
@@ -1179,9 +1329,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
     <div id="pext-gallery" class="pext-section" style="display:none">
       <div style="position:relative">
         <div id="geo-map" style="height:400px;width:100%;background:var(--bg2)"></div>
-        <div style="position:absolute;top:14px;left:14px;z-index:1000;background:rgba(245,240,232,.95);border:1px solid var(--bd);padding:.5rem .9rem;backdrop-filter:blur(8px)">
-          <div style="font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.12em;text-transform:uppercase;color:var(--tx3)" id="geo-map-label">📍 8 photos across 5 cities</div>
-        </div>
+
         <div style="position:absolute;top:14px;right:14px;z-index:1000;display:flex;gap:4px">
           <button onclick="setGeoFilter('all',this)" class="gfbtn active-gf">All</button>
           <button onclick="setGeoFilter('social',this)" class="gfbtn">Social</button>
@@ -1473,89 +1621,86 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
 </div>
 
 <script>
+/* ─── OSM TILE FIX ─── */
+/* Patch Leaflet createTile to load OSM tiles via fetch with correct Referer */
+(function(){
+  if(!window.L)return;
+  var proto=L.TileLayer.prototype;
+  var orig=proto.createTile;
+  proto.createTile=function(coords,done){
+    var tile=document.createElement('img');
+    tile.setAttribute('role','presentation');
+    tile.setAttribute('alt','');
+    var url=this.getTileUrl(coords);
+    if(url.indexOf('openstreetmap.org')!==-1){
+      fetch(url,{mode:'cors',referrerPolicy:'no-referrer-when-downgrade'})
+        .then(function(r){return r.blob();})
+        .then(function(blob){tile.src=URL.createObjectURL(blob);done(null,tile);})
+        .catch(function(){tile.src=url;done(null,tile);});
+    } else {
+      tile.onload=function(){done(null,tile);};
+      tile.onerror=function(e){done(e,tile);};
+      tile.src=url;
+    }
+    return tile;
+  };
+})();
+
 /* ─── SUPABASE ─── */
 var SUPA_URL='https://clkdrmnfrhsnysfazsxe.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsa2RybW5mcmhzbnlzZmF6c3hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyNTgyNDMsImV4cCI6MjA4NzgzNDI0M30.OJ3zMUUSXCXUIMoLcZym_TkbDw9Z5lO2r_fSMXBu2MI';
 var sb=null;try{if(typeof supabase!=='undefined')sb=supabase.createClient(SUPA_URL,SUPA_KEY);}catch(e){console.warn('Supabase not available, running in demo mode.');}
 
 /* ─── NEWS API CONFIG ─── */
-/* ↓↓↓ PASTE YOUR NEWSAPI.ORG KEY HERE ↓↓↓ */
-var NEWSAPI_KEY = 'YOUR_NEWSAPI_KEY_HERE';
-/* ↑↑↑ Get a free key at https://newsapi.org/register ↑↑↑ */
+var NEWSAPI_KEY = (function(){try{return localStorage.getItem('el-newsapi-key')||'YOUR_NEWSAPI_KEY_HERE';}catch(e){return 'YOUR_NEWSAPI_KEY_HERE';}})();
+function setNewsApiKey(key){
+  NEWSAPI_KEY=key.trim();
+  try{localStorage.setItem('el-newsapi-key',NEWSAPI_KEY);}catch(e){}
+  NEWS_CACHE={};
+  showToast('NewsAPI key saved ✓ — refreshing...');
+  setTimeout(function(){
+    if(document.getElementById('page-dashboard').classList.contains('active')){
+      initNewsPanel();
+    }
+    if(document.getElementById('page-news').classList.contains('active')){
+      renderNewsPageGrid(newsPageTab||'foryou');
+    }
+  },300);
+}
+function openNewsApiSettings(){
+  var existing=document.getElementById('newsapi-modal');if(existing)existing.remove();
+  var m=document.createElement('div');m.className='generic-modal';m.id='newsapi-modal';
+  var current=NEWSAPI_KEY==='YOUR_NEWSAPI_KEY_HERE'?'':NEWSAPI_KEY;
+  m.innerHTML='<div class="generic-modal-inner" style="max-width:420px">'
+    +'<div class="gm-top"></div>'
+    +'<div class="gm-header"><div class="gm-title">NewsAPI Settings</div>'
+    +'<button class="gm-close" onclick="document.getElementById(\'newsapi-modal\').remove()">✕</button></div>'
+    +'<div class="gm-body">'
+    +'<div style="font-family:Space Mono,monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tx4);margin-bottom:.5rem">Your NewsAPI Key</div>'
+    +'<input class="fi" id="newsapi-key-input" value="'+current+'" placeholder="Paste your key from newsapi.org" style="font-family:Space Mono,monospace;font-size:.56rem;letter-spacing:.04em">'
+    +'<div style="font-family:Space Mono,monospace;font-size:.38rem;color:var(--tx4);margin:.55rem 0 1rem;line-height:1.7">Get a free key at <span style="color:var(--tx);text-decoration:underline;cursor:pointer" onclick="window.open(\'https://newsapi.org/register\',\'_blank\')">newsapi.org/register</span> — free tier gives 100 requests/day.</div>'
+    +'<button onclick="setNewsApiKey(document.getElementById(\'newsapi-key-input\').value);document.getElementById(\'newsapi-modal\').remove()" style="width:100%;background:var(--ac);color:var(--aci);border:1px solid var(--ac);padding:.8rem;font-family:Space Mono,monospace;font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer">Save & Activate →</button>'
+    +'</div></div>';
+  m.addEventListener('click',function(e){if(e.target===m)m.remove();});
+  document.body.appendChild(m);
+}
 var NEWSAPI_BASE = 'https://newsapi.org/v2/top-headlines';
 var NEWS_CACHE = {};          /* key → {items, ts} */
 var NEWS_CACHE_TTL = 5*60*1000; /* 5 minutes */
-var CU={id:'demo-user-001',email:'demo@earthlive.io',first:'Ashesh',last:'Demo',username:'ashesh_demo',initials:'AD',avatar_url:null,interests:['Travel','Tech','Social'],bio:''};
+var CU={id:'',email:'',first:'',last:'',username:'',initials:'',avatar_url:null,interests:[],bio:''};
 var followingSet=new Set();var likedPosts=new Set();var postReactions={};
 
 /* ─── DATA ─── */
 var REACTIONS=['❤️','🔥','🎉','💡','😮','🌍'];
-var ALL_POSTS=[
-  {id:1,user:"@nova_nyc",av:"NK",city:"New York",lat:40.7128,lng:-74.006,time:1,cat:"breaking",text:"Massive flash mob filling Times Square — hundreds gathering right now! #NYC #FlashMob",likes:312,views:8200,img:'https://images.unsplash.com/photo-1499346030926-9a72daac6c63?w=800&q=85',comments:[{av:'SI',user:'@sakura_live',text:'Wow! Saw this on the news too!',time:'2m'}],poll:null},
-  {id:2,user:"@sakura_live",av:"SI",city:"Tokyo",lat:35.6762,lng:139.6503,time:1,cat:"breaking",text:"Cherry blossom front reaching Shinjuku Gyoen — already packed! Which spot is your favourite?",likes:1420,views:28000,img:'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=85',comments:[{av:'NK',user:'@nova_nyc',text:'Stunning! How is the crowd?',time:'3m'}],poll:{q:"Best cherry blossom spot?",opts:["Shinjuku Gyoen","Ueno Park","Chidorigafuchi","Maruyama Park"],votes:[42,28,18,12],voted:null}},
-  {id:3,user:"@london_fc",av:"LF",city:"London",lat:51.5074,lng:-0.1278,time:18,cat:"sports",text:"Chelsea 2–1 Arsenal. Dramatic stoppage-time winner at Stamford Bridge. #PremierLeague",likes:1840,views:32000,img:'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=85',comments:[{av:'CM',user:'@sampa_street',text:'Incredible match!',time:'20m'}],poll:{q:"Who was Man of the Match?",opts:["Palmer","Havertz","Gallagher","Reece James"],votes:[55,20,15,10],voted:null}},
-  {id:4,user:"@al_ahly_sc",av:"AA",city:"Cairo",lat:30.0444,lng:31.2357,time:32,cat:"sports",text:"Al Ahly wins CAF Champions League — 12th title. Cairo is erupting! #AlAhly #CAF",likes:2240,views:41000,img:'https://images.unsplash.com/photo-1539650116574-75c0c6d88f22?w=800&q=85',comments:[{av:'FH',user:'@pyramid_watch',text:'Historic night!',time:'35m'}],poll:null},
-  {id:5,user:"@tokyobytes",av:"TB",city:"Tokyo",lat:35.6762,lng:139.6503,time:5,cat:"tech",text:"New robotics demo at Akihabara — a humanoid just served espresso. The future is here! #AI",likes:645,views:9800,img:'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&q=85',comments:[],poll:{q:"Will robots replace baristas by 2030?",opts:["Yes definitely","Partially","No way","Too soon to say"],votes:[25,40,20,15],voted:null}},
-  {id:6,user:"@chai_chron",av:"PN",city:"Mumbai",lat:19.076,lng:72.8777,time:2,cat:"social",text:"Marine Drive at sunset — nothing beats this in any city anywhere. #Mumbai #MarineDrive",likes:768,views:12400,img:'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=800&q=85',comments:[],poll:null},
-  {id:7,user:"@elara_ldn",av:"EL",city:"London",lat:51.5074,lng:-0.1278,time:2,cat:"event",text:"Thousands at the South Bank for the free outdoor screening tonight. #London",likes:228,views:5100,img:'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&q=85',comments:[],poll:null},
-  {id:8,user:"@afrobeat_lgs",av:"JO",city:"Lagos",lat:6.5244,lng:3.3792,time:3,cat:"event",text:"Street festival in Victoria Island — the energy is incredible! #Lagos",likes:445,views:7600,img:'https://images.unsplash.com/photo-1618522285056-498ddd4f4fb8?w=800&q=85',comments:[],poll:null},
-  {id:9,user:"@harbour_cam",av:"LO",city:"Sydney",lat:-33.8688,lng:151.2093,time:5,cat:"social",text:"Opera House lit for Vivid Festival — reflections on the water are magical. #Sydney #Vivid",likes:892,views:15600,img:'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&q=85',comments:[],poll:null},
-  {id:10,user:"@sci_watch",av:"SW",city:"Geneva",lat:46.2044,lng:6.1432,time:15,cat:"research",text:"CERN announces breakthrough in particle physics — potential new force discovered! #Science",likes:1100,views:18000,img:'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=800&q=85',comments:[{av:'TB',user:'@tokyobytes',text:'Following this closely.',time:'17m'}],poll:{q:"How significant is this discovery?",opts:["Nobel Prize worthy","Needs verification","Incremental step","Too early to say"],votes:[38,30,12,20],voted:null}},
-  {id:11,user:"@harbour_cam",av:"LO",city:"Sydney",lat:-33.8688,lng:151.2093,time:8,cat:"tourism",text:"Bondi to Coogee coastal walk at golden hour — this is why Sydney is the world's most scenic city. Must do! #Sydney #Travel #Tourism",likes:934,views:16200,img:'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&q=85',comments:[],poll:{q:"Best time to do the Bondi walk?",opts:["Sunrise","Golden hour","Midday","Night lights"],votes:[32,45,12,11],voted:null}},
-  {id:12,user:"@sakura_live",av:"SI",city:"Kyoto",lat:35.0116,lng:135.7681,time:22,cat:"tourism",text:"Fushimi Inari at 5am — just you and 10,000 torii gates. No crowds. This is the real Japan. #Kyoto #Fushimi #Travel",likes:2110,views:38400,img:'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=85',comments:[{av:'PN',user:'@chai_chron',text:'Going next month!',time:'25m'}],poll:null},
-  {id:13,user:"@chai_chron",av:"PN",city:"Mumbai",lat:19.076,lng:72.8777,time:45,cat:"health",text:"Study: 20-min walks after meals reduce blood sugar spikes by 30%. Mumbai doctors are calling it the simplest lifestyle fix going. #Health #Wellness",likes:567,views:9400,img:'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=800&q=85',comments:[],poll:{q:"Do you walk after meals?",opts:["Always","Sometimes","Rarely","Never"],votes:[22,38,25,15],voted:null}},
-  {id:14,user:"@elara_ldn",av:"EL",city:"London",lat:51.5074,lng:-0.1278,time:12,cat:"health",text:"NHS reports record demand for mental health support — waiting lists hit 1.8 million in England. Experts urge urgent investment. #Health #MentalHealth",likes:445,views:7800,img:'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&q=85',comments:[],poll:null},
-  {id:15,user:"@pyramid_watch",av:"FH",city:"Cairo",lat:30.0444,lng:31.2357,time:6,cat:"breaking",text:"Egypt discovers new chamber inside Great Pyramid of Giza using cosmic ray imaging — archaeologists stunned. #Egypt #Breaking",likes:3100,views:52000,img:'https://images.unsplash.com/photo-1539650116574-75c0c6d88f22?w=800&q=85',comments:[{av:'SW',user:'@sci_watch',text:'Incredible discovery!',time:'8m'}],poll:{q:"What do you think is inside?",opts:["Another tomb","Records","Nothing","Treasure"],votes:[28,35,20,17],voted:null}},
-  {id:16,user:"@nova_nyc",av:"NK",city:"New York",lat:40.7128,lng:-74.006,time:3,cat:"breaking",text:"Power outage hits lower Manhattan — thousands without electricity as emergency crews rush to restore grid. #NYC #Breaking",likes:780,views:14500,img:'https://images.unsplash.com/photo-1499346030926-9a72daac6c63?w=800&q=85',comments:[],poll:null},
-  {id:17,user:"@afrobeat_lgs",av:"JO",city:"Lagos",lat:6.5244,lng:3.3792,time:90,cat:"tourism",text:"Lagos Island food trail — suya, jollof, puff-puff. 6 hours eating through the best street food in Africa. Thread 🧵 #Lagos #FoodTourism",likes:1240,views:21000,img:'https://images.unsplash.com/photo-1618522285056-498ddd4f4fb8?w=800&q=85',comments:[],poll:{q:"Best Lagos street food?",opts:["Suya","Jollof rice","Puff-puff","Pepper soup"],votes:[40,35,15,10],voted:null}},
-];
-var ACCOUNTS=[
-  {name:"Nova Kim",handle:"@nova_nyc",av:"NK",bio:"Documenting New York one block at a time.",loc:"New York, USA",posts:1842,followers:12400,badge:"Top Contributor"},
-  {name:"Elara Singh",handle:"@elara_ldn",av:"ES",bio:"London-based journalist and urban explorer.",loc:"London, UK",posts:3210,followers:28700,badge:"Verified Reporter"},
-  {name:"Sakura Inoue",handle:"@sakura_live",av:"SI",bio:"Tokyo nightlife, street fashion & ramen reviews.",loc:"Tokyo, Japan",posts:5680,followers:44200,badge:"City Insider"},
-  {name:"Jide Okafor",handle:"@afrobeat_lgs",av:"JO",bio:"Lagos music scene curator.",loc:"Lagos, Nigeria",posts:982,followers:7800,badge:"Rising Star"},
-  {name:"Priya Nair",handle:"@chai_chronicles",av:"PN",bio:"Mumbai storyteller. Monsoon rain > everything.",loc:"Mumbai, India",posts:2345,followers:19600,badge:"Verified Reporter"},
-  {name:"Carlos Melo",handle:"@sampa_street",av:"CM",bio:"São Paulo street photographer & event hunter.",loc:"São Paulo, Brazil",posts:1560,followers:11300,badge:"Top Contributor"},
-  {name:"Liam O'Brien",handle:"@harbour_cam",av:"LO",bio:"Sydney sunrise chaser.",loc:"Sydney, Australia",posts:2780,followers:21500,badge:"City Insider"},
-  {name:"Fatima Hassan",handle:"@pyramid_watch",av:"FH",bio:"Cairo street documenter by night.",loc:"Cairo, Egypt",posts:1120,followers:9400,badge:"Verified Reporter"}
-];
-var ACCOUNT_IMGS=['https://images.unsplash.com/photo-1499346030926-9a72daac6c63?w=600&q=80','https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80','https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=80','https://images.unsplash.com/photo-1618522285056-498ddd4f4fb8?w=600&q=80','https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=600&q=80','https://images.unsplash.com/photo-1543059080-f9b1272213d5?w=600&q=80','https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=600&q=80','https://images.unsplash.com/photo-1539650116574-75c0c6d88f22?w=600&q=80'];
+var ALL_POSTS=[];
+var ACCOUNTS=[];
+var ACCOUNT_IMGS=[];
 var CITIES_MAP=[{name:"New York",rate:"4.1k/hr",lat:40.7128,lng:-74.006,live:false},{name:"London",rate:"2.8k/hr",lat:51.5074,lng:-0.1278,live:true},{name:"Tokyo",rate:"5.2k/hr",lat:35.6762,lng:139.6503,live:true},{name:"Lagos",rate:"1.9k/hr",lat:6.5244,lng:3.3792,live:false},{name:"Mumbai",rate:"3.5k/hr",lat:19.076,lng:72.8777,live:false},{name:"São Paulo",rate:"2.2k/hr",lat:-23.5505,lng:-46.6333,live:false},{name:"Sydney",rate:"1.6k/hr",lat:-33.8688,lng:151.2093,live:true},{name:"Cairo",rate:"1.4k/hr",lat:30.0444,lng:31.2357,live:false}];
-var EVENTS_DATA=[
-  {id:1,title:"Vivid Sydney Light Festival",city:"Sydney",lat:-33.8688,lng:151.2093,cat:"Arts",date:"Mar 23",time:"7:00 PM",img:"https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&q=85",desc:"Annual celebration of light, music and ideas transforming Sydney into a vibrant canvas of colour.",attendees:["LO","NK","SI"],count:1240,going:false,cd:"9 days",featured:true},
-  {id:2,title:"Tokyo Tech Summit 2025",city:"Tokyo",lat:35.6762,lng:139.6503,cat:"Tech",date:"Mar 28",time:"9:00 AM",img:"https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&q=85",desc:"Leading innovators discuss AI, robotics and the future of urban living.",attendees:["TB","SI","SW"],count:3400,going:false,cd:"14 days",featured:false},
-  {id:3,title:"Cairo Night Run",city:"Cairo",lat:30.0444,lng:31.2357,cat:"Sports",date:"Apr 5",time:"8:00 PM",img:"https://images.unsplash.com/photo-1539650116574-75c0c6d88f22?w=800&q=85",desc:"5K and 10K night run through the illuminated streets near Giza.",attendees:["FH","AA"],count:860,going:true,cd:"22 days",featured:false},
-  {id:4,title:"Mumbai Photography Walk",city:"Mumbai",lat:19.076,lng:72.8777,cat:"Arts",date:"Apr 12",time:"6:30 AM",img:"https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=800&q=85",desc:"Capture the magic of Mumbai's pre-monsoon light with fellow photographers.",attendees:["PN"],count:145,going:false,cd:"29 days",featured:false},
-  {id:5,title:"Lagos Afrobeats Street Fest",city:"Lagos",lat:6.5244,lng:3.3792,cat:"Music",date:"Mar 22",time:"4:00 PM",img:"https://images.unsplash.com/photo-1618522285056-498ddd4f4fb8?w=800&q=85",desc:"Three stages, twelve artists and the best jollof in Africa. The city's biggest open-air music event returns.",attendees:["JO","PN","NK"],count:5200,going:false,cd:"8 days",featured:false},
-  {id:6,title:"London South Bank Food Fair",city:"London",lat:51.5074,lng:-0.1278,cat:"Food",date:"Mar 29",time:"11:00 AM",img:"https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&q=85",desc:"60 street food stalls along the Thames. From Ethiopian injera to Japanese takoyaki, all under one sky.",attendees:["EL","LF"],count:2800,going:false,cd:"15 days",featured:false},
-  {id:7,title:"Geneva Science Open Day",city:"Geneva",lat:46.2044,lng:6.1432,cat:"Tech",date:"Apr 3",time:"10:00 AM",img:"https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=800&q=85",desc:"CERN and WHO open their doors for a day of public science, including tours of the particle accelerator.",attendees:["SW","TB"],count:1700,going:false,cd:"20 days",featured:false},
-  {id:8,title:"São Paulo Street Art Run",city:"São Paulo",lat:-23.5505,lng:-46.6333,cat:"Social",date:"Apr 8",time:"7:00 AM",img:"https://images.unsplash.com/photo-1543059080-f9b1272213d5?w=800&q=85",desc:"A 10K run through the Vila Madalena neighbourhood — the world's most colourful running route.",attendees:["CM","PN"],count:980,going:false,cd:"25 days",featured:false},
-  {id:9,title:"Tokyo Cherry Blossom Night Walk",city:"Tokyo",lat:35.6762,lng:139.6503,cat:"Nature",date:"Mar 26",time:"7:30 PM",img:"https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=85",desc:"Guided lantern walk through Shinjuku Gyoen and Ueno Park at peak blossom — a once-a-year experience.",attendees:["SI","NK"],count:620,going:false,cd:"12 days",featured:false},
-  {id:10,title:"Mumbai Monsoon Prep Clean-Up",city:"Mumbai",lat:19.076,lng:72.8777,cat:"Social",date:"Apr 18",time:"8:00 AM",img:"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=85",desc:"Community clean-up ahead of monsoon season. Join hundreds of Mumbaikars to clean Marine Drive and Juhu beach.",attendees:["PN"],count:310,going:false,cd:"35 days",featured:false},
-  {id:11,title:"Cairo Pyramids Sunset Concert",city:"Cairo",lat:29.9773,lng:31.1325,cat:"Music",date:"Apr 10",time:"5:30 PM",img:"https://images.unsplash.com/photo-1539650116574-75c0c6d88f22?w=800&q=85",desc:"Classical and contemporary Arabic music performed at the base of the Great Pyramid as the sun sets.",attendees:["FH","AA","NK"],count:1890,going:false,cd:"27 days",featured:false},
-  {id:12,title:"Sydney Harbour Kayak Dawn",city:"Sydney",lat:-33.8688,lng:151.2093,cat:"Nature",date:"Mar 25",time:"5:30 AM",img:"https://images.unsplash.com/photo-1434725039720-aaad6dd32dfe?w=800&q=85",desc:"Paddle through Sydney Harbour at first light with the Opera House and Bridge as your backdrop. Equipment provided.",attendees:["LO"],count:88,going:false,cd:"11 days",featured:false},
-];
+var EVENTS_DATA=[];
 var evCurrentFilter='all';var evCurrentSort='date';var evMapInstance=null;
-var LIVE_STREAMS_DATA=[
-  {id:1,av:"LF",user:"@london_fc",city:"London",title:"Chelsea vs Arsenal — Post Match Live",viewers:2840,img:"https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=85",cat:"Sports"},
-  {id:2,av:"SI",user:"@sakura_live",city:"Tokyo",title:"Shinjuku Cherry Blossom Walk 🌸",viewers:1290,img:"https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=85",cat:"Social"},
-  {id:3,av:"SW",user:"@sci_watch",city:"Geneva",title:"CERN Announcement Reaction & Q&A",viewers:4100,img:"https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=800&q=85",cat:"Research"},
-];
-var MSG_THREADS=[
-  {id:1,av:"NK",name:"Nova Kim",handle:"@nova_nyc",online:true,unread:true,preview:"Amazing shot from Times Square!",time:"2m",messages:[{me:false,text:"Hey! Did you see my Times Square post?",t:"10:22"},{me:true,text:"Yes! Crazy energy there 🔥",t:"10:23"},{me:false,text:"Amazing shot from Times Square!",t:"10:24"}]},
-  {id:2,av:"SI",name:"Sakura Inoue",handle:"@sakura_live",online:true,unread:true,preview:"Come join the blossom walk 🌸",time:"5m",messages:[{me:false,text:"Are you coming to Shinjuku today?",t:"09:45"},{me:true,text:"Maybe later! Looks beautiful",t:"09:47"},{me:false,text:"Come join the blossom walk 🌸",t:"09:48"}]},
-  {id:3,av:"LO",name:"Liam O'Brien",handle:"@harbour_cam",online:false,unread:false,preview:"Vivid Festival starts this weekend",time:"1h",messages:[{me:false,text:"Vivid Festival starts this weekend!",t:"08:30"},{me:true,text:"I'll be watching the stream!",t:"08:35"}]},
-  {id:4,av:"SW",name:"SciWatch",handle:"@sci_watch",online:false,unread:false,preview:"That CERN news is massive",time:"2h",messages:[{me:false,text:"Did you see the CERN announcement?",t:"07:10"},{me:true,text:"Mind-blowing! Following closely",t:"07:12"},{me:false,text:"That CERN news is massive",t:"07:15"}]},
-];
-var NOTIFS=[
-  {av:"SI",text:"@sakura_live reacted 🔥 to your post",time:"1m",unread:true,type:"activity"},
-  {av:"NK",text:"@nova_nyc started following you",time:"3m",unread:true,type:"activity"},
-  {av:"LF",text:"@london_fc mentioned you in a comment",time:"8m",unread:true,type:"mentions"},
-  {av:"AA",text:"@al_ahly_sc voted on your poll",time:"22m",unread:false,type:"activity"},
-  {av:"TB",text:"@tokyobytes liked your post",time:"35m",unread:false,type:"activity"},
-  {av:"JO",text:"New event near you: Lagos Street Festival",time:"1h",unread:false,type:"activity"},
-  {av:"SW",text:"@sci_watch mentioned you in a comment",time:"2h",unread:false,type:"mentions"},
-];
+var LIVE_STREAMS_DATA=[];
+var MSG_THREADS=[];
+var NOTIFS=[];
 var PROF_POSTS={following:ALL_POSTS.slice(0,6),discover:ALL_POSTS.slice(4,10),nearby:[ALL_POSTS[5],ALL_POSTS[6],ALL_POSTS[7]],myposts:[]};
 var currentProfTab='following';var profMapMarkers=[];var profMapInstance=null;var profSearchQuery='';
 var activeFilter='all',liveCount=247,trendingY=0,isPaused=false;
@@ -1584,23 +1729,22 @@ function goTo(page){
   var nl=document.getElementById('nl-'+page);if(nl)nl.classList.add('active');
   window.scrollTo(0,0);
   if(page==='landing'&&!mapLandInit){initLandingMap();mapLandInit=true;}
+  else if(page!=='landing'&&_liveDotsTimer){clearInterval(_liveDotsTimer);_liveDotsTimer=null;}
+  if(page==='landing'&&mapLandInit&&!_liveDotsTimer){_liveDotsTimer=setInterval(_tickLiveDots,2000);}
+  if(page!=='profile'&&_profDotsTimer){clearInterval(_profDotsTimer);_profDotsTimer=null;}
+  if(page==='profile'&&profMapInstance&&!_profDotsTimer){_profDotsTimer=setInterval(_tickProfDots,2000);}
   if(page==='dashboard'){initDashContent();}
   if(page==='profile'&&!mapProfInit){initProfMap();mapProfInit=true;}
   if(page==='profile'){renderProfFeed('following');renderExtendedProfileSections();}
   if(page==='messages'){renderMsgThreads();renderOnlineStrip();var badge=document.getElementById('msg-unread-badge');if(badge)badge.style.display='none';}
   if(page==='news'){initNewsPage();}
-  if(page==='events'){renderEvents();setTimeout(function(){if(evMapInstance)evMapInstance.invalidateSize();},150);}
+  if(page==='events'){evCurrentFilter='all';document.querySelectorAll('.ev-cat-btn').forEach(function(b){b.classList.remove('active');});var allB=document.getElementById('evcb-all');if(allB)allB.classList.add('active');renderEvents();setTimeout(function(){if(evMapInstance)evMapInstance.invalidateSize();},150);}
   if(page==='live'){renderLiveStreams();}
   if(page==='community'){renderCommunityGrid();}
   setTimeout(function(){document.querySelectorAll('#page-'+page+' .fade-up').forEach(function(el){io.observe(el);});},100);
 }
 function scrollTo2(id){document.getElementById(id)&&document.getElementById(id).scrollIntoView({behavior:'smooth'});}
-function doSignOut(){
-  document.getElementById('auth-gate').style.display='flex';
-  document.getElementById('auth-email').value='';
-  document.getElementById('auth-password').value='';
-  showToast('Signed out successfully');
-}
+
 function switchAuthTab(tab){
   document.getElementById('auth-signin-form').style.display=tab==='signin'?'block':'none';
   document.getElementById('auth-signup-form').style.display=tab==='signup'?'block':'none';
@@ -1609,21 +1753,22 @@ function switchAuthTab(tab){
   document.getElementById('auth-tab-signup').style.borderBottomColor=tab==='signup'?'var(--ac)':'transparent';
   document.getElementById('auth-tab-signup').style.color=tab==='signup'?'var(--tx)':'var(--tx3)';
 }
-function demoSignIn(){
-  document.getElementById('auth-gate').style.display='none';
-}
+function demoSignIn(){/* removed */}
 function doSignIn(){
   var email=document.getElementById('auth-email').value.trim();
   var pass=document.getElementById('auth-password').value.trim();
-  if(!email&&!pass){demoSignIn();return;}
   if(!email||!pass){showToast('Please enter email and password');return;}
+  if(!sb){showToast('Connection error — please try again');return;}
   var btn=document.getElementById('signin-btn');
-  if(btn){btn.textContent='Signing in…';}
-  setTimeout(function(){
-    document.getElementById('auth-gate').style.display='none';
-    if(btn){btn.textContent='Sign In →';}
-    showToast('Welcome back, '+CU.first+'! 👋');
-  },600);
+  if(btn)btn.textContent='Signing in…';
+  sb.auth.signInWithPassword({email:email,password:pass}).then(function(res){
+    if(res.error){
+      if(btn)btn.textContent='Sign In →';
+      showToast(res.error.message||'Sign in failed');
+    } else {
+      onAuthSuccess(res.data.user);
+    }
+  });
 }
 function doSignUp(){
   var first=document.getElementById('su-first').value.trim();
@@ -1631,15 +1776,67 @@ function doSignUp(){
   var user=document.getElementById('su-user').value.trim().replace('@','');
   var email=document.getElementById('su-email').value.trim();
   var pass=document.getElementById('su-pass').value.trim();
-  if(!first||!email||!pass||!user){showToast('Please fill all fields');return;}
-  CU.first=first;CU.last=last;CU.username=user;CU.email=email;
-  CU.initials=((first[0]||'')+(last[0]||'')).toUpperCase();
-  document.getElementById('nav-av').textContent=CU.initials;
-  document.getElementById('dash-name').textContent=first.toUpperCase();
-  document.getElementById('pc-name').textContent=(first+' '+last).trim();
-  document.getElementById('pc-handle').textContent='@'+user;
+  if(!first||!email||!pass||!user){showToast('Please fill all required fields');return;}
+  if(pass.length<6){showToast('Password must be at least 6 characters');return;}
+  if(!sb){showToast('Connection error — please try again');return;}
+  var btn=document.querySelector('#auth-signup-form button');
+  if(btn)btn.textContent='Creating account…';
+  sb.auth.signUp({
+    email:email,
+    password:pass,
+    options:{data:{first_name:first,last_name:last,username:user}}
+  }).then(function(res){
+    if(btn)btn.textContent='Create Account →';
+    if(res.error){showToast(res.error.message||'Sign up failed');return;}
+    /* Supabase may require email confirmation */
+    if(res.data.user&&res.data.session){
+      onAuthSuccess(res.data.user);
+    } else {
+      showToast('Check your email to confirm your account, then sign in.');
+      switchAuthTab('signin');
+    }
+  });
+}
+function onAuthSuccess(user){
+  var meta=user.user_metadata||{};
+  CU.id=user.id;
+  CU.email=user.email;
+  CU.first=meta.first_name||user.email.split('@')[0]||'User';
+  CU.last=meta.last_name||'';
+  CU.username=meta.username||user.email.split('@')[0];
+  CU.initials=((CU.first[0]||'')+(CU.last[0]||CU.first[1]||'')).toUpperCase();
+  CU.avatar_url=meta.avatar_url||null;
+  CU.interests=meta.interests||[];
+  CU.bio=meta.bio||'';
+  /* Update UI */
+  var navAv=document.getElementById('nav-av');
+  if(navAv){
+    if(CU.avatar_url){navAv.innerHTML='<img src="'+CU.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';}
+    else{navAv.textContent=CU.initials;}
+  }
+  var dashName=document.getElementById('dash-name');if(dashName)dashName.textContent=CU.first.toUpperCase();
+  var pcName=document.getElementById('pc-name');if(pcName)pcName.textContent=(CU.first+' '+CU.last).trim();
+  var pcHandle=document.getElementById('pc-handle');if(pcHandle)pcHandle.textContent='@'+CU.username;
+  var pcAv=document.getElementById('pc-av');
+  if(pcAv){
+    if(CU.avatar_url){pcAv.innerHTML='<img src="'+CU.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';}
+    else{pcAv.textContent=CU.initials;}
+  }
+  /* Hide auth gate */
   document.getElementById('auth-gate').style.display='none';
-  showToast('Welcome to EarthLive, '+first+'! 🌍');
+  showToast('Welcome back, '+CU.first+'! 👋');
+  /* Reload posts from Supabase for this user */
+  loadPostsFromSupabase();
+}
+function doSignOut(){
+  if(sb)sb.auth.signOut();
+  CU={id:'',email:'',first:'',last:'',username:'',initials:'',avatar_url:null,interests:[],bio:''};
+  ALL_POSTS=[];MSG_THREADS=[];NOTIFS=[];EVENTS_DATA=[];LIVE_STREAMS_DATA=[];
+  PROF_POSTS={following:[],discover:[],nearby:[],myposts:[]};
+  document.getElementById('auth-gate').style.display='flex';
+  document.getElementById('auth-email').value='';
+  document.getElementById('auth-password').value='';
+  showToast('Signed out successfully');
 }
 
 /* FIX 5: Message thread filter */
@@ -1689,36 +1886,288 @@ function filterByMention(handle){
 }
 
 /* ─── LANDING MAP ─── */
-function initLandingMap(){
-  var m=L.map('map-land',{center:[20,10],zoom:2,minZoom:2,maxZoom:18,zoomControl:true,scrollWheelZoom:true,worldCopyJump:true,attributionControl:false});
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,subdomains:['a','b','c']}).addTo(m);
-  CITIES_MAP.forEach(function(c){
-    var icon=L.divIcon({className:'',html:'<div class="city-marker'+(c.live?' live-city':'')+'" title="'+c.name+(c.live?' — LIVE':'')+'"></div>',iconSize:[10,10],iconAnchor:[5,5]});
-    var mk=L.marker([c.lat,c.lng],{icon:icon}).addTo(m);
-    mk.on('click',function(){showToast(c.name+(c.live?' — 🔴 Live now':' — '+c.rate));});
+var _landMap=null;
+var _liveDots=[];          /* {marker, post, addedAt} */
+var _liveDotsTimer=null;
+var _dotPostQueue=[];      /* shuffled post queue for cycling */
+var _dotQueueIdx=0;
+
+/* Score a post for the algorithm: views * 0.5 + likes * 2 + recency bonus */
+function _scorePost(p){
+  return (p.views||0)*0.5 + (p.likes||0)*2;
+}
+
+/* Build a sorted, deduplicated queue — one best post per city */
+function _buildDotQueue(){
+  var cityBest={};
+  ALL_POSTS.forEach(function(p){
+    if(!p.lat||!p.lng)return;
+    var score=_scorePost(p);
+    if(!cityBest[p.city]||score>cityBest[p.city].score){
+      cityBest[p.city]={post:p,score:score};
+    }
   });
+  var arr=Object.values(cityBest).sort(function(a,b){return b.score-a.score;}).map(function(x){return x.post;});
+  /* shuffle a bit so it doesn't always start with the same city */
+  for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;}
+  return arr;
+}
+
+/* Create the dot HTML: red if age<30s, black if 30s-60s */
+function _dotHtml(ageMs){
+  var isRed=ageMs<30000;
+  var color=isRed?'#e74c3c':'#1a1612';
+  var glow=isRed?'0 0 0 0 rgba(231,76,60,.55)':'0 0 0 0 rgba(26,22,18,.4)';
+  var glowEnd=isRed?'0 0 0 9px rgba(231,76,60,0)':'0 0 0 7px rgba(26,22,18,0)';
+  return '<div style="'
+    +'width:12px;height:12px;'
+    +'background:'+color+';'
+    +'border-radius:50%;'
+    +'border:2.5px solid #fff;'
+    +'box-shadow:0 2px 8px rgba(0,0,0,.45);'
+    +'cursor:pointer;'
+    +'animation:livepulse 1.8s infinite;'
+    +'position:relative;'
+    +'"></div>';
+}
+
+/* Add one new dot to the map */
+function _addLiveDot(post){
+  if(!_landMap)return;
+  var now=Date.now();
+  /* small random jitter so dots from same city don't stack */
+  var jLat=post.lat+(Math.random()-0.5)*0.18;
+  var jLng=post.lng+(Math.random()-0.5)*0.18;
+  var icon=L.divIcon({className:'',html:_dotHtml(0),iconSize:[12,12],iconAnchor:[6,6]});
+  var mk=L.marker([jLat,jLng],{icon:icon}).addTo(_landMap);
+
+  /* Popup on hover */
+  var popHtml='<div style="font-family:Space Mono,monospace;min-width:180px;max-width:220px">'
+    +'<div style="font-size:.38rem;letter-spacing:.1em;text-transform:uppercase;color:#e74c3c;margin-bottom:3px;display:flex;align-items:center;gap:4px"><span style="width:5px;height:5px;border-radius:50%;background:#e74c3c;display:inline-block"></span>LIVE · '+post.city+'</div>'
+    +'<div style="font-size:.46rem;font-weight:600;color:#1a1612;margin-bottom:3px;letter-spacing:.04em">'+post.user+'</div>'
+    +'<div style="font-size:.66rem;color:#4a4540;line-height:1.5;margin-bottom:5px">'+post.text.substring(0,80)+(post.text.length>80?'…':'')+'</div>'
+    +'<div style="display:flex;gap:8px;font-size:.36rem;color:#8a847a">'
+    +'<span>👁 '+(post.views>=1000?(post.views/1000).toFixed(1)+'k':post.views)+'</span>'
+    +'<span>❤️ '+post.likes+'</span>'
+    +'<span style="margin-left:auto;color:#1a1612;cursor:pointer;text-decoration:underline">Open post →</span>'
+    +'</div></div>';
+  mk.bindPopup(popHtml,{maxWidth:230,className:'live-dot-popup'});
+  mk.on('click',function(){
+    mk.openPopup();
+  });
+  mk.on('popupopen',function(){
+    /* clicking "Open post →" inside popup */
+    setTimeout(function(){
+      var el=mk.getPopup().getElement();
+      if(!el)return;
+      el.querySelector && el.querySelectorAll && el.querySelectorAll('span').forEach(function(s){
+        if(s.textContent.indexOf('Open post')!==-1){
+          s.style.cursor='pointer';
+          s.onclick=function(){mk.closePopup();openPost(post);};
+        }
+      });
+    },50);
+  });
+
+  _liveDots.push({marker:mk,post:post,addedAt:now});
+}
+
+/* Every 500ms: age dots, recolour, remove expired, add new ones */
+function _tickLiveDots(){
+  var now=Date.now();
+  var toRemove=[];
+  _liveDots.forEach(function(d,i){
+    var age=now-d.addedAt;
+    if(age>=60000){toRemove.push(i);return;}   /* expired after 1 min */
+    /* recolour: switch from red to black at 30s */
+    var wasRed=age<30000;
+    /* We re-issue the icon only at the boundary crossing (every 2s is fine) */
+    var newHtml=_dotHtml(age);
+    d.marker.setIcon(L.divIcon({className:'',html:newHtml,iconSize:[12,12],iconAnchor:[6,6]}));
+  });
+  /* Remove expired (reverse order to keep indices correct) */
+  for(var i=toRemove.length-1;i>=0;i--){
+    var idx=toRemove[i];
+    _landMap.removeLayer(_liveDots[idx].marker);
+    _liveDots.splice(idx,1);
+  }
+  /* Add new dots until we have 7-8 on screen */
+  var max=7+Math.round(Math.random());   /* 7 or 8 */
+  while(_liveDots.length<max){
+    if(_dotQueueIdx>=_dotPostQueue.length)_dotQueueIdx=0;
+    var post=_dotPostQueue[_dotQueueIdx++];
+    if(!post)break;
+    /* Don't add same city twice at same time */
+    var cityActive=_liveDots.some(function(d){return d.post.city===post.city;});
+    if(cityActive){_dotQueueIdx++;continue;}
+    _addLiveDot(post);
+  }
+}
+
+function initLandingMap(){
+  _landMap=L.map('map-land',{center:[20,10],zoom:2,minZoom:2,maxZoom:18,zoomControl:true,scrollWheelZoom:true,worldCopyJump:true,attributionControl:false});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,subdomains:['a','b','c']}).addTo(_landMap);
+
+  /* Build & seed the queue */
+  _dotPostQueue=_buildDotQueue();
+  _dotQueueIdx=0;
+  _liveDots=[];
+
+  /* Stagger initial dots over first 3 seconds so they don't all appear at once */
+  var delay=0;
+  var initialCount=7;
+  for(var i=0;i<initialCount&&i<_dotPostQueue.length;i++){
+    (function(post){
+      setTimeout(function(){_addLiveDot(post);},delay);
+    })(_dotPostQueue[i]);
+    _dotQueueIdx++;
+    delay+=300+Math.random()*200;
+  }
+
+  /* Start the tick loop: recolour every 2s, add/remove as needed */
+  if(_liveDotsTimer)clearInterval(_liveDotsTimer);
+  _liveDotsTimer=setInterval(_tickLiveDots,2000);
 }
 
 /* ─── PROFILE MAP ─── */
+var _profDots=[];
+var _profDotsTimer=null;
+var _profDotQueue=[];
+var _profDotQueueIdx=0;
+
+/* Build queue from posts by people you follow — scored by engagement */
+function _buildProfDotQueue(){
+  var posts=PROF_POSTS.following||[];
+  /* one best post per user */
+  var userBest={};
+  posts.forEach(function(p){
+    if(!p.lat||!p.lng)return;
+    var score=(p.views||0)*0.5+(p.likes||0)*2;
+    if(!userBest[p.user]||score>userBest[p.user].score){
+      userBest[p.user]={post:p,score:score};
+    }
+  });
+  var arr=Object.values(userBest).sort(function(a,b){return b.score-a.score;}).map(function(x){return x.post;});
+  /* shuffle */
+  for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;}
+  return arr;
+}
+
+function _addProfDot(post){
+  if(!profMapInstance)return;
+  var now=Date.now();
+  var jLat=post.lat+(Math.random()-0.5)*0.18;
+  var jLng=post.lng+(Math.random()-0.5)*0.18;
+  var isRed=true; /* always red when first added */
+  var html='<div style="width:12px;height:12px;background:#e74c3c;border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.45);cursor:pointer;animation:livepulse 1.8s infinite"></div>';
+  var icon=L.divIcon({className:'',html:html,iconSize:[12,12],iconAnchor:[6,6]});
+  var mk=L.marker([jLat,jLng],{icon:icon}).addTo(profMapInstance);
+
+  var popHtml='<div style="font-family:Space Mono,monospace;min-width:180px;max-width:220px">'
+    +'<div style="font-size:.38rem;letter-spacing:.1em;text-transform:uppercase;color:#e74c3c;margin-bottom:3px;display:flex;align-items:center;gap:4px"><span style="width:5px;height:5px;border-radius:50%;background:#e74c3c;display:inline-block"></span>FOLLOWING · '+post.city+'</div>'
+    +'<div style="font-size:.46rem;font-weight:600;color:var(--tx);margin-bottom:3px;letter-spacing:.04em">'+post.user+'</div>'
+    +'<div style="font-size:.66rem;color:var(--tx2);line-height:1.5;margin-bottom:5px">'+post.text.substring(0,80)+(post.text.length>80?'…':'')+'</div>'
+    +'<div style="display:flex;gap:8px;font-size:.36rem;color:var(--tx4)">'
+    +'<span>👁 '+(post.views>=1000?(post.views/1000).toFixed(1)+'k':post.views)+'</span>'
+    +'<span>❤️ '+post.likes+'</span>'
+    +'<span style="margin-left:auto;color:var(--tx);cursor:pointer;text-decoration:underline">Open post →</span>'
+    +'</div></div>';
+  mk.bindPopup(popHtml,{maxWidth:230,className:'live-dot-popup'});
+  mk.on('popupopen',function(){
+    setTimeout(function(){
+      var el=mk.getPopup().getElement();
+      if(!el)return;
+      el.querySelectorAll('span').forEach(function(s){
+        if(s.textContent.indexOf('Open post')!==-1){
+          s.style.cursor='pointer';
+          s.onclick=function(){mk.closePopup();openPost(post);};
+        }
+      });
+    },50);
+  });
+
+  _profDots.push({marker:mk,post:post,addedAt:now});
+  profMapMarkers.push(mk);
+}
+
+function _tickProfDots(){
+  if(!profMapInstance)return;
+  var now=Date.now();
+  var toRemove=[];
+  _profDots.forEach(function(d,i){
+    var age=now-d.addedAt;
+    if(age>=60000){toRemove.push(i);return;}
+    var isRed=age<30000;
+    var color=isRed?'#e74c3c':'#1a1612';
+    var html='<div style="width:12px;height:12px;background:'+color+';border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.45);cursor:pointer;animation:livepulse 1.8s infinite"></div>';
+    d.marker.setIcon(L.divIcon({className:'',html:html,iconSize:[12,12],iconAnchor:[6,6]}));
+  });
+  for(var i=toRemove.length-1;i>=0;i--){
+    var idx=toRemove[i];
+    profMapInstance.removeLayer(_profDots[idx].marker);
+    var mi=profMapMarkers.indexOf(_profDots[idx].marker);
+    if(mi>-1)profMapMarkers.splice(mi,1);
+    _profDots.splice(idx,1);
+  }
+  var max=7+Math.round(Math.random());
+  while(_profDots.length<max){
+    if(_profDotQueueIdx>=_profDotQueue.length)_profDotQueueIdx=0;
+    if(!_profDotQueue.length)break;
+    var post=_profDotQueue[_profDotQueueIdx++];
+    if(!post)break;
+    var cityActive=_profDots.some(function(d){return d.post.city===post.city;});
+    if(cityActive){continue;}
+    _addProfDot(post);
+  }
+}
+
 function initProfMap(){
   profMapInstance=L.map('map-prof',{center:[20,10],zoom:2,minZoom:2,maxZoom:6,zoomControl:true,scrollWheelZoom:false,worldCopyJump:true,attributionControl:false});
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,subdomains:['a','b','c']}).addTo(profMapInstance);
-  renderProfMapMarkers(PROF_POSTS[currentProfTab]);
+
+  _profDotQueue=_buildProfDotQueue();
+  _profDotQueueIdx=0;
+  _profDots=[];
+  profMapMarkers=[];
+
+  /* stagger initial dots */
+  var delay=0;
+  var initial=Math.min(7,_profDotQueue.length);
+  for(var i=0;i<initial;i++){
+    (function(post){setTimeout(function(){_addProfDot(post);},delay);})(_profDotQueue[i]);
+    _profDotQueueIdx++;
+    delay+=300+Math.random()*200;
+  }
+
+  if(_profDotsTimer)clearInterval(_profDotsTimer);
+  _profDotsTimer=setInterval(_tickProfDots,2000);
 }
+
+/* Keep renderProfMapMarkers for tab switches — rebuild queue from new posts */
 function renderProfMapMarkers(posts){
   if(!profMapInstance)return;
-  profMapMarkers.forEach(function(mk){profMapInstance.removeLayer(mk);});profMapMarkers=[];
-  var seen={};
+  /* clear existing dots */
+  _profDots.forEach(function(d){profMapInstance.removeLayer(d.marker);});
+  _profDots=[];
+  profMapMarkers.forEach(function(mk){try{profMapInstance.removeLayer(mk);}catch(e){}});
+  profMapMarkers=[];
+  /* rebuild queue from new post set */
+  var userBest={};
   (posts||[]).forEach(function(p){
     if(!p.lat||!p.lng)return;
-    var key=p.lat+'_'+p.lng;var offset=seen[key]?seen[key]*0.15:0;seen[key]=(seen[key]||0)+1;
-    var color=p.cat==='breaking'?'#e74c3c':p.cat==='sports'?'#2ecc71':p.cat==='tech'?'#3498db':'var(--ac)';
-    var icon=L.divIcon({className:'',html:'<div style="width:11px;height:11px;background:'+color+';border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer"></div>',iconSize:[11,11],iconAnchor:[5.5,5.5]});
-    var mk=L.marker([p.lat+offset,p.lng],{icon:icon}).addTo(profMapInstance);
-    mk.bindPopup('<div style="font-family:Space Mono,monospace;font-size:11px;min-width:150px"><strong>'+p.user+'</strong><br>◎ '+p.city+'<br><span style="color:#888;font-size:10px">'+p.cat+'</span><br><div style="margin-top:4px;font-size:12px;color:#333">'+p.text.substring(0,60)+'…</div></div>',{maxWidth:200});
-    mk.on('click',function(){openPost(p);});
-    profMapMarkers.push(mk);
+    var score=(p.views||0)*0.5+(p.likes||0)*2;
+    if(!userBest[p.user]||score>userBest[p.user].score)userBest[p.user]={post:p,score:score};
   });
+  _profDotQueue=Object.values(userBest).sort(function(a,b){return b.score-a.score;}).map(function(x){return x.post;});
+  for(var i=_profDotQueue.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=_profDotQueue[i];_profDotQueue[i]=_profDotQueue[j];_profDotQueue[j]=tmp;}
+  _profDotQueueIdx=0;
+  var delay=0;
+  var initial=Math.min(7,_profDotQueue.length);
+  for(var i=0;i<initial;i++){
+    (function(post){setTimeout(function(){_addProfDot(post);},delay);})(_profDotQueue[i]);
+    _profDotQueueIdx++;
+    delay+=250+Math.random()*150;
+  }
 }
 
 /* ─── FEED ─── */
@@ -1983,7 +2432,7 @@ function openMsgThread(av,name,handle){
     }).join('')
     +'</div>'
     +'<div class="msg-footer">'
-    +'<button onclick="showToast(\'📎 Attach file coming soon!\')" style="background:transparent;border:1px solid var(--bdk);width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;flex-shrink:0" title="Attach">📎</button>'
+    +'<input type="file" id="msg-file-'+t.id+'" accept="image/*,video/*,.pdf,.doc,.docx,.txt" style="display:none" onchange="handleMsgAttach(event,'+t.id+')">'+'<button onclick="document.getElementById(\'msg-file-'+t.id+'\').click()" style="background:transparent;border:1px solid var(--bdk);width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;flex-shrink:0" title="Attach file">📎</button>'
     +'<div style="position:relative;flex-shrink:0">'
     +'<button id="emoji-btn-'+t.id+'" onclick="toggleEmojiPicker('+t.id+')" style="background:transparent;border:1px solid var(--bdk);width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem" title="Emoji">😊</button>'
     +'<div id="emoji-picker-'+t.id+'" style="display:none;position:absolute;bottom:40px;left:0;background:var(--sf);border:1px solid var(--bdk);border-radius:8px;padding:6px;display:none;flex-wrap:wrap;gap:4px;width:160px;box-shadow:0 4px 16px rgba(26,22,18,.15);z-index:100">'
@@ -1993,6 +2442,78 @@ function openMsgThread(av,name,handle){
     +'<button class="msg-send" onclick="sendMsg('+t.id+')">Send →</button>'
     +'</div>';
   setTimeout(function(){var b=document.getElementById('msg-body-'+t.id);if(b)b.scrollTop=b.scrollHeight;},100);
+}
+function handleMsgAttach(event,tid){
+  var file=event.target.files&&event.target.files[0];if(!file)return;
+  var isImg=file.type.startsWith('image/');
+  var reader=new FileReader();
+  reader.onload=function(e){
+    /* Show preview panel with Send / Cancel instead of sending immediately */
+    var existing=document.getElementById('attach-preview-'+tid);
+    if(existing)existing.remove();
+    var body=document.getElementById('msg-body-'+tid);
+    if(!body)return;
+    var previewWrap=document.createElement('div');
+    previewWrap.id='attach-preview-'+tid;
+    previewWrap.style.cssText='background:var(--bg2);border:1px solid var(--bdk);border-radius:8px;padding:.7rem .9rem;margin:.4rem 0;display:flex;align-items:center;gap:.75rem;animation:fadeIn .2s ease';
+    if(isImg){
+      previewWrap.innerHTML=''
+        +'<img src="'+e.target.result+'" style="width:56px;height:44px;object-fit:cover;border-radius:5px;flex-shrink:0">'
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="font-family:Space Mono,monospace;font-size:.42rem;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin-bottom:2px">📷 Image ready</div>'
+        +'<div style="font-size:.72rem;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+file.name+'</div>'
+        +'</div>'
+        +'<button onclick="sendAttachment('+tid+',\'img\')" style="background:var(--ac);color:var(--aci);border:1px solid var(--ac);font-family:Space Mono,monospace;font-size:.42rem;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .8rem;cursor:pointer;flex-shrink:0">Send →</button>'
+        +'<button onclick="cancelAttachment('+tid+')" style="background:transparent;border:1px solid var(--bd);color:var(--tx3);font-family:Space Mono,monospace;font-size:.42rem;padding:.35rem .65rem;cursor:pointer;flex-shrink:0">✕</button>';
+    } else {
+      previewWrap.innerHTML=''
+        +'<div style="width:36px;height:36px;background:var(--bg3);border:1px solid var(--bdk);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">📎</div>'
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="font-family:Space Mono,monospace;font-size:.42rem;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin-bottom:2px">File ready</div>'
+        +'<div style="font-size:.72rem;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+file.name+'</div>'
+        +'</div>'
+        +'<button onclick="sendAttachment('+tid+',\'file\')" style="background:var(--ac);color:var(--aci);border:1px solid var(--ac);font-family:Space Mono,monospace;font-size:.42rem;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .8rem;cursor:pointer;flex-shrink:0">Send →</button>'
+        +'<button onclick="cancelAttachment('+tid+')" style="background:transparent;border:1px solid var(--bd);color:var(--tx3);font-family:Space Mono,monospace;font-size:.42rem;padding:.35rem .65rem;cursor:pointer;flex-shrink:0">✕</button>';
+    }
+    body.appendChild(previewWrap);
+    body.scrollTop=body.scrollHeight;
+    /* store data for send */
+    previewWrap._fileData=e.target.result;
+    previewWrap._fileName=file.name;
+    previewWrap._fileType=isImg?'img':'file';
+    previewWrap._tid=tid;
+  };
+  reader.readAsDataURL(file);
+  event.target.value='';
+}
+
+function cancelAttachment(tid){
+  var el=document.getElementById('attach-preview-'+tid);
+  if(el)el.remove();
+}
+
+function sendAttachment(tid,type){
+  var previewWrap=document.getElementById('attach-preview-'+tid);
+  if(!previewWrap)return;
+  var dataUrl=previewWrap._fileData;
+  var fileName=previewWrap._fileName;
+  var t=MSG_THREADS.find(function(x){return x.id===Number(tid)||x.id===tid;});
+  var now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  previewWrap.remove();
+  var body=document.getElementById('msg-body-'+tid);
+  if(!body)return;
+  var d=document.createElement('div');d.className='msg-bubble-wrap me';
+  if(type==='img'){
+    d.innerHTML='<div class="msg-bubble me" style="padding:4px;background:transparent;border:none"><img src="'+dataUrl+'" style="max-width:220px;max-height:160px;border-radius:8px;display:block"></div><div class="msg-time">'+now+' · <span class="msg-read">✓✓</span></div>';
+    if(t){t.messages.push({me:true,t:now,text:'',img:dataUrl});t.preview='📷 Photo';t.time='now';}
+    showToast('📷 Photo sent!');
+  } else {
+    d.innerHTML='<div class="msg-bubble me">📎 <span style="text-decoration:underline">'+fileName+'</span></div><div class="msg-time">'+now+' · <span class="msg-read">✓✓</span></div>';
+    if(t){t.messages.push({me:true,t:now,text:'📎 '+fileName,img:null});t.preview='📎 '+fileName;t.time='now';}
+    showToast('📎 File sent: '+fileName);
+  }
+  body.appendChild(d);body.scrollTop=body.scrollHeight;
+  renderMsgThreads();
 }
 function openMsg(av,name,handle){goTo('messages');setTimeout(function(){openMsgThread(av,name,handle);},100);}
 function toggleEmojiPicker(tid){
@@ -2053,10 +2574,12 @@ function getFilteredEvents(){
 function filterEvents(cat,btn){
   evCurrentFilter=cat;
   document.querySelectorAll('.ev-cat-btn').forEach(function(b){b.classList.remove('active');});
-  if(btn)btn.classList.add('active');
+  if(btn){btn.classList.add('active');}
+  else{var autoBtn=document.getElementById('evcb-'+(cat==='all'?'all':cat));if(autoBtn)autoBtn.classList.add('active');}
   var label=document.getElementById('ev-grid-label');
   if(label)label.textContent=cat==='all'?'All Events':cat+' Events';
   renderEventsGrid();
+  renderEvFeatured();
 }
 function evSortChange(val){evCurrentSort=val;renderEventsGrid();}
 function renderEvents(){
@@ -2072,7 +2595,7 @@ function updateEvStats(){
   var tc=document.getElementById('ev-total-count');if(tc)tc.textContent=EVENTS_DATA.length;
 }
 function renderEvFeatured(){
-  var feat=EVENTS_DATA.find(function(e){return e.featured&&e.id===1;})||EVENTS_DATA[0];
+  var feat=evCurrentFilter==='all'?(EVENTS_DATA.find(function(e){return e.featured&&e.id===1;})||EVENTS_DATA[0]):(EVENTS_DATA.find(function(e){return e.cat===evCurrentFilter;})||EVENTS_DATA[0]);
   var el=document.getElementById('ev-featured');if(!el||!feat)return;
   el.innerHTML='<div class="ev-featured-card" onclick="openEventDetail('+feat.id+')" style="cursor:pointer">'
     +'<div class="ev-fc-img"><img src="'+feat.img+'" alt="" loading="lazy"><div style="position:absolute;inset:0;background:linear-gradient(to right,transparent 60%,var(--sf) 100%)"></div><div style="position:absolute;top:.7rem;left:.8rem;background:#e74c3c;color:#fff;font-family:Space Mono,monospace;font-size:.36rem;letter-spacing:.1em;text-transform:uppercase;padding:.15rem .5rem">Featured</div></div>'
@@ -2091,7 +2614,7 @@ function renderEvFeatured(){
 }
 function renderEventsGrid(){
   var grid=document.getElementById('events-grid');if(!grid)return;grid.innerHTML='';
-  var list=getFilteredEvents().filter(function(e){return!e.featured||e.id!==1;});
+  var list=getFilteredEvents().filter(function(e){return evCurrentFilter!=='all'||((!e.featured||e.id!==1));});
   var empty=document.getElementById('ev-empty');
   if(!list.length){if(empty)empty.style.display='block';return;}
   if(empty)empty.style.display='none';
@@ -2457,14 +2980,79 @@ function submitPost(btn){
 /* ─── EDIT PROFILE ─── */
 function openEditProfile(){
   var m=document.createElement('div');m.className='generic-modal';m.id='edit-modal';
-  m.innerHTML='<div class="generic-modal-inner"><div class="gm-top"></div><div class="gm-header"><div class="gm-title">Edit Profile</div><button class="gm-close" onclick="document.getElementById(\'edit-modal\').remove()">✕</button></div><div class="gm-body"><div class="frow"><div class="fg"><label class="fl">First Name</label><input class="fi" id="ep-first" value="'+CU.first+'"></div><div class="fg"><label class="fl">Last Name</label><input class="fi" id="ep-last" value="'+CU.last+'"></div></div><div class="fg"><label class="fl">Username</label><input class="fi" id="ep-user" value="'+CU.username+'"></div><div class="fg"><label class="fl">Bio</label><textarea class="fi" id="ep-bio" rows="2" placeholder="Tell the world who you are…" style="resize:none">'+(CU.bio||'')+'</textarea></div><button onclick="saveProfile()" style="width:100%;background:var(--ac);color:var(--aci);border:1px solid var(--ac);padding:.85rem;font-family:Space Mono,monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer">Save Changes →</button></div></div>';
-  m.addEventListener('click',function(e){if(e.target===m)m.remove();});document.body.appendChild(m);
+  var avatarPreview=CU.avatar_url
+    ?'<img id="ep-av-preview" src="'+CU.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">'
+    :'<span id="ep-av-initials" style="font-family:Space Mono,monospace;font-size:1.4rem;font-weight:700;color:var(--tx)">'+CU.initials+'</span>';
+  m.innerHTML=''
+    +'<div class="generic-modal-inner" style="max-width:440px">'
+    +'<div class="gm-top"></div>'
+    +'<div class="gm-header"><div class="gm-title">Edit Profile</div>'
+    +'<button class="gm-close" onclick="document.getElementById(\'edit-modal\').remove()">✕</button></div>'
+    +'<div class="gm-body">'
+    // Photo upload section
+    +'<div style="display:flex;flex-direction:column;align-items:center;gap:.7rem;margin-bottom:1.4rem;padding-bottom:1.2rem;border-bottom:1px solid var(--bd)">'
+    +'<div id="ep-av-wrap" style="width:84px;height:84px;border-radius:50%;background:var(--bg3);border:2px solid var(--bdk);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;flex-shrink:0">'+avatarPreview+'</div>'
+    +'<div style="text-align:center">'
+    +'<input type="file" id="ep-photo-input" accept="image/*" style="display:none" onchange="previewProfilePhoto(event)">'
+    +'<button onclick="document.getElementById(\'ep-photo-input\').click()" style="font-family:Space Mono,monospace;font-size:.48rem;letter-spacing:.1em;text-transform:uppercase;background:var(--ac);color:var(--aci);border:1px solid var(--ac);padding:.45rem 1.1rem;cursor:pointer;transition:all .2s">📷 Upload Photo</button>'
+    +'<div style="font-family:Space Mono,monospace;font-size:.36rem;color:var(--tx4);margin-top:.35rem">JPG, PNG or GIF · max 5MB</div>'
+    +'</div>'
+    +'</div>'
+    // Name fields
+    +'<div class="frow">'
+    +'<div class="fg"><label class="fl">First Name</label><input class="fi" id="ep-first" value="'+CU.first+'"></div>'
+    +'<div class="fg"><label class="fl">Last Name</label><input class="fi" id="ep-last" value="'+CU.last+'"></div>'
+    +'</div>'
+    +'<div class="fg"><label class="fl">Username</label><input class="fi" id="ep-user" value="'+CU.username+'"></div>'
+    +'<div class="fg"><label class="fl">Bio</label><textarea class="fi" id="ep-bio" rows="2" placeholder="Tell the world who you are…" style="resize:none">'+(CU.bio||'')+'</textarea></div>'
+    +'<div class="fg"><label class="fl">Location</label><input class="fi" id="ep-loc" placeholder="City, Country" value="'+(CU.location||'Anekal, Karnataka, India')+'"></div>'
+    +'<div class="fg"><label class="fl">Website</label><input class="fi" id="ep-web" placeholder="https://yoursite.com" value="'+(CU.website||'')+'"></div>'
+    +'<button onclick="saveProfile()" style="width:100%;background:var(--ac);color:var(--aci);border:1px solid var(--ac);padding:.85rem;font-family:Space Mono,monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;margin-top:.4rem">Save Changes →</button>'
+    +'</div></div>';
+  m.addEventListener('click',function(e){if(e.target===m)m.remove();});
+  document.body.appendChild(m);
 }
+
+function previewProfilePhoto(event){
+  var file=event.target.files&&event.target.files[0];
+  if(!file||!file.type.startsWith('image/'))return;
+  if(file.size>5*1024*1024){showToast('Image too large — max 5MB');return;}
+  var reader=new FileReader();
+  reader.onload=function(e){
+    CU.avatar_url=e.target.result;
+    // update preview in modal
+    var wrap=document.getElementById('ep-av-wrap');
+    if(wrap)wrap.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+    // update nav avatar
+    var navAv=document.getElementById('nav-av');
+    if(navAv){navAv.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';}
+    // update profile card avatar
+    var pcAv=document.getElementById('pc-av');
+    if(pcAv){pcAv.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';}
+    showToast('Photo ready — click Save to confirm');
+  };
+  reader.readAsDataURL(file);
+}
+
 function saveProfile(){
-  CU.first=document.getElementById('ep-first').value.trim();CU.last=document.getElementById('ep-last').value.trim();CU.username=document.getElementById('ep-user').value.trim();CU.bio=document.getElementById('ep-bio').value.trim();
+  CU.first=(document.getElementById('ep-first').value||'').trim();
+  CU.last=(document.getElementById('ep-last').value||'').trim();
+  CU.username=(document.getElementById('ep-user').value||'').trim();
+  CU.bio=(document.getElementById('ep-bio').value||'').trim();
+  CU.location=(document.getElementById('ep-loc')?document.getElementById('ep-loc').value.trim():CU.location)||'';
+  CU.website=(document.getElementById('ep-web')?document.getElementById('ep-web').value.trim():'');
   CU.initials=((CU.first[0]||'')+(CU.last[0]||'')).toUpperCase();
-  document.getElementById('pc-name').textContent=(CU.first+' '+CU.last).trim();document.getElementById('pc-handle').textContent='@'+CU.username;
-  document.getElementById('edit-modal').remove();showToast('Profile saved ✓');
+  // Update displayed name/handle
+  var pcName=document.getElementById('pc-name');if(pcName)pcName.textContent=(CU.first+' '+CU.last).trim();
+  var pcHandle=document.getElementById('pc-handle');if(pcHandle)pcHandle.textContent='@'+CU.username;
+  var dashName=document.getElementById('dash-name');if(dashName)dashName.textContent=CU.first.toUpperCase();
+  // Update nav avatar initials (only if no photo set)
+  var navAv=document.getElementById('nav-av');
+  if(navAv&&!CU.avatar_url)navAv.textContent=CU.initials;
+  var pcAv=document.getElementById('pc-av');
+  if(pcAv&&!CU.avatar_url)pcAv.textContent=CU.initials;
+  document.getElementById('edit-modal').remove();
+  showToast('Profile saved ✓');
 }
 
 /* ─── PROFILE FEED ─── */
@@ -2626,8 +3214,7 @@ function renderGeoMarkers(){
     })(grp);
     geoMarkers.push(mk);
   });
-  var cnt=document.getElementById('geo-map-label');
-  if(cnt)cnt.textContent='📍 '+filtered.length+' photos across '+Object.keys(groups).length+' cities';
+
 }
 function getFilteredPhotos(){
   return GEO_PHOTOS.filter(function(p){
@@ -2882,6 +3469,7 @@ function renderDashNewsFeed(key){
   loading.style.display='flex';feed.style.display='none';activeNewsCard=null;
   function displayItems(items,interestKey){
     loading.style.display='none';feed.style.display='grid';feed.style.flexDirection='';
+    window._dashNewsItems=items;
     if(!items||!items.length){feed.innerHTML='<div style="font-family:Space Mono,monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tx4);padding:1.5rem;text-align:center">No news available</div>';document.getElementById('news-updated').textContent='Updated '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});return;}
     feed.innerHTML=items.map(function(item,i){
       var m=item._interest?INTEREST_NEWS_MAP[item._interest]:(interestKey?INTEREST_NEWS_MAP[interestKey]:null);
@@ -2891,13 +3479,13 @@ function renderDashNewsFeed(key){
       var safeTitle=(item.title||'').substring(0,50).replace(/[\'\"\\]/g,'');
       var safeSrc=(item.source||'').replace(/[\'\"\\]/g,'');
       var safeUrl=(item.url||'').replace(/\'/g,'%27');
-      return'<div class="news-card" id="ndc'+i+'" onclick="toggleNewsCard('+i+')">'
-        +'<div style="display:flex;gap:10px;padding:.65rem 1rem;align-items:flex-start">'
-        +'<img src="'+imgSrc+'" loading="lazy" onerror="this.src=\'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&q=70\'" style="width:80px;height:64px;object-fit:cover;flex-shrink:0;border-radius:5px;filter:sepia(.1) brightness(.88)">'
+      return'<div class="news-card" id="ndc'+i+'" onclick="openDashNewsSummary('+i+')">'
+        +'<div style="display:flex;gap:16px;padding:1.1rem 1.3rem;align-items:flex-start">'
+        +'<img src="'+imgSrc+'" loading="lazy" onerror="this.src=\'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&q=70\'" style="width:130px;height:100px;object-fit:cover;flex-shrink:0;border-radius:7px;filter:sepia(.1) brightness(.88)">'
         +'<div style="flex:1;min-width:0">'
         +(item.hot?'<span style="font-family:Space Mono,monospace;font-size:6px;letter-spacing:.08em;text-transform:uppercase;background:#e74c3c;color:#fff;padding:1px 5px;margin-right:4px;vertical-align:middle">'+(newsApiConfigured()?'LIVE':'HOT')+'</span>':'')
         +(lbl?'<div style="font-family:Space Mono,monospace;font-size:6.5px;letter-spacing:.1em;text-transform:uppercase;color:'+ac+';margin-bottom:3px;border-left:2px solid '+ac+';padding-left:4px">'+lbl+'</div>':'')
-        +'<div style="font-size:.78rem;color:var(--tx);line-height:1.48;font-weight:500;margin-bottom:5px">'+item.title+'</div>'
+        +'<div style="font-size:.92rem;color:var(--tx);line-height:1.58;font-weight:500;margin-bottom:7px">'+item.title+'</div>'
         +'<div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap">'
         +'<span style="font-family:Space Mono,monospace;font-size:.32rem;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--bdk);padding:.07rem .32rem;color:var(--tx3)">'+item.source+'</span>'
         +'<span style="font-family:Space Mono,monospace;font-size:.32rem;color:var(--tx4)">'+item.time+' ago</span>'
@@ -2929,6 +3517,25 @@ function renderDashNewsFeed(key){
   });
 }
 
+function openDashNewsSummary(idx){
+  var items=window._dashNewsItems||[];
+  var item=items[idx];if(!item)return;
+  var modal=document.getElementById('news-summary-modal');
+  modal.style.display='flex';
+  document.getElementById('nsm-img').src=(item.img&&item.img.startsWith('http'))?item.img:'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80';
+  document.getElementById('nsm-title').textContent=item.title;
+  document.getElementById('nsm-source').textContent=item.source;
+  document.getElementById('nsm-time').textContent=item.time+' ago';
+  var m=item._interest?INTEREST_NEWS_MAP[item._interest]:null;
+  document.getElementById('nsm-tag').textContent=item._interest||(m?m.label:'News');
+  document.getElementById('nsm-loading').style.display='flex';
+  document.getElementById('nsm-text').style.display='none';
+  document.getElementById('nsm-text').textContent='';
+  var readBtn=document.getElementById('nsm-read-btn');
+  if(item.url){readBtn.style.display='';readBtn.onclick=function(){window.open(item.url,'_blank');};}
+  else{readBtn.style.display='none';}
+  fetchAISummary(item.title,item.desc||'',item.source);
+}
 function toggleNewsCard(i){
   var card=document.getElementById('ndc'+i);if(!card)return;
   if(activeNewsCard&&activeNewsCard!==card)activeNewsCard.classList.remove('open');
@@ -3580,11 +4187,145 @@ document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;C.st
 document.addEventListener('mouseover',function(e){if(e.target.matches('button,a,.ac,.fstrip,.fi,.ftxt,.tpost,.post-card,.dfi,.event-card,.live-card,.msg-thread')){CR.style.width='44px';CR.style.height='44px';}});
 document.addEventListener('mouseout',function(e){if(e.target.matches('button,a,.ac,.fstrip,.fi,.ftxt,.tpost,.post-card,.dfi,.event-card,.live-card,.msg-thread')){CR.style.width='32px';CR.style.height='32px';}});
 
+/* ─── MOBILE NAV ─── */
+function toggleMobNav(){
+  document.getElementById('mob-nav-drawer').classList.toggle('open');
+  document.getElementById('mob-nav-overlay').classList.toggle('open');
+}
+function closeMobNav(){
+  document.getElementById('mob-nav-drawer').classList.remove('open');
+  document.getElementById('mob-nav-overlay').classList.remove('open');
+}
+/* Show hamburger on mobile, hide on desktop */
+(function(){
+  function checkMob(){
+    var btn=document.getElementById('mob-menu-btn');
+    if(!btn)return;
+    btn.style.display=window.innerWidth<=768?'flex':'none';
+  }
+  checkMob();
+  window.addEventListener('resize',checkMob);
+})();
+
+/* ─── PUSH NOTIFICATIONS ─── */
+var _pushEnabled=false;
+var _pushTimer=null;
+/* Notification content pool */
+var PUSH_POOL=[
+  {title:'🔴 Breaking',body:'Egypt discovers new chamber inside the Great Pyramid'},
+  {title:'⚽ Sports Update',body:'Chelsea 2–1 Arsenal — full time at Stamford Bridge'},
+  {title:'🌸 Tokyo',body:'Cherry blossom front reaching peak — Shinjuku packed!'},
+  {title:'🤖 Tech',body:'Humanoid robot serves espresso at Akihabara demo'},
+  {title:'🌍 EarthLive',body:'3 live streams active near you right now'},
+  {title:'❤️ Activity',body:'@sakura_live reacted 🔥 to your post'},
+  {title:'📍 Mumbai',body:'Marine Drive at sunset — 768 people reacted'},
+  {title:'🎉 Event',body:'Lagos Afrobeats Street Fest starts in 8 days — RSVP now'},
+  {title:'📰 Breaking News',body:'CERN announces breakthrough in particle physics'},
+  {title:'👥 New Follower',body:'@nova_nyc started following you'},
+];
+var _pushIdx=0;
+
+function requestPushPermission(){
+  if(!('Notification' in window)){showToast('Notifications not supported in this browser');return;}
+  if(Notification.permission==='granted'){enablePush();return;}
+  if(Notification.permission==='denied'){showToast('Notifications blocked — please enable in browser settings');return;}
+  Notification.requestPermission().then(function(perm){
+    if(perm==='granted'){enablePush();showToast('🔔 Push notifications enabled!');}
+    else{showToast('Notifications permission denied');}
+  });
+}
+
+function enablePush(){
+  _pushEnabled=true;
+  if(_pushTimer)clearInterval(_pushTimer);
+  /* Fire first one after 5s, then every 45-90s randomly */
+  setTimeout(function(){
+    firePushNotif();
+    _pushTimer=setInterval(function(){
+      if(_pushEnabled)firePushNotif();
+    },45000+Math.random()*45000);
+  },5000);
+  /* Update bell button appearance */
+  var bellBtn=document.getElementById('push-bell-btn');
+  if(bellBtn){bellBtn.style.color='var(--ac)';bellBtn.title='Notifications ON';}
+}
+
+function togglePushBell(){
+  /* first tap: show in-app panel; long-press or second context: toggle push */
+  toggleNotifPanel();
+  /* also prompt for push if not yet granted */
+  if(Notification.permission==='default'){
+    setTimeout(function(){
+      if(confirm('Enable push notifications from EarthLive?\nYou\'ll get live alerts for breaking news, followers and events.')){
+        requestPushPermission();
+      }
+    },400);
+  }
+}
+function disablePush(){
+  _pushEnabled=false;
+  if(_pushTimer){clearInterval(_pushTimer);_pushTimer=null;}
+  showToast('🔕 Push notifications disabled');
+  var bellBtn=document.getElementById('push-bell-btn');
+  if(bellBtn){bellBtn.style.color='';bellBtn.title='Enable notifications';}
+}
+
+function firePushNotif(){
+  if(!_pushEnabled||Notification.permission!=='granted')return;
+  var item=PUSH_POOL[_pushIdx%PUSH_POOL.length];_pushIdx++;
+  try{
+    var n=new Notification(item.title,{
+      body:item.body,
+      icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="%231a1612"/><text x="16" y="21" text-anchor="middle" font-size="16" fill="%23f5f0e8">E</text></svg>',
+      badge:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="%231a1612"/></svg>',
+      tag:'earthlive-'+Date.now(),
+      requireInteraction:false
+    });
+    n.onclick=function(){window.focus();n.close();};
+    setTimeout(function(){n.close();},8000);
+  }catch(e){/* fallback to in-app toast */
+    showToast(item.title+': '+item.body);
+  }
+  /* Also add to in-app notif panel */
+  NOTIFS.unshift({av:'EL',text:item.body,time:'now',unread:true,type:'activity'});
+  renderNotifs();
+}
+
 /* ─── INTERSECTION OBSERVER ─── */
 var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('visible');});},{threshold:.1});
 document.querySelectorAll('#page-landing .fade-up').forEach(function(el){io.observe(el);});
 var sio=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.querySelectorAll('[data-t]').forEach(function(n){var t=+n.dataset.t,s=performance.now();(function f(ts){var p=Math.min((ts-s)/2000,1);n.textContent=Math.floor((1-Math.pow(1-p,3))*t).toLocaleString();if(p<1)requestAnimationFrame(f);else n.textContent=t.toLocaleString();})(s);});sio.unobserve(x.target);}});},{threshold:.4});
 var sbar=document.querySelector('.stats-bar');if(sbar)sio.observe(sbar);
+
+/* ─── SUPABASE POST LOADER ─── */
+function loadPostsFromSupabase(){
+  /* In future: fetch real posts from Supabase DB */
+  /* For now posts are in-memory only — empty until users post */
+  ALL_POSTS=ALL_POSTS.filter(function(p){return p.user==='@'+CU.username;});
+  PROF_POSTS={following:[],discover:[],nearby:[],myposts:ALL_POSTS.slice()};
+  applyFilters();
+  if(profMapInstance)renderProfMapMarkers(PROF_POSTS[currentProfTab]);
+}
+
+/* ─── AUTO SESSION RESTORE ─── */
+(function(){
+  if(!sb)return;
+  sb.auth.getSession().then(function(res){
+    if(res.data&&res.data.session&&res.data.session.user){
+      onAuthSuccess(res.data.session.user);
+    }
+  });
+  sb.auth.onAuthStateChange(function(event,session){
+    if(event==='SIGNED_IN'&&session&&session.user){
+      if(document.getElementById('auth-gate').style.display!=='none'){
+        onAuthSuccess(session.user);
+      }
+    }
+    if(event==='SIGNED_OUT'){
+      document.getElementById('auth-gate').style.display='flex';
+    }
+  });
+})();
 
 /* ─── INIT ─── */
 initDashContent();
