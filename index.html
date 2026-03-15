@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EarthLive</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
@@ -594,117 +594,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
 .news-body{display:none;padding:.5rem .8rem .7rem;border-top:1px solid var(--bd);background:var(--bg2);animation:fadeIn .2s ease}
 .news-chevron{transition:transform .2s;font-size:8px;color:var(--tx4);flex-shrink:0;margin-top:3px}
 ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--bdk)}
-
-/* ── RESPONSIVE: TABLET (≤1000px) ── */
-@media(max-width:1000px){
-  #trending-sidebar{display:none}
-  .hero-ui,.ticker-wrap{right:0}
-  .dash-body{grid-template-columns:1fr}
-  .dash-side{height:auto;position:static;overflow:visible}
-  .prof-hero{flex-direction:column}
-  .prof-left,.prof-right{width:100%;height:50vh}
-  #page-events>div:last-of-type{grid-template-columns:1fr}
-  .ev-featured-card{grid-template-columns:1fr}
-  .ev-fc-img{height:180px}
-}
-
-/* ── RESPONSIVE: MOBILE (≤768px) ── */
-@media(max-width:768px){
-  /* Nav */
-  nav{padding:.7rem 1rem;padding-top:max(.7rem,env(safe-area-inset-top));gap:.4rem}
-  .nav-links{display:none}
-  .logo{font-size:1.3rem}
-  body{cursor:auto}
-  .cursor,.cursor-ring{display:none}
-
-  /* Mobile nav drawer — hamburger */
-  .mob-menu-btn{display:flex;width:32px;height:32px;border:1px solid var(--bdk);background:transparent;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;flex-shrink:0}
-  .mob-nav-drawer{position:fixed;top:0;left:0;bottom:0;width:72vw;max-width:280px;background:var(--sf);z-index:99999;transform:translateX(-100%);transition:transform .3s ease;border-right:1px solid var(--bdk);display:flex;flex-direction:column;padding:1.5rem 1.2rem;gap:.2rem;overflow-y:auto}
-  .mob-nav-drawer.open{transform:translateX(0)}
-  .mob-nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99998}
-  .mob-nav-overlay.open{display:block}
-  .mob-nlink{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tx2);background:transparent;border:none;border-bottom:1px solid var(--bd);padding:.75rem .4rem;cursor:pointer;text-align:left;width:100%;transition:color .2s}
-  .mob-nlink:hover{color:var(--tx)}
-
-  /* Hero */
-  .hero{height:100svh}
-  .hero-ui{padding:0 1rem 3rem}
-  .eyebrow{font-size:.48rem;letter-spacing:.18em}
-  .btn-w,.btn-o{padding:.7rem 1.4rem;font-size:.54rem}
-  .actions{gap:.5rem}
-
-  /* Stats bar */
-  .stats-bar{padding:1rem 1.2rem;gap:1rem;justify-content:space-around}
-  .stat-num{font-size:1.6rem}
-
-  /* Feed */
-  .feed-header{padding:1.5rem 1.2rem 1rem}
-  .feed-header h2{font-size:1.8rem}
-  .feed-track-wrap{padding:.6rem 1rem 1.2rem;gap:.8rem}
-  .fstrip{flex:0 0 88vw}
-  .filter-row{padding:0 1rem}
-  .feed-body{padding:.8rem 0 2rem}
-  .feed-scroll-hint{padding:.3rem 1rem 0}
-
-  /* Dashboard */
-  #page-dashboard{padding-top:62px}
-  .dash-header{padding:1.2rem 1.2rem;flex-direction:column;align-items:flex-start;gap:.8rem}
-  .dash-greet{font-size:1.4rem}
-  .dash-actions{flex-wrap:wrap;gap:.4rem}
-  .dash-btn,.dash-btn-o{font-size:.44rem;padding:.4rem .8rem}
-  .dash-main{padding:1.2rem 1rem}
-  .dash-stat-row{grid-template-columns:repeat(2,1fr)}
-  #news-feed{grid-template-columns:1fr !important}
-
-  /* Messages */
-  .msg-page-wrap{flex-direction:column}
-  .msg-list{width:100%;border-right:none;border-bottom:1px solid var(--bd);max-height:35vh}
-  .msg-chat{min-height:55vh}
-
-  /* Profile */
-  .prof-left{height:40vh}
-  .prof-right{height:auto;min-height:300px}
-  .profile-card{padding:1rem 1.2rem}
-  .pc-name{font-size:1.2rem}
-  .pc-actions{gap:.35rem}
-  #prof-ext-tabs{padding:0 .8rem}
-  .pext-tab{padding:.7rem .7rem;font-size:.44rem}
-
-  /* Events */
-  .events-grid{grid-template-columns:1fr}
-  #page-events>div:nth-child(4){display:block}
-  #ev-map{height:180px}
-  .events-wrap{padding:1.2rem 1rem}
-
-  /* Live */
-  .live-wrap{padding:1.2rem 1rem}
-  .live-streams-grid{grid-template-columns:1fr}
-
-  /* News page */
-  #page-news{padding-top:62px}
-  #news-page-grid{grid-template-columns:1fr !important}
-  #news-page-body{padding:1rem 1rem 3rem}
-
-  /* News summary modal */
-  #news-summary-modal > div{border-radius:0 !important;width:100% !important;max-width:100% !important;min-height:50vh;margin:auto 0 0 !important}
-
-  /* Generic modals */
-  .generic-modal-inner{width:95vw !important;margin:1rem auto}
-
-  /* Footer */
-  .footer-top{grid-template-columns:1fr !important}
-  .footer-inner{padding:2rem 1.2rem 1rem}
-  .theme-dots{bottom:1.5rem;left:1.2rem}
-}
-
-/* ── RESPONSIVE: SMALL MOBILE (≤480px) ── */
-@media(max-width:480px){
-  .fstrip{flex:0 0 92vw}
-  .btn-w,.btn-o{padding:.65rem 1rem;font-size:.5rem}
-  .dash-stat-row{grid-template-columns:repeat(2,1fr)}
-  .nav-right .nav-btn{display:none}
-  .msg-list{max-height:30vh}
-}
+@media(max-width:1000px){#trending-sidebar{display:none}.hero-ui,.ticker-wrap{right:0}.dash-body{grid-template-columns:1fr}.prof-hero{flex-direction:column}.prof-left,.prof-right{width:100%;height:50vh}}
+@media(max-width:800px){nav{padding:.8rem 1.2rem}.nlink{padding:.4rem .5rem;font-size:.5rem}.fstrip{flex:0 0 290px}.dash-stat-row{grid-template-columns:1fr 1fr}.msg-list{width:220px}.events-grid,.live-streams-grid{grid-template-columns:1fr}}
 .hashtag{color:var(--ac);font-weight:500;cursor:pointer}
 .mention{color:var(--tx2);font-weight:600;cursor:pointer;border-bottom:1px solid var(--bdk)}
 </style>
@@ -771,7 +662,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
 <!-- NAV -->
 <nav>
   <div class="logo" onclick="goTo('landing')"><div class="logo-dot"></div>EARTHLIVE</div>
-  <button class="mob-menu-btn" id="mob-menu-btn" onclick="toggleMobNav()" style="display:none">☰</button>
   <div class="nav-links">
     <button class="nlink active" id="nl-landing" onclick="goTo('landing')">Home</button>
     <button class="nlink" id="nl-dashboard" onclick="goTo('dashboard')">My Page</button>
@@ -783,31 +673,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
     <button class="nlink" id="nl-community" onclick="goTo('community')">Community</button>
   </div>
   <div class="nav-right">
-    <button class="icon-btn" id="push-bell-btn" title="Enable notifications" onclick="togglePushBell()" style="position:relative">🔔<span class="nbadge" id="notif-count-badge" style="display:none">0</span></button>
+    <button class="icon-btn" onclick="toggleNotifPanel()" id="notif-btn">🔔<span class="nbadge" id="notif-count-badge">3</span></button>
     <div class="nav-av" id="nav-av" onclick="goTo('profile')">AD</div>
     <button class="nav-btn" onclick="doSignOut()">Sign Out</button>
   </div>
 </nav>
-
-<!-- MOBILE NAV DRAWER -->
-<div class="mob-nav-overlay" id="mob-nav-overlay" onclick="closeMobNav()"></div>
-<div class="mob-nav-drawer" id="mob-nav-drawer">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;padding-bottom:.8rem;border-bottom:1px solid var(--bd)">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.08em;color:var(--tx);display:flex;align-items:center;gap:.4rem"><div class="logo-dot"></div>EARTHLIVE</div>
-    <button onclick="closeMobNav()" style="background:transparent;border:none;font-size:1.2rem;cursor:pointer;color:var(--tx3)">✕</button>
-  </div>
-  <button class="mob-nlink" onclick="closeMobNav();goTo('landing')">Home</button>
-  <button class="mob-nlink" onclick="closeMobNav();goTo('dashboard')">My Page</button>
-  <button class="mob-nlink" onclick="closeMobNav();goTo('messages')">Messages</button>
-  <button class="mob-nlink" onclick="closeMobNav();goTo('news')">News</button>
-  <button class="mob-nlink" onclick="closeMobNav();goTo('events')">Events</button>
-  <button class="mob-nlink" style="color:#e74c3c" onclick="closeMobNav();goTo('live')">🔴 Live</button>
-  <button class="mob-nlink" onclick="closeMobNav();goTo('profile')">Profile</button>
-  <button class="mob-nlink" onclick="closeMobNav();goTo('community')">Community</button>
-  <div style="margin-top:auto;padding-top:1.2rem;border-top:1px solid var(--bd)">
-    <button onclick="closeMobNav();doSignOut()" style="font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);background:transparent;border:1px solid var(--bd);padding:.5rem 1rem;cursor:pointer;width:100%">Sign Out</button>
-  </div>
-</div>
 
 <!-- ═══ LANDING ═══ -->
 <div id="page-landing" class="page active">
@@ -844,16 +714,16 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
     </div></div>
   </section>
   <div class="stats-bar fade-up">
-    <div><div class="stat-num" data-t="0">0</div><div class="stat-label">Posts Today</div></div>
-    <div><div class="stat-num" data-t="0">0</div><div class="stat-label">Countries Active</div></div>
-    <div><div class="stat-num" data-t="0">0</div><div class="stat-label">Live Streams</div></div>
-    <div><div class="stat-num" data-t="0">0</div><div class="stat-label">Live Hotspots</div></div>
-    <div><div class="stat-num" data-t="0">0</div><div class="stat-label">Users Online</div></div>
+    <div><div class="stat-num" data-t="2847391">0</div><div class="stat-label">Posts Today</div></div>
+    <div><div class="stat-num" data-t="194">0</div><div class="stat-label">Countries Active</div></div>
+    <div><div class="stat-num" data-t="3">0</div><div class="stat-label">Live Streams</div></div>
+    <div><div class="stat-num" data-t="47">0</div><div class="stat-label">Live Hotspots</div></div>
+    <div><div class="stat-num" data-t="1240000">0</div><div class="stat-label">Users Online</div></div>
   </div>
   <section id="feed-section">
     <div class="feed-header fade-up">
       <div><div class="sec-label">Global Stream</div><h2>WHAT'S <em>HAPPENING NOW</em></h2></div>
-      <div class="live-badge" id="live-count">0 new posts</div>
+      <div class="live-badge" id="live-count">247 new posts</div>
     </div>
     <div class="filter-bar">
       <div class="filter-row">
@@ -971,7 +841,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
       <button class="dash-btn-o" onclick="goTo('events')">+ Create Event</button>
       <button class="dash-btn dash-btn-live" onclick="goTo('live')">🔴 Go Live</button>
       <button class="dash-btn-o" onclick="goTo('profile')">My Profile →</button>
-      <button class="dash-btn-o" id="dash-notif-btn" onclick="requestPushPermission()" title="Enable push notifications" style="display:flex;align-items:center;gap:.35rem">🔔 Notifications</button>
     </div>
   </div>
   <div class="dash-body">
@@ -979,8 +848,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
       <div class="dash-section-title">Your Stats</div>
       <div class="dash-stat-row">
         <div class="dash-stat"><div class="dash-stat-num">0</div><div class="dash-stat-lbl">Posts</div></div>
-        <div class="dash-stat"><div class="dash-stat-num">0</div><div class="dash-stat-lbl">Followers</div></div>
-        <div class="dash-stat"><div class="dash-stat-num">0</div><div class="dash-stat-lbl">Following</div></div>
+        <div class="dash-stat"><div class="dash-stat-num">248</div><div class="dash-stat-lbl">Followers</div></div>
+        <div class="dash-stat"><div class="dash-stat-num">92</div><div class="dash-stat-lbl">Following</div></div>
         <div class="dash-stat"><div class="dash-stat-num">0</div><div class="dash-stat-lbl">Views</div></div>
       </div>
       <div class="dash-post-btn" onclick="openNewPost()"><div class="dash-post-label">+ Drop a new pin — what's happening near you?</div></div>
@@ -1008,7 +877,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
       </div>
       <div style="display:flex;align-items:center;gap:.7rem">
         <div style="font-family:'Space Mono',monospace;font-size:.34rem;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);background:var(--bg2);border:1px solid var(--bd);padding:.08rem .38rem;display:flex;align-items:center;gap:.28rem"><span style="width:4px;height:4px;background:#27ae60;border-radius:50%;display:inline-block"></span>Live Feed</div>
-        <button onclick="openNewsApiSettings()" style="font-family:'Space Mono',monospace;font-size:.34rem;letter-spacing:.08em;text-transform:uppercase;background:transparent;border:1px solid var(--bd);color:var(--tx3);padding:.28rem .65rem;cursor:pointer;transition:all .2s">⚙ API Key</button><button id="news-refresh-btn" onclick="refreshDashNews()" style="font-family:'Space Mono',monospace;font-size:.34rem;letter-spacing:.08em;text-transform:uppercase;background:transparent;border:1px solid var(--bd);color:var(--tx3);padding:.28rem .65rem;cursor:pointer;transition:all .2s">&#8635; Refresh</button>
+        <button id="news-refresh-btn" onclick="refreshDashNews()" style="font-family:'Space Mono',monospace;font-size:.34rem;letter-spacing:.08em;text-transform:uppercase;background:transparent;border:1px solid var(--bd);color:var(--tx3);padding:.28rem .65rem;cursor:pointer;transition:all .2s">&#8635; Refresh</button>
       </div>
     </div>
     <div style="background:var(--ac);color:var(--aci);height:24px;overflow:hidden;display:flex;align-items:center">
@@ -1149,7 +1018,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
     <div>
       <div style="font-family:'Space Mono',monospace;font-size:.46rem;letter-spacing:.22em;text-transform:uppercase;opacity:.6;margin-bottom:.4rem">Live · Worldwide</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,4vw,3.4rem);letter-spacing:.04em;line-height:.9">DISCOVER <span style="-webkit-text-stroke:1.5px var(--aci);color:transparent">EVENTS</span></div>
-      <div style="font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.1em;margin-top:.55rem;opacity:.65" id="ev-hero-count">No events yet — be the first to create one!</div>
+      <div style="font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.1em;margin-top:.55rem;opacity:.65" id="ev-hero-count">12 events across 8 cities worldwide</div>
     </div>
     <button onclick="openCreateEvent()" style="font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.12em;text-transform:uppercase;background:rgba(255,255,255,.13);color:var(--aci);border:1px solid rgba(255,255,255,.3);padding:.7rem 1.4rem;cursor:pointer;transition:all .2s">+ Create Event</button>
   </div>
@@ -1233,8 +1102,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
         <div class="pc-loc">◎ Anekal, Karnataka, India</div>
         <div class="pc-stats" style="margin-top:.45rem">
           <div><div class="pc-stat-num">0</div><div class="pc-stat-lbl">Posts</div></div>
-          <div><div class="pc-stat-num" id="pc-followers">0</div><div class="pc-stat-lbl">Followers</div></div>
-          <div><div class="pc-stat-num" id="pc-following">0</div><div class="pc-stat-lbl">Following</div></div>
+          <div><div class="pc-stat-num">248</div><div class="pc-stat-lbl">Followers</div></div>
+          <div><div class="pc-stat-num">92</div><div class="pc-stat-lbl">Following</div></div>
         </div>
         <div class="pc-actions" style="margin-top:.75rem;flex-wrap:nowrap;gap:.45rem;overflow-x:auto;padding-bottom:.2rem;display:flex;align-items:center">
           <button class="pc-btn solid" onclick="openNewPost()" style="white-space:nowrap;flex-shrink:0">+ Post</button>
@@ -1652,38 +1521,9 @@ var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 var sb=null;try{if(typeof supabase!=='undefined')sb=supabase.createClient(SUPA_URL,SUPA_KEY);}catch(e){console.warn('Supabase not available, running in demo mode.');}
 
 /* ─── NEWS API CONFIG ─── */
-var NEWSAPI_KEY = (function(){try{return localStorage.getItem('el-newsapi-key')||'YOUR_NEWSAPI_KEY_HERE';}catch(e){return 'YOUR_NEWSAPI_KEY_HERE';}})();
-function setNewsApiKey(key){
-  NEWSAPI_KEY=key.trim();
-  try{localStorage.setItem('el-newsapi-key',NEWSAPI_KEY);}catch(e){}
-  NEWS_CACHE={};
-  showToast('NewsAPI key saved ✓ — refreshing...');
-  setTimeout(function(){
-    if(document.getElementById('page-dashboard').classList.contains('active')){
-      initNewsPanel();
-    }
-    if(document.getElementById('page-news').classList.contains('active')){
-      renderNewsPageGrid(newsPageTab||'foryou');
-    }
-  },300);
-}
-function openNewsApiSettings(){
-  var existing=document.getElementById('newsapi-modal');if(existing)existing.remove();
-  var m=document.createElement('div');m.className='generic-modal';m.id='newsapi-modal';
-  var current=NEWSAPI_KEY==='YOUR_NEWSAPI_KEY_HERE'?'':NEWSAPI_KEY;
-  m.innerHTML='<div class="generic-modal-inner" style="max-width:420px">'
-    +'<div class="gm-top"></div>'
-    +'<div class="gm-header"><div class="gm-title">NewsAPI Settings</div>'
-    +'<button class="gm-close" onclick="document.getElementById(\'newsapi-modal\').remove()">✕</button></div>'
-    +'<div class="gm-body">'
-    +'<div style="font-family:Space Mono,monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tx4);margin-bottom:.5rem">Your NewsAPI Key</div>'
-    +'<input class="fi" id="newsapi-key-input" value="'+current+'" placeholder="Paste your key from newsapi.org" style="font-family:Space Mono,monospace;font-size:.56rem;letter-spacing:.04em">'
-    +'<div style="font-family:Space Mono,monospace;font-size:.38rem;color:var(--tx4);margin:.55rem 0 1rem;line-height:1.7">Get a free key at <span style="color:var(--tx);text-decoration:underline;cursor:pointer" onclick="window.open(\'https://newsapi.org/register\',\'_blank\')">newsapi.org/register</span> — free tier gives 100 requests/day.</div>'
-    +'<button onclick="setNewsApiKey(document.getElementById(\'newsapi-key-input\').value);document.getElementById(\'newsapi-modal\').remove()" style="width:100%;background:var(--ac);color:var(--aci);border:1px solid var(--ac);padding:.8rem;font-family:Space Mono,monospace;font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer">Save & Activate →</button>'
-    +'</div></div>';
-  m.addEventListener('click',function(e){if(e.target===m)m.remove();});
-  document.body.appendChild(m);
-}
+/* ↓↓↓ PASTE YOUR NEWSAPI.ORG KEY HERE ↓↓↓ */
+var NEWSAPI_KEY = 'YOUR_NEWSAPI_KEY_HERE';
+/* ↑↑↑ Get a free key at https://newsapi.org/register ↑↑↑ */
 var NEWSAPI_BASE = 'https://newsapi.org/v2/top-headlines';
 var NEWS_CACHE = {};          /* key → {items, ts} */
 var NEWS_CACHE_TTL = 5*60*1000; /* 5 minutes */
@@ -1694,7 +1534,7 @@ var followingSet=new Set();var likedPosts=new Set();var postReactions={};
 var REACTIONS=['❤️','🔥','🎉','💡','😮','🌍'];
 var ALL_POSTS=[];
 var ACCOUNTS=[];
-var ACCOUNT_IMGS=[];
+var ACCOUNT_IMGS=['https://images.unsplash.com/photo-1499346030926-9a72daac6c63?w=600&q=80','https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80','https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=80','https://images.unsplash.com/photo-1618522285056-498ddd4f4fb8?w=600&q=80','https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=600&q=80','https://images.unsplash.com/photo-1543059080-f9b1272213d5?w=600&q=80','https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=600&q=80','https://images.unsplash.com/photo-1539650116574-75c0c6d88f22?w=600&q=80'];
 var CITIES_MAP=[{name:"New York",rate:"4.1k/hr",lat:40.7128,lng:-74.006,live:false},{name:"London",rate:"2.8k/hr",lat:51.5074,lng:-0.1278,live:true},{name:"Tokyo",rate:"5.2k/hr",lat:35.6762,lng:139.6503,live:true},{name:"Lagos",rate:"1.9k/hr",lat:6.5244,lng:3.3792,live:false},{name:"Mumbai",rate:"3.5k/hr",lat:19.076,lng:72.8777,live:false},{name:"São Paulo",rate:"2.2k/hr",lat:-23.5505,lng:-46.6333,live:false},{name:"Sydney",rate:"1.6k/hr",lat:-33.8688,lng:151.2093,live:true},{name:"Cairo",rate:"1.4k/hr",lat:30.0444,lng:31.2357,live:false}];
 var EVENTS_DATA=[];
 var evCurrentFilter='all';var evCurrentSort='date';var evMapInstance=null;
@@ -1731,8 +1571,6 @@ function goTo(page){
   if(page==='landing'&&!mapLandInit){initLandingMap();mapLandInit=true;}
   else if(page!=='landing'&&_liveDotsTimer){clearInterval(_liveDotsTimer);_liveDotsTimer=null;}
   if(page==='landing'&&mapLandInit&&!_liveDotsTimer){_liveDotsTimer=setInterval(_tickLiveDots,2000);}
-  if(page!=='profile'&&_profDotsTimer){clearInterval(_profDotsTimer);_profDotsTimer=null;}
-  if(page==='profile'&&profMapInstance&&!_profDotsTimer){_profDotsTimer=setInterval(_tickProfDots,2000);}
   if(page==='dashboard'){initDashContent();}
   if(page==='profile'&&!mapProfInit){initProfMap();mapProfInit=true;}
   if(page==='profile'){renderProfFeed('following');renderExtendedProfileSections();}
@@ -1744,7 +1582,14 @@ function goTo(page){
   setTimeout(function(){document.querySelectorAll('#page-'+page+' .fade-up').forEach(function(el){io.observe(el);});},100);
 }
 function scrollTo2(id){document.getElementById(id)&&document.getElementById(id).scrollIntoView({behavior:'smooth'});}
-
+function doSignOut(){
+  if(sb)sb.auth.signOut();
+  CU={id:'',email:'',first:'',last:'',username:'',initials:'',avatar_url:null,interests:[],bio:''};
+  document.getElementById('auth-gate').style.display='flex';
+  document.getElementById('auth-email').value='';
+  document.getElementById('auth-password').value='';
+  showToast('Signed out successfully');
+}
 function switchAuthTab(tab){
   document.getElementById('auth-signin-form').style.display=tab==='signin'?'block':'none';
   document.getElementById('auth-signup-form').style.display=tab==='signup'?'block':'none';
@@ -1753,7 +1598,24 @@ function switchAuthTab(tab){
   document.getElementById('auth-tab-signup').style.borderBottomColor=tab==='signup'?'var(--ac)':'transparent';
   document.getElementById('auth-tab-signup').style.color=tab==='signup'?'var(--tx)':'var(--tx3)';
 }
-function demoSignIn(){/* removed */}
+function demoSignIn(){}
+function _applyUser(u){
+  var m=u.user_metadata||{};
+  CU.id=u.id;CU.email=u.email;
+  CU.first=m.first_name||u.email.split('@')[0]||'User';
+  CU.last=m.last_name||'';
+  CU.username=m.username||u.email.split('@')[0];
+  CU.initials=((CU.first[0]||'')+(CU.last[0]||CU.first[1]||'')).toUpperCase();
+  CU.avatar_url=m.avatar_url||null;CU.bio=m.bio||'';CU.interests=m.interests||[];
+  var nav=document.getElementById('nav-av');
+  if(nav){nav.innerHTML=CU.avatar_url?'<img src="'+CU.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':CU.initials;}
+  var dn=document.getElementById('dash-name');if(dn)dn.textContent=CU.first.toUpperCase();
+  var pn=document.getElementById('pc-name');if(pn)pn.textContent=(CU.first+' '+CU.last).trim();
+  var ph=document.getElementById('pc-handle');if(ph)ph.textContent='@'+CU.username;
+  var pa=document.getElementById('pc-av');
+  if(pa){pa.innerHTML=CU.avatar_url?'<img src="'+CU.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':CU.initials;}
+  document.getElementById('auth-gate').style.display='none';
+}
 function doSignIn(){
   var email=document.getElementById('auth-email').value.trim();
   var pass=document.getElementById('auth-password').value.trim();
@@ -1761,13 +1623,10 @@ function doSignIn(){
   if(!sb){showToast('Connection error — please try again');return;}
   var btn=document.getElementById('signin-btn');
   if(btn)btn.textContent='Signing in…';
-  sb.auth.signInWithPassword({email:email,password:pass}).then(function(res){
-    if(res.error){
-      if(btn)btn.textContent='Sign In →';
-      showToast(res.error.message||'Sign in failed');
-    } else {
-      onAuthSuccess(res.data.user);
-    }
+  sb.auth.signInWithPassword({email:email,password:pass}).then(function(r){
+    if(btn)btn.textContent='Sign In →';
+    if(r.error){showToast(r.error.message||'Sign in failed');return;}
+    _applyUser(r.data.user);showToast('Welcome back, '+CU.first+'! 👋');
   });
 }
 function doSignUp(){
@@ -1776,67 +1635,17 @@ function doSignUp(){
   var user=document.getElementById('su-user').value.trim().replace('@','');
   var email=document.getElementById('su-email').value.trim();
   var pass=document.getElementById('su-pass').value.trim();
-  if(!first||!email||!pass||!user){showToast('Please fill all required fields');return;}
+  if(!first||!email||!pass||!user){showToast('Please fill all fields');return;}
   if(pass.length<6){showToast('Password must be at least 6 characters');return;}
   if(!sb){showToast('Connection error — please try again');return;}
   var btn=document.querySelector('#auth-signup-form button');
   if(btn)btn.textContent='Creating account…';
-  sb.auth.signUp({
-    email:email,
-    password:pass,
-    options:{data:{first_name:first,last_name:last,username:user}}
-  }).then(function(res){
+  sb.auth.signUp({email:email,password:pass,options:{data:{first_name:first,last_name:last,username:user}}}).then(function(r){
     if(btn)btn.textContent='Create Account →';
-    if(res.error){showToast(res.error.message||'Sign up failed');return;}
-    /* Supabase may require email confirmation */
-    if(res.data.user&&res.data.session){
-      onAuthSuccess(res.data.user);
-    } else {
-      showToast('Check your email to confirm your account, then sign in.');
-      switchAuthTab('signin');
-    }
+    if(r.error){showToast(r.error.message||'Sign up failed');return;}
+    if(r.data.session){_applyUser(r.data.user);showToast('Welcome to EarthLive, '+first+'! 🌍');}
+    else{showToast('Check your email to confirm your account, then sign in.');switchAuthTab('signin');}
   });
-}
-function onAuthSuccess(user){
-  var meta=user.user_metadata||{};
-  CU.id=user.id;
-  CU.email=user.email;
-  CU.first=meta.first_name||user.email.split('@')[0]||'User';
-  CU.last=meta.last_name||'';
-  CU.username=meta.username||user.email.split('@')[0];
-  CU.initials=((CU.first[0]||'')+(CU.last[0]||CU.first[1]||'')).toUpperCase();
-  CU.avatar_url=meta.avatar_url||null;
-  CU.interests=meta.interests||[];
-  CU.bio=meta.bio||'';
-  /* Update UI */
-  var navAv=document.getElementById('nav-av');
-  if(navAv){
-    if(CU.avatar_url){navAv.innerHTML='<img src="'+CU.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';}
-    else{navAv.textContent=CU.initials;}
-  }
-  var dashName=document.getElementById('dash-name');if(dashName)dashName.textContent=CU.first.toUpperCase();
-  var pcName=document.getElementById('pc-name');if(pcName)pcName.textContent=(CU.first+' '+CU.last).trim();
-  var pcHandle=document.getElementById('pc-handle');if(pcHandle)pcHandle.textContent='@'+CU.username;
-  var pcAv=document.getElementById('pc-av');
-  if(pcAv){
-    if(CU.avatar_url){pcAv.innerHTML='<img src="'+CU.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';}
-    else{pcAv.textContent=CU.initials;}
-  }
-  /* Hide auth gate */
-  document.getElementById('auth-gate').style.display='none';
-  showToast('Welcome back, '+CU.first+'! 👋');
-  /* Reload posts from Supabase for this user */
-  loadPostsFromSupabase();
-}
-function doSignOut(){
-  if(sb)sb.auth.signOut();
-  CU={id:'',email:'',first:'',last:'',username:'',initials:'',avatar_url:null,interests:[],bio:''};
-  ALL_POSTS=[];MSG_THREADS=[];NOTIFS=[];EVENTS_DATA=[];LIVE_STREAMS_DATA=[];
-  PROF_POSTS={following:[],discover:[],nearby:[],myposts:[]};
-  document.getElementById('auth-gate').style.display='flex';
-  document.getElementById('auth-email').value='';
-  document.getElementById('auth-password').value='';
-  showToast('Signed out successfully');
 }
 
 /* FIX 5: Message thread filter */
@@ -2030,144 +1839,25 @@ function initLandingMap(){
 }
 
 /* ─── PROFILE MAP ─── */
-var _profDots=[];
-var _profDotsTimer=null;
-var _profDotQueue=[];
-var _profDotQueueIdx=0;
-
-/* Build queue from posts by people you follow — scored by engagement */
-function _buildProfDotQueue(){
-  var posts=PROF_POSTS.following||[];
-  /* one best post per user */
-  var userBest={};
-  posts.forEach(function(p){
-    if(!p.lat||!p.lng)return;
-    var score=(p.views||0)*0.5+(p.likes||0)*2;
-    if(!userBest[p.user]||score>userBest[p.user].score){
-      userBest[p.user]={post:p,score:score};
-    }
-  });
-  var arr=Object.values(userBest).sort(function(a,b){return b.score-a.score;}).map(function(x){return x.post;});
-  /* shuffle */
-  for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;}
-  return arr;
-}
-
-function _addProfDot(post){
-  if(!profMapInstance)return;
-  var now=Date.now();
-  var jLat=post.lat+(Math.random()-0.5)*0.18;
-  var jLng=post.lng+(Math.random()-0.5)*0.18;
-  var isRed=true; /* always red when first added */
-  var html='<div style="width:12px;height:12px;background:#e74c3c;border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.45);cursor:pointer;animation:livepulse 1.8s infinite"></div>';
-  var icon=L.divIcon({className:'',html:html,iconSize:[12,12],iconAnchor:[6,6]});
-  var mk=L.marker([jLat,jLng],{icon:icon}).addTo(profMapInstance);
-
-  var popHtml='<div style="font-family:Space Mono,monospace;min-width:180px;max-width:220px">'
-    +'<div style="font-size:.38rem;letter-spacing:.1em;text-transform:uppercase;color:#e74c3c;margin-bottom:3px;display:flex;align-items:center;gap:4px"><span style="width:5px;height:5px;border-radius:50%;background:#e74c3c;display:inline-block"></span>FOLLOWING · '+post.city+'</div>'
-    +'<div style="font-size:.46rem;font-weight:600;color:var(--tx);margin-bottom:3px;letter-spacing:.04em">'+post.user+'</div>'
-    +'<div style="font-size:.66rem;color:var(--tx2);line-height:1.5;margin-bottom:5px">'+post.text.substring(0,80)+(post.text.length>80?'…':'')+'</div>'
-    +'<div style="display:flex;gap:8px;font-size:.36rem;color:var(--tx4)">'
-    +'<span>👁 '+(post.views>=1000?(post.views/1000).toFixed(1)+'k':post.views)+'</span>'
-    +'<span>❤️ '+post.likes+'</span>'
-    +'<span style="margin-left:auto;color:var(--tx);cursor:pointer;text-decoration:underline">Open post →</span>'
-    +'</div></div>';
-  mk.bindPopup(popHtml,{maxWidth:230,className:'live-dot-popup'});
-  mk.on('popupopen',function(){
-    setTimeout(function(){
-      var el=mk.getPopup().getElement();
-      if(!el)return;
-      el.querySelectorAll('span').forEach(function(s){
-        if(s.textContent.indexOf('Open post')!==-1){
-          s.style.cursor='pointer';
-          s.onclick=function(){mk.closePopup();openPost(post);};
-        }
-      });
-    },50);
-  });
-
-  _profDots.push({marker:mk,post:post,addedAt:now});
-  profMapMarkers.push(mk);
-}
-
-function _tickProfDots(){
-  if(!profMapInstance)return;
-  var now=Date.now();
-  var toRemove=[];
-  _profDots.forEach(function(d,i){
-    var age=now-d.addedAt;
-    if(age>=60000){toRemove.push(i);return;}
-    var isRed=age<30000;
-    var color=isRed?'#e74c3c':'#1a1612';
-    var html='<div style="width:12px;height:12px;background:'+color+';border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.45);cursor:pointer;animation:livepulse 1.8s infinite"></div>';
-    d.marker.setIcon(L.divIcon({className:'',html:html,iconSize:[12,12],iconAnchor:[6,6]}));
-  });
-  for(var i=toRemove.length-1;i>=0;i--){
-    var idx=toRemove[i];
-    profMapInstance.removeLayer(_profDots[idx].marker);
-    var mi=profMapMarkers.indexOf(_profDots[idx].marker);
-    if(mi>-1)profMapMarkers.splice(mi,1);
-    _profDots.splice(idx,1);
-  }
-  var max=7+Math.round(Math.random());
-  while(_profDots.length<max){
-    if(_profDotQueueIdx>=_profDotQueue.length)_profDotQueueIdx=0;
-    if(!_profDotQueue.length)break;
-    var post=_profDotQueue[_profDotQueueIdx++];
-    if(!post)break;
-    var cityActive=_profDots.some(function(d){return d.post.city===post.city;});
-    if(cityActive){continue;}
-    _addProfDot(post);
-  }
-}
-
 function initProfMap(){
   profMapInstance=L.map('map-prof',{center:[20,10],zoom:2,minZoom:2,maxZoom:6,zoomControl:true,scrollWheelZoom:false,worldCopyJump:true,attributionControl:false});
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,subdomains:['a','b','c']}).addTo(profMapInstance);
-
-  _profDotQueue=_buildProfDotQueue();
-  _profDotQueueIdx=0;
-  _profDots=[];
-  profMapMarkers=[];
-
-  /* stagger initial dots */
-  var delay=0;
-  var initial=Math.min(7,_profDotQueue.length);
-  for(var i=0;i<initial;i++){
-    (function(post){setTimeout(function(){_addProfDot(post);},delay);})(_profDotQueue[i]);
-    _profDotQueueIdx++;
-    delay+=300+Math.random()*200;
-  }
-
-  if(_profDotsTimer)clearInterval(_profDotsTimer);
-  _profDotsTimer=setInterval(_tickProfDots,2000);
+  renderProfMapMarkers(PROF_POSTS[currentProfTab]);
 }
-
-/* Keep renderProfMapMarkers for tab switches — rebuild queue from new posts */
 function renderProfMapMarkers(posts){
   if(!profMapInstance)return;
-  /* clear existing dots */
-  _profDots.forEach(function(d){profMapInstance.removeLayer(d.marker);});
-  _profDots=[];
-  profMapMarkers.forEach(function(mk){try{profMapInstance.removeLayer(mk);}catch(e){}});
-  profMapMarkers=[];
-  /* rebuild queue from new post set */
-  var userBest={};
+  profMapMarkers.forEach(function(mk){profMapInstance.removeLayer(mk);});profMapMarkers=[];
+  var seen={};
   (posts||[]).forEach(function(p){
     if(!p.lat||!p.lng)return;
-    var score=(p.views||0)*0.5+(p.likes||0)*2;
-    if(!userBest[p.user]||score>userBest[p.user].score)userBest[p.user]={post:p,score:score};
+    var key=p.lat+'_'+p.lng;var offset=seen[key]?seen[key]*0.15:0;seen[key]=(seen[key]||0)+1;
+    var color=p.cat==='breaking'?'#e74c3c':p.cat==='sports'?'#2ecc71':p.cat==='tech'?'#3498db':'var(--ac)';
+    var icon=L.divIcon({className:'',html:'<div style="width:11px;height:11px;background:'+color+';border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer"></div>',iconSize:[11,11],iconAnchor:[5.5,5.5]});
+    var mk=L.marker([p.lat+offset,p.lng],{icon:icon}).addTo(profMapInstance);
+    mk.bindPopup('<div style="font-family:Space Mono,monospace;font-size:11px;min-width:150px"><strong>'+p.user+'</strong><br>◎ '+p.city+'<br><span style="color:#888;font-size:10px">'+p.cat+'</span><br><div style="margin-top:4px;font-size:12px;color:#333">'+p.text.substring(0,60)+'…</div></div>',{maxWidth:200});
+    mk.on('click',function(){openPost(p);});
+    profMapMarkers.push(mk);
   });
-  _profDotQueue=Object.values(userBest).sort(function(a,b){return b.score-a.score;}).map(function(x){return x.post;});
-  for(var i=_profDotQueue.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=_profDotQueue[i];_profDotQueue[i]=_profDotQueue[j];_profDotQueue[j]=tmp;}
-  _profDotQueueIdx=0;
-  var delay=0;
-  var initial=Math.min(7,_profDotQueue.length);
-  for(var i=0;i<initial;i++){
-    (function(post){setTimeout(function(){_addProfDot(post);},delay);})(_profDotQueue[i]);
-    _profDotQueueIdx++;
-    delay+=250+Math.random()*150;
-  }
 }
 
 /* ─── FEED ─── */
@@ -4187,143 +3877,23 @@ document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;C.st
 document.addEventListener('mouseover',function(e){if(e.target.matches('button,a,.ac,.fstrip,.fi,.ftxt,.tpost,.post-card,.dfi,.event-card,.live-card,.msg-thread')){CR.style.width='44px';CR.style.height='44px';}});
 document.addEventListener('mouseout',function(e){if(e.target.matches('button,a,.ac,.fstrip,.fi,.ftxt,.tpost,.post-card,.dfi,.event-card,.live-card,.msg-thread')){CR.style.width='32px';CR.style.height='32px';}});
 
-/* ─── MOBILE NAV ─── */
-function toggleMobNav(){
-  document.getElementById('mob-nav-drawer').classList.toggle('open');
-  document.getElementById('mob-nav-overlay').classList.toggle('open');
-}
-function closeMobNav(){
-  document.getElementById('mob-nav-drawer').classList.remove('open');
-  document.getElementById('mob-nav-overlay').classList.remove('open');
-}
-/* Show hamburger on mobile, hide on desktop */
-(function(){
-  function checkMob(){
-    var btn=document.getElementById('mob-menu-btn');
-    if(!btn)return;
-    btn.style.display=window.innerWidth<=768?'flex':'none';
-  }
-  checkMob();
-  window.addEventListener('resize',checkMob);
-})();
-
-/* ─── PUSH NOTIFICATIONS ─── */
-var _pushEnabled=false;
-var _pushTimer=null;
-/* Notification content pool */
-var PUSH_POOL=[
-  {title:'🔴 Breaking',body:'Egypt discovers new chamber inside the Great Pyramid'},
-  {title:'⚽ Sports Update',body:'Chelsea 2–1 Arsenal — full time at Stamford Bridge'},
-  {title:'🌸 Tokyo',body:'Cherry blossom front reaching peak — Shinjuku packed!'},
-  {title:'🤖 Tech',body:'Humanoid robot serves espresso at Akihabara demo'},
-  {title:'🌍 EarthLive',body:'3 live streams active near you right now'},
-  {title:'❤️ Activity',body:'@sakura_live reacted 🔥 to your post'},
-  {title:'📍 Mumbai',body:'Marine Drive at sunset — 768 people reacted'},
-  {title:'🎉 Event',body:'Lagos Afrobeats Street Fest starts in 8 days — RSVP now'},
-  {title:'📰 Breaking News',body:'CERN announces breakthrough in particle physics'},
-  {title:'👥 New Follower',body:'@nova_nyc started following you'},
-];
-var _pushIdx=0;
-
-function requestPushPermission(){
-  if(!('Notification' in window)){showToast('Notifications not supported in this browser');return;}
-  if(Notification.permission==='granted'){enablePush();return;}
-  if(Notification.permission==='denied'){showToast('Notifications blocked — please enable in browser settings');return;}
-  Notification.requestPermission().then(function(perm){
-    if(perm==='granted'){enablePush();showToast('🔔 Push notifications enabled!');}
-    else{showToast('Notifications permission denied');}
-  });
-}
-
-function enablePush(){
-  _pushEnabled=true;
-  if(_pushTimer)clearInterval(_pushTimer);
-  /* Fire first one after 5s, then every 45-90s randomly */
-  setTimeout(function(){
-    firePushNotif();
-    _pushTimer=setInterval(function(){
-      if(_pushEnabled)firePushNotif();
-    },45000+Math.random()*45000);
-  },5000);
-  /* Update bell button appearance */
-  var bellBtn=document.getElementById('push-bell-btn');
-  if(bellBtn){bellBtn.style.color='var(--ac)';bellBtn.title='Notifications ON';}
-}
-
-function togglePushBell(){
-  /* first tap: show in-app panel; long-press or second context: toggle push */
-  toggleNotifPanel();
-  /* also prompt for push if not yet granted */
-  if(Notification.permission==='default'){
-    setTimeout(function(){
-      if(confirm('Enable push notifications from EarthLive?\nYou\'ll get live alerts for breaking news, followers and events.')){
-        requestPushPermission();
-      }
-    },400);
-  }
-}
-function disablePush(){
-  _pushEnabled=false;
-  if(_pushTimer){clearInterval(_pushTimer);_pushTimer=null;}
-  showToast('🔕 Push notifications disabled');
-  var bellBtn=document.getElementById('push-bell-btn');
-  if(bellBtn){bellBtn.style.color='';bellBtn.title='Enable notifications';}
-}
-
-function firePushNotif(){
-  if(!_pushEnabled||Notification.permission!=='granted')return;
-  var item=PUSH_POOL[_pushIdx%PUSH_POOL.length];_pushIdx++;
-  try{
-    var n=new Notification(item.title,{
-      body:item.body,
-      icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="%231a1612"/><text x="16" y="21" text-anchor="middle" font-size="16" fill="%23f5f0e8">E</text></svg>',
-      badge:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="%231a1612"/></svg>',
-      tag:'earthlive-'+Date.now(),
-      requireInteraction:false
-    });
-    n.onclick=function(){window.focus();n.close();};
-    setTimeout(function(){n.close();},8000);
-  }catch(e){/* fallback to in-app toast */
-    showToast(item.title+': '+item.body);
-  }
-  /* Also add to in-app notif panel */
-  NOTIFS.unshift({av:'EL',text:item.body,time:'now',unread:true,type:'activity'});
-  renderNotifs();
-}
-
 /* ─── INTERSECTION OBSERVER ─── */
 var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('visible');});},{threshold:.1});
 document.querySelectorAll('#page-landing .fade-up').forEach(function(el){io.observe(el);});
 var sio=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.querySelectorAll('[data-t]').forEach(function(n){var t=+n.dataset.t,s=performance.now();(function f(ts){var p=Math.min((ts-s)/2000,1);n.textContent=Math.floor((1-Math.pow(1-p,3))*t).toLocaleString();if(p<1)requestAnimationFrame(f);else n.textContent=t.toLocaleString();})(s);});sio.unobserve(x.target);}});},{threshold:.4});
 var sbar=document.querySelector('.stats-bar');if(sbar)sio.observe(sbar);
 
-/* ─── SUPABASE POST LOADER ─── */
-function loadPostsFromSupabase(){
-  /* In future: fetch real posts from Supabase DB */
-  /* For now posts are in-memory only — empty until users post */
-  ALL_POSTS=ALL_POSTS.filter(function(p){return p.user==='@'+CU.username;});
-  PROF_POSTS={following:[],discover:[],nearby:[],myposts:ALL_POSTS.slice()};
-  applyFilters();
-  if(profMapInstance)renderProfMapMarkers(PROF_POSTS[currentProfTab]);
-}
-
-/* ─── AUTO SESSION RESTORE ─── */
+/* ─── SESSION RESTORE ─── */
 (function(){
   if(!sb)return;
-  sb.auth.getSession().then(function(res){
-    if(res.data&&res.data.session&&res.data.session.user){
-      onAuthSuccess(res.data.session.user);
-    }
+  sb.auth.getSession().then(function(r){
+    if(r.data&&r.data.session&&r.data.session.user)_applyUser(r.data.session.user);
   });
   sb.auth.onAuthStateChange(function(event,session){
-    if(event==='SIGNED_IN'&&session&&session.user){
-      if(document.getElementById('auth-gate').style.display!=='none'){
-        onAuthSuccess(session.user);
-      }
-    }
-    if(event==='SIGNED_OUT'){
+    if(event==='SIGNED_IN'&&session&&document.getElementById('auth-gate').style.display!=='none')
+      _applyUser(session.user);
+    if(event==='SIGNED_OUT')
       document.getElementById('auth-gate').style.display='flex';
-    }
   });
 })();
 
