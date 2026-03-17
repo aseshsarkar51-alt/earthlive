@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>EarthLive</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
@@ -594,8 +594,117 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
 .news-body{display:none;padding:.5rem .8rem .7rem;border-top:1px solid var(--bd);background:var(--bg2);animation:fadeIn .2s ease}
 .news-chevron{transition:transform .2s;font-size:8px;color:var(--tx4);flex-shrink:0;margin-top:3px}
 ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--bdk)}
-@media(max-width:1000px){#trending-sidebar{display:none}.hero-ui,.ticker-wrap{right:0}.dash-body{grid-template-columns:1fr}.prof-hero{flex-direction:column}.prof-left,.prof-right{width:100%;height:50vh}}
-@media(max-width:800px){nav{padding:.8rem 1.2rem}.nlink{padding:.4rem .5rem;font-size:.5rem}.fstrip{flex:0 0 290px}.dash-stat-row{grid-template-columns:1fr 1fr}.msg-list{width:220px}.events-grid,.live-streams-grid{grid-template-columns:1fr}}
+
+/* ── RESPONSIVE: TABLET (≤1000px) ── */
+@media(max-width:1000px){
+  #trending-sidebar{display:none}
+  .hero-ui,.ticker-wrap{right:0}
+  .dash-body{grid-template-columns:1fr}
+  .dash-side{height:auto;position:static;overflow:visible}
+  .prof-hero{flex-direction:column}
+  .prof-left,.prof-right{width:100%;height:50vh}
+  #page-events>div:last-of-type{grid-template-columns:1fr}
+  .ev-featured-card{grid-template-columns:1fr}
+  .ev-fc-img{height:180px}
+}
+
+/* ── RESPONSIVE: MOBILE (≤768px) ── */
+@media(max-width:768px){
+  /* Nav */
+  nav{padding:.7rem 1rem;padding-top:max(.7rem,env(safe-area-inset-top));gap:.4rem}
+  .nav-links{display:none}
+  .logo{font-size:1.3rem}
+  body{cursor:auto}
+  .cursor,.cursor-ring{display:none}
+
+  /* Mobile nav drawer — hamburger */
+  .mob-menu-btn{display:flex;width:32px;height:32px;border:1px solid var(--bdk);background:transparent;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;flex-shrink:0}
+  .mob-nav-drawer{position:fixed;top:0;left:0;bottom:0;width:72vw;max-width:280px;background:var(--sf);z-index:99999;transform:translateX(-100%);transition:transform .3s ease;border-right:1px solid var(--bdk);display:flex;flex-direction:column;padding:1.5rem 1.2rem;gap:.2rem;overflow-y:auto}
+  .mob-nav-drawer.open{transform:translateX(0)}
+  .mob-nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99998}
+  .mob-nav-overlay.open{display:block}
+  .mob-nlink{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tx2);background:transparent;border:none;border-bottom:1px solid var(--bd);padding:.75rem .4rem;cursor:pointer;text-align:left;width:100%;transition:color .2s}
+  .mob-nlink:hover{color:var(--tx)}
+
+  /* Hero */
+  .hero{height:100svh}
+  .hero-ui{padding:0 1rem 3rem}
+  .eyebrow{font-size:.48rem;letter-spacing:.18em}
+  .btn-w,.btn-o{padding:.7rem 1.4rem;font-size:.54rem}
+  .actions{gap:.5rem}
+
+  /* Stats bar */
+  .stats-bar{padding:1rem 1.2rem;gap:1rem;justify-content:space-around}
+  .stat-num{font-size:1.6rem}
+
+  /* Feed */
+  .feed-header{padding:1.5rem 1.2rem 1rem}
+  .feed-header h2{font-size:1.8rem}
+  .feed-track-wrap{padding:.6rem 1rem 1.2rem;gap:.8rem}
+  .fstrip{flex:0 0 88vw}
+  .filter-row{padding:0 1rem}
+  .feed-body{padding:.8rem 0 2rem}
+  .feed-scroll-hint{padding:.3rem 1rem 0}
+
+  /* Dashboard */
+  #page-dashboard{padding-top:62px}
+  .dash-header{padding:1.2rem 1.2rem;flex-direction:column;align-items:flex-start;gap:.8rem}
+  .dash-greet{font-size:1.4rem}
+  .dash-actions{flex-wrap:wrap;gap:.4rem}
+  .dash-btn,.dash-btn-o{font-size:.44rem;padding:.4rem .8rem}
+  .dash-main{padding:1.2rem 1rem}
+  .dash-stat-row{grid-template-columns:repeat(2,1fr)}
+  #news-feed{grid-template-columns:1fr !important}
+
+  /* Messages */
+  .msg-page-wrap{flex-direction:column}
+  .msg-list{width:100%;border-right:none;border-bottom:1px solid var(--bd);max-height:35vh}
+  .msg-chat{min-height:55vh}
+
+  /* Profile */
+  .prof-left{height:40vh}
+  .prof-right{height:auto;min-height:300px}
+  .profile-card{padding:1rem 1.2rem}
+  .pc-name{font-size:1.2rem}
+  .pc-actions{gap:.35rem}
+  #prof-ext-tabs{padding:0 .8rem}
+  .pext-tab{padding:.7rem .7rem;font-size:.44rem}
+
+  /* Events */
+  .events-grid{grid-template-columns:1fr}
+  #page-events>div:nth-child(4){display:block}
+  #ev-map{height:180px}
+  .events-wrap{padding:1.2rem 1rem}
+
+  /* Live */
+  .live-wrap{padding:1.2rem 1rem}
+  .live-streams-grid{grid-template-columns:1fr}
+
+  /* News page */
+  #page-news{padding-top:62px}
+  #news-page-grid{grid-template-columns:1fr !important}
+  #news-page-body{padding:1rem 1rem 3rem}
+
+  /* News summary modal */
+  #news-summary-modal > div{border-radius:0 !important;width:100% !important;max-width:100% !important;min-height:50vh;margin:auto 0 0 !important}
+
+  /* Generic modals */
+  .generic-modal-inner{width:95vw !important;margin:1rem auto}
+
+  /* Footer */
+  .footer-top{grid-template-columns:1fr !important}
+  .footer-inner{padding:2rem 1.2rem 1rem}
+  .theme-dots{bottom:1.5rem;left:1.2rem}
+}
+
+/* ── RESPONSIVE: SMALL MOBILE (≤480px) ── */
+@media(max-width:480px){
+  .fstrip{flex:0 0 92vw}
+  .btn-w,.btn-o{padding:.65rem 1rem;font-size:.5rem}
+  .dash-stat-row{grid-template-columns:repeat(2,1fr)}
+  .nav-right .nav-btn{display:none}
+  .msg-list{max-height:30vh}
+}
 .hashtag{color:var(--ac);font-weight:500;cursor:pointer}
 .mention{color:var(--tx2);font-weight:600;cursor:pointer;border-bottom:1px solid var(--bdk)}
 </style>
@@ -628,6 +737,18 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
           <div class="fg"><label class="fl">Username</label><input class="fi" id="su-user" placeholder="@yourhandle"></div>
           <div class="fg"><label class="fl">Email</label><input class="fi" id="su-email" type="email" placeholder="you@example.com"></div>
           <div class="fg"><label class="fl">Password</label><input class="fi" id="su-pass" type="password" placeholder="Choose a password"></div>
+          <div class="fg">
+            <label class="fl">Regions of Interest</label>
+            <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem" id="su-regions-wrap">
+              <button type="button" class="su-reg-btn" onclick="toggleSuRegion(this,'Asia')" style="font-family:'Space Mono',monospace;font-size:.42rem;letter-spacing:.08em;text-transform:uppercase;padding:.3rem .75rem;border:1px solid var(--bdk);background:transparent;color:var(--tx3);cursor:pointer;transition:all .2s;border-radius:3px">Asia</button>
+              <button type="button" class="su-reg-btn" onclick="toggleSuRegion(this,'Europe')" style="font-family:'Space Mono',monospace;font-size:.42rem;letter-spacing:.08em;text-transform:uppercase;padding:.3rem .75rem;border:1px solid var(--bdk);background:transparent;color:var(--tx3);cursor:pointer;transition:all .2s;border-radius:3px">Europe</button>
+              <button type="button" class="su-reg-btn" onclick="toggleSuRegion(this,'Americas')" style="font-family:'Space Mono',monospace;font-size:.42rem;letter-spacing:.08em;text-transform:uppercase;padding:.3rem .75rem;border:1px solid var(--bdk);background:transparent;color:var(--tx3);cursor:pointer;transition:all .2s;border-radius:3px">Americas</button>
+              <button type="button" class="su-reg-btn" onclick="toggleSuRegion(this,'Africa')" style="font-family:'Space Mono',monospace;font-size:.42rem;letter-spacing:.08em;text-transform:uppercase;padding:.3rem .75rem;border:1px solid var(--bdk);background:transparent;color:var(--tx3);cursor:pointer;transition:all .2s;border-radius:3px">Africa</button>
+              <button type="button" class="su-reg-btn" onclick="toggleSuRegion(this,'Oceania')" style="font-family:'Space Mono',monospace;font-size:.42rem;letter-spacing:.08em;text-transform:uppercase;padding:.3rem .75rem;border:1px solid var(--bdk);background:transparent;color:var(--tx3);cursor:pointer;transition:all .2s;border-radius:3px">Oceania</button>
+              <button type="button" class="su-reg-btn" onclick="toggleSuRegion(this,'Middle East')" style="font-family:'Space Mono',monospace;font-size:.42rem;letter-spacing:.08em;text-transform:uppercase;padding:.3rem .75rem;border:1px solid var(--bdk);background:transparent;color:var(--tx3);cursor:pointer;transition:all .2s;border-radius:3px">Middle East</button>
+            </div>
+            <div style="font-family:'Space Mono',monospace;font-size:.36rem;color:var(--tx4);margin-top:.3rem">Select all that apply — shapes your feed &amp; city suggestions</div>
+          </div>
           <button onclick="doSignUp()" style="width:100%;background:var(--ac);color:var(--aci);border:1px solid var(--ac);padding:.9rem;font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .3s">Create Account →</button>
         </div>
       </div>
@@ -662,6 +783,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
 <!-- NAV -->
 <nav>
   <div class="logo" onclick="goTo('landing')"><div class="logo-dot"></div>EARTHLIVE</div>
+  <button class="mob-menu-btn" id="mob-menu-btn" onclick="toggleMobNav()" style="display:none">☰</button>
   <div class="nav-links">
     <button class="nlink active" id="nl-landing" onclick="goTo('landing')">Home</button>
     <button class="nlink" id="nl-dashboard" onclick="goTo('dashboard')">My Page</button>
@@ -673,11 +795,43 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
     <button class="nlink" id="nl-community" onclick="goTo('community')">Community</button>
   </div>
   <div class="nav-right">
-    <button class="icon-btn" onclick="toggleNotifPanel()" id="notif-btn">🔔<span class="nbadge" id="notif-count-badge">3</span></button>
+    <!-- PEOPLE SEARCH -->
+    <div style="position:relative" id="people-search-wrap">
+      <div style="display:flex;align-items:center;gap:.35rem;background:var(--bg2);border:1px solid var(--bd);padding:.3rem .65rem;transition:border-color .2s" onfocuswithin="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--bd)'">
+        <span style="color:var(--tx4);font-size:.75rem">⌕</span>
+        <input id="people-search-input" placeholder="Search people…" autocomplete="off"
+          style="background:transparent;border:none;outline:none;color:var(--tx);font-family:'Space Mono',monospace;font-size:.52rem;width:130px"
+          oninput="renderPeopleResults(this.value)"
+          onfocus="document.getElementById('people-results').style.display='block';renderPeopleResults(this.value)"
+          onblur="setTimeout(function(){document.getElementById('people-results').style.display='none';},180)">
+      </div>
+      <div id="people-results" style="display:none;position:absolute;top:calc(100% + 6px);right:0;width:280px;background:var(--sf);border:1px solid var(--bdk);border-radius:6px;box-shadow:0 8px 24px rgba(26,22,18,.15);z-index:9999;overflow:hidden;max-height:320px;overflow-y:auto"></div>
+    </div>
+    <button class="icon-btn" id="push-bell-btn" title="Enable notifications" onclick="togglePushBell()" style="position:relative">🔔<span class="nbadge" id="notif-count-badge" style="display:none">0</span></button>
     <div class="nav-av" id="nav-av" onclick="goTo('profile')">AD</div>
     <button class="nav-btn" onclick="doSignOut()">Sign Out</button>
   </div>
 </nav>
+
+<!-- MOBILE NAV DRAWER -->
+<div class="mob-nav-overlay" id="mob-nav-overlay" onclick="closeMobNav()"></div>
+<div class="mob-nav-drawer" id="mob-nav-drawer">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;padding-bottom:.8rem;border-bottom:1px solid var(--bd)">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.08em;color:var(--tx);display:flex;align-items:center;gap:.4rem"><div class="logo-dot"></div>EARTHLIVE</div>
+    <button onclick="closeMobNav()" style="background:transparent;border:none;font-size:1.2rem;cursor:pointer;color:var(--tx3)">✕</button>
+  </div>
+  <button class="mob-nlink" onclick="closeMobNav();goTo('landing')">Home</button>
+  <button class="mob-nlink" onclick="closeMobNav();goTo('dashboard')">My Page</button>
+  <button class="mob-nlink" onclick="closeMobNav();goTo('messages')">Messages</button>
+  <button class="mob-nlink" onclick="closeMobNav();goTo('news')">News</button>
+  <button class="mob-nlink" onclick="closeMobNav();goTo('events')">Events</button>
+  <button class="mob-nlink" style="color:#e74c3c" onclick="closeMobNav();goTo('live')">🔴 Live</button>
+  <button class="mob-nlink" onclick="closeMobNav();goTo('profile')">Profile</button>
+  <button class="mob-nlink" onclick="closeMobNav();goTo('community')">Community</button>
+  <div style="margin-top:auto;padding-top:1.2rem;border-top:1px solid var(--bd)">
+    <button onclick="closeMobNav();doSignOut()" style="font-family:'Space Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);background:transparent;border:1px solid var(--bd);padding:.5rem 1rem;cursor:pointer;width:100%">Sign Out</button>
+  </div>
+</div>
 
 <!-- ═══ LANDING ═══ -->
 <div id="page-landing" class="page active">
@@ -714,16 +868,16 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
     </div></div>
   </section>
   <div class="stats-bar fade-up">
-    <div><div class="stat-num" data-t="2847391">0</div><div class="stat-label">Posts Today</div></div>
-    <div><div class="stat-num" data-t="194">0</div><div class="stat-label">Countries Active</div></div>
-    <div><div class="stat-num" data-t="3">0</div><div class="stat-label">Live Streams</div></div>
-    <div><div class="stat-num" data-t="47">0</div><div class="stat-label">Live Hotspots</div></div>
-    <div><div class="stat-num" data-t="1240000">0</div><div class="stat-label">Users Online</div></div>
+    <div><div class="stat-num" data-t="0">0</div><div class="stat-label">Posts Today</div></div>
+    <div><div class="stat-num" data-t="0">0</div><div class="stat-label">Countries Active</div></div>
+    <div><div class="stat-num" data-t="0">0</div><div class="stat-label">Live Streams</div></div>
+    <div><div class="stat-num" data-t="0">0</div><div class="stat-label">Live Hotspots</div></div>
+    <div><div class="stat-num" data-t="0">0</div><div class="stat-label">Users Online</div></div>
   </div>
   <section id="feed-section">
     <div class="feed-header fade-up">
       <div><div class="sec-label">Global Stream</div><h2>WHAT'S <em>HAPPENING NOW</em></h2></div>
-      <div class="live-badge" id="live-count">247 new posts</div>
+      <div class="live-badge" id="live-count">0 new posts</div>
     </div>
     <div class="filter-bar">
       <div class="filter-row">
@@ -733,10 +887,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
         <button class="ftxt" onclick="setFilter('sports',this)">Sports<span class="ftxt-ct" id="fc-sports"></span></button>
         <button class="ftxt" onclick="setFilter('tech',this)">Tech<span class="ftxt-ct" id="fc-tech"></span></button>
         <button class="ftxt" onclick="setFilter('social',this)">Social<span class="ftxt-ct" id="fc-social"></span></button>
-        <button class="ftxt" onclick="setFilter('research',this)">Research<span class="ftxt-ct" id="fc-research"></span></button>
-        <button class="ftxt" onclick="setFilter('tourism',this)">Tourism<span class="ftxt-ct" id="fc-tourism"></span></button>
         <button class="ftxt" onclick="setFilter('health',this)">Health<span class="ftxt-ct" id="fc-health"></span></button>
-        <button class="ftxt" onclick="setFilter('event',this)">Events<span class="ftxt-ct" id="fc-event"></span></button>
+        <button class="ftxt" onclick="setFilter('travel',this)">Travel<span class="ftxt-ct" id="fc-travel"></span></button>
+        <button class="ftxt" onclick="setFilter('climate',this)">Climate<span class="ftxt-ct" id="fc-climate"></span></button>
+        <button class="ftxt" onclick="setFilter('culture',this)">Culture<span class="ftxt-ct" id="fc-culture"></span></button>
+        <button class="ftxt" onclick="setFilter('food',this)">Food<span class="ftxt-ct" id="fc-food"></span></button>
+        <button class="ftxt" onclick="setFilter('business',this)">Business<span class="ftxt-ct" id="fc-business"></span></button>
         <div class="filter-divider"></div>
         <div class="fsearch"><span style="color:var(--tx4);font-size:.75rem">⌕</span><input type="text" id="feed-search" placeholder="Search…" oninput="applyFilters()"></div>
         <div class="filter-divider"></div>
@@ -841,6 +997,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
       <button class="dash-btn-o" onclick="goTo('events')">+ Create Event</button>
       <button class="dash-btn dash-btn-live" onclick="goTo('live')">🔴 Go Live</button>
       <button class="dash-btn-o" onclick="goTo('profile')">My Profile →</button>
+      <button class="dash-btn-o" id="dash-notif-btn" onclick="requestPushPermission()" title="Enable push notifications" style="display:flex;align-items:center;gap:.35rem">🔔 Notifications</button>
     </div>
   </div>
   <div class="dash-body">
@@ -848,8 +1005,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
       <div class="dash-section-title">Your Stats</div>
       <div class="dash-stat-row">
         <div class="dash-stat"><div class="dash-stat-num">0</div><div class="dash-stat-lbl">Posts</div></div>
-        <div class="dash-stat"><div class="dash-stat-num">248</div><div class="dash-stat-lbl">Followers</div></div>
-        <div class="dash-stat"><div class="dash-stat-num">92</div><div class="dash-stat-lbl">Following</div></div>
+        <div class="dash-stat"><div class="dash-stat-num">0</div><div class="dash-stat-lbl">Followers</div></div>
+        <div class="dash-stat"><div class="dash-stat-num">0</div><div class="dash-stat-lbl">Following</div></div>
         <div class="dash-stat"><div class="dash-stat-num">0</div><div class="dash-stat-lbl">Views</div></div>
       </div>
       <div class="dash-post-btn" onclick="openNewPost()"><div class="dash-post-label">+ Drop a new pin — what's happening near you?</div></div>
@@ -877,7 +1034,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
       </div>
       <div style="display:flex;align-items:center;gap:.7rem">
         <div style="font-family:'Space Mono',monospace;font-size:.34rem;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);background:var(--bg2);border:1px solid var(--bd);padding:.08rem .38rem;display:flex;align-items:center;gap:.28rem"><span style="width:4px;height:4px;background:#27ae60;border-radius:50%;display:inline-block"></span>Live Feed</div>
-        <button id="news-refresh-btn" onclick="refreshDashNews()" style="font-family:'Space Mono',monospace;font-size:.34rem;letter-spacing:.08em;text-transform:uppercase;background:transparent;border:1px solid var(--bd);color:var(--tx3);padding:.28rem .65rem;cursor:pointer;transition:all .2s">&#8635; Refresh</button>
+        <button onclick="openNewsApiSettings()" style="font-family:'Space Mono',monospace;font-size:.34rem;letter-spacing:.08em;text-transform:uppercase;background:transparent;border:1px solid var(--bd);color:var(--tx3);padding:.28rem .65rem;cursor:pointer;transition:all .2s">⚙ API Key</button><button id="news-refresh-btn" onclick="refreshDashNews()" style="font-family:'Space Mono',monospace;font-size:.34rem;letter-spacing:.08em;text-transform:uppercase;background:transparent;border:1px solid var(--bd);color:var(--tx3);padding:.28rem .65rem;cursor:pointer;transition:all .2s">&#8635; Refresh</button>
       </div>
     </div>
     <div style="background:var(--ac);color:var(--aci);height:24px;overflow:hidden;display:flex;align-items:center">
@@ -1018,7 +1175,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
     <div>
       <div style="font-family:'Space Mono',monospace;font-size:.46rem;letter-spacing:.22em;text-transform:uppercase;opacity:.6;margin-bottom:.4rem">Live · Worldwide</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,4vw,3.4rem);letter-spacing:.04em;line-height:.9">DISCOVER <span style="-webkit-text-stroke:1.5px var(--aci);color:transparent">EVENTS</span></div>
-      <div style="font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.1em;margin-top:.55rem;opacity:.65" id="ev-hero-count">12 events across 8 cities worldwide</div>
+      <div style="font-family:'Space Mono',monospace;font-size:.44rem;letter-spacing:.1em;margin-top:.55rem;opacity:.65" id="ev-hero-count">No events yet — be the first to create one!</div>
     </div>
     <button onclick="openCreateEvent()" style="font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.12em;text-transform:uppercase;background:rgba(255,255,255,.13);color:var(--aci);border:1px solid rgba(255,255,255,.3);padding:.7rem 1.4rem;cursor:pointer;transition:all .2s">+ Create Event</button>
   </div>
@@ -1026,13 +1183,16 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
   <!-- CATEGORY FILTER BAR -->
   <div style="background:var(--sf);border-bottom:1px solid var(--bd);padding:0 2.5rem;display:flex;gap:0;overflow-x:auto;scrollbar-width:none;position:sticky;top:62px;z-index:50">
     <button class="ev-cat-btn active" id="evcb-all" onclick="filterEvents('all',this)">All</button>
-    <button class="ev-cat-btn" id="evcb-Social" onclick="filterEvents('Social',this)">🎉 Social</button>
+    <button class="ev-cat-btn" id="evcb-Breaking" onclick="filterEvents('Breaking',this)">🔴 Breaking</button>
     <button class="ev-cat-btn" id="evcb-Sports" onclick="filterEvents('Sports',this)">⚽ Sports</button>
     <button class="ev-cat-btn" id="evcb-Tech" onclick="filterEvents('Tech',this)">💡 Tech</button>
-    <button class="ev-cat-btn" id="evcb-Arts" onclick="filterEvents('Arts',this)">🎨 Arts</button>
-    <button class="ev-cat-btn" id="evcb-Music" onclick="filterEvents('Music',this)">🎵 Music</button>
+    <button class="ev-cat-btn" id="evcb-Social" onclick="filterEvents('Social',this)">🎉 Social</button>
+    <button class="ev-cat-btn" id="evcb-Health" onclick="filterEvents('Health',this)">🏥 Health</button>
+    <button class="ev-cat-btn" id="evcb-Travel" onclick="filterEvents('Travel',this)">✈️ Travel</button>
+    <button class="ev-cat-btn" id="evcb-Climate" onclick="filterEvents('Climate',this)">🌍 Climate</button>
+    <button class="ev-cat-btn" id="evcb-Culture" onclick="filterEvents('Culture',this)">🎨 Culture</button>
     <button class="ev-cat-btn" id="evcb-Food" onclick="filterEvents('Food',this)">🍜 Food</button>
-    <button class="ev-cat-btn" id="evcb-Nature" onclick="filterEvents('Nature',this)">🌿 Nature</button>
+    <button class="ev-cat-btn" id="evcb-Business" onclick="filterEvents('Business',this)">💼 Business</button>
     <div style="margin-left:auto;display:flex;align-items:center;padding:.6rem .5rem;flex-shrink:0">
       <select id="ev-sort" onchange="evSortChange(this.value)" style="font-family:'Space Mono',monospace;font-size:.42rem;background:var(--bg2);border:1px solid var(--bd);color:var(--tx);padding:.28rem .5rem;outline:none;cursor:pointer">
         <option value="date">Soonest</option>
@@ -1099,11 +1259,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1100;display:flex;align-items:ce
         <div class="pc-avatar" id="pc-av">AD</div>
         <div class="pc-name" id="pc-name">ASHESH DEMO</div>
         <div class="pc-handle" id="pc-handle">@ashesh_demo</div>
-        <div class="pc-loc">◎ Anekal, Karnataka, India</div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem">
+          <div class="pc-loc" style="margin-bottom:0">◎ Anekal, Karnataka, India</div>
+          <span id="privacy-status-badge" style="font-family:'Space Mono',monospace;font-size:.36rem;letter-spacing:.07em;text-transform:uppercase;color:#27ae60;border:1px solid currentColor;padding:.07rem .35rem;cursor:pointer" onclick="openEditProfile()">🌐 Public</span>
+        </div>
         <div class="pc-stats" style="margin-top:.45rem">
           <div><div class="pc-stat-num">0</div><div class="pc-stat-lbl">Posts</div></div>
-          <div><div class="pc-stat-num">248</div><div class="pc-stat-lbl">Followers</div></div>
-          <div><div class="pc-stat-num">92</div><div class="pc-stat-lbl">Following</div></div>
+          <div><div class="pc-stat-num" id="pc-followers">0</div><div class="pc-stat-lbl">Followers</div></div>
+          <div><div class="pc-stat-num" id="pc-following">0</div><div class="pc-stat-lbl">Following</div></div>
         </div>
         <div class="pc-actions" style="margin-top:.75rem;flex-wrap:nowrap;gap:.45rem;overflow-x:auto;padding-bottom:.2rem;display:flex;align-items:center">
           <button class="pc-btn solid" onclick="openNewPost()" style="white-space:nowrap;flex-shrink:0">+ Post</button>
@@ -1521,20 +1684,54 @@ var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 var sb=null;try{if(typeof supabase!=='undefined')sb=supabase.createClient(SUPA_URL,SUPA_KEY);}catch(e){console.warn('Supabase not available, running in demo mode.');}
 
 /* ─── NEWS API CONFIG ─── */
-/* ↓↓↓ PASTE YOUR NEWSAPI.ORG KEY HERE ↓↓↓ */
-var NEWSAPI_KEY = 'YOUR_NEWSAPI_KEY_HERE';
-/* ↑↑↑ Get a free key at https://newsapi.org/register ↑↑↑ */
+var NEWSAPI_KEY = (function(){try{return localStorage.getItem('el-newsapi-key')||'YOUR_NEWSAPI_KEY_HERE';}catch(e){return 'YOUR_NEWSAPI_KEY_HERE';}})();
+function setNewsApiKey(key){
+  NEWSAPI_KEY=key.trim();
+  try{localStorage.setItem('el-newsapi-key',NEWSAPI_KEY);}catch(e){}
+  NEWS_CACHE={};
+  showToast('NewsAPI key saved ✓ — refreshing...');
+  setTimeout(function(){
+    if(document.getElementById('page-dashboard').classList.contains('active')){
+      initNewsPanel();
+    }
+    if(document.getElementById('page-news').classList.contains('active')){
+      renderNewsPageGrid(newsPageTab||'foryou');
+    }
+  },300);
+}
+function openNewsApiSettings(){
+  var existing=document.getElementById('newsapi-modal');if(existing)existing.remove();
+  var m=document.createElement('div');m.className='generic-modal';m.id='newsapi-modal';
+  var current=NEWSAPI_KEY==='YOUR_NEWSAPI_KEY_HERE'?'':NEWSAPI_KEY;
+  m.innerHTML='<div class="generic-modal-inner" style="max-width:420px">'
+    +'<div class="gm-top"></div>'
+    +'<div class="gm-header"><div class="gm-title">NewsAPI Settings</div>'
+    +'<button class="gm-close" onclick="document.getElementById(\'newsapi-modal\').remove()">✕</button></div>'
+    +'<div class="gm-body">'
+    +'<div style="font-family:Space Mono,monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tx4);margin-bottom:.5rem">Your NewsAPI Key</div>'
+    +'<input class="fi" id="newsapi-key-input" value="'+current+'" placeholder="Paste your key from newsapi.org" style="font-family:Space Mono,monospace;font-size:.56rem;letter-spacing:.04em">'
+    +'<div style="font-family:Space Mono,monospace;font-size:.38rem;color:var(--tx4);margin:.55rem 0 1rem;line-height:1.7">Get a free key at <span style="color:var(--tx);text-decoration:underline;cursor:pointer" onclick="window.open(\'https://newsapi.org/register\',\'_blank\')">newsapi.org/register</span> — free tier gives 100 requests/day.</div>'
+    +'<button onclick="setNewsApiKey(document.getElementById(\'newsapi-key-input\').value);document.getElementById(\'newsapi-modal\').remove()" style="width:100%;background:var(--ac);color:var(--aci);border:1px solid var(--ac);padding:.8rem;font-family:Space Mono,monospace;font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer">Save & Activate →</button>'
+    +'</div></div>';
+  m.addEventListener('click',function(e){if(e.target===m)m.remove();});
+  document.body.appendChild(m);
+}
 var NEWSAPI_BASE = 'https://newsapi.org/v2/top-headlines';
+/* Use a CORS proxy so NewsAPI works from the browser (their free plan blocks direct browser requests) */
+var NEWSAPI_PROXY = 'https://corsproxy.io/?';
+function newsApiUrl(endpoint,params){
+  return NEWSAPI_PROXY+encodeURIComponent(endpoint+'?'+params.toString());
+}
 var NEWS_CACHE = {};          /* key → {items, ts} */
 var NEWS_CACHE_TTL = 5*60*1000; /* 5 minutes */
-var CU={id:'',email:'',first:'',last:'',username:'',initials:'',avatar_url:null,interests:[],bio:''};
+var CU={id:'',email:'',first:'',last:'',username:'',initials:'',avatar_url:null,interests:[],regions:[],bio:'',isPrivate:false};
 var followingSet=new Set();var likedPosts=new Set();var postReactions={};
 
 /* ─── DATA ─── */
 var REACTIONS=['❤️','🔥','🎉','💡','😮','🌍'];
 var ALL_POSTS=[];
 var ACCOUNTS=[];
-var ACCOUNT_IMGS=['https://images.unsplash.com/photo-1499346030926-9a72daac6c63?w=600&q=80','https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80','https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=80','https://images.unsplash.com/photo-1618522285056-498ddd4f4fb8?w=600&q=80','https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=600&q=80','https://images.unsplash.com/photo-1543059080-f9b1272213d5?w=600&q=80','https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=600&q=80','https://images.unsplash.com/photo-1539650116574-75c0c6d88f22?w=600&q=80'];
+var ACCOUNT_IMGS=[];
 var CITIES_MAP=[{name:"New York",rate:"4.1k/hr",lat:40.7128,lng:-74.006,live:false},{name:"London",rate:"2.8k/hr",lat:51.5074,lng:-0.1278,live:true},{name:"Tokyo",rate:"5.2k/hr",lat:35.6762,lng:139.6503,live:true},{name:"Lagos",rate:"1.9k/hr",lat:6.5244,lng:3.3792,live:false},{name:"Mumbai",rate:"3.5k/hr",lat:19.076,lng:72.8777,live:false},{name:"São Paulo",rate:"2.2k/hr",lat:-23.5505,lng:-46.6333,live:false},{name:"Sydney",rate:"1.6k/hr",lat:-33.8688,lng:151.2093,live:true},{name:"Cairo",rate:"1.4k/hr",lat:30.0444,lng:31.2357,live:false}];
 var EVENTS_DATA=[];
 var evCurrentFilter='all';var evCurrentSort='date';var evMapInstance=null;
@@ -1571,6 +1768,8 @@ function goTo(page){
   if(page==='landing'&&!mapLandInit){initLandingMap();mapLandInit=true;}
   else if(page!=='landing'&&_liveDotsTimer){clearInterval(_liveDotsTimer);_liveDotsTimer=null;}
   if(page==='landing'&&mapLandInit&&!_liveDotsTimer){_liveDotsTimer=setInterval(_tickLiveDots,2000);}
+  if(page!=='profile'&&_profDotsTimer){clearInterval(_profDotsTimer);_profDotsTimer=null;}
+  if(page==='profile'&&profMapInstance&&!_profDotsTimer){_profDotsTimer=setInterval(_tickProfDots,2000);}
   if(page==='dashboard'){initDashContent();}
   if(page==='profile'&&!mapProfInit){initProfMap();mapProfInit=true;}
   if(page==='profile'){renderProfFeed('following');renderExtendedProfileSections();}
@@ -1582,14 +1781,7 @@ function goTo(page){
   setTimeout(function(){document.querySelectorAll('#page-'+page+' .fade-up').forEach(function(el){io.observe(el);});},100);
 }
 function scrollTo2(id){document.getElementById(id)&&document.getElementById(id).scrollIntoView({behavior:'smooth'});}
-function doSignOut(){
-  if(sb)sb.auth.signOut();
-  CU={id:'',email:'',first:'',last:'',username:'',initials:'',avatar_url:null,interests:[],bio:''};
-  document.getElementById('auth-gate').style.display='flex';
-  document.getElementById('auth-email').value='';
-  document.getElementById('auth-password').value='';
-  showToast('Signed out successfully');
-}
+
 function switchAuthTab(tab){
   document.getElementById('auth-signin-form').style.display=tab==='signin'?'block':'none';
   document.getElementById('auth-signup-form').style.display=tab==='signup'?'block':'none';
@@ -1598,24 +1790,7 @@ function switchAuthTab(tab){
   document.getElementById('auth-tab-signup').style.borderBottomColor=tab==='signup'?'var(--ac)':'transparent';
   document.getElementById('auth-tab-signup').style.color=tab==='signup'?'var(--tx)':'var(--tx3)';
 }
-function demoSignIn(){}
-function _applyUser(u){
-  var m=u.user_metadata||{};
-  CU.id=u.id;CU.email=u.email;
-  CU.first=m.first_name||u.email.split('@')[0]||'User';
-  CU.last=m.last_name||'';
-  CU.username=m.username||u.email.split('@')[0];
-  CU.initials=((CU.first[0]||'')+(CU.last[0]||CU.first[1]||'')).toUpperCase();
-  CU.avatar_url=m.avatar_url||null;CU.bio=m.bio||'';CU.interests=m.interests||[];
-  var nav=document.getElementById('nav-av');
-  if(nav){nav.innerHTML=CU.avatar_url?'<img src="'+CU.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':CU.initials;}
-  var dn=document.getElementById('dash-name');if(dn)dn.textContent=CU.first.toUpperCase();
-  var pn=document.getElementById('pc-name');if(pn)pn.textContent=(CU.first+' '+CU.last).trim();
-  var ph=document.getElementById('pc-handle');if(ph)ph.textContent='@'+CU.username;
-  var pa=document.getElementById('pc-av');
-  if(pa){pa.innerHTML=CU.avatar_url?'<img src="'+CU.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':CU.initials;}
-  document.getElementById('auth-gate').style.display='none';
-}
+function demoSignIn(){/* removed */}
 function doSignIn(){
   var email=document.getElementById('auth-email').value.trim();
   var pass=document.getElementById('auth-password').value.trim();
@@ -1623,10 +1798,13 @@ function doSignIn(){
   if(!sb){showToast('Connection error — please try again');return;}
   var btn=document.getElementById('signin-btn');
   if(btn)btn.textContent='Signing in…';
-  sb.auth.signInWithPassword({email:email,password:pass}).then(function(r){
-    if(btn)btn.textContent='Sign In →';
-    if(r.error){showToast(r.error.message||'Sign in failed');return;}
-    _applyUser(r.data.user);showToast('Welcome back, '+CU.first+'! 👋');
+  sb.auth.signInWithPassword({email:email,password:pass}).then(function(res){
+    if(res.error){
+      if(btn)btn.textContent='Sign In →';
+      showToast(res.error.message||'Sign in failed');
+    } else {
+      onAuthSuccess(res.data.user);
+    }
   });
 }
 function doSignUp(){
@@ -1635,17 +1813,72 @@ function doSignUp(){
   var user=document.getElementById('su-user').value.trim().replace('@','');
   var email=document.getElementById('su-email').value.trim();
   var pass=document.getElementById('su-pass').value.trim();
-  if(!first||!email||!pass||!user){showToast('Please fill all fields');return;}
+  var suRegions=Array.from(document.querySelectorAll('.su-reg-btn.su-reg-on')).map(function(b){return b.textContent.trim();});
+  if(!first||!email||!pass||!user){showToast('Please fill all required fields');return;}
   if(pass.length<6){showToast('Password must be at least 6 characters');return;}
   if(!sb){showToast('Connection error — please try again');return;}
   var btn=document.querySelector('#auth-signup-form button');
   if(btn)btn.textContent='Creating account…';
-  sb.auth.signUp({email:email,password:pass,options:{data:{first_name:first,last_name:last,username:user}}}).then(function(r){
+  sb.auth.signUp({
+    email:email,
+    password:pass,
+    options:{data:{first_name:first,last_name:last,username:user,regions:suRegions}}
+  }).then(function(res){
     if(btn)btn.textContent='Create Account →';
-    if(r.error){showToast(r.error.message||'Sign up failed');return;}
-    if(r.data.session){_applyUser(r.data.user);showToast('Welcome to EarthLive, '+first+'! 🌍');}
-    else{showToast('Check your email to confirm your account, then sign in.');switchAuthTab('signin');}
+    if(res.error){showToast(res.error.message||'Sign up failed');return;}
+    /* Supabase may require email confirmation */
+    if(res.data.user&&res.data.session){
+      onAuthSuccess(res.data.user);
+    } else {
+      showToast('Check your email to confirm your account, then sign in.');
+      switchAuthTab('signin');
+    }
   });
+}
+function onAuthSuccess(user){
+  var meta=user.user_metadata||{};
+  CU.id=user.id;
+  CU.email=user.email;
+  CU.first=meta.first_name||user.email.split('@')[0]||'User';
+  CU.last=meta.last_name||'';
+  CU.username=meta.username||user.email.split('@')[0];
+  CU.initials=((CU.first[0]||'')+(CU.last[0]||CU.first[1]||'')).toUpperCase();
+  CU.avatar_url=meta.avatar_url||null;
+  CU.interests=meta.interests||[];
+  CU.regions=meta.regions||[];
+  CU.bio=meta.bio||'';
+  CU.location=meta.location||'';
+  CU.website=meta.website||'';
+  CU.isPrivate=meta.isPrivate||false;
+  /* Update UI */
+  var navAv=document.getElementById('nav-av');
+  if(navAv){
+    if(CU.avatar_url){navAv.innerHTML='<img src="'+CU.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';}
+    else{navAv.textContent=CU.initials;}
+  }
+  var dashName=document.getElementById('dash-name');if(dashName)dashName.textContent=CU.first.toUpperCase();
+  var pcName=document.getElementById('pc-name');if(pcName)pcName.textContent=(CU.first+' '+CU.last).trim();
+  var pcHandle=document.getElementById('pc-handle');if(pcHandle)pcHandle.textContent='@'+CU.username;
+  var pcAv=document.getElementById('pc-av');
+  if(pcAv){
+    if(CU.avatar_url){pcAv.innerHTML='<img src="'+CU.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';}
+    else{pcAv.textContent=CU.initials;}
+  }
+  /* Hide auth gate */
+  document.getElementById('auth-gate').style.display='none';
+  showToast('Welcome back, '+CU.first+'! 👋');
+  /* Reload posts from Supabase for this user */
+  loadPostsFromSupabase();
+}
+function doSignOut(){
+  if(sb)sb.auth.signOut();
+  CU={id:'',email:'',first:'',last:'',username:'',initials:'',avatar_url:null,interests:[],bio:''};
+  ALL_POSTS=[];MSG_THREADS=[];NOTIFS=[];EVENTS_DATA=[];LIVE_STREAMS_DATA=[];
+  PROF_POSTS={following:[],discover:[],nearby:[],myposts:[]};
+  document.getElementById('auth-gate').style.display='flex';
+  document.getElementById('auth-email').value='';
+  document.getElementById('auth-password').value='';
+  showToast('Signed out successfully');
 }
 
 /* FIX 5: Message thread filter */
@@ -1679,7 +1912,8 @@ function filterByHashtag(tag){
   goTo('landing');
   setTimeout(function(){
     var input=document.getElementById('feed-search');
-    if(input){input.value=tag.replace('#','');applyFilters();}
+    /* Keep the # so applyFilters knows it's a hashtag search */
+    if(input){input.value=tag;applyFilters();}
     document.getElementById('feed-section').scrollIntoView({behavior:'smooth'});
     showToast('Showing posts tagged '+tag);
   },100);
@@ -1692,6 +1926,78 @@ function filterByMention(handle){
     document.getElementById('feed-section').scrollIntoView({behavior:'smooth'});
     showToast('Showing posts from '+handle);
   },100);
+}
+
+/* ─── REGION TOGGLE HELPERS ─── */
+function toggleRegionBtn(btn,region){
+  var on=btn.classList.toggle('ep-region-on');
+  btn.style.background=on?'var(--ac)':'transparent';
+  btn.style.color=on?'var(--aci)':'var(--tx3)';
+  btn.style.borderColor=on?'var(--ac)':'var(--bdk)';
+  /* Update CU.regions live so city search works immediately */
+  if(on){if(CU.regions.indexOf(region)===-1)CU.regions.push(region);}
+  else{CU.regions=CU.regions.filter(function(r){return r!==region;});}
+}
+function toggleSuRegion(btn,region){
+  var on=btn.classList.toggle('su-reg-on');
+  btn.style.background=on?'var(--ac)':'transparent';
+  btn.style.color=on?'var(--aci)':'var(--tx3)';
+  btn.style.borderColor=on?'var(--ac)':'var(--bdk)';
+}
+
+/* ─── PEOPLE SEARCH ─── */
+function renderPeopleResults(q){
+  var box=document.getElementById('people-results');if(!box)return;
+  q=(q||'').trim().toLowerCase();
+  if(!q){box.innerHTML='<div style="font-family:Space Mono,monospace;font-size:.44rem;color:var(--tx4);padding:.9rem 1rem;letter-spacing:.08em;text-transform:uppercase">Start typing a name or @handle</div>';return;}
+  /* Search ACCOUNTS list + current user */
+  var allPeople=ACCOUNTS.slice();
+  /* Add current user to searchable pool */
+  if(CU.username){allPeople.push({name:CU.first+' '+CU.last,handle:'@'+CU.username,av:CU.initials,loc:CU.location||'',bio:CU.bio||'',badge:'You',posts:ALL_POSTS.filter(function(p){return p.user==='@'+CU.username;}).length,followers:0,_isSelf:true});}
+  var results=allPeople.filter(function(a){
+    return a.name.toLowerCase().includes(q)||(a.handle||'').toLowerCase().includes(q)||(a.loc||'').toLowerCase().includes(q);
+  }).slice(0,6);
+  if(!results.length){
+    box.innerHTML='<div style="font-family:Space Mono,monospace;font-size:.44rem;color:var(--tx4);padding:.9rem 1rem;letter-spacing:.08em;text-transform:uppercase">No people found for "'+q+'"</div>';return;
+  }
+  box.innerHTML=results.map(function(a){
+    var loc=a.loc?a.loc.split(',')[0]:'';
+    return '<div onclick="peopleSearchSelect(''+a.handle+'','+!!(a._isSelf)+')" style="display:flex;align-items:center;gap:.7rem;padding:.65rem 1rem;cursor:pointer;border-bottom:1px solid var(--bd);transition:background .15s" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">'
+      +'<div style="width:34px;height:34px;border-radius:50%;background:var(--ac);color:var(--aci);display:flex;align-items:center;justify-content:center;font-family:Space Mono,monospace;font-size:.58rem;font-weight:700;flex-shrink:0">'+a.av+'</div>'
+      +'<div style="flex:1;min-width:0">'
+        +'<div style="font-family:Space Mono,monospace;font-size:.5rem;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+a.name+(a.badge?'  <span style='font-size:.34rem;border:1px solid var(--bd);padding:.05rem .3rem;color:var(--tx3)'>'+a.badge+'</span>':'')+'</div>'
+        +'<div style="font-family:Space Mono,monospace;font-size:.38rem;color:var(--tx4)">'+a.handle+(loc?' · ◎ '+loc:'')+'</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+function peopleSearchSelect(handle,isSelf){
+  var input=document.getElementById('people-search-input');
+  if(input)input.value='';
+  var box=document.getElementById('people-results');
+  if(box)box.style.display='none';
+  if(isSelf){goTo('profile');return;}
+  /* Filter feed by this person's posts */
+  goTo('landing');
+  setTimeout(function(){
+    var fi=document.getElementById('feed-search');
+    if(fi){fi.value=handle;applyFilters();}
+    document.getElementById('feed-section').scrollIntoView({behavior:'smooth'});
+    showToast('Showing posts from '+handle);
+  },100);
+}
+
+/* ─── PRIVACY TOGGLE ─── */
+function togglePrivacySwitch(){
+  CU.isPrivate=!CU.isPrivate;
+  var tog=document.getElementById('ep-privacy-toggle');
+  var knob=document.getElementById('ep-privacy-knob');
+  if(tog){tog.style.background=CU.isPrivate?'var(--ac)':'var(--bg3)';tog.style.borderColor=CU.isPrivate?'var(--ac)':'var(--bdk)';tog.dataset.on=CU.isPrivate?'true':'false';}
+  if(knob){knob.style.left=CU.isPrivate?'20px':'2px';}
+  /* Update profile page privacy badge */
+  var badge=document.getElementById('privacy-status-badge');
+  if(badge){badge.textContent=CU.isPrivate?'🔒 Private':'🌐 Public';badge.style.color=CU.isPrivate?'#e74c3c':'#27ae60';}
+  showToast(CU.isPrivate?'Profile set to Private 🔒':'Profile set to Public 🌐');
 }
 
 /* ─── LANDING MAP ─── */
@@ -1839,25 +2145,144 @@ function initLandingMap(){
 }
 
 /* ─── PROFILE MAP ─── */
+var _profDots=[];
+var _profDotsTimer=null;
+var _profDotQueue=[];
+var _profDotQueueIdx=0;
+
+/* Build queue from posts by people you follow — scored by engagement */
+function _buildProfDotQueue(){
+  var posts=PROF_POSTS.following||[];
+  /* one best post per user */
+  var userBest={};
+  posts.forEach(function(p){
+    if(!p.lat||!p.lng)return;
+    var score=(p.views||0)*0.5+(p.likes||0)*2;
+    if(!userBest[p.user]||score>userBest[p.user].score){
+      userBest[p.user]={post:p,score:score};
+    }
+  });
+  var arr=Object.values(userBest).sort(function(a,b){return b.score-a.score;}).map(function(x){return x.post;});
+  /* shuffle */
+  for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;}
+  return arr;
+}
+
+function _addProfDot(post){
+  if(!profMapInstance)return;
+  var now=Date.now();
+  var jLat=post.lat+(Math.random()-0.5)*0.18;
+  var jLng=post.lng+(Math.random()-0.5)*0.18;
+  var isRed=true; /* always red when first added */
+  var html='<div style="width:12px;height:12px;background:#e74c3c;border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.45);cursor:pointer;animation:livepulse 1.8s infinite"></div>';
+  var icon=L.divIcon({className:'',html:html,iconSize:[12,12],iconAnchor:[6,6]});
+  var mk=L.marker([jLat,jLng],{icon:icon}).addTo(profMapInstance);
+
+  var popHtml='<div style="font-family:Space Mono,monospace;min-width:180px;max-width:220px">'
+    +'<div style="font-size:.38rem;letter-spacing:.1em;text-transform:uppercase;color:#e74c3c;margin-bottom:3px;display:flex;align-items:center;gap:4px"><span style="width:5px;height:5px;border-radius:50%;background:#e74c3c;display:inline-block"></span>FOLLOWING · '+post.city+'</div>'
+    +'<div style="font-size:.46rem;font-weight:600;color:var(--tx);margin-bottom:3px;letter-spacing:.04em">'+post.user+'</div>'
+    +'<div style="font-size:.66rem;color:var(--tx2);line-height:1.5;margin-bottom:5px">'+post.text.substring(0,80)+(post.text.length>80?'…':'')+'</div>'
+    +'<div style="display:flex;gap:8px;font-size:.36rem;color:var(--tx4)">'
+    +'<span>👁 '+(post.views>=1000?(post.views/1000).toFixed(1)+'k':post.views)+'</span>'
+    +'<span>❤️ '+post.likes+'</span>'
+    +'<span style="margin-left:auto;color:var(--tx);cursor:pointer;text-decoration:underline">Open post →</span>'
+    +'</div></div>';
+  mk.bindPopup(popHtml,{maxWidth:230,className:'live-dot-popup'});
+  mk.on('popupopen',function(){
+    setTimeout(function(){
+      var el=mk.getPopup().getElement();
+      if(!el)return;
+      el.querySelectorAll('span').forEach(function(s){
+        if(s.textContent.indexOf('Open post')!==-1){
+          s.style.cursor='pointer';
+          s.onclick=function(){mk.closePopup();openPost(post);};
+        }
+      });
+    },50);
+  });
+
+  _profDots.push({marker:mk,post:post,addedAt:now});
+  profMapMarkers.push(mk);
+}
+
+function _tickProfDots(){
+  if(!profMapInstance)return;
+  var now=Date.now();
+  var toRemove=[];
+  _profDots.forEach(function(d,i){
+    var age=now-d.addedAt;
+    if(age>=60000){toRemove.push(i);return;}
+    var isRed=age<30000;
+    var color=isRed?'#e74c3c':'#1a1612';
+    var html='<div style="width:12px;height:12px;background:'+color+';border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.45);cursor:pointer;animation:livepulse 1.8s infinite"></div>';
+    d.marker.setIcon(L.divIcon({className:'',html:html,iconSize:[12,12],iconAnchor:[6,6]}));
+  });
+  for(var i=toRemove.length-1;i>=0;i--){
+    var idx=toRemove[i];
+    profMapInstance.removeLayer(_profDots[idx].marker);
+    var mi=profMapMarkers.indexOf(_profDots[idx].marker);
+    if(mi>-1)profMapMarkers.splice(mi,1);
+    _profDots.splice(idx,1);
+  }
+  var max=7+Math.round(Math.random());
+  while(_profDots.length<max){
+    if(_profDotQueueIdx>=_profDotQueue.length)_profDotQueueIdx=0;
+    if(!_profDotQueue.length)break;
+    var post=_profDotQueue[_profDotQueueIdx++];
+    if(!post)break;
+    var cityActive=_profDots.some(function(d){return d.post.city===post.city;});
+    if(cityActive){continue;}
+    _addProfDot(post);
+  }
+}
+
 function initProfMap(){
   profMapInstance=L.map('map-prof',{center:[20,10],zoom:2,minZoom:2,maxZoom:6,zoomControl:true,scrollWheelZoom:false,worldCopyJump:true,attributionControl:false});
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,subdomains:['a','b','c']}).addTo(profMapInstance);
-  renderProfMapMarkers(PROF_POSTS[currentProfTab]);
+
+  _profDotQueue=_buildProfDotQueue();
+  _profDotQueueIdx=0;
+  _profDots=[];
+  profMapMarkers=[];
+
+  /* stagger initial dots */
+  var delay=0;
+  var initial=Math.min(7,_profDotQueue.length);
+  for(var i=0;i<initial;i++){
+    (function(post){setTimeout(function(){_addProfDot(post);},delay);})(_profDotQueue[i]);
+    _profDotQueueIdx++;
+    delay+=300+Math.random()*200;
+  }
+
+  if(_profDotsTimer)clearInterval(_profDotsTimer);
+  _profDotsTimer=setInterval(_tickProfDots,2000);
 }
+
+/* Keep renderProfMapMarkers for tab switches — rebuild queue from new posts */
 function renderProfMapMarkers(posts){
   if(!profMapInstance)return;
-  profMapMarkers.forEach(function(mk){profMapInstance.removeLayer(mk);});profMapMarkers=[];
-  var seen={};
+  /* clear existing dots */
+  _profDots.forEach(function(d){profMapInstance.removeLayer(d.marker);});
+  _profDots=[];
+  profMapMarkers.forEach(function(mk){try{profMapInstance.removeLayer(mk);}catch(e){}});
+  profMapMarkers=[];
+  /* rebuild queue from new post set */
+  var userBest={};
   (posts||[]).forEach(function(p){
     if(!p.lat||!p.lng)return;
-    var key=p.lat+'_'+p.lng;var offset=seen[key]?seen[key]*0.15:0;seen[key]=(seen[key]||0)+1;
-    var color=p.cat==='breaking'?'#e74c3c':p.cat==='sports'?'#2ecc71':p.cat==='tech'?'#3498db':'var(--ac)';
-    var icon=L.divIcon({className:'',html:'<div style="width:11px;height:11px;background:'+color+';border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer"></div>',iconSize:[11,11],iconAnchor:[5.5,5.5]});
-    var mk=L.marker([p.lat+offset,p.lng],{icon:icon}).addTo(profMapInstance);
-    mk.bindPopup('<div style="font-family:Space Mono,monospace;font-size:11px;min-width:150px"><strong>'+p.user+'</strong><br>◎ '+p.city+'<br><span style="color:#888;font-size:10px">'+p.cat+'</span><br><div style="margin-top:4px;font-size:12px;color:#333">'+p.text.substring(0,60)+'…</div></div>',{maxWidth:200});
-    mk.on('click',function(){openPost(p);});
-    profMapMarkers.push(mk);
+    var score=(p.views||0)*0.5+(p.likes||0)*2;
+    if(!userBest[p.user]||score>userBest[p.user].score)userBest[p.user]={post:p,score:score};
   });
+  _profDotQueue=Object.values(userBest).sort(function(a,b){return b.score-a.score;}).map(function(x){return x.post;});
+  for(var i=_profDotQueue.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=_profDotQueue[i];_profDotQueue[i]=_profDotQueue[j];_profDotQueue[j]=tmp;}
+  _profDotQueueIdx=0;
+  var delay=0;
+  var initial=Math.min(7,_profDotQueue.length);
+  for(var i=0;i<initial;i++){
+    (function(post){setTimeout(function(){_addProfDot(post);},delay);})(_profDotQueue[i]);
+    _profDotQueueIdx++;
+    delay+=250+Math.random()*150;
+  }
 }
 
 /* ─── FEED ─── */
@@ -1879,9 +2304,10 @@ function buildCard(p,rank){
       +'<div class="poll-total">'+tot.toLocaleString()+' votes'+(p.poll.voted!==null?' · You voted':'')+'</div></div>';
   }
   d.innerHTML='<div class="fstrip-img"><img src="'+p.img+'" alt="" loading="lazy"><div class="fstrip-img-over"></div><div class="fstrip-rank">'+String(rank).padStart(2,'0')+'</div>'+(p.poll?'<div class="poll-indicator">📊 POLL</div>':'')+'</div>'
-    +'<div class="fstrip-body"><div class="fstrip-top"><div class="fstrip-meta"><div class="fav">'+p.av+'</div><div><div class="fuser">'+p.user+'</div><div class="floc">◎ '+p.city+'</div></div></div><div style="display:flex;align-items:center;gap:.5rem"><span class="fstrip-cat">'+p.cat+'</span><span class="ftime">'+p.time+'m</span></div></div>'
+    +'<div class="fstrip-body"><div class="fstrip-top"><div class="fstrip-meta"><div class="fav">'+p.av+'</div><div><div class="fuser">'+p.user+'</div><div class="floc">◎ '+p.city+(p.venue?' · 📍 '+p.venue:'')+'</div></div></div><div style="display:flex;align-items:center;gap:.5rem"><span class="fstrip-cat">'+p.cat+'</span><span class="ftime">'+p.time+'m</span></div></div>'
     +pollHtml
     +'<div class="ftext">'+p.text+'</div>'
+    +(p.lat&&p.lng?'<div id="fc-map-'+p.id+'" style="width:100%;height:90px;border-radius:8px;overflow:hidden;margin-bottom:.5rem;border:1px solid var(--bd);background:var(--bg3);position:relative"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Space Mono,monospace;font-size:.38rem;color:var(--tx4);letter-spacing:.06em;text-transform:uppercase">Loading map…</div></div>':'')
     +'<div class="feng"><div class="react-wrap"><button class="react-btn-small">'+react+'</button><div class="react-popup-small">'+REACTIONS.map(function(r){return'<button class="react-opt-small" onclick="event.stopPropagation();doReact('+p.id+',\''+r+'\')">'+r+'</button>';}).join('')+'</div></div><div class="feng-stat">'+fmt(lk?p.likes+1:p.likes)+'</div><div class="feng-stat">💬 '+(p.comments||[]).length+'</div><div class="feng-stat">👁 '+v+'</div><button class="flike-btn'+(lk?' liked':'')+'" onclick="event.stopPropagation();toggleLike('+p.id+','+p.likes+',this)">'+(lk?'♥':'♡')+'</button><button onclick="event.stopPropagation();sharePost('+p.id+',\''+p.user+'\')" style="background:transparent;border:none;font-family:Space Mono,monospace;font-size:.38rem;color:var(--tx4);cursor:pointer;padding:0 3px;margin-left:3px" title="Share">↗</button></div></div>';
   d.addEventListener('click',function(){openPost(p);});
   return d;
@@ -1906,15 +2332,61 @@ function votePollInline(pid,oi,card){
 function doReact(id,emoji){
   postReactions[id]=emoji;showToast('Reacted '+emoji);applyFilters();renderProfFeed(currentProfTab);
 }
+var _feedCardMaps={};
 function renderFeed(posts){
   var grid=document.getElementById('feed-grid');grid.innerHTML='';
+  /* Destroy old feed maps */
+  Object.values(_feedCardMaps).forEach(function(m){try{m.remove();}catch(e){}});
+  _feedCardMaps={};
   if(!posts.length){grid.innerHTML='<div style="padding:4rem 2.5rem;color:var(--tx4);font-family:Space Mono,monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase">No posts match this filter</div>';return;}
   posts.slice(0,12).forEach(function(p,i){var c=buildCard(p,i+1);grid.appendChild(c);});
+  /* Init maps for cards that have coordinates - stagger to avoid rate limits */
+  posts.slice(0,12).forEach(function(p,i){
+    if(!p.lat||!p.lng)return;
+    setTimeout(function(){
+      var el=document.getElementById('fc-map-'+p.id);
+      if(!el||_feedCardMaps[p.id])return;
+      /* Clear loading text */
+      el.innerHTML='';
+      var m=L.map(el,{
+        center:[p.lat,p.lng],zoom:13,
+        zoomControl:false,scrollWheelZoom:false,attributionControl:false,
+        dragging:false,doubleClickZoom:false,boxZoom:false,keyboard:false
+      });
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+        maxZoom:19,subdomains:['a','b','c']
+      }).addTo(m);
+      var icon=L.divIcon({
+        className:'',
+        html:'<div style="width:12px;height:12px;background:#e74c3c;border-radius:50%;border:2.5px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.45)"></div>',
+        iconSize:[12,12],iconAnchor:[6,6]
+      });
+      L.marker([p.lat,p.lng],{icon:icon}).addTo(m);
+      setTimeout(function(){m.invalidateSize();},100);
+      _feedCardMaps[p.id]=m;
+    },i*120);/* stagger 120ms each */
+  });
 }
 function applyFilters(){
-  var q=(document.getElementById('feed-search').value||'').toLowerCase();
+  var q=(document.getElementById('feed-search').value||'').toLowerCase().trim();
   var sort=document.getElementById('feed-sort').value;
-  var posts=ALL_POSTS.filter(function(p){return(activeFilter==='all'||p.cat===activeFilter)&&(!q||p.text.toLowerCase().includes(q)||p.city.toLowerCase().includes(q)||p.user.toLowerCase().includes(q));});
+  var isHashtag=q.startsWith('#');
+  var isMention=q.startsWith('@');
+  var posts=ALL_POSTS.filter(function(p){
+    /* Hide posts from private accounts (unless it's the logged-in user) */
+    if(p._isPrivate&&p.user!=='@'+CU.username)return false;
+    if(activeFilter!=='all'&&p.cat!==activeFilter)return false;
+    if(!q)return true;
+    if(isHashtag){
+      /* Match exact hashtag in post text */
+      var tag=q.replace('#','').toLowerCase();
+      return p.text.toLowerCase().match(new RegExp('#'+tag+'\b'));
+    }
+    if(isMention){
+      return p.user.toLowerCase()===q||p.user.toLowerCase().includes(q);
+    }
+    return p.text.toLowerCase().includes(q)||p.city.toLowerCase().includes(q)||p.user.toLowerCase().includes(q);
+  });
   if(sort==='likes')posts.sort(function(a,b){return b.likes-a.likes;});
   else if(sort==='views')posts.sort(function(a,b){return b.views-a.views;});
   renderFeed(posts);
@@ -1926,7 +2398,7 @@ function toggleLike(id,base,btn){
   else{likedPosts.add(id);btn.textContent='♥';btn.classList.add('liked');}
 }
 function slideCards(dir){document.getElementById('feed-track').scrollBy({left:dir*400,behavior:'smooth'});}
-['all','breaking','sports','tech','social','research','tourism','health','event'].forEach(function(c){
+['all','breaking','sports','tech','social','health','travel','climate','culture','food','business'].forEach(function(c){
   var el=document.getElementById('fc-'+c);if(!el)return;
   el.textContent=c==='all'?ALL_POSTS.length:ALL_POSTS.filter(function(p){return p.cat===c;}).length;
 });
@@ -1980,7 +2452,7 @@ function getTrendingPosts(tab){var p=ALL_POSTS.slice();if(tab==='top')p.sort(fun
 function buildTrendingCard(p,rank){
   var v=fmt(p.views);var barW=Math.round((p.views/41000)*100);
   var c=document.createElement('div');c.className='tpost';
-  c.innerHTML='<div class="tpost-rank">'+String(rank).padStart(2,'0')+'</div><div class="tpost-top"><div class="tpost-av">'+p.av+'</div><div><div class="tpost-user">'+p.user+'</div><div class="tpost-loc">◎ '+p.city+'</div></div><div class="tpost-time">'+p.time+'m</div></div><div class="tpost-cat">'+p.cat.toUpperCase()+'</div><div class="tpost-text">'+p.text+'</div><div class="tpost-stats"><div class="tpost-stat">👁 '+v+'</div><div class="tpost-stat">'+(postReactions[p.id]||'❤️')+' '+p.likes.toLocaleString()+'</div>'+(p.poll?'<div class="tpost-stat">📊 Poll</div>':'')+'<div class="tpost-bar"><div class="tpost-bar-fill" style="width:'+barW+'%"></div></div></div>';
+  c.innerHTML='<div class="tpost-rank">'+String(rank).padStart(2,'0')+'</div><div class="tpost-top"><div class="tpost-av">'+p.av+'</div><div><div class="tpost-user">'+p.user+'</div><div class="tpost-loc">◎ '+p.city+(p.venue?' · 📍 '+p.venue:'')+'</div></div><div class="tpost-time">'+p.time+'m</div></div><div class="tpost-cat">'+p.cat.toUpperCase()+'</div><div class="tpost-text">'+p.text+'</div><div class="tpost-stats"><div class="tpost-stat">👁 '+v+'</div><div class="tpost-stat">'+(postReactions[p.id]||'❤️')+' '+p.likes.toLocaleString()+'</div>'+(p.poll?'<div class="tpost-stat">📊 Poll</div>':'')+'<div class="tpost-bar"><div class="tpost-bar-fill" style="width:'+barW+'%"></div></div></div>';
   c.addEventListener('click',function(){openPost(p);});
   return c;
 }
@@ -2005,9 +2477,34 @@ function openPost(p){
   var commentsHtml=(p.comments||[]).map(function(c){return'<div class="pm-comment"><div class="pm-c-av">'+c.av+'</div><div><div class="pm-c-user">'+c.user+'<span class="pm-c-time">'+c.time+' ago</span></div><div class="pm-c-text">'+parseHashtags(c.text)+'</div></div></div>';}).join('');
   var v=fmt(p.views);
   var ov=document.createElement('div');ov.className='post-modal';ov.id='post-view';
-  ov.innerHTML='<div class="post-modal-inner"><div class="pm-top-bar"></div><div class="pm-header"><div class="pm-user"><div class="pm-av">'+p.av+'</div><div><div class="pm-name">'+p.user+'</div><div class="pm-meta">◎ '+p.city+' · '+p.time+'m ago</div></div></div><div style="display:flex;align-items:center;gap:.6rem"><span class="pm-cat">'+p.cat+'</span><button class="pm-close" onclick="document.getElementById(\'post-view\').remove()">✕</button></div></div><div class="pm-body"><img src="'+p.img+'" class="pm-img"><div class="pm-text">'+parseHashtags(p.text)+'</div>'+pollHtml+reactHtml+'<div class="pm-actions"><button class="pm-act-btn'+(lk?' on':'')+'" id="pv-like-btn" onclick="pvToggleLike('+p.id+','+p.likes+')">❤ <span id="pv-likes">'+(lk?p.likes+1:p.likes)+'</span></button><button class="pm-act-btn" onclick="document.getElementById(\'pv-comment-input\').focus()">💬 '+(p.comments||[]).length+'</button><button class="pm-act-btn" onclick="showToast(\'Post saved!\')">🔖 Save</button><button class="pm-act-btn" onclick="sharePost('+p.id+',\''+p.user+'\')">↗ Share</button><button class="pm-act-btn" onclick="closePostModal();openMsg(\''+p.av+'\',\''+p.user.replace('@','')+'\',\''+p.user+'\')">💬 DM</button><span style="font-family:Space Mono,monospace;font-size:.38rem;color:var(--tx4)">👁 '+v+'</span><button class="pm-follow-btn" id="pv-follow-btn" onclick="pvToggleFollow(\''+p.user+'\')">'+(p.user==='@'+CU.username?'':'Follow')+'</button>'+(p.user==='@'+CU.username?'<button class="pm-act-btn" style="color:#e74c3c;border-color:#e74c3c" onclick="deletePost('+p.id+')">🗑 Delete</button>':'')+'</div><div class="pm-comments-title">'+(p.comments||[]).length+' Comments</div><div id="pv-comments-list">'+commentsHtml+'</div><div class="pm-c-input-wrap"><div class="pm-c-av-me">'+CU.initials+'</div><textarea class="pm-c-textarea" id="pv-comment-input" placeholder="Write a comment… use @name or #hashtag" rows="1" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();submitComment('+p.id+')}"></textarea><button class="pm-c-send" onclick="submitComment('+p.id+')">Post</button></div></div></div>';
+  ov.innerHTML='<div class="post-modal-inner"><div class="pm-top-bar"></div><div class="pm-header"><div class="pm-user"><div class="pm-av">'+p.av+'</div><div><div class="pm-name">'+p.user+'</div><div class="pm-meta">◎ '+p.city+(p.venue?' · 📍 '+p.venue:'')+' · '+p.time+'m ago</div></div></div><div style="display:flex;align-items:center;gap:.6rem"><span class="pm-cat">'+p.cat+'</span><button class="pm-close" onclick="document.getElementById(\'post-view\').remove()">✕</button></div></div><div class="pm-body"><img src="'+p.img+'" class="pm-img">'+(p.lat&&p.lng?'<div id="pm-loc-map" style="width:100%;height:180px;border-radius:7px;overflow:hidden;margin-bottom:.9rem;border:1px solid var(--bd)"></div>':'')+'<div class="pm-text">'+parseHashtags(p.text)+'</div>'+pollHtml+reactHtml+'<div class="pm-actions"><button class="pm-act-btn'+(lk?' on':'')+'" id="pv-like-btn" onclick="pvToggleLike('+p.id+','+p.likes+')">❤ <span id="pv-likes">'+(lk?p.likes+1:p.likes)+'</span></button><button class="pm-act-btn" onclick="document.getElementById(\'pv-comment-input\').focus()">💬 '+(p.comments||[]).length+'</button><button class="pm-act-btn" onclick="showToast(\'Post saved!\')">🔖 Save</button><button class="pm-act-btn" onclick="sharePost('+p.id+',\''+p.user+'\')">↗ Share</button><button class="pm-act-btn" onclick="closePostModal();openMsg(\''+p.av+'\',\''+p.user.replace('@','')+'\',\''+p.user+'\')">💬 DM</button><span style="font-family:Space Mono,monospace;font-size:.38rem;color:var(--tx4)">👁 '+v+'</span><button class="pm-follow-btn" id="pv-follow-btn" onclick="pvToggleFollow(\''+p.user+'\')">'+(p.user==='@'+CU.username?'':'Follow')+'</button>'+(p.user==='@'+CU.username?'<button class="pm-act-btn" style="color:#e74c3c;border-color:#e74c3c" onclick="deletePost('+p.id+')">🗑 Delete</button>':'')+'</div><div class="pm-comments-title">'+(p.comments||[]).length+' Comments</div><div id="pv-comments-list">'+commentsHtml+'</div><div class="pm-c-input-wrap"><div class="pm-c-av-me">'+CU.initials+'</div><textarea class="pm-c-textarea" id="pv-comment-input" placeholder="Write a comment… use @name or #hashtag" rows="1" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();submitComment('+p.id+')}"></textarea><button class="pm-c-send" onclick="submitComment('+p.id+')">Post</button></div></div></div>';
   ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
   document.body.appendChild(ov);
+  /* Render location map in modal if post has coordinates */
+  if(p.lat&&p.lng){
+    setTimeout(function(){
+      var mapEl=document.getElementById('pm-loc-map');
+      if(!mapEl)return;
+      var pmap=L.map('pm-loc-map',{
+        center:[p.lat,p.lng],zoom:14,
+        zoomControl:false,scrollWheelZoom:false,
+        attributionControl:false,dragging:false,
+        doubleClickZoom:false,boxZoom:false,keyboard:false
+      });
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+        maxZoom:19,subdomains:['a','b','c']
+      }).addTo(pmap);
+      var icon=L.divIcon({
+        className:'',
+        html:'<div style="width:14px;height:14px;background:#e74c3c;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5)"></div>',
+        iconSize:[14,14],iconAnchor:[7,7]
+      });
+      L.marker([p.lat,p.lng],{icon:icon}).addTo(pmap);
+      /* Pulse ring */
+      L.circle([p.lat,p.lng],{radius:120,color:'#e74c3c',weight:1.5,fillColor:'#e74c3c',fillOpacity:0.1}).addTo(pmap);
+      setTimeout(function(){pmap.invalidateSize();},100);
+    },150);
+  }
 }
 function closePostModal(){var pv=document.getElementById('post-view');if(pv)pv.remove();}
 
@@ -2031,6 +2528,7 @@ function sharePost(id,user){
 function deletePost(id){
   var conf=confirm('Delete this post? This cannot be undone.');
   if(!conf)return;
+  var post=ALL_POSTS.find(function(p){return p.id===id;});
   var idx=ALL_POSTS.findIndex(function(p){return p.id===id;});
   if(idx!==-1)ALL_POSTS.splice(idx,1);
   ['myposts','following','discover','nearby'].forEach(function(tab){
@@ -2043,6 +2541,11 @@ function deletePost(id){
   var myCount=ALL_POSTS.filter(function(p){return p.user==='@'+CU.username;}).length;
   var ds=document.querySelectorAll('.dash-stat .dash-stat-num');if(ds[0])ds[0].textContent=myCount;
   var ps=document.querySelectorAll('.pc-stat-num');if(ps[0])ps[0].textContent=myCount;
+  if(sb&&CU.id&&post&&post._dbId){
+    sb.from('posts').delete().eq('id',post._dbId).eq('user_id',CU.id).then(function(res){
+      if(res.error)console.warn('Delete error:',res.error.message);
+    });
+  }
   showToast('Post deleted ✓');
 }
 function pvToggleLike(id,base){
@@ -2429,7 +2932,7 @@ function toggleRsvp(id,btn){
 }
 function openCreateEvent(){
   var m=document.createElement('div');m.className='generic-modal';m.id='create-event-modal';
-  m.innerHTML='<div class="generic-modal-inner"><div class="gm-top"></div><div class="gm-header"><div class="gm-title">Create Event</div><button class="gm-close" onclick="document.getElementById(\'create-event-modal\').remove()">✕</button></div><div class="gm-body"><div class="fg"><label class="fl">Event Title</label><input class="fi" id="ev-title" placeholder="What\'s happening?"></div><div class="frow"><div class="fg"><label class="fl">City</label><input class="fi" id="ev-city" placeholder="City name"></div><div class="fg"><label class="fl">Date</label><input class="fi" id="ev-date" type="date"></div></div><div class="frow"><div class="fg"><label class="fl">Time</label><input class="fi" id="ev-time" type="time"></div><div class="fg"><label class="fl">Category</label><select class="fi" id="ev-cat-sel"><option>Social</option><option>Sports</option><option>Tech</option><option>Arts</option><option>Music</option><option>Food</option><option>Nature</option></select></div></div><div class="fg"><label class="fl">Description</label><textarea class="fi" id="ev-desc" rows="2" placeholder="Tell people about this event…" style="resize:none"></textarea></div><button onclick="submitEvent()" style="width:100%;background:var(--ac);color:var(--aci);border:1px solid var(--ac);padding:.85rem;font-family:Space Mono,monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer">Create Event →</button></div></div>';
+  m.innerHTML='<div class="generic-modal-inner"><div class="gm-top"></div><div class="gm-header"><div class="gm-title">Create Event</div><button class="gm-close" onclick="document.getElementById(\'create-event-modal\').remove()">✕</button></div><div class="gm-body"><div class="fg"><label class="fl">Event Title</label><input class="fi" id="ev-title" placeholder="What\'s happening?"></div><div class="frow"><div class="fg"><label class="fl">City</label><input class="fi" id="ev-city" placeholder="City name"></div><div class="fg"><label class="fl">Date</label><input class="fi" id="ev-date" type="date"></div></div><div class="frow"><div class="fg"><label class="fl">Time</label><input class="fi" id="ev-time" type="time"></div><div class="fg"><label class="fl">Category</label><select class="fi" id="ev-cat-sel"><option>Breaking</option><option>Sports</option><option>Tech</option><option>Social</option><option>Health</option><option>Travel</option><option>Climate</option><option>Culture</option><option>Food</option><option>Business</option></select></div></div><div class="fg"><label class="fl">Description</label><textarea class="fi" id="ev-desc" rows="2" placeholder="Tell people about this event…" style="resize:none"></textarea></div><button onclick="submitEvent()" style="width:100%;background:var(--ac);color:var(--aci);border:1px solid var(--ac);padding:.85rem;font-family:Space Mono,monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer">Create Event →</button></div></div>';
   m.addEventListener('click',function(e){if(e.target===m)m.remove();});document.body.appendChild(m);
 }
 function submitEvent(){
@@ -2467,7 +2970,7 @@ function sendLiveChat(){
 }
 function openGoLive(){
   var m=document.createElement('div');m.className='generic-modal';m.id='go-live-modal';
-  m.innerHTML='<div class="generic-modal-inner" style="max-height:88vh;overflow-y:auto;display:flex;flex-direction:column"><div class="gm-top" style="background:#e74c3c;flex-shrink:0"></div><div class="gm-header" style="flex-shrink:0"><div class="gm-title">Go Live</div><button class="gm-close" onclick="document.getElementById(\'go-live-modal\').remove()">✕</button></div><div class="gm-body" style="overflow-y:auto"><div style="height:90px;background:var(--bg3);border-radius:6px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem"><div style="font-family:Space Mono,monospace;font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--tx4)">📷 Camera preview</div></div><div class="fg"><label class="fl">Stream Title</label><input class="fi" id="gl-title" placeholder="What are you streaming?"></div><div class="frow"><div class="fg"><label class="fl">City</label><input class="fi" id="gl-city" placeholder="Your location"></div><div class="fg"><label class="fl">Category</label><select class="fi"><option>Social</option><option>Sports</option><option>News</option><option>Tech</option><option>Travel</option></select></div></div><button onclick="startLive()" style="width:100%;background:#e74c3c;color:#fff;border:none;padding:.85rem;font-family:Space Mono,monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:.5rem"><span style="width:7px;height:7px;border-radius:50%;background:#fff"></span>Start Streaming →</button></div></div>';
+  m.innerHTML='<div class="generic-modal-inner" style="max-height:88vh;overflow-y:auto;display:flex;flex-direction:column"><div class="gm-top" style="background:#e74c3c;flex-shrink:0"></div><div class="gm-header" style="flex-shrink:0"><div class="gm-title">Go Live</div><button class="gm-close" onclick="document.getElementById(\'go-live-modal\').remove()">✕</button></div><div class="gm-body" style="overflow-y:auto"><div style="height:90px;background:var(--bg3);border-radius:6px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem"><div style="font-family:Space Mono,monospace;font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--tx4)">📷 Camera preview</div></div><div class="fg"><label class="fl">Stream Title</label><input class="fi" id="gl-title" placeholder="What are you streaming?"></div><div class="frow"><div class="fg"><label class="fl">City</label><input class="fi" id="gl-city" placeholder="Your location"></div><div class="fg"><label class="fl">Category</label><select class="fi"><option>Breaking</option><option>Sports</option><option>Tech</option><option>Social</option><option>Health</option><option>Travel</option><option>Climate</option><option>Culture</option><option>Food</option><option>Business</option></select></div></div><button onclick="startLive()" style="width:100%;background:#e74c3c;color:#fff;border:none;padding:.85rem;font-family:Space Mono,monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:.5rem"><span style="width:7px;height:7px;border-radius:50%;background:#fff"></span>Start Streaming →</button></div></div>';
   m.addEventListener('click',function(e){if(e.target===m)m.remove();});document.body.appendChild(m);
 }
 function startLive(){
@@ -2506,11 +3009,111 @@ function toggleNotifPanel(){
 renderNotifs();
 
 /* ─── NEW POST ─── */
-var NP_STATE={lat:0,lng:0,city:'',mediaUrl:'',mediaType:''};
-var WORLD_CITIES=['Mumbai','Delhi','Bangalore','Chennai','Kolkata','Hyderabad','Pune','Ahmedabad','Anekal','Mysore','New York','Los Angeles','Chicago','Houston','San Francisco','London','Manchester','Birmingham','Tokyo','Osaka','Kyoto','Seoul','Beijing','Shanghai','Singapore','Sydney','Melbourne','Brisbane','Paris','Berlin','Amsterdam','Madrid','Rome','Milan','Dubai','Abu Dhabi','Cairo','Lagos','Nairobi','Cape Town','Johannesburg','São Paulo','Rio de Janeiro','Buenos Aires','Mexico City','Toronto','Vancouver','Mumbai','Karachi','Istanbul','Moscow','Bangkok','Jakarta','Manila','Kuala Lumpur','Ho Chi Minh City','Dhaka'];
+var NP_STATE={lat:0,lng:0,city:'',mediaUrl:'',mediaType:'',venue:'',venueType:''};
+/* ─── CITIES BY CONTINENT ─── */
+var CITIES_BY_CONTINENT={
+  'Asia':[
+    'Mumbai','Delhi','Bangalore','Chennai','Kolkata','Hyderabad','Pune','Ahmedabad','Anekal','Mysore','Jaipur','Surat','Lucknow','Kanpur','Nagpur','Indore','Bhopal','Patna','Vadodara','Coimbatore',
+    'Tokyo','Osaka','Kyoto','Yokohama','Nagoya','Sapporo','Kobe','Fukuoka','Hiroshima',
+    'Beijing','Shanghai','Shenzhen','Guangzhou','Chengdu','Wuhan','Chongqing','Xi'an','Hangzhou','Nanjing',
+    'Seoul','Busan','Incheon','Daegu',
+    'Singapore','Kuala Lumpur','Bangkok','Jakarta','Manila','Ho Chi Minh City','Hanoi','Yangon','Phnom Penh','Vientiane',
+    'Dhaka','Karachi','Lahore','Islamabad','Colombo','Kathmandu','Kabul',
+    'Istanbul','Ankara','Tehran','Baghdad','Riyadh','Jeddah','Dubai','Abu Dhabi','Doha','Kuwait City','Muscat','Amman','Beirut','Damascus','Tel Aviv','Jerusalem',
+    'Tashkent','Almaty','Baku','Tbilisi','Yerevan',
+    'Taipei','Hong Kong','Macau',
+    'Moscow','Saint Petersburg','Novosibirsk','Yekaterinburg'
+  ],
+  'Europe':[
+    'London','Manchester','Birmingham','Glasgow','Liverpool','Leeds','Bristol','Edinburgh','Cardiff',
+    'Paris','Lyon','Marseille','Toulouse','Nice','Bordeaux','Strasbourg','Lille',
+    'Berlin','Munich','Hamburg','Frankfurt','Cologne','Stuttgart','Düsseldorf','Leipzig','Dresden',
+    'Madrid','Barcelona','Valencia','Seville','Bilbao','Málaga','Zaragoza',
+    'Rome','Milan','Naples','Turin','Florence','Venice','Bologna',
+    'Amsterdam','Rotterdam','The Hague','Utrecht',
+    'Brussels','Antwerp','Ghent',
+    'Zurich','Geneva','Basel','Bern',
+    'Vienna','Graz','Salzburg',
+    'Prague','Brno','Warsaw','Kraków','Budapest','Bucharest','Sofia','Athens','Thessaloniki',
+    'Stockholm','Gothenburg','Oslo','Bergen','Copenhagen','Aarhus','Helsinki','Tampere',
+    'Lisbon','Porto','Dublin','Cork',
+    'Kyiv','Lviv','Minsk','Riga','Vilnius','Tallinn','Reykjavik',
+    'Belgrade','Zagreb','Ljubljana','Sarajevo','Tirana','Skopje','Podgorica'
+  ],
+  'Americas':[
+    'New York','Los Angeles','Chicago','Houston','Phoenix','Philadelphia','San Antonio','San Diego',
+    'Dallas','San Jose','Austin','Jacksonville','Fort Worth','Columbus','Charlotte','Indianapolis',
+    'San Francisco','Seattle','Denver','Nashville','Oklahoma City','Las Vegas','Portland','Memphis',
+    'Boston','Louisville','Baltimore','Milwaukee','Albuquerque','Tucson','Fresno','Sacramento',
+    'Miami','Atlanta','Minneapolis','New Orleans','Cleveland','Pittsburgh',
+    'Toronto','Montreal','Vancouver','Calgary','Ottawa','Edmonton','Winnipeg','Quebec City',
+    'Mexico City','Guadalajara','Monterrey','Puebla','Tijuana','León','Juárez',
+    'São Paulo','Rio de Janeiro','Brasília','Salvador','Fortaleza','Belo Horizonte','Manaus','Curitiba','Recife','Porto Alegre',
+    'Buenos Aires','Córdoba','Rosario','Mendoza',
+    'Bogotá','Medellín','Cali','Barranquilla',
+    'Lima','Arequipa','Trujillo',
+    'Santiago','Valparaíso','Concepción',
+    'Caracas','Maracaibo','Valencia',
+    'Quito','Guayaquil',
+    'La Paz','Santa Cruz','Cochabamba',
+    'Montevideo','Asunción','Georgetown','Paramaribo','Cayenne',
+    'Havana','Santo Domingo','San Juan','Port-au-Prince','Kingston','Nassau','Bridgetown','Port of Spain',
+    'Guatemala City','San Salvador','Tegucigalpa','Managua','San José','Panama City','Belmopan'
+  ],
+  'Africa':[
+    'Lagos','Kano','Ibadan','Abuja','Port Harcourt','Benin City','Kaduna',
+    'Cairo','Alexandria','Giza',
+    'Kinshasa','Lubumbashi','Mbuji-Mayi',
+    'Johannesburg','Cape Town','Durban','Pretoria','Port Elizabeth','Bloemfontein',
+    'Nairobi','Mombasa','Kisumu',
+    'Dar es Salaam','Dodoma','Mwanza',
+    'Addis Ababa','Dire Dawa',
+    'Accra','Kumasi','Tamale',
+    'Dakar','Touba',
+    'Casablanca','Rabat','Marrakech','Fes','Tangier',
+    'Tunis','Sfax',
+    'Algiers','Oran','Constantine',
+    'Tripoli','Benghazi',
+    'Khartoum','Omdurman',
+    'Kampala','Entebbe',
+    'Harare','Bulawayo',
+    'Lusaka','Kitwe',
+    'Maputo','Beira',
+    'Antananarivo','Toamasina',
+    'Abidjan','Yamoussoukro',
+    'Douala','Yaoundé',
+    'Luanda','Huambo',
+    'Conakry','Bamako','Ouagadougou','Niamey','Ndjamena','Bangui','Libreville','Brazzaville',
+    'Mogadishu','Djibouti City','Asmara','Juba','Kigali','Bujumbura','Lilongwe','Gaborone','Maseru','Windhoek','Mbabane'
+  ],
+  'Oceania':[
+    'Sydney','Melbourne','Brisbane','Perth','Adelaide','Gold Coast','Canberra','Newcastle','Hobart','Darwin',
+    'Auckland','Wellington','Christchurch','Hamilton','Tauranga','Dunedin',
+    'Port Moresby','Suva','Honiara','Port Vila','Nuku'alofa','Apia','Funafuti','Tarawa','Majuro','Palikir'
+  ],
+  'Middle East':[
+    'Dubai','Abu Dhabi','Sharjah','Riyadh','Jeddah','Mecca','Medina','Doha','Kuwait City','Muscat','Manama',
+    'Amman','Beirut','Damascus','Baghdad','Basra','Tehran','Mashhad','Isfahan','Tabriz',
+    'Tel Aviv','Jerusalem','Haifa','Sanaa','Aden','Ankara','Istanbul'
+  ]
+};
+/* Flat list for quick search */
+var WORLD_CITIES=(function(){
+  var all=[];
+  Object.values(CITIES_BY_CONTINENT).forEach(function(arr){arr.forEach(function(c){if(all.indexOf(c)===-1)all.push(c);});});
+  return all.sort();
+})();
+/* Get cities for user's selected continents (or all if none selected) */
+function getCitiesForUser(){
+  var regions=CU.regions||[];
+  if(!regions.length)return WORLD_CITIES;
+  var result=[];
+  regions.forEach(function(r){if(CITIES_BY_CONTINENT[r])CITIES_BY_CONTINENT[r].forEach(function(c){if(result.indexOf(c)===-1)result.push(c);});});
+  return result.sort();
+}
 
 function openNewPost(){
-  NP_STATE={lat:0,lng:0,city:'',mediaUrl:'',mediaType:''};
+  NP_STATE={lat:0,lng:0,city:'',mediaUrl:'',mediaType:'',venue:'',venueType:''};
   var m=document.createElement('div');m.className='generic-modal';m.id='np-modal';
   m.style.alignItems='flex-start';m.style.paddingTop='4rem';
   m.innerHTML=`<div class="generic-modal-inner" style="width:520px;max-width:97vw">
@@ -2542,8 +3145,18 @@ function openNewPost(){
           <div id="np-city-drop" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--sf);border:1px solid var(--bdk);border-top:none;z-index:9999;max-height:160px;overflow-y:auto;box-shadow:0 8px 20px rgba(26,22,18,.12)"></div>
         </div>
         <div class="fg"><label class="fl">Category</label>
-          <select class="fi" id="np-cat"><option>social</option><option>breaking</option><option>sports</option><option>tech</option><option>health</option><option>research</option><option>tourism</option><option>event</option></select>
+          <select class="fi" id="np-cat"><option>breaking</option><option>sports</option><option>tech</option><option>social</option><option>health</option><option>travel</option><option>climate</option><option>culture</option><option>food</option><option>business</option></select>
         </div>
+      </div>
+
+      <!-- VENUE / PLACE TAG -->
+      <div class="fg" style="position:relative">
+        <label class="fl">Tag a Place <span style="font-weight:400;color:var(--tx4)">(restaurant, cafe, mall, park…)</span></label>
+        <input class="fi" id="np-venue" placeholder="e.g. Starbucks, Inorbit Mall, Central Park…" autocomplete="off"
+          oninput="npVenueSearch(this.value)"
+          onblur="setTimeout(function(){var d=document.getElementById('np-venue-drop');if(d)d.style.display='none';},200)">
+        <div id="np-venue-drop" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--sf);border:1px solid var(--bdk);border-top:none;z-index:9999;max-height:200px;overflow-y:auto;box-shadow:0 8px 20px rgba(26,22,18,.12)"></div>
+        <div id="np-venue-tag" style="display:none;margin-top:.4rem;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap"></div>
       </div>
 
       <!-- GPS + MINI MAP -->
@@ -2553,7 +3166,7 @@ function openNewPost(){
           <button onclick="npGetLocation()" id="np-loc-btn" style="font-family:Space Mono,monospace;font-size:.42rem;letter-spacing:.08em;text-transform:uppercase;background:transparent;border:1px solid var(--bdk);color:var(--tx3);padding:.38rem .8rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.35rem">📍 Use My Location</button>
           <span id="np-loc-status" style="font-family:Space Mono,monospace;font-size:.38rem;color:var(--tx4)"></span>
         </div>
-        <div id="np-mini-map" style="display:none;height:130px;border-radius:6px;overflow:hidden;border:1px solid var(--bd)"></div>
+        <div id="np-mini-map" style="height:140px;border-radius:6px;overflow:hidden;border:1px solid var(--bd);background:var(--bg3)"></div>
       </div>
 
       <!-- POLL -->
@@ -2570,6 +3183,8 @@ function openNewPost(){
   </div>`;
   m.addEventListener('click',function(e){if(e.target===m)m.remove();});
   document.body.appendChild(m);
+  /* Auto-grab location as soon as modal opens */
+  setTimeout(function(){npGetLocation();},300);
 }
 
 function npHandleFile(input){
@@ -2593,10 +3208,104 @@ function npHandleFile(input){
   reader.readAsDataURL(file);
 }
 
+/* ---- VENUE SEARCH (Nominatim) ---- */
+var _venueTimer=null;
+function npVenueSearch(val){
+  var drop=document.getElementById('np-venue-drop');
+  if(!val||val.length<2){if(drop)drop.style.display='none';return;}
+  clearTimeout(_venueTimer);
+  _venueTimer=setTimeout(function(){
+    drop.style.display='block';
+    drop.innerHTML='<div style="font-family:Space Mono,monospace;font-size:.42rem;color:var(--tx4);padding:.6rem .85rem;letter-spacing:.08em">Searching…</div>';
+    var city=document.getElementById('np-city')?document.getElementById('np-city').value.trim():'';
+    var q=encodeURIComponent(val+(city?' '+city:''));
+    fetch('https://nominatim.openstreetmap.org/search?format=json&q='+q+'&limit=8&addressdetails=1&namedetails=1',{headers:{'Accept-Language':'en'}})
+      .then(function(r){return r.json();})
+      .then(function(results){
+        if(!results||!results.length){
+          drop.innerHTML='<div style="font-family:Space Mono,monospace;font-size:.42rem;color:var(--tx4);padding:.6rem .85rem;letter-spacing:.08em">No places found</div>';
+          return;
+        }
+        drop.innerHTML=results.map(function(item,i){
+          var icon=getVenueIcon(item.type||item.class||'');
+          var name=(item.namedetails&&item.namedetails.name)?item.namedetails.name:item.display_name.split(',')[0];
+          var addr=item.display_name.split(',').slice(1,3).join(',').trim();
+          var vtype=item.type||item.class||'place';
+          var safeName=name.replace(/'/g,"\'").substring(0,60);
+          var safeType=vtype.replace(/'/g,"\'").substring(0,30);
+          return '<div onclick="npSelectVenue(''+safeName+'',''+safeType+'','+item.lat+','+item.lon+')"'
+            +' style="display:flex;align-items:flex-start;gap:.55rem;padding:.55rem .85rem;cursor:pointer;border-bottom:1px solid var(--bd);transition:background .15s"'
+            +' onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">'
+            +'<span style="font-size:.95rem;flex-shrink:0;margin-top:1px">'+icon+'</span>'
+            +'<div style="min-width:0">'
+              +'<div style="font-family:Space Mono,monospace;font-size:.5rem;color:var(--tx)">'+name+'</div>'
+              +'<div style="font-family:Space Mono,monospace;font-size:.36rem;color:var(--tx4);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+addr+'</div>'
+              +'<span style="font-family:Space Mono,monospace;font-size:.32rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--bd);padding:0 .25rem">'+vtype+'</span>'
+            +'</div></div>';
+        }).join('');
+      })
+      .catch(function(){
+        drop.innerHTML='<div style="font-family:Space Mono,monospace;font-size:.42rem;color:var(--tx4);padding:.6rem .85rem">Search unavailable</div>';
+      });
+  },420);
+}
+function getVenueIcon(type){
+  var t=(type||'').toLowerCase();
+  if(t.match(/restaurant|food|fast_food|dining/))return'🍽️';
+  if(t.match(/cafe|coffee/))return'☕';
+  if(t.match(/bar|pub|nightclub|brewery/))return'🍺';
+  if(t.match(/mall|department_store|supermarket|shop|retail|marketplace/))return'🛍️';
+  if(t.match(/hotel|hostel|motel|guest_house/))return'🏨';
+  if(t.match(/hospital|clinic|pharmacy|doctor/))return'🏥';
+  if(t.match(/school|university|college|library/))return'🏫';
+  if(t.match(/park|garden|nature|forest|beach/))return'🌳';
+  if(t.match(/stadium|sports|gym|fitness/))return'🏟️';
+  if(t.match(/airport|station|bus_stop|subway/))return'🚉';
+  if(t.match(/museum|gallery|theatre|cinema/))return'🎭';
+  if(t.match(/place_of_worship|temple|mosque|church/))return'🛕';
+  if(t.match(/bank|atm/))return'🏦';
+  return'📍';
+}
+function npSelectVenue(name,vtype,lat,lng){
+  NP_STATE.venue=name;
+  NP_STATE.venueType=vtype;
+  if(!NP_STATE.lat||!NP_STATE.lng){NP_STATE.lat=parseFloat(lat)||0;NP_STATE.lng=parseFloat(lng)||0;}
+  var input=document.getElementById('np-venue');if(input)input.value=name;
+  var drop=document.getElementById('np-venue-drop');if(drop)drop.style.display='none';
+  var tagWrap=document.getElementById('np-venue-tag');
+  if(tagWrap){
+    tagWrap.style.display='flex';
+    tagWrap.innerHTML='<span style="display:inline-flex;align-items:center;gap:.35rem;font-family:Space Mono,monospace;font-size:.42rem;background:var(--bg2);border:1px solid var(--bdk);padding:.22rem .65rem;border-radius:20px;color:var(--tx2)">'
+      +getVenueIcon(vtype)+' <strong>'+name+'</strong>'
+      +'<button onclick="npClearVenue()" style="background:transparent;border:none;cursor:pointer;color:var(--tx4);font-size:.75rem;margin-left:3px;line-height:1">×</button></span>';
+  }
+  if(!document.getElementById('np-city').value.trim()){
+    fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng,{headers:{'Accept-Language':'en'}})
+      .then(function(r){return r.json();})
+      .then(function(data){
+        var c=data.address&&(data.address.city||data.address.town||data.address.village||data.address.county||'');
+        if(c){document.getElementById('np-city').value=c;NP_STATE.city=c;}
+      }).catch(function(){});
+  }
+  showToast('📍 Tagged: '+name);
+}
+function npClearVenue(){
+  NP_STATE.venue='';NP_STATE.venueType='';
+  var i=document.getElementById('np-venue');if(i)i.value='';
+  var t=document.getElementById('np-venue-tag');if(t){t.style.display='none';t.innerHTML='';}
+}
+
 function npCitySearch(val){
   var drop=document.getElementById('np-city-drop');
   if(!val||val.length<1){drop.style.display='none';return;}
-  var matches=WORLD_CITIES.filter(function(c){return c.toLowerCase().startsWith(val.toLowerCase());}).slice(0,8);
+  var cityPool=getCitiesForUser();
+  /* Always include exact global matches even outside selected regions */
+  var matches=cityPool.filter(function(c){return c.toLowerCase().startsWith(val.toLowerCase());});
+  if(matches.length<4){
+    var extra=WORLD_CITIES.filter(function(c){return c.toLowerCase().startsWith(val.toLowerCase())&&matches.indexOf(c)===-1;});
+    matches=matches.concat(extra);
+  }
+  matches=matches.slice(0,8);
   if(!matches.length){drop.style.display='none';return;}
   drop.style.display='block';
   drop.innerHTML=matches.map(function(c){
@@ -2634,8 +3343,7 @@ function npGetLocation(){
       }).catch(function(){});
     /* Show mini map */
     var mapEl=document.getElementById('np-mini-map');
-    mapEl.style.display='block';
-    if(npMiniMap){npMiniMap.remove();npMiniMap=null;}
+    if(npMiniMap){try{npMiniMap.remove();}catch(e){}npMiniMap=null;}
     setTimeout(function(){
       npMiniMap=L.map('np-mini-map',{center:[lat,lng],zoom:13,zoomControl:false,scrollWheelZoom:false,attributionControl:false});
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,subdomains:['a','b','c']}).addTo(npMiniMap);
@@ -2657,14 +3365,37 @@ function submitPost(btn){
   var pollQ=document.getElementById('np-poll-q').value.trim();var poll=null;
   if(pollQ){var opts=[1,2,3,4].map(function(i){return document.getElementById('np-po'+i).value;}).filter(function(o){return o.trim();});if(opts.length>=2)poll={q:pollQ,opts:opts,votes:opts.map(function(){return 0;}),voted:null};}
   var img=NP_STATE.mediaUrl||'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=80';
-  var np={id:Date.now(),user:'@'+CU.username,av:CU.initials,city:city,lat:NP_STATE.lat||0,lng:NP_STATE.lng||0,time:0,cat:cat,text:text,likes:0,views:0,img:img,comments:[],poll:poll};
+  var venue=NP_STATE.venue||'';
+  var np={id:Date.now(),user:'@'+CU.username,av:CU.initials,city:city,lat:NP_STATE.lat||0,lng:NP_STATE.lng||0,time:0,cat:cat,text:text,likes:0,views:0,img:img,comments:[],poll:poll,_isPrivate:CU.isPrivate,venue:venue,venueType:NP_STATE.venueType||''};
   ALL_POSTS.unshift(np);PROF_POSTS.myposts.unshift(np);PROF_POSTS.following.unshift(np);
   var myPostCount=ALL_POSTS.filter(function(p){return p.user==='@'+CU.username;}).length;
   var dashStats=document.querySelectorAll('.dash-stat .dash-stat-num');if(dashStats[0])dashStats[0].textContent=myPostCount;
   var pcStats=document.querySelectorAll('.pc-stat-num');if(pcStats[0])pcStats[0].textContent=myPostCount;
   applyFilters();if(profMapInstance)renderProfMapMarkers(PROF_POSTS[currentProfTab]);
   if(npMiniMap){npMiniMap.remove();npMiniMap=null;}
-  btn.textContent='✓ Posted!';setTimeout(function(){document.getElementById('np-modal').remove();},700);
+  btn.textContent='✓ Posted!';
+  /* Save post to Supabase so it persists after logout */
+  if(sb&&CU.id){
+    sb.from('posts').insert({
+      user_id:CU.id,
+      username:CU.username,
+      initials:CU.initials,
+      city:city,
+      lat:NP_STATE.lat||0,
+      lng:NP_STATE.lng||0,
+      venue:NP_STATE.venue||null,
+      venue_type:NP_STATE.venueType||null,
+      cat:cat,
+      text:text,
+      img:img.startsWith('data:')? null : img, /* don't store large base64 images in DB */
+      poll:poll?JSON.stringify(poll):null,
+      likes:0,
+      views:0
+    }).then(function(res){
+      if(res.error){console.warn('Post save error:',res.error.message);}
+    });
+  }
+  setTimeout(function(){document.getElementById('np-modal').remove();},700);
 }
 
 /* ─── EDIT PROFILE ─── */
@@ -2695,8 +3426,20 @@ function openEditProfile(){
     +'</div>'
     +'<div class="fg"><label class="fl">Username</label><input class="fi" id="ep-user" value="'+CU.username+'"></div>'
     +'<div class="fg"><label class="fl">Bio</label><textarea class="fi" id="ep-bio" rows="2" placeholder="Tell the world who you are…" style="resize:none">'+(CU.bio||'')+'</textarea></div>'
+    +'<div class="fg"><label class="fl">Your Regions of Interest</label>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem" id="ep-regions-wrap">'
+    +['Asia','Europe','Americas','Africa','Oceania','Middle East'].map(function(r){
+      var on=(CU.regions||[]).indexOf(r)!==-1;
+      return '<button type="button" class="ep-region-btn'+(on?' ep-region-on':'')+'" onclick="toggleRegionBtn(this,''+r+'')" style="font-family:Space Mono,monospace;font-size:.42rem;letter-spacing:.08em;text-transform:uppercase;padding:.3rem .75rem;border:1px solid '+(on?'var(--ac)':'var(--bdk)')+';background:'+(on?'var(--ac)':'transparent')+';color:'+(on?'var(--aci)':'var(--tx3)')+';cursor:pointer;transition:all .2s;border-radius:3px">'+r+'</button>';
+    }).join('')
+    +'</div><div style="font-family:Space Mono,monospace;font-size:.36rem;color:var(--tx4);margin-top:.3rem">Affects city suggestions when posting</div></div>'
     +'<div class="fg"><label class="fl">Location</label><input class="fi" id="ep-loc" placeholder="City, Country" value="'+(CU.location||'Anekal, Karnataka, India')+'"></div>'
     +'<div class="fg"><label class="fl">Website</label><input class="fi" id="ep-web" placeholder="https://yoursite.com" value="'+(CU.website||'')+'"></div>'
+    +'<div class="fg" style="display:flex;align-items:center;justify-content:space-between;padding:.75rem;background:var(--bg2);border:1px solid var(--bd);border-radius:4px">'
+    +'<div><div style="font-family:Space Mono,monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tx)">Private Profile</div><div style="font-family:Space Mono,monospace;font-size:.38rem;color:var(--tx4);margin-top:.2rem">When on, only you can see your posts</div></div>'
+    +'<div id="ep-privacy-toggle" onclick="togglePrivacySwitch()" style="width:42px;height:24px;border-radius:12px;background:'+(CU.isPrivate?'var(--ac)':'var(--bg3)')+';border:1.5px solid '+(CU.isPrivate?'var(--ac)':'var(--bdk)')+';position:relative;cursor:pointer;transition:all .3s;flex-shrink:0">'
+    +'<div id="ep-privacy-knob" style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:'+(CU.isPrivate?'20px':'2px')+';transition:left .3s;box-shadow:0 1px 4px rgba(0,0,0,.25)"></div></div>'
+    +'</div>'
     +'<button onclick="saveProfile()" style="width:100%;background:var(--ac);color:var(--aci);border:1px solid var(--ac);padding:.85rem;font-family:Space Mono,monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;margin-top:.4rem">Save Changes →</button>'
     +'</div></div>';
   m.addEventListener('click',function(e){if(e.target===m)m.remove();});
@@ -2708,20 +3451,137 @@ function previewProfilePhoto(event){
   if(!file||!file.type.startsWith('image/'))return;
   if(file.size>5*1024*1024){showToast('Image too large — max 5MB');return;}
   var reader=new FileReader();
-  reader.onload=function(e){
-    CU.avatar_url=e.target.result;
-    // update preview in modal
-    var wrap=document.getElementById('ep-av-wrap');
-    if(wrap)wrap.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
-    // update nav avatar
-    var navAv=document.getElementById('nav-av');
-    if(navAv){navAv.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';}
-    // update profile card avatar
-    var pcAv=document.getElementById('pc-av');
-    if(pcAv){pcAv.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';}
-    showToast('Photo ready — click Save to confirm');
-  };
+  reader.onload=function(e){openCropModal(e.target.result,file);};
   reader.readAsDataURL(file);
+}
+
+/* ─── PHOTO CROP / RESIZE MODAL ─── */
+var _cropFile=null,_cropDataUrl='',_cropScale=1,_cropX=0,_cropY=0;
+var _cropImgW=0,_cropImgH=0,_cropTouchLast=null;
+
+function openCropModal(dataUrl,file){
+  _cropFile=file;_cropDataUrl=dataUrl;_cropScale=1;_cropX=0;_cropY=0;
+  var existing=document.getElementById('crop-modal');if(existing)existing.remove();
+  var m=document.createElement('div');m.id='crop-modal';
+  m.style.cssText='position:fixed;inset:0;z-index:999999;background:rgba(10,10,10,.92);display:flex;align-items:center;justify-content:center;padding:1rem';
+  m.innerHTML=
+    '<div style="background:var(--sf);border:1px solid var(--bdk);width:360px;max-width:97vw;border-radius:8px;overflow:hidden">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.2rem;border-bottom:1px solid var(--bd);background:var(--bg2)">'
+    +'<span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.04em;color:var(--tx)">Crop Photo</span>'
+    +'<button id="crop-close-btn" style="background:transparent;border:none;font-size:1.1rem;cursor:pointer;color:var(--tx3)">&#x2715;</button></div>'
+    +'<div style="padding:1.1rem 1.2rem 1.3rem">'
+    +'<div style="font-family:'Space Mono',monospace;font-size:.4rem;letter-spacing:.12em;text-transform:uppercase;color:var(--tx4);margin-bottom:.7rem;text-align:center">Drag to reposition &nbsp;·&nbsp; Slide to zoom</div>'
+    +'<div id="crop-stage" style="width:260px;height:260px;margin:0 auto;border-radius:50%;overflow:hidden;position:relative;cursor:grab;background:var(--bg3);border:3px solid var(--bdk);touch-action:none">'
+    +'<canvas id="crop-canvas" style="position:absolute;top:0;left:0;display:block"></canvas></div>'
+    +'<div style="margin-top:1rem;display:flex;align-items:center;gap:.6rem">'
+    +'<span style="font-size:.75rem;color:var(--tx4)">&#128269;</span>'
+    +'<input type="range" id="crop-zoom" min="100" max="300" value="100" style="flex:1;accent-color:var(--ac)">'
+    +'<span style="font-size:.95rem;color:var(--tx4)">&#128269;</span></div>'
+    +'<div style="display:flex;gap:.55rem;margin-top:1rem">'
+    +'<button id="crop-cancel-btn" style="flex:1;background:transparent;color:var(--tx3);border:1px solid var(--bd);padding:.72rem;font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer">Cancel</button>'
+    +'<button id="crop-apply-btn" style="flex:2;background:var(--ac);color:var(--aci);border:1px solid var(--ac);padding:.72rem;font-family:'Space Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer">Use This Photo &#8594;</button>'
+    +'</div></div></div>';
+  document.body.appendChild(m);
+  document.getElementById('crop-close-btn').onclick=function(){m.remove();};
+  document.getElementById('crop-cancel-btn').onclick=function(){m.remove();};
+  document.getElementById('crop-apply-btn').onclick=cropApply;
+  document.getElementById('crop-zoom').oninput=function(){cropSetZoom(parseFloat(this.value)/100);};
+  /* Load image */
+  var img=new Image();
+  img.onload=function(){
+    _cropImgW=img.naturalWidth;_cropImgH=img.naturalHeight;
+    var fit=260/Math.min(_cropImgW,_cropImgH);
+    _cropScale=fit;
+    _cropX=(260-_cropImgW*fit)/2;
+    _cropY=(260-_cropImgH*fit)/2;
+    cropDraw(img);
+    var stage=document.getElementById('crop-stage');
+    stage._img=img;
+    /* Mouse drag */
+    stage.addEventListener('mousedown',function(e){
+      var sx=e.clientX-_cropX,sy=e.clientY-_cropY;
+      stage.style.cursor='grabbing';
+      function onMove(ev){_cropX=ev.clientX-sx;_cropY=ev.clientY-sy;cropDraw(img);}
+      function onUp(){stage.style.cursor='grab';document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);}
+      document.addEventListener('mousemove',onMove);
+      document.addEventListener('mouseup',onUp);
+    });
+    /* Scroll zoom */
+    stage.addEventListener('wheel',function(e){
+      e.preventDefault();
+      var sl=document.getElementById('crop-zoom');
+      var next=Math.min(300,Math.max(100,parseFloat(sl.value)+(e.deltaY>0?-6:6)));
+      sl.value=next;cropSetZoom(next/100);
+    },{passive:false});
+    /* Touch drag */
+    stage.addEventListener('touchstart',function(e){_cropTouchLast={x:e.touches[0].clientX,y:e.touches[0].clientY};},{passive:true});
+    stage.addEventListener('touchmove',function(e){
+      e.preventDefault();
+      if(!_cropTouchLast)return;
+      _cropX+=e.touches[0].clientX-_cropTouchLast.x;
+      _cropY+=e.touches[0].clientY-_cropTouchLast.y;
+      _cropTouchLast={x:e.touches[0].clientX,y:e.touches[0].clientY};
+      cropDraw(img);
+    },{passive:false});
+    stage.addEventListener('touchend',function(){_cropTouchLast=null;});
+  };
+  img.src=dataUrl;
+}
+
+function cropDraw(img){
+  var c=document.getElementById('crop-canvas');if(!c)return;
+  c.width=260;c.height=260;
+  c.getContext('2d').drawImage(img,_cropX,_cropY,_cropImgW*_cropScale,_cropImgH*_cropScale);
+}
+
+function cropSetZoom(ratio){
+  var stage=document.getElementById('crop-stage');if(!stage||!stage._img)return;
+  var baseScale=260/Math.min(_cropImgW,_cropImgH);
+  var newScale=baseScale*ratio;
+  /* Keep image centred when zooming */
+  _cropX=130-(130-_cropX)*newScale/_cropScale;
+  _cropY=130-(130-_cropY)*newScale/_cropScale;
+  _cropScale=newScale;
+  cropDraw(stage._img);
+}
+
+function cropApply(){
+  var stage=document.getElementById('crop-stage');
+  if(!stage||!stage._img){var cm=document.getElementById('crop-modal');if(cm)cm.remove();return;}
+  /* Render final 400x400 crop */
+  var out=document.createElement('canvas');out.width=400;out.height=400;
+  var r=400/260;
+  out.getContext('2d').drawImage(stage._img,_cropX*r,_cropY*r,_cropImgW*_cropScale*r,_cropImgH*_cropScale*r);
+  var croppedDataUrl=out.toDataURL('image/jpeg',0.88);
+  var cm=document.getElementById('crop-modal');if(cm)cm.remove();
+  /* Update all avatar elements */
+  function setAvatar(src){
+    var html='<img src="'+src+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+    var w=document.getElementById('ep-av-wrap');if(w)w.innerHTML=html;
+    var n=document.getElementById('nav-av');if(n)n.innerHTML=html;
+    var p=document.getElementById('pc-av');if(p)p.innerHTML=html;
+  }
+  setAvatar(croppedDataUrl);
+  /* Upload cropped blob to Supabase Storage */
+  if(sb&&CU.id){
+    out.toBlob(function(blob){
+      var path='avatars/'+CU.id+'.jpg';
+      sb.storage.from('avatars').upload(path,blob,{upsert:true,contentType:'image/jpeg'}).then(function(res){
+        if(res.error){
+          CU.avatar_url=croppedDataUrl;
+          showToast('Photo ready — click Save to confirm');
+        } else {
+          var publicUrl=sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+          CU.avatar_url=publicUrl;
+          setAvatar(publicUrl);
+          showToast('Photo uploaded ✓ — click Save to confirm');
+        }
+      });
+    },'image/jpeg',0.88);
+  } else {
+    CU.avatar_url=croppedDataUrl;
+    showToast('Photo ready — click Save to confirm');
+  }
 }
 
 function saveProfile(){
@@ -2732,15 +3592,34 @@ function saveProfile(){
   CU.location=(document.getElementById('ep-loc')?document.getElementById('ep-loc').value.trim():CU.location)||'';
   CU.website=(document.getElementById('ep-web')?document.getElementById('ep-web').value.trim():'');
   CU.initials=((CU.first[0]||'')+(CU.last[0]||'')).toUpperCase();
+  CU.isPrivate=document.getElementById('ep-privacy-toggle')?document.getElementById('ep-privacy-toggle').dataset.on==='true':CU.isPrivate;
   // Update displayed name/handle
   var pcName=document.getElementById('pc-name');if(pcName)pcName.textContent=(CU.first+' '+CU.last).trim();
   var pcHandle=document.getElementById('pc-handle');if(pcHandle)pcHandle.textContent='@'+CU.username;
   var dashName=document.getElementById('dash-name');if(dashName)dashName.textContent=CU.first.toUpperCase();
+  var badge=document.getElementById('privacy-status-badge');
+  if(badge){badge.textContent=CU.isPrivate?'🔒 Private':'🌐 Public';badge.style.color=CU.isPrivate?'#e74c3c':'#27ae60';}
   // Update nav avatar initials (only if no photo set)
   var navAv=document.getElementById('nav-av');
   if(navAv&&!CU.avatar_url)navAv.textContent=CU.initials;
   var pcAv=document.getElementById('pc-av');
   if(pcAv&&!CU.avatar_url)pcAv.textContent=CU.initials;
+  /* Save profile changes to Supabase user metadata so they survive logout */
+  if(sb&&CU.id){
+    sb.auth.updateUser({data:{
+      first_name:CU.first,
+      last_name:CU.last,
+      username:CU.username,
+      bio:CU.bio,
+      location:CU.location,
+      website:CU.website,
+      avatar_url:CU.avatar_url||null,
+      isPrivate:CU.isPrivate,
+      regions:CU.regions
+    }}).then(function(res){
+      if(res.error){console.warn('Profile save error:',res.error.message);}
+    });
+  }
   document.getElementById('edit-modal').remove();
   showToast('Profile saved ✓');
 }
@@ -3041,17 +3920,16 @@ function setInsightRange(range,btn){
 /* ─── PERSONALISED NEWS PANEL ─── */
 /* ─── INTEREST → NEWSAPI CATEGORY/QUERY MAP ─── */
 var INTEREST_NEWS_MAP={
-  'Travel':   {key:'travel',   label:'Travel',    color:'#1D9E75', category:'',        query:'travel tourism'},
-  'Breaking': {key:'breaking', label:'Breaking',  color:'#e74c3c', category:'general', query:''},
-  'Sports':   {key:'sports',   label:'Sports',    color:'#378ADD', category:'sports',  query:''},
-  'Tech':     {key:'tech',     label:'Tech',      color:'#7F77DD', category:'technology', query:''},
-  'Social':   {key:'social',   label:'Social',    color:'#D85A30', category:'entertainment', query:''},
-  'Health':   {key:'health',   label:'Health',    color:'#27ae60', category:'health',  query:''},
-  'Research': {key:'research', label:'Research',  color:'#BA7517', category:'science', query:''},
-  'Events':   {key:'events',   label:'Events',    color:'#D4537E', category:'entertainment', query:'events festival'},
-  'Climate':  {key:'climate',  label:'Climate',   color:'#3B6D11', category:'',        query:'climate environment'},
-  'Music':    {key:'music',    label:'Music',     color:'#534AB7', category:'entertainment', query:'music'},
-  'Food':     {key:'food',     label:'Food',      color:'#993C1D', category:'',        query:'food restaurant'}
+  'Breaking': {key:'breaking', label:'Breaking', color:'#e74c3c', category:'general',     query:''},
+  'Sports':   {key:'sports',   label:'Sports',   color:'#378ADD', category:'sports',       query:''},
+  'Tech':     {key:'tech',     label:'Tech',     color:'#7F77DD', category:'technology',   query:'science technology research'},
+  'Social':   {key:'social',   label:'Social',   color:'#D85A30', category:'entertainment',query:'events festival social'},
+  'Health':   {key:'health',   label:'Health',   color:'#27ae60', category:'health',       query:''},
+  'Travel':   {key:'travel',   label:'Travel',   color:'#1D9E75', category:'',             query:'travel tourism'},
+  'Climate':  {key:'climate',  label:'Climate',  color:'#3B6D11', category:'',             query:'climate environment nature'},
+  'Culture':  {key:'culture',  label:'Culture',  color:'#AD1457', category:'entertainment',query:'arts music culture'},
+  'Food':     {key:'food',     label:'Food',     color:'#993C1D', category:'',             query:'food restaurant'},
+  'Business': {key:'business', label:'Business', color:'#5D4037', category:'business',     query:''}
 };
 /* ─── STATIC FALLBACK NEWS ─── */
 var NEWS_FALLBACK={
@@ -3077,7 +3955,22 @@ var NEWS_FALLBACK={
     {title:"Lagos street festival draws record 400,000 visitors",source:"Reuters",time:"3h",desc:"Victoria Island's annual Afrofest street festival attracted over 400,000 visitors this weekend.",img:"https://images.unsplash.com/photo-1618522285056-498ddd4f4fb8?w=400&q=70",hot:false,url:null}
   ],
   travel:[
-    {title:"Japan cherry blossom season hits peak — record crowds expected",source:"Reuters",time:"1h",desc:"Cherry blossoms have reached full bloom across Tokyo's major parks, with tourist numbers expected to hit a post-pandemic record.",img:"https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&q=70",hot:false,url:null}
+    {title:'Japan cherry blossom season hits peak — record crowds expected',source:'Reuters',time:'1h',desc:"Cherry blossoms reached full bloom across Tokyo’s major parks. Bali also reported its strongest tourist season since 2019 with 4M arrivals.",img:'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&q=70',hot:true,url:null}
+  ],
+  climate:[
+    {title:'Amazon rainforest records lowest deforestation rate in 15 years',source:'BBC',time:'5h',desc:'Brazil’s space research institute reported Amazon deforestation dropped to its lowest level since 2009, credited to stronger enforcement and satellite monitoring.',img:'https://images.unsplash.com/photo-1440408025661-bd44c09a20f6?w=400&q=70',hot:false,url:null}
+  ],
+  culture:[
+    {title:'Venice Biennale 2025 opens with record 90 national pavilions',source:'Reuters',time:'3h',desc:"The 61st Venice Biennale opened with the largest number of participating nations in history. Coldplay also broke attendance records with a Bangalore show drawing 90,000 fans.",img:'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=400&q=70',hot:true,url:null}
+  ],
+  food:[
+    {title:'Street food culture booming across Southeast Asia — UNESCO recognition sought',source:'BBC',time:'6h',desc:'A coalition of chefs and cultural bodies is pushing for UNESCO intangible heritage status for street food traditions across Thailand, Vietnam and Malaysia.',img:'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=70',hot:false,url:null}
+  ],
+  business:[
+    {title:'India overtakes Japan to become world’s third-largest economy',source:'Reuters',time:'1h',desc:"India’s GDP surpassed Japan’s in nominal dollar terms per IMF data. Apple also hit a $4 trillion market cap for the first time.",img:'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&q=70',hot:true,url:null}
+  ],
+  social:[
+    {title:'Lagos street festival draws record 400,000 visitors',source:'Reuters',time:'3h',desc:"Victoria Island’s annual Afrofest street festival attracted over 400,000 visitors, its largest edition since launching in 2018.",img:'https://images.unsplash.com/photo-1618522285056-498ddd4f4fb8?w=400&q=70',hot:false,url:null}
   ]
 };
 
@@ -3094,7 +3987,7 @@ function fetchNewsFromAPI(interestKey,callback){
   var params=new URLSearchParams({apiKey:NEWSAPI_KEY,pageSize:8,language:'en'});
   if(m.category){params.set('category',m.category);}else if(m.query){params.set('q',m.query);}else{params.set('category','general');}
   var endpoint=m.category?NEWSAPI_BASE:'https://newsapi.org/v2/everything';
-  fetch(endpoint+'?'+params.toString())
+  fetch(newsApiUrl(endpoint,params))
     .then(function(r){return r.json();})
     .then(function(data){
       if(data.status!=='ok'){callback(data.message||'API error',null);return;}
@@ -3139,7 +4032,8 @@ function buildNewsTicker(){
   Object.values(NEWS_FALLBACK).forEach(function(arr){arr.filter(function(n){return n.hot;}).forEach(function(n){items.push(n.title);});});
   ticker.innerHTML=items.concat(items).map(function(t){return'<span>'+t+'</span>';}).join('');
   if(!newsApiConfigured())return;
-  fetch(NEWSAPI_BASE+'?'+new URLSearchParams({apiKey:NEWSAPI_KEY,pageSize:10,language:'en',category:'general'}).toString())
+  var tickerParams=new URLSearchParams({apiKey:NEWSAPI_KEY,pageSize:10,language:'en',category:'general'});
+  fetch(newsApiUrl(NEWSAPI_BASE,tickerParams))
     .then(function(r){return r.json();})
     .then(function(data){
       if(data.status!=='ok')return;
@@ -3160,7 +4054,10 @@ function renderDashNewsFeed(key){
   function displayItems(items,interestKey){
     loading.style.display='none';feed.style.display='grid';feed.style.flexDirection='';
     window._dashNewsItems=items;
-    if(!items||!items.length){feed.innerHTML='<div style="font-family:Space Mono,monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tx4);padding:1.5rem;text-align:center">No news available</div>';document.getElementById('news-updated').textContent='Updated '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});return;}
+    if(!items||!items.length){
+  var noKeyMsg=!newsApiConfigured()?'<button onclick="openNewsApiSettings()" style="margin-top:.6rem;font-family:Space Mono,monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;background:var(--ac);color:var(--aci);border:1px solid var(--ac);padding:.5rem 1rem;cursor:pointer">⚙ Set NewsAPI Key →</button>':'';
+  feed.innerHTML='<div style="font-family:Space Mono,monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tx4);padding:1.5rem;text-align:center">'+(newsApiConfigured()?'No news available':'📰 Live news needs a NewsAPI key')+noKeyMsg+'</div>';
+  document.getElementById('news-updated').textContent='Updated '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});return;}
     feed.innerHTML=items.map(function(item,i){
       var m=item._interest?INTEREST_NEWS_MAP[item._interest]:(interestKey?INTEREST_NEWS_MAP[interestKey]:null);
       var ac=m?m.color:'var(--bdk)';var lbl=item._interest||(m?m.label:'');
@@ -3745,14 +4642,17 @@ function closeFooterModal(){
   var st=document.getElementById('footer-modal');if(st)st.style.display='none';
 }var newsPageTab='foryou';
 var NEWS_PAGE_CATS=[
-  {key:'foryou',label:'For You'},
-  {key:'Breaking',label:'Breaking'},
-  {key:'Tech',label:'Tech'},
-  {key:'Sports',label:'Sports'},
-  {key:'Health',label:'Health'},
-  {key:'Science',label:'Science'},
-  {key:'Travel',label:'Travel'},
-  {key:'Entertainment',label:'Culture'}
+  {key:'foryou',   label:'For You'},
+  {key:'Breaking', label:'Breaking'},
+  {key:'Sports',   label:'Sports'},
+  {key:'Tech',     label:'Tech'},
+  {key:'Social',   label:'Social'},
+  {key:'Health',   label:'Health'},
+  {key:'Travel',   label:'Travel'},
+  {key:'Climate',  label:'Climate'},
+  {key:'Culture',  label:'Culture'},
+  {key:'Food',     label:'Food'},
+  {key:'Business', label:'Business'}
 ];
 function initNewsPage(){
   var tabsEl=document.getElementById('news-page-tabs');
@@ -3787,7 +4687,9 @@ function renderNewsPageGrid(key){
   loading.style.display='flex';grid.style.display='none';
   function showItems(items){
     loading.style.display='none';grid.style.display='grid';
-    if(!items||!items.length){grid.innerHTML='<div style="font-family:Space Mono,monospace;font-size:.44rem;color:var(--tx4);padding:2rem;grid-column:1/-1;text-align:center;letter-spacing:.1em;text-transform:uppercase">No news found</div>';return;}
+    if(!items||!items.length){
+  var noKeyMsg2=!newsApiConfigured()?'<br><button onclick="openNewsApiSettings()" style="margin-top:.8rem;font-family:Space Mono,monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;background:var(--ac);color:var(--aci);border:1px solid var(--ac);padding:.5rem 1.1rem;cursor:pointer">⚙ Set NewsAPI Key →</button>':'';
+  grid.innerHTML='<div style="font-family:Space Mono,monospace;font-size:.44rem;color:var(--tx4);padding:2rem;grid-column:1/-1;text-align:center;letter-spacing:.1em;text-transform:uppercase">'+(newsApiConfigured()?'No news found':'📰 Live news needs a NewsAPI key')+noKeyMsg2+'</div>';return;}
     grid.innerHTML=items.map(function(item,i){
       var m=item._interest?INTEREST_NEWS_MAP[item._interest]:null;
       var ac=m?m.color:'var(--bdk)';
@@ -3877,23 +4779,182 @@ document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;C.st
 document.addEventListener('mouseover',function(e){if(e.target.matches('button,a,.ac,.fstrip,.fi,.ftxt,.tpost,.post-card,.dfi,.event-card,.live-card,.msg-thread')){CR.style.width='44px';CR.style.height='44px';}});
 document.addEventListener('mouseout',function(e){if(e.target.matches('button,a,.ac,.fstrip,.fi,.ftxt,.tpost,.post-card,.dfi,.event-card,.live-card,.msg-thread')){CR.style.width='32px';CR.style.height='32px';}});
 
+/* ─── MOBILE NAV ─── */
+function toggleMobNav(){
+  document.getElementById('mob-nav-drawer').classList.toggle('open');
+  document.getElementById('mob-nav-overlay').classList.toggle('open');
+}
+function closeMobNav(){
+  document.getElementById('mob-nav-drawer').classList.remove('open');
+  document.getElementById('mob-nav-overlay').classList.remove('open');
+}
+/* Show hamburger on mobile, hide on desktop */
+(function(){
+  function checkMob(){
+    var btn=document.getElementById('mob-menu-btn');
+    if(!btn)return;
+    btn.style.display=window.innerWidth<=768?'flex':'none';
+  }
+  checkMob();
+  window.addEventListener('resize',checkMob);
+})();
+
+/* ─── PUSH NOTIFICATIONS ─── */
+var _pushEnabled=false;
+var _pushTimer=null;
+/* Notification content pool */
+var PUSH_POOL=[
+  {title:'🔴 Breaking',body:'Egypt discovers new chamber inside the Great Pyramid'},
+  {title:'⚽ Sports Update',body:'Chelsea 2–1 Arsenal — full time at Stamford Bridge'},
+  {title:'🌸 Tokyo',body:'Cherry blossom front reaching peak — Shinjuku packed!'},
+  {title:'🤖 Tech',body:'Humanoid robot serves espresso at Akihabara demo'},
+  {title:'🌍 EarthLive',body:'3 live streams active near you right now'},
+  {title:'❤️ Activity',body:'@sakura_live reacted 🔥 to your post'},
+  {title:'📍 Mumbai',body:'Marine Drive at sunset — 768 people reacted'},
+  {title:'🎉 Event',body:'Lagos Afrobeats Street Fest starts in 8 days — RSVP now'},
+  {title:'📰 Breaking News',body:'CERN announces breakthrough in particle physics'},
+  {title:'👥 New Follower',body:'@nova_nyc started following you'},
+];
+var _pushIdx=0;
+
+function requestPushPermission(){
+  if(!('Notification' in window)){showToast('Notifications not supported in this browser');return;}
+  if(Notification.permission==='granted'){enablePush();return;}
+  if(Notification.permission==='denied'){showToast('Notifications blocked — please enable in browser settings');return;}
+  Notification.requestPermission().then(function(perm){
+    if(perm==='granted'){enablePush();showToast('🔔 Push notifications enabled!');}
+    else{showToast('Notifications permission denied');}
+  });
+}
+
+function enablePush(){
+  _pushEnabled=true;
+  if(_pushTimer)clearInterval(_pushTimer);
+  /* Fire first one after 5s, then every 45-90s randomly */
+  setTimeout(function(){
+    firePushNotif();
+    _pushTimer=setInterval(function(){
+      if(_pushEnabled)firePushNotif();
+    },45000+Math.random()*45000);
+  },5000);
+  /* Update bell button appearance */
+  var bellBtn=document.getElementById('push-bell-btn');
+  if(bellBtn){bellBtn.style.color='var(--ac)';bellBtn.title='Notifications ON';}
+}
+
+function togglePushBell(){
+  /* first tap: show in-app panel; long-press or second context: toggle push */
+  toggleNotifPanel();
+  /* also prompt for push if not yet granted */
+  if(Notification.permission==='default'){
+    setTimeout(function(){
+      if(confirm('Enable push notifications from EarthLive?\nYou\'ll get live alerts for breaking news, followers and events.')){
+        requestPushPermission();
+      }
+    },400);
+  }
+}
+function disablePush(){
+  _pushEnabled=false;
+  if(_pushTimer){clearInterval(_pushTimer);_pushTimer=null;}
+  showToast('🔕 Push notifications disabled');
+  var bellBtn=document.getElementById('push-bell-btn');
+  if(bellBtn){bellBtn.style.color='';bellBtn.title='Enable notifications';}
+}
+
+function firePushNotif(){
+  if(!_pushEnabled||Notification.permission!=='granted')return;
+  var item=PUSH_POOL[_pushIdx%PUSH_POOL.length];_pushIdx++;
+  try{
+    var n=new Notification(item.title,{
+      body:item.body,
+      icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="%231a1612"/><text x="16" y="21" text-anchor="middle" font-size="16" fill="%23f5f0e8">E</text></svg>',
+      badge:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="%231a1612"/></svg>',
+      tag:'earthlive-'+Date.now(),
+      requireInteraction:false
+    });
+    n.onclick=function(){window.focus();n.close();};
+    setTimeout(function(){n.close();},8000);
+  }catch(e){/* fallback to in-app toast */
+    showToast(item.title+': '+item.body);
+  }
+  /* Also add to in-app notif panel */
+  NOTIFS.unshift({av:'EL',text:item.body,time:'now',unread:true,type:'activity'});
+  renderNotifs();
+}
+
 /* ─── INTERSECTION OBSERVER ─── */
 var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('visible');});},{threshold:.1});
 document.querySelectorAll('#page-landing .fade-up').forEach(function(el){io.observe(el);});
 var sio=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.querySelectorAll('[data-t]').forEach(function(n){var t=+n.dataset.t,s=performance.now();(function f(ts){var p=Math.min((ts-s)/2000,1);n.textContent=Math.floor((1-Math.pow(1-p,3))*t).toLocaleString();if(p<1)requestAnimationFrame(f);else n.textContent=t.toLocaleString();})(s);});sio.unobserve(x.target);}});},{threshold:.4});
 var sbar=document.querySelector('.stats-bar');if(sbar)sio.observe(sbar);
 
-/* ─── SESSION RESTORE ─── */
+/* ─── SUPABASE POST LOADER ─── */
+function loadPostsFromSupabase(){
+  if(!sb||!CU.id){
+    /* No Supabase — just show empty feed */
+    PROF_POSTS={following:[],discover:[],nearby:[],myposts:[]};
+    applyFilters();
+    if(profMapInstance)renderProfMapMarkers(PROF_POSTS[currentProfTab]);
+    return;
+  }
+  /* Load this user's posts from the database */
+  sb.from('posts')
+    .select('*')
+    .eq('user_id',CU.id)
+    .order('created_at',{ascending:false})
+    .limit(50)
+    .then(function(res){
+      if(res.error){console.warn('Post load error:',res.error.message);return;}
+      var dbPosts=(res.data||[]).map(function(row){
+        return{
+          id:row.id||row.created_at,
+          user:'@'+row.username,
+          av:row.initials||((row.username||'U')[0].toUpperCase()),
+          city:row.city||'',
+          lat:row.lat||0,
+          lng:row.lng||0,
+          time:Math.floor((Date.now()-new Date(row.created_at).getTime())/60000)||1,
+          cat:row.cat||'social',
+          text:row.text||'',
+          likes:row.likes||0,
+          views:row.views||0,
+          img:row.img||'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=80',
+          comments:[],
+          poll:row.poll?JSON.parse(row.poll):null,
+          _dbId:row.id,
+          _isPrivate:row.is_private||false,
+          venue:row.venue||'',
+          venueType:row.venue_type||''
+        };
+      });
+      /* Merge with any posts added this session (not yet in DB) */
+      var sessionPosts=ALL_POSTS.filter(function(p){return p.user==='@'+CU.username&&!p._dbId;});
+      ALL_POSTS=sessionPosts.concat(dbPosts);
+      PROF_POSTS={following:ALL_POSTS.slice(),discover:ALL_POSTS.slice(),nearby:ALL_POSTS.slice(),myposts:ALL_POSTS.filter(function(p){return p.user==='@'+CU.username;})};
+      applyFilters();
+      if(profMapInstance)renderProfMapMarkers(PROF_POSTS[currentProfTab]);
+      initDashContent();
+    });
+}
+
+/* ─── AUTO SESSION RESTORE ─── */
 (function(){
   if(!sb)return;
-  sb.auth.getSession().then(function(r){
-    if(r.data&&r.data.session&&r.data.session.user)_applyUser(r.data.session.user);
+  sb.auth.getSession().then(function(res){
+    if(res.data&&res.data.session&&res.data.session.user){
+      onAuthSuccess(res.data.session.user);
+    }
   });
   sb.auth.onAuthStateChange(function(event,session){
-    if(event==='SIGNED_IN'&&session&&document.getElementById('auth-gate').style.display!=='none')
-      _applyUser(session.user);
-    if(event==='SIGNED_OUT')
+    if(event==='SIGNED_IN'&&session&&session.user){
+      if(document.getElementById('auth-gate').style.display!=='none'){
+        onAuthSuccess(session.user);
+      }
+    }
+    if(event==='SIGNED_OUT'){
       document.getElementById('auth-gate').style.display='flex';
+    }
   });
 })();
 
