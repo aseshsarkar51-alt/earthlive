@@ -1735,20 +1735,56 @@
 
   /* ---------- MESSAGE NOTIFICATIONS ---------- */
   let pendingMsgCount = 0;
+  let unreadConvIds = new Set();
 
   async function refreshMsgBadge(){
     if (!db || !currentUser || !profile || !profile.dbId){
       pendingMsgCount = 0;
+      unreadConvIds = new Set();
       return;
     }
-    const { count } = await db.from('conversations')
-      .select('*', { count:'exact', head:true })
-      .eq('recipient_profile_id', profile.dbId)
-      .eq('status', 'pending');
+    // All my conversations with read markers
+    const { data: convs } = await db.from('conversations')
+      .select('id, status, requester_profile_id, recipient_profile_id, requester_last_read_at, recipient_last_read_at')
+      .or('requester_profile_id.eq.' + profile.dbId + ',recipient_profile_id.eq.' + profile.dbId);
+    if (!convs){ return; }
+
+    const newUnread = new Set();
+
+    // 1) Pending requests waiting for me
+    convs.forEach(c=>{
+      if (c.status === 'pending' && c.recipient_profile_id === profile.dbId) newUnread.add(c.id);
+    });
+
+    // 2) Accepted conversations where the other person wrote after I last read
+    const accepted = convs.filter(c=>c.status === 'accepted');
+    if (accepted.length){
+      const myLastRead = {};
+      accepted.forEach(c=>{
+        myLastRead[c.id] = c.requester_profile_id === profile.dbId
+          ? c.requester_last_read_at : c.recipient_last_read_at;
+      });
+      const { data: msgs } = await db.from('messages')
+        .select('conversation_id, sender_profile_id, created_at')
+        .in('conversation_id', accepted.map(c=>c.id))
+        .neq('sender_profile_id', profile.dbId)
+        .order('created_at', { ascending:false })
+        .limit(200);
+      (msgs || []).forEach(m=>{
+        const lastRead = myLastRead[m.conversation_id];
+        // If read-tracking columns don't exist yet (SQL v2 not run), lastRead is undefined — skip quietly.
+        if (lastRead && new Date(m.created_at) > new Date(lastRead)) newUnread.add(m.conversation_id);
+      });
+    }
+
     const prev = pendingMsgCount;
-    pendingMsgCount = count || 0;
+    unreadConvIds = newUnread;
+    pendingMsgCount = newUnread.size;
     if (pendingMsgCount !== prev) refreshNav();
   }
+
+  // Light polling so replies show up without a reload (realtime is a future upgrade)
+  setInterval(()=>{ refreshMsgBadge(); }, 30000);
 
   /* ---------- PHOTO LIGHTBOX (view like LinkedIn/Facebook) ---------- */
   function openLightbox(src){
@@ -2092,6 +2128,7 @@
       let chip = '';
       if (c.status === 'pending') chip = iAmRecipient ? '<span class="conv-chip pending">Request</span>' : '<span class="conv-chip">Request sent</span>';
       if (c.status === 'declined') chip = '<span class="conv-chip">Declined</span>';
+      if (c.status === 'accepted' && unreadConvIds.has(c.id)) chip = '<span class="conv-chip pending">New</span>';
       return `
         <div class="conv-item" onclick="openThread('${c.id}')">
           <div class="seal" id="convSeal${i}"></div>
@@ -2148,6 +2185,10 @@
     const { data: msgs } = await db.from('messages').select('*')
       .eq('conversation_id', convId)
       .order('created_at', { ascending:true });
+
+    // Mark this conversation as read for me, then update the badge
+    db.rpc('mark_conversation_read', { conv: convId }).then(()=>refreshMsgBadge()).catch(()=>{});
+
     const box = document.getElementById('threadMsgs');
     box.innerHTML = (msgs || []).map(m=>`
       <div class="msg-bubble ${m.sender_profile_id === profile.dbId ? 'mine' : ''}">${linkify(m.body)}</div>
