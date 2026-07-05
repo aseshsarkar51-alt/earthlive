@@ -1,0 +1,2517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Earthlive — sign my page</title>
+<meta name="description" content="Make your page, send it to your people, and watch it fill up with their handwriting, their words, their little stamps of you.">
+<link rel="canonical" href="https://earthlive.in/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Earthlive — sign my page">
+<meta property="og:description" content="Everyone's got something to say about you. Make a slam book page and send it to your people.">
+<meta property="og:url" content="https://earthlive.in/">
+<meta property="og:site_name" content="Earthlive">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Earthlive — sign my page">
+<meta name="twitter:description" content="Everyone's got something to say about you.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23EAE1CC'/%3E%3Ccircle cx='16' cy='16' r='6' fill='none' stroke='%23A9764F' stroke-width='2.5'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#F1EBDD">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23EAE1CC'/%3E%3Ccircle cx='16' cy='16' r='6' fill='none' stroke='%23A9764F' stroke-width='2.5'/%3E%3C/svg%3E">
+<meta property="og:image" content="https://earthlive.in/og-image.png">
+<meta name="twitter:image" content="https://earthlive.in/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,500;1,600&family=Caveat:wght@500;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --page:#FAF7EF;
+    --oat:#F1EBDD;
+    --oat-deep:#E4DBC6;
+    --ink:#2E2A22;
+    --ink-soft:#726A59;
+    --moss:#57614A;
+    --moss-deep:#434B39;
+    --camel:#A9764F;
+    --blush:#C08078;
+    --navy-ink:#3C4A5E;
+    --line:#E0D8C3;
+    --card:#FFFDF8;
+    --radius:14px;
+    --shadow:0 2px 0 rgba(46,42,34,0.05), 0 10px 24px -12px rgba(46,42,34,0.18);
+    --glow1:rgba(255,255,255,0.35);
+    --glow2:rgba(255,255,255,0.25);
+    --tile-filter:sepia(.25) brightness(1.05) contrast(.95);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 15% 8%, var(--glow1), transparent 45%),
+      radial-gradient(circle at 85% 92%, var(--glow2), transparent 50%),
+      var(--oat);
+    color:var(--ink);
+    font-family:"Work Sans", sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+
+  a{color:inherit;}
+  button{font-family:inherit; cursor:pointer; color:inherit;}
+  input, textarea{font-family:inherit;}
+  ::placeholder{color:var(--ink-soft); opacity:0.8;}
+  :focus-visible{outline:2px solid var(--navy-ink); outline-offset:3px; border-radius:4px;}
+
+  .wrap{max-width:1040px; margin:0 auto; padding:0 28px;}
+
+  /* ---------- NAV ---------- */
+  .nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 28px; max-width:1040px; margin:0 auto;
+  }
+  .brand{
+    font-family:"Fraunces", serif; font-weight:700; font-size:22px;
+    letter-spacing:-0.01em; display:flex; align-items:center; gap:8px;
+  }
+  .brand .dot{width:8px; height:8px; border-radius:50%; background:var(--camel); display:inline-block;}
+  .nav-right{display:flex; align-items:center; gap:18px; font-size:14px; color:var(--ink-soft);}
+  .nav-link{background:none; border:none; color:var(--ink-soft); font-size:14px; padding:6px 2px; border-bottom:1px solid transparent;}
+  .nav-link:hover{color:var(--ink); border-color:var(--ink-soft);}
+
+  /* ---------- SCREENS ---------- */
+  .screen{display:none;}
+  .screen.active{display:block; animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+
+  /* ---------- HERO ---------- */
+  .hero{padding:64px 0 40px; position:relative;}
+  .eyebrow{
+    font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--camel); font-weight:600; margin-bottom:18px; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:""; width:22px; height:1px; background:var(--camel);}
+  h1{
+    font-family:"Fraunces", serif; font-weight:600; font-size:clamp(38px,6vw,64px);
+    line-height:1.04; letter-spacing:-0.02em; margin:0 0 22px; max-width:780px;
+  }
+  h1 em{font-style:italic; font-weight:500; color:var(--moss);}
+  .lede{font-size:18px; line-height:1.6; color:var(--ink-soft); max-width:480px; margin:0 0 34px;}
+  .cta-row{display:flex; align-items:center; gap:22px; flex-wrap:wrap;}
+
+  .btn{
+    font-size:15px; font-weight:600; padding:14px 26px; border-radius:999px;
+    border:1px solid transparent; transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary{background:var(--ink); color:var(--page); box-shadow:var(--shadow);}
+  .btn-primary:hover{transform:translateY(-1px);}
+  .btn-ghost{background:transparent; color:var(--ink); border-color:var(--line);}
+  .btn-ghost:hover{border-color:var(--ink-soft);}
+  .link-quiet{background:none; border:none; font-size:14px; color:var(--ink-soft); text-decoration:underline; text-underline-offset:3px;}
+
+  /* ---------- HOW IT WORKS ---------- */
+  .how{padding:70px 0 90px; border-top:1px solid var(--line); margin-top:50px;}
+  .how h2{font-family:"Fraunces", serif; font-weight:600; font-size:30px; margin:0 0 40px;}
+  .steps{display:grid; grid-template-columns:repeat(3,1fr); gap:30px;}
+  @media (max-width:760px){.steps{grid-template-columns:1fr;}}
+  .step{padding-top:18px; border-top:2px solid var(--ink);}
+  .step-num{font-family:"Fraunces", serif; font-style:italic; color:var(--camel); font-size:20px; margin-bottom:10px; display:block;}
+  .step h3{font-size:17px; margin:0 0 8px; font-weight:600;}
+  .step p{font-size:14.5px; line-height:1.6; color:var(--ink-soft); margin:0;}
+
+  .footer{padding:30px 0 60px; font-size:13px; color:var(--ink-soft); border-top:1px solid var(--line);}
+
+  /* ---------- FORM CARD (create / fill) ---------- */
+  .center-wrap{padding:56px 0 90px; display:flex; justify-content:center;}
+  .form-card{
+    background:var(--card); border-radius:20px; box-shadow:var(--shadow);
+    padding:44px 42px; width:100%; max-width:480px; border:1px solid var(--line);
+    position:relative;
+  }
+  .form-card::before{
+    content:""; position:absolute; top:0; left:24px; right:24px; height:10px;
+    background:repeating-linear-gradient(115deg, var(--card) 0 7px, transparent 7px 13px);
+    transform:translateY(-9px);
+  }
+  .form-eyebrow{font-size:12px; text-transform:uppercase; letter-spacing:0.12em; color:var(--ink-soft); font-weight:600; margin-bottom:6px;}
+  .form-card h2{font-family:"Fraunces", serif; font-weight:600; font-size:28px; margin:0 0 26px; letter-spacing:-0.01em;}
+  .field{margin-bottom:20px;}
+  .field label{display:block; font-size:13px; font-weight:600; color:var(--ink); margin-bottom:7px;}
+  .field .hint{font-size:12.5px; color:var(--ink-soft); font-weight:400; margin-left:6px;}
+  .field input[type=text], .field textarea, .field select{
+    width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px;
+    background:var(--page); font-size:15px; color:var(--ink); resize:vertical;
+    font-family:inherit; appearance:none;
+  }
+  .field select{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23726A59' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 14px center; padding-right:36px;
+  }
+  .field textarea{min-height:88px; line-height:1.5;}
+  .field input:focus, .field textarea:focus{border-color:var(--ink-soft);}
+
+  .toggle-row{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    background:var(--page); border:1px solid var(--line); border-radius:12px; padding:14px 16px;
+  }
+  .toggle-copy strong{display:block; font-size:14px; margin-bottom:2px;}
+  .toggle-copy span{font-size:12.5px; color:var(--ink-soft);}
+  .switch{
+    position:relative; width:44px; height:26px; border-radius:999px; background:var(--oat-deep);
+    border:none; flex:none; transition:background .2s ease;
+  }
+  .switch::after{
+    content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%;
+    background:#FFFDF8; transition:transform .2s ease; box-shadow:0 1px 3px rgba(0,0,0,0.25);
+  }
+  .switch.on{background:var(--moss);}
+  .switch.on::after{transform:translateX(18px);}
+
+  .field-section-label{
+    font-size:12px; text-transform:uppercase; letter-spacing:0.1em; color:var(--ink-soft); font-weight:600;
+    margin:28px 0 16px; padding-top:20px; border-top:1px solid var(--line);
+  }
+  .field-section-label:first-of-type{margin-top:0; padding-top:0; border-top:none;}
+
+  .upload-box{
+    border:1px dashed var(--line); border-radius:12px; padding:18px 14px; text-align:center;
+    background:var(--page); position:relative; transition:border-color .15s ease;
+  }
+  .upload-box:hover{border-color:var(--ink-soft);}
+  .upload-box input[type=file]{position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;}
+  .upload-box .uplabel{font-size:13px; color:var(--ink-soft);}
+  .upload-preview{display:flex; align-items:center; gap:12px; margin-top:12px;}
+  .upload-preview img{width:56px; height:56px; border-radius:10px; object-fit:cover; border:1px solid var(--line); flex:none;}
+  .upload-preview button{background:none; border:none; color:var(--blush); font-size:12.5px; text-decoration:underline; font-weight:500;}
+
+  .upload-thumbs{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px;}
+  .upload-thumb{position:relative; width:60px; height:60px; border-radius:10px; overflow:hidden; border:1px solid var(--line); flex:none;}
+  .upload-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+  .upload-thumb .thumb-remove{
+    position:absolute; top:3px; right:3px; width:18px; height:18px; border-radius:50%;
+    background:rgba(30,28,24,0.78); color:#F6F1E7; border:none; font-size:11px; line-height:1;
+    display:flex; align-items:center; justify-content:center; padding:0;
+  }
+  .upload-count{font-size:12px; color:var(--ink-soft); margin-top:8px;}
+
+  .swatches{display:flex; gap:10px; flex-wrap:wrap;}
+  .swatch{
+    width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:transform .12s ease;
+  }
+  .swatch.selected{border-color:var(--ink); transform:scale(1.1);}
+  .swatch:hover{transform:scale(1.08);}
+
+  .form-actions{margin-top:8px; display:flex; align-items:center; gap:16px;}
+
+  /* ---------- DASHBOARD ---------- */
+  .dash{padding:44px 0 90px;}
+
+  .profile-cover{
+    position:relative; width:100%; height:170px; border-radius:16px; overflow:hidden;
+    background:linear-gradient(135deg, var(--oat-deep), var(--oat));
+    border:1px solid var(--line); margin-bottom:14px;
+  }
+  .profile-cover img{width:100%; height:100%; object-fit:cover; display:block;}
+  .cover-edit-btn{
+    position:absolute; right:14px; top:14px; background:rgba(30,28,24,0.68); color:#F6F1E7;
+    border:none; padding:8px 14px; border-radius:999px; font-size:12.5px; font-weight:600; z-index:2;
+  }
+  .cover-edit-btn:hover{background:rgba(30,28,24,0.85);}
+
+  .seal-wrap{position:relative; flex:none; z-index:1; margin-top:-56px;}
+  .seal.seal-lg{width:84px; height:84px; font-size:30px; border-width:4px; box-shadow:0 2px 12px rgba(46,42,34,0.18);}
+  .seal-edit-btn{
+    position:absolute; right:-2px; bottom:-2px; width:26px; height:26px; border-radius:50%;
+    background:var(--ink); color:var(--page); border:2px solid var(--page); font-size:12px;
+    display:flex; align-items:center; justify-content:center; padding:0; line-height:1;
+  }
+  .seal-edit-btn:hover{background:var(--moss-deep);}
+
+  .dash-header{
+    display:flex; align-items:flex-end; justify-content:space-between; gap:24px;
+    padding-bottom:26px; border-bottom:1px solid var(--line); margin-bottom:30px; flex-wrap:wrap;
+  }
+  .dash-actions{display:flex; flex-direction:column; align-items:flex-end; gap:10px;}
+  .dash-id{display:flex; gap:18px; align-items:center;}
+  .seal{
+    width:66px; height:66px; border-radius:50%; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    font-family:"Caveat", cursive; font-weight:700; font-size:26px;
+    border:2px solid var(--seal-color, var(--moss)); color:var(--seal-color, var(--moss));
+    background:var(--card); box-shadow:var(--shadow);
+  }
+  .dash-id h2{font-family:"Fraunces", serif; font-size:26px; margin:0 0 4px; font-weight:600;}
+  .dash-id p{margin:0; color:var(--ink-soft); font-size:14.5px; max-width:340px;}
+
+  .visibility-pill{
+    display:flex; align-items:center; gap:9px; padding:9px 15px; border-radius:999px;
+    border:1px solid var(--line); background:var(--card); font-size:13px; font-weight:600;
+    align-self:flex-start;
+  }
+  .visibility-pill .dotstate{width:8px; height:8px; border-radius:50%; background:var(--moss);}
+  .visibility-pill.private .dotstate{background:var(--blush);}
+  .visibility-pill button{background:none; border:none; text-decoration:underline; font-size:12.5px; color:var(--ink-soft); font-weight:500; margin-left:4px;}
+
+  .panel{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:22px 24px; margin-bottom:34px;
+  }
+  .panel-title{font-size:13px; text-transform:uppercase; letter-spacing:0.1em; font-weight:600; color:var(--ink-soft); margin:0 0 12px;}
+  .invite-row{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+  .invite-link{
+    flex:1; min-width:220px; background:var(--page); border:1px dashed var(--line);
+    border-radius:10px; padding:12px 14px; font-size:14px; color:var(--ink-soft);
+    font-family:"Work Sans", sans-serif; overflow:auto; white-space:nowrap;
+  }
+  /* ---------- MEMORY MAP (style ported from user's EarthLive map) ---------- */
+  .map-panel{margin-bottom:34px;}
+  .memory-map{
+    width:100%; height:320px; border-radius:14px; border:1px solid var(--line);
+    z-index:0; background:var(--oat);
+  }
+  .leaflet-tile{filter:var(--tile-filter)!important;}
+  @keyframes mripple{0%{transform:scale(1);opacity:.6}100%{transform:scale(3.5);opacity:0}}
+
+  .mem-marker{
+    width:11px; height:11px; background:var(--camel); border-radius:50%;
+    border:2px solid #fff; box-shadow:0 2px 8px rgba(26,22,18,.45);
+    position:relative; cursor:pointer;
+  }
+  .mem-marker::after{
+    content:''; position:absolute; inset:-6px; border-radius:50%;
+    border:1px solid var(--camel); animation:mripple 2.5s ease-out infinite;
+  }
+
+  .mem-popup-wrap .leaflet-popup-content-wrapper{
+    background:var(--card); border:1px solid var(--line); border-radius:6px;
+    box-shadow:0 8px 28px rgba(26,22,18,.18); padding:0; color:var(--ink);
+    font-family:"Work Sans", sans-serif;
+  }
+  .mem-popup-wrap .leaflet-popup-content{margin:10px 12px;}
+  .mem-popup-wrap .leaflet-popup-tip-container{display:none;}
+  .mem-popup-wrap .leaflet-popup-close-button{font-size:14px; color:var(--ink-soft); top:4px; right:6px;}
+
+  .map-popup{max-width:200px; min-width:170px;}
+  .map-popup img{width:100%; border-radius:6px; margin-bottom:8px; display:block;}
+  .map-popup b{font-size:13.5px;}
+  .map-popup .map-city{
+    font-size:10px; color:var(--camel); text-transform:uppercase; letter-spacing:0.12em;
+    font-weight:600; margin:2px 0 6px; display:flex; align-items:center; gap:5px;
+  }
+  .map-popup .map-city::before{content:''; width:5px; height:5px; border-radius:50%; background:var(--camel); display:inline-block;}
+  .map-popup p{font-family:"Caveat", cursive; font-size:17px; margin:0 0 8px; line-height:1.3; color:var(--ink);}
+  .map-popup button{
+    font-size:11.5px; font-weight:600; padding:5px 11px; border-radius:999px;
+    border:1px solid var(--line); background:var(--page); color:var(--ink);
+  }
+  .map-popup button:hover{border-color:var(--ink-soft);}
+
+  .city-suggestions{
+    position:absolute; left:0; right:0; top:100%; z-index:20; margin-top:4px;
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    box-shadow:var(--shadow); overflow:hidden; max-height:220px; overflow-y:auto;
+  }
+  .city-suggestion{
+    display:block; width:100%; text-align:left; padding:10px 14px; font-size:14px;
+    background:none; border:none; border-bottom:1px solid var(--line); color:var(--ink);
+  }
+  .city-suggestion:last-child{border-bottom:none;}
+  .city-suggestion:hover{background:var(--oat);}
+  .city-suggestion b{color:var(--camel);}
+
+  .toast{
+    position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:var(--page); padding:10px 20px; border-radius:999px;
+    font-size:13.5px; opacity:0; pointer-events:none; transition:all .25s ease; z-index:50;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  /* ---------- THEME SWITCHER ---------- */
+  .theme-switcher{
+    position:fixed; bottom:20px; right:20px; z-index:60;
+    display:flex; gap:7px;
+  }
+  .theme-box{
+    width:13px; height:13px; border-radius:4px; cursor:pointer; padding:0;
+    border:1px solid rgba(130,124,110,0.75); transition:transform .12s ease;
+  }
+  .theme-box:hover{transform:scale(1.2);}
+  .theme-box.active{box-shadow:0 0 0 2px var(--camel);}
+  @media (max-width:600px){.theme-switcher{bottom:14px; right:12px;}}
+
+  .qr-box{
+    margin-top:16px; display:flex; align-items:center; gap:18px; padding:16px;
+    border:1px dashed var(--line); border-radius:12px; background:var(--page);
+  }
+  .qr-box img{
+    width:110px; height:110px; border-radius:8px; background:#fff; padding:6px;
+    border:1px solid var(--line); flex:none;
+  }
+  .qr-box p{font-size:12.5px; color:var(--ink-soft); margin:0; line-height:1.6;}
+
+  .demo-row{display:flex; gap:10px; flex-wrap:wrap;}
+  .btn-small{font-size:13px; font-weight:600; padding:9px 16px; border-radius:999px; border:1px solid var(--line); background:var(--page);}
+  .btn-small:hover{border-color:var(--ink-soft);}
+
+  .entries-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:18px;}
+  .entries-head h3{font-family:"Fraunces", serif; font-size:20px; font-weight:600; margin:0;}
+  .entries-head span{font-size:13px; color:var(--ink-soft);}
+
+  .pending-list{display:flex; flex-direction:column; gap:12px;}
+  .pending-card{
+    background:var(--page); border:1px dashed var(--line); border-radius:12px; padding:16px 18px;
+  }
+  .pending-card .entry-top{margin-bottom:8px;}
+  .pending-card .entry-msg{font-size:18px; margin-bottom:12px;}
+  .pending-actions{display:flex; gap:10px;}
+  .btn-decline{color:var(--blush); border-color:var(--blush);}
+  .btn-decline:hover{background:var(--blush); color:var(--page);}
+
+  /* ---------- ENTRY MODAL ---------- */
+  .entry-card{cursor:pointer; transition:transform .15s ease, box-shadow .15s ease;}
+  .entry-card:hover{box-shadow:0 4px 0 rgba(46,42,34,0.05), 0 16px 30px -12px rgba(46,42,34,0.26);}
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(46,42,34,0.45); z-index:100;
+    display:none; align-items:flex-start; justify-content:center; padding:40px 18px; overflow-y:auto;
+  }
+  .modal-overlay.open{display:flex; animation:fadeIn .2s ease;}
+  .entry-modal{
+    background:var(--card); border-radius:16px; max-width:520px; width:100%;
+    padding:34px 32px 28px; position:relative; box-shadow:0 24px 60px -12px rgba(46,42,34,0.4);
+    border:1px solid var(--line); margin:auto 0;
+  }
+  .entry-modal::before{
+    content:""; position:absolute; top:0; left:20px; right:20px; height:10px;
+    background:repeating-linear-gradient(115deg, var(--oat) 0 7px, transparent 7px 13px);
+    transform:translateY(-9px);
+  }
+  .modal-close{
+    position:absolute; top:14px; right:14px; width:32px; height:32px; border-radius:50%;
+    background:var(--page); border:1px solid var(--line); font-size:14px; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .modal-close:hover{border-color:var(--ink-soft);}
+  .entry-modal .entry-msg{font-size:26px; margin:14px 0 18px;}
+  .entry-modal .entry-photos img{aspect-ratio:auto; max-height:260px;}
+
+  /* ---------- ENTRY ACTIONS (like / comment / share) ---------- */
+  .entry-actions{
+    display:flex; align-items:center; gap:6px; margin:12px 0 8px;
+    border-top:1px solid var(--line); padding-top:10px;
+  }
+  .action-btn{
+    display:inline-flex; align-items:center; gap:6px; background:none; border:none;
+    color:var(--ink-soft); font-size:12.5px; font-weight:600; padding:5px 9px; border-radius:999px;
+  }
+  .action-btn:hover{background:var(--oat); color:var(--ink);}
+  .action-btn svg{width:15px; height:15px;}
+  .action-btn.liked{color:var(--blush);}
+  .action-btn.liked svg{fill:var(--blush); stroke:var(--blush);}
+
+  .comments-section{border-top:1px solid var(--line); margin-top:18px; padding-top:16px;}
+  .comments-section h4{
+    font-size:11px; text-transform:uppercase; letter-spacing:0.1em; color:var(--ink-soft);
+    font-weight:600; margin:0 0 12px;
+  }
+  .comment{
+    background:var(--page); border:1px solid var(--line); border-radius:10px;
+    padding:10px 13px; margin-bottom:10px; font-size:13.5px;
+  }
+  .comment b{font-size:12.5px;}
+  .comment .comment-meta{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;
+  }
+  .comment .comment-del{
+    background:none; border:none; color:var(--blush); font-size:11.5px; text-decoration:underline; padding:0;
+  }
+  .comment-form{display:flex; flex-direction:column; gap:8px; margin-top:12px;}
+  .comment-form input, .comment-form textarea{
+    width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:10px;
+    background:var(--page); font-size:13.5px; color:var(--ink); font-family:inherit;
+  }
+  .comment-form textarea{min-height:56px; resize:vertical;}
+  .comment-form button{align-self:flex-start;}
+  .modal-answers{border-top:1px solid var(--line); padding-top:16px; margin-top:4px;}
+  .modal-answer{margin-bottom:12px;}
+  .modal-answer .qlabel{
+    display:block; font-size:11px; text-transform:uppercase; letter-spacing:0.1em;
+    color:var(--ink-soft); font-weight:600; margin-bottom:3px;
+  }
+  .modal-answer .aval{font-size:14.5px; line-height:1.55;}
+
+  /* ---------- AUTH ---------- */
+  .auth-btn{
+    display:flex; align-items:center; justify-content:center; gap:10px; width:100%;
+    padding:13px 18px; border-radius:12px; border:1px solid var(--line); background:var(--page);
+    font-size:14.5px; font-weight:600; margin-bottom:12px; color:var(--ink);
+  }
+  .auth-btn:hover{border-color:var(--ink-soft);}
+  .auth-divider{
+    display:flex; align-items:center; gap:14px; margin:20px 0; color:var(--ink-soft); font-size:12.5px;
+  }
+  .auth-divider::before, .auth-divider::after{content:""; flex:1; height:1px; background:var(--line);}
+  .demo-note{
+    background:var(--oat); border-radius:10px; padding:12px 15px; font-size:12.5px;
+    color:var(--ink-soft); line-height:1.6; margin-top:20px;
+  }
+
+  /* ---------- TEMPLATE PICKER ---------- */
+  .template-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  @media (max-width:520px){.template-grid{grid-template-columns:1fr;}}
+  .template-card{
+    text-align:left; padding:14px 15px; border:1.5px solid var(--line); border-radius:12px;
+    background:var(--page); cursor:pointer; transition:border-color .15s ease;
+  }
+  .template-card:hover{border-color:var(--ink-soft);}
+  .template-card.selected{border-color:var(--moss); background:var(--card); box-shadow:0 0 0 1px var(--moss);}
+  .template-card strong{display:block; font-size:14px; margin-bottom:3px;}
+  .template-card span{font-size:12px; color:var(--ink-soft); line-height:1.45; display:block;}
+  .question-list{margin-top:14px; border:1px solid var(--line); border-radius:12px; overflow:hidden;}
+  .question-item{
+    display:flex; align-items:center; gap:12px; padding:11px 14px; background:var(--page);
+    border-bottom:1px solid var(--line); font-size:13.5px; cursor:pointer;
+  }
+  .question-item:last-child{border-bottom:none;}
+  .question-item input{accent-color:var(--moss); width:16px; height:16px; flex:none;}
+  .question-item.off{color:var(--ink-soft); text-decoration:line-through;}
+
+  /* ---------- SOCIAL LINKS ---------- */
+  .social-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;}
+  .social-chip{
+    display:inline-flex; align-items:center; gap:7px; padding:6px 13px; border-radius:999px;
+    border:1px solid var(--line); background:var(--card); font-size:12.5px; font-weight:600;
+    color:var(--ink); text-decoration:none;
+  }
+  .social-chip:hover{border-color:var(--ink-soft);}
+  .social-chip svg{width:13px; height:13px;}
+
+  /* ---------- ABOUT ---------- */
+  .about-body{max-width:640px; margin:0 auto; padding:56px 0 80px;}
+  .about-body h2{font-family:"Fraunces", serif; font-weight:600; font-size:34px; margin:0 0 20px; letter-spacing:-0.01em;}
+  .about-body p{font-size:16px; line-height:1.75; color:var(--ink-soft); margin:0 0 18px;}
+  .about-body h3{font-family:"Fraunces", serif; font-size:20px; font-weight:600; margin:34px 0 10px;}
+  .footer-links{display:flex; gap:20px; flex-wrap:wrap; margin-top:10px;}
+  .footer-links button{background:none; border:none; color:var(--ink-soft); font-size:13px; text-decoration:underline; text-underline-offset:3px; padding:0;}
+
+  .entries-grid{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:22px;
+  }
+
+  .entry-card{
+    background:var(--card); border:1px solid var(--line); border-radius:4px 4px 10px 10px;
+    padding:20px 18px 16px; position:relative; box-shadow:var(--shadow);
+  }
+  .entry-card::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:9px;
+    background:repeating-linear-gradient(115deg, var(--oat) 0 6px, transparent 6px 12px);
+    transform:translateY(-8px);
+  }
+  .entry-photo{
+    width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:6px; margin-bottom:14px;
+    border:1px solid var(--line);
+  }
+  .entry-photos{display:grid; gap:4px; margin-bottom:14px; border-radius:6px; overflow:hidden;}
+  .entry-photos.count-1{grid-template-columns:1fr;}
+  .entry-photos.count-2{grid-template-columns:1fr 1fr;}
+  .entry-photos.count-3{grid-template-columns:1fr 1fr;}
+  .entry-photos.count-3 img:first-child{grid-column:1 / span 2;}
+  .entry-photos.count-4{grid-template-columns:1fr 1fr;}
+  .entry-photos img{width:100%; aspect-ratio:1/1; object-fit:cover; display:block; border:1px solid var(--line);}
+  .entry-photos.count-1 img{aspect-ratio:4/3;}
+  .photo-more{
+    position:relative; display:flex; align-items:center; justify-content:center;
+    background:rgba(30,28,24,0.55); color:#FFFFFF; font-size:13px; font-weight:600;
+  }
+  .entry-top{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .pen-dot{width:12px; height:12px; border-radius:50%; flex:none;}
+  .entry-name{font-weight:600; font-size:14.5px;}
+  .entry-nick{color:var(--ink-soft); font-weight:400;}
+  .word-chip{
+    display:inline-block; padding:3px 12px; border-radius:999px; font-size:11.5px; font-weight:600;
+    background:var(--oat); color:var(--ink); margin-bottom:12px; letter-spacing:0.02em;
+  }
+  .entry-msg{
+    font-family:"Caveat", cursive; font-weight:600; font-size:21px; line-height:1.35;
+    color:var(--ink); margin:0 0 12px;
+  }
+  .entry-meta{font-size:12px; color:var(--ink-soft); line-height:1.65; margin:0 0 10px;}
+  .entry-meta b{color:var(--ink); font-weight:600;}
+  .entry-date{font-size:11.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.06em;}
+
+  .seal{overflow:hidden;}
+  .seal img{width:100%; height:100%; object-fit:cover; border-radius:50%;}
+
+  .empty-state{
+    text-align:center; padding:50px 20px; border:1px dashed var(--line); border-radius:16px; color:var(--ink-soft);
+  }
+  .empty-state p{margin:6px 0 18px; font-size:14.5px;}
+  .empty-state .stamp-outline{
+    width:56px; height:56px; margin:0 auto 14px; border-radius:50%; border:2px dashed var(--line);
+  }
+
+  .search-result{
+    display:flex; align-items:center; gap:16px; padding:18px; margin-top:22px;
+    background:var(--page); border:1px solid var(--line); border-radius:14px;
+  }
+  .search-result .seal{width:50px; height:50px; font-size:19px;}
+  .search-result-info{flex:1; min-width:0;}
+  .search-result-info strong{display:block; font-size:15px; margin-bottom:2px;}
+  .search-result-info span{font-size:13px; color:var(--ink-soft);}
+
+  /* ---------- VISITOR / LOCK ---------- */
+  .visitor-topbar{display:flex; justify-content:space-between; align-items:flex-end; padding:26px 0; flex-wrap:wrap; gap:16px;}
+  .lock-state{
+    text-align:center; padding:70px 20px; border:1px solid var(--line); border-radius:18px;
+    background:var(--card); margin-top:20px;
+  }
+  .lock-icon{width:48px; height:48px; margin:0 auto 18px; opacity:.8;}
+  .lock-state h3{font-family:"Fraunces", serif; font-size:22px; margin:0 0 8px;}
+  .lock-state p{color:var(--ink-soft); font-size:14.5px; max-width:340px; margin:0 auto;}
+
+  @media (max-width:600px){
+    .form-card{padding:32px 22px;}
+    .dash-header{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+<noscript>
+  <div style="max-width:520px; margin:80px auto; padding:0 24px; font-family:Georgia, serif; color:#2E2A22; text-align:center;">
+    <h1 style="font-size:26px;">earthlive needs JavaScript</h1>
+    <p style="color:#726A59; line-height:1.6;">Please enable JavaScript in your browser to create and sign slam book pages.</p>
+  </div>
+</noscript>
+
+<nav class="nav">
+  <div class="brand"><span class="dot"></span>earthlive</div>
+  <div class="nav-right" id="navRight">
+    <button class="nav-link" onclick="showScreen('about')">About</button>
+    <button class="nav-link" onclick="showScreen('landing')">Home</button>
+    <button class="nav-link" onclick="showScreen('search')">Find someone</button>
+  </div>
+</nav>
+
+<!-- ============ LANDING ============ -->
+<section class="screen active" id="screen-landing">
+  <div class="wrap">
+    <div class="hero">
+      <div class="eyebrow">Your slam book</div>
+      <h1>Everyone's got<br>something to say <em>about you.</em></h1>
+      <p class="lede">Make a page, send it to your people, and watch it fill up with their handwriting, their words, their little stamps of you.</p>
+      <div class="cta-row">
+        <button class="btn btn-primary" onclick="showScreen('auth')">Start your book →</button>
+        <button class="link-quiet" onclick="document.getElementById('howSection').scrollIntoView()">See how it works</button>
+      </div>
+    </div>
+
+    <div class="how" style="padding-bottom:0; border-top:1px solid var(--line);">
+      <h2>Four kinds of questions. Pick your vibe.</h2>
+      <p style="color:var(--ink-soft); font-size:15px; margin:-24px 0 30px; max-width:520px;">When you make your page, you choose a question set — and untick anything you don't want. Your friends answer <em>your</em> questions.</p>
+      <div class="template-grid" id="landingTemplateShowcase" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr));"></div>
+    </div>
+
+    <div class="how" id="howSection" style="border-top:none; margin-top:0;">
+      <h2>How it works</h2>
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">01</span>
+          <h3>Make your page</h3>
+          <p>Add your name, a line about you, and decide if it's open to everyone or just your circle.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">02</span>
+          <h3>Send the link</h3>
+          <p>Drop it in a group chat, your bio, wherever your people already are.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">03</span>
+          <h3>Watch it fill</h3>
+          <p>Every signature lands on your page, dated, and written in their own pen.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Made for people who miss passing notes.
+      <div class="footer-links">
+        <button onclick="showScreen('about')">About us</button>
+        <button onclick="showScreen('search')">Find someone</button>
+        <button onclick="showScreen('auth')">Sign in</button>
+        <button onclick="showScreen('privacy')">Privacy Policy</button>
+        <button onclick="showScreen('terms')">Terms of Use</button>
+      </div>
+      <p style="margin:18px 0 0; font-size:12px; color:var(--ink-soft);">© 2026 Earthlive · earthlive.in · All rights reserved. "Earthlive" and the Earthlive seal are trademarks of their owner.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CREATE PROFILE ============ -->
+<section class="screen" id="screen-create">
+  <div class="center-wrap">
+    <div class="form-card">
+      <div class="form-eyebrow" id="createEyebrow">Step one</div>
+      <h2 id="createHeading">Make your page</h2>
+      <form id="createForm" onsubmit="createProfile(event)">
+        <div class="field">
+          <label for="cName">Your name</label>
+          <input type="text" id="cName" placeholder="e.g. Riya Sharma" required>
+        </div>
+        <div class="field">
+          <label for="cUsername">Username <span class="hint">your unique handle — used in your link</span></label>
+          <input type="text" id="cUsername" placeholder="e.g. riya_sharma" maxlength="20" autocomplete="off"
+                 oninput="checkUsername()" required>
+          <p id="usernameStatus" style="font-size:12.5px; margin:6px 0 0; display:none;"></p>
+        </div>
+        <div class="field">
+          <label for="cBio">One line about you <span class="hint">optional</span></label>
+          <textarea id="cBio" placeholder="Overthinker. Chai over coffee. Always ten minutes late."></textarea>
+        </div>
+        <div class="field">
+          <label>Pick your ink</label>
+          <div class="swatches" id="inkSwatches"></div>
+        </div>
+        <div class="field">
+          <label>Add a photo <span class="hint">optional, or keep your initials seal</span></label>
+          <div class="upload-box" id="avatarUploadBox">
+            <input type="file" accept="image/*" id="cAvatar" onchange="handleUpload(event,'avatar')">
+            <span class="uplabel">Click to upload, or drop an image here</span>
+          </div>
+          <div class="upload-preview" id="avatarPreview" style="display:none;">
+            <img id="avatarPreviewImg" alt="">
+            <button type="button" onclick="clearUpload('avatar')">Remove</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Add a cover photo <span class="hint">optional</span></label>
+          <div class="upload-box" id="coverUploadBox">
+            <input type="file" accept="image/*" id="cCover" onchange="handleUpload(event,'cover')">
+            <span class="uplabel">Click to upload, or drop an image here</span>
+          </div>
+          <div class="upload-preview" id="coverPreview" style="display:none;">
+            <img id="coverPreviewImg" alt="">
+            <button type="button" onclick="clearUpload('cover')">Remove</button>
+          </div>
+        </div>
+        <div class="field-section-label">Your question set</div>
+        <div class="field">
+          <label>Choose a template <span class="hint">what friends will answer on your page</span></label>
+          <div class="template-grid" id="templateGrid"></div>
+          <div class="question-list" id="questionList"></div>
+          <p style="font-size:12px; color:var(--ink-soft); margin:8px 0 0;">Untick any question you don't want on your page.</p>
+        </div>
+        <div class="field">
+          <label>Your links <span class="hint">optional — shown on your page</span></label>
+          <input type="text" id="cLinkInstagram" placeholder="Instagram URL or @handle" style="margin-bottom:8px;">
+          <input type="text" id="cLinkLinkedin" placeholder="LinkedIn URL" style="margin-bottom:8px;">
+          <input type="text" id="cLinkFacebook" placeholder="Facebook URL" style="margin-bottom:8px;">
+          <input type="text" id="cLinkWebsite" placeholder="Your website">
+        </div>
+        <div class="field">
+          <div class="toggle-row">
+            <div class="toggle-copy">
+              <strong id="visLabel">Public page</strong>
+              <span id="visDesc">Anyone with the link can see who's signed.</span>
+            </div>
+            <button type="button" class="switch" id="visSwitch" onclick="toggleCreateVisibility()"></button>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="createSubmitBtn">Create my page →</button>
+          <button type="button" class="link-quiet" onclick="cancelCreateForm()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DASHBOARD (owner) ============ -->
+<section class="screen" id="screen-dashboard">
+  <div class="wrap dash">
+    <div class="profile-cover" id="ownerCoverBox">
+      <img id="ownerCoverImg" alt="" style="display:none;">
+      <input type="file" accept="image/*" id="coverUploadDash" style="display:none" onchange="handleQuickCoverChange(event)">
+      <button type="button" class="cover-edit-btn" onclick="document.getElementById('coverUploadDash').click()">
+        Change cover
+      </button>
+    </div>
+    <div class="dash-header">
+      <div class="dash-id">
+        <div class="seal-wrap">
+          <div class="seal seal-lg" id="ownerSeal"></div>
+          <input type="file" accept="image/*" id="avatarUploadDash" style="display:none" onchange="handleQuickAvatarChange(event)">
+          <button type="button" class="seal-edit-btn" onclick="document.getElementById('avatarUploadDash').click()" aria-label="Change profile photo">✎</button>
+        </div>
+        <div>
+          <h2 id="ownerName"></h2>
+          <p id="ownerBio"></p>
+          <div class="social-row" id="ownerLinks"></div>
+        </div>
+      </div>
+        <div class="dash-actions">
+        <div class="visibility-pill" id="visPill">
+          <span class="dotstate"></span>
+          <span id="visPillText">Public</span>
+          <button onclick="toggleDashVisibility()">change</button>
+        </div>
+        <div class="visibility-pill" style="cursor:default;">
+          <span id="templatePillText">Classic Slam</span>
+          <button onclick="openEditProfile()">edit questions</button>
+        </div>
+        <button class="link-quiet" onclick="openEditProfile()">Edit page</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">Your link</p>
+      <div class="invite-row">
+        <div class="invite-link" id="inviteLink"></div>
+        <button class="btn-small" onclick="copyInvite()">Copy link</button>
+        <button class="btn-small" onclick="shareInvite()">Share</button>
+        <button class="btn-small" onclick="toggleQr()">QR code</button>
+      </div>
+      <div class="qr-box" id="qrBox" style="display:none;">
+        <img id="qrImg" alt="QR code for your page link">
+        <p>Anyone can scan this to open your page directly. It'll go live once earthlive is connected to a real domain and backend.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">Preview</p>
+      <div class="demo-row">
+        <button class="btn-small" onclick="previewAsVisitor()">Preview as a visitor</button>
+        <button class="btn-small" onclick="showScreen('search')">Search pages</button>
+      </div>
+    </div>
+
+    <div class="panel" id="pendingPanel" style="display:none;">
+      <p class="panel-title">Waiting for your approval <span id="pendingCount"></span></p>
+      <p style="font-size:13px; color:var(--ink-soft); margin:0 0 14px;">
+        New signatures land here first. Accept them to post to your page, or decline to leave them off.
+      </p>
+      <div id="pendingList" class="pending-list"></div>
+    </div>
+
+    <div class="map-panel" id="ownerMapPanel" style="display:none;">
+      <div class="entries-head">
+        <h3>Memory map</h3>
+        <span id="ownerMapCount"></span>
+      </div>
+      <div class="memory-map" id="ownerMap"></div>
+    </div>
+
+    <div class="entries-head">
+      <h3>Signed by</h3>
+      <span id="entryCount">0 people</span>
+    </div>
+    <div id="ownerEntries"></div>
+  </div>
+</section>
+
+<!-- ============ FILL / SIGN ============ -->
+<section class="screen" id="screen-fill">
+  <div class="center-wrap">
+    <div class="form-card">
+      <div class="form-eyebrow">Signing <span id="fillOwnerName"></span>'s page</div>
+      <h2>Say something</h2>
+      <p style="font-size:13px; color:var(--ink-soft); margin:-12px 0 22px;">
+        <span id="fillOwnerName2"></span> gets to approve this before it shows up on their page.
+      </p>
+      <form id="fillForm" onsubmit="submitFill(event)">
+
+        <div class="field-section-label">Who's signing</div>
+        <div class="field">
+          <label for="fName">Your name</label>
+          <input type="text" id="fName" placeholder="e.g. Aman Verma" required>
+        </div>
+        <div class="field">
+          <label for="fNick">Your nickname <span class="hint">optional</span></label>
+          <input type="text" id="fNick" placeholder="What they actually call you">
+        </div>
+        <div class="field">
+          <label for="fRelation">How do you know them? <span class="hint">optional</span></label>
+          <select id="fRelation">
+            <option value="">Prefer not to say</option>
+            <option>Best friend</option>
+            <option>Close friend</option>
+            <option>Classmate</option>
+            <option>Colleague</option>
+            <option>Family</option>
+            <option>Internet friend</option>
+            <option>Just met</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Your colour <span class="hint">this becomes your pen</span></label>
+          <div class="swatches" id="penSwatches"></div>
+        </div>
+
+        <div class="field-section-label">The quick stuff</div>
+        <div class="field">
+          <label for="fWord">Describe them in one word</label>
+          <input type="text" id="fWord" maxlength="24" placeholder="e.g. Chaotic" required>
+        </div>
+        <div id="templateQuestionFields"></div>
+
+        <div class="field-section-label">Leave your mark</div>
+        <div class="field">
+          <label for="fMsg">Your message</label>
+          <textarea id="fMsg" placeholder="Say something they'll want to keep." required></textarea>
+        </div>
+        <div class="field">
+          <label>Attach photos <span class="hint">optional, up to 6</span></label>
+          <div class="upload-box" id="photoUploadBox">
+            <input type="file" accept="image/*" id="fPhoto" multiple onchange="handlePhotoUpload(event)">
+            <span class="uplabel">Click to upload, or drop images here</span>
+          </div>
+          <div class="upload-thumbs" id="photoThumbs"></div>
+          <div class="upload-count" id="photoCount" style="display:none;"></div>
+        </div>
+        <div class="field" style="position:relative;">
+          <label for="fCity">Tag a city <span class="hint">optional — pins this entry on their memory map</span></label>
+          <input type="text" id="fCity" placeholder="Start typing… e.g. New" autocomplete="off"
+                 oninput="cityAutocomplete()" onfocus="cityAutocomplete()">
+          <div class="city-suggestions" id="citySuggestions" style="display:none;"></div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Sign the page</button>
+          <button type="button" class="link-quiet" onclick="cancelFillForm()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VISITOR VIEW ============ -->
+<section class="screen" id="screen-visitor">
+  <div class="wrap">
+    <div class="profile-cover" id="visitorCoverBox">
+      <img id="visitorCoverImg" alt="" style="display:none;">
+    </div>
+    <div class="visitor-topbar">
+      <div class="dash-id">
+        <div class="seal-wrap">
+          <div class="seal seal-lg" id="visitorSeal"></div>
+        </div>
+        <div>
+          <h2 id="visitorName" style="font-family:'Fraunces',serif; font-size:24px; margin:0 0 4px;"></h2>
+          <p id="visitorBio" style="margin:0; color:var(--ink-soft); font-size:14.5px;"></p>
+          <div class="social-row" id="visitorLinks"></div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="signCurrentVisitorProfile()">Sign this page</button>
+        <button class="btn btn-ghost" onclick="exitVisitorPreview()">Exit preview</button>
+      </div>
+    </div>
+
+    <div id="visitorPublicView">
+      <div class="map-panel" id="visitorMapPanel" style="display:none;">
+        <div class="entries-head">
+          <h3>Memory map</h3>
+          <span id="visitorMapCount"></span>
+        </div>
+        <div class="memory-map" id="visitorMap"></div>
+      </div>
+      <div class="entries-head">
+        <h3>Signed by</h3>
+        <span id="visitorEntryCount">0 people</span>
+      </div>
+      <div id="visitorEntries"></div>
+    </div>
+
+    <div id="visitorLockedView" style="display:none;">
+      <div class="lock-state">
+        <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="var(--ink-soft)" stroke-width="1.5">
+          <rect x="5" y="11" width="14" height="9" rx="2"/>
+          <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+        </svg>
+        <h3>This page is private</h3>
+        <p id="lockText">Only the owner can see who's signed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SEARCH ============ -->
+<section class="screen" id="screen-search">
+  <div class="wrap">
+    <div class="center-wrap" style="padding-top:56px;">
+      <div class="form-card" style="max-width:520px;">
+        <div class="form-eyebrow">Find someone</div>
+        <h2>Search for a page</h2>
+        <div class="field">
+          <label for="searchInput">Name</label>
+          <div style="display:flex; gap:10px;">
+            <input type="text" id="searchInput" placeholder="Search by name or @username"
+                   onkeydown="if(event.key==='Enter'){event.preventDefault(); runSearch();}">
+            <button class="btn-small" style="flex:none; padding:0 20px;" onclick="runSearch()">Search</button>
+          </div>
+        </div>
+        <div id="searchResults"></div>
+        <p style="font-size:12.5px; color:var(--ink-soft); margin-top:22px; line-height:1.6;">
+          This is a preview of search. Right now it can only find the page open in this browser tab — once earthlive has real accounts, everyone who's made a public page will turn up here.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ENTRY DETAIL MODAL ============ -->
+<div class="modal-overlay" id="entryModalOverlay" onclick="if(event.target===this) closeEntryModal()">
+  <div class="entry-modal" role="dialog" aria-modal="true" aria-label="Full entry">
+    <button class="modal-close" onclick="closeEntryModal()" aria-label="Close">✕</button>
+    <div id="entryModalBody"></div>
+  </div>
+</div>
+
+<!-- ============ SIGN IN / SIGN UP ============ -->
+<section class="screen" id="screen-auth">
+  <div class="center-wrap">
+    <div class="form-card" style="max-width:420px;">
+      <div class="form-eyebrow">Welcome</div>
+      <h2>Sign in to earthlive</h2>
+      <button class="auth-btn" onclick="signInWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18A11 11 0 0 0 1 12c0 1.77.43 3.45 1.18 4.94l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+        Continue with Google
+      </button>
+      <button class="auth-btn" onclick="startEmailFlow()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        Continue with email
+      </button>
+
+      <div id="emailFlow" style="display:none; margin-bottom:12px;">
+        <div id="emailStep1">
+          <div class="field" style="margin-bottom:12px;">
+            <label for="authEmail">Your email</label>
+            <input type="text" id="authEmail" placeholder="you@example.com">
+          </div>
+          <button type="button" class="btn-small" style="width:100%; padding:11px;" onclick="sendEmailCode()">Send verification code</button>
+        </div>
+        <div id="emailStep2" style="display:none;">
+          <p style="font-size:13px; color:var(--ink-soft); margin:0 0 10px;">
+            We've sent a 6-digit code to <b id="emailSentTo"></b>. It can take a minute — check spam too.
+          </p>
+          <div class="field" style="margin-bottom:12px;">
+            <label for="authCode">Verification code</label>
+            <input type="text" id="authCode" maxlength="6" placeholder="6-digit code" inputmode="numeric">
+          </div>
+          <button type="button" class="btn-small" style="width:100%; padding:11px;" onclick="verifyEmailCode()">Verify &amp; continue</button>
+          <button type="button" class="link-quiet" style="margin-top:8px;" onclick="backToEmailStep1()">Change email</button>
+        </div>
+      </div>
+      <button class="auth-btn" onclick="mockAuth('mobile')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
+        Continue with mobile number
+      </button>
+      <div class="auth-divider">or</div>
+      <button class="btn btn-primary" style="width:100%;" onclick="continueAsGuest()">Continue without an account</button>
+      <div class="demo-note">
+        Email and Google sign-in are live. Mobile sign-in is coming soon. You can also continue without an account — but your page won't be saved to it.
+      </div>
+      <button class="link-quiet" style="margin-top:18px;" onclick="showScreen('landing')">Back</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABOUT US ============ -->
+<section class="screen" id="screen-about">
+  <div class="wrap">
+    <div class="about-body">
+      <div class="eyebrow">About us</div>
+      <h2>Some things deserve to be written down.</h2>
+      <p>Earthlive brings back the slam book — the notebook that went around the classroom, the one you filled with questions for your friends and got back covered in their handwriting, inside jokes, and things they'd never say out loud.</p>
+      <p>Here, your page is your book. You choose the questions, send one link, and your people fill it with words you'll actually want to keep. You approve every entry before it appears, and you decide whether your page is open to the world or just for you.</p>
+      <h3>How it works</h3>
+      <p>Make your page and pick a question set — classic, deep, funny, or farewell. Share your link anywhere. Every signature waits for your approval before it's posted, and anyone can tap an entry to read the whole thing.</p>
+      <h3>Get in touch</h3>
+      <p>Questions, ideas, or something broken? Write to us at hello@earthlive.in.</p>
+      <div class="cta-row" style="margin-top:34px;">
+        <button class="btn btn-primary" onclick="showScreen('auth')">Start your book →</button>
+        <button class="link-quiet" onclick="showScreen('landing')">Back to home</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRIVACY POLICY ============ -->
+<section class="screen" id="screen-privacy">
+  <div class="wrap">
+    <div class="about-body">
+      <div class="eyebrow">Legal</div>
+      <h2>Privacy Policy</h2>
+      <p style="font-size:13px; background:var(--oat); border-radius:10px; padding:12px 15px;"><b>Draft for review:</b> this is a starting template. Before launch, have it reviewed by a lawyer familiar with Indian data protection law (DPDP Act, 2023) and the laws of other regions you serve. It is not legal advice.</p>
+      <p><b>Last updated:</b> July 2026</p>
+      <h3>What we collect</h3>
+      <p>When you create a page: your name, bio, profile and cover photos, chosen questions, optional social links, and your email or mobile number if you sign up. When you sign someone's page: your name, answers, message, and any photos you attach. We also collect basic technical data (device, browser, approximate location) to keep the service working and secure.</p>
+      <h3>How we use it</h3>
+      <p>To run Earthlive: showing your page to people you share it with, delivering signatures to page owners for approval, and keeping accounts secure. We do not sell your personal data. We do not show your private pages to anyone but you.</p>
+      <h3>Who can see what</h3>
+      <p>Public pages are visible to anyone with the link and may appear in search. Private pages show only your name, bio, and photos — the entries are visible only to you. Signatures never appear publicly until the page owner approves them.</p>
+      <h3>Your choices</h3>
+      <p>You can edit or delete your page, decline or remove any signature, switch between public and private at any time, and request deletion of your account and data by writing to privacy@earthlive.in. We will act on verified requests within 30 days.</p>
+      <h3>Children</h3>
+      <p>Earthlive is not intended for children under 13 (or the higher minimum age in your region). If you believe a child's data has been collected, contact us and we will remove it.</p>
+      <h3>Contact</h3>
+      <p>Privacy questions: privacy@earthlive.in</p>
+      <button class="link-quiet" onclick="showScreen('landing')">Back to home</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TERMS OF USE ============ -->
+<section class="screen" id="screen-terms">
+  <div class="wrap">
+    <div class="about-body">
+      <div class="eyebrow">Legal</div>
+      <h2>Terms of Use</h2>
+      <p style="font-size:13px; background:var(--oat); border-radius:10px; padding:12px 15px;"><b>Draft for review:</b> this is a starting template, not legal advice. Have a lawyer adapt it to your entity, jurisdiction, and final feature set before launch.</p>
+      <p><b>Last updated:</b> July 2026</p>
+      <h3>Using Earthlive</h3>
+      <p>By using Earthlive (earthlive.in) you agree to these terms. You must be at least 13 years old, or the minimum age required in your region. You are responsible for your account and everything posted from it.</p>
+      <h3>Your content</h3>
+      <p>You own what you write and upload. By posting, you give Earthlive a licence to store and display it as needed to run the service. Only upload photos and words you have the right to share — no impersonation, and no posting other people's private information.</p>
+      <h3>What's not allowed</h3>
+      <p>Harassment, bullying, hate speech, threats, sexual content involving minors, spam, malware, or using the service to harm anyone. Page owners control their own pages and may decline or remove any signature. We may remove content or suspend accounts that break these rules.</p>
+      <h3>Our service</h3>
+      <p>Earthlive is provided "as is." We work hard to keep it available and your data safe, but we can't guarantee uninterrupted service, and we're not liable for content posted by users. We may update features and these terms; continued use means acceptance of updates.</p>
+      <h3>Contact</h3>
+      <p>Questions about these terms: hello@earthlive.in</p>
+      <button class="link-quiet" onclick="showScreen('landing')">Back to home</button>
+    </div>
+  </div>
+</section>
+
+<div class="theme-switcher" id="themeSwitcher" aria-label="Choose theme"></div>
+
+<div class="toast" id="toast">Copied to clipboard</div>
+
+<script>
+  /* ============================================================
+     SUPABASE CONNECTION (Stage 2, piece 1) — CONFIGURED
+     Project: uehnlopsazcwguhrqtnh · anon key embedded (public by design)
+     ============================================================ */
+  const SUPABASE_URL = 'https://uehnlopsazcwguhrqtnh.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVlaG5sb3BzYXpjd2d1aHJxdG5oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMTM4MzUsImV4cCI6MjA5ODc4OTgzNX0.rFIOavMLOgzqVm5P7j8hbHSrov10zonj-JooWjiXiCw';
+
+  let db = null;
+  if (typeof supabase !== 'undefined' && SUPABASE_ANON_KEY !== 'PASTE_YOUR_ANON_KEY_HERE'){
+    db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Connectivity self-test: calls the username_available() function created by supabase-setup.sql
+    db.rpc('username_available', { candidate: 'connectivity_test' }).then(({ data, error })=>{
+      if (error){
+        console.error('[earthlive] Supabase reachable but query failed:', error.message);
+      } else {
+        console.log('[earthlive] Supabase connected \u2713 (username_available returned', data + ')');
+      }
+    });
+  } else {
+    console.warn('[earthlive] Supabase not connected yet \u2014 anon key not set. Running in local mode.');
+  }
+
+  const PEN_COLORS = ['#57614A','#3C4A5E','#A9764F','#6B4C6B','#A65A3C','#4E7065'];
+
+  const CITIES = [
+    {name:'Agra', lat:27.18, lng:78.01},
+    {name:'Ahmedabad', lat:23.03, lng:72.58},
+    {name:'Amritsar', lat:31.63, lng:74.87},
+    {name:'Bengaluru', lat:12.97, lng:77.59},
+    {name:'Bhopal', lat:23.26, lng:77.41},
+    {name:'Bhubaneswar', lat:20.30, lng:85.82},
+    {name:'Chandigarh', lat:30.73, lng:76.78},
+    {name:'Chennai', lat:13.08, lng:80.27},
+    {name:'Coimbatore', lat:11.02, lng:76.96},
+    {name:'Dehradun', lat:30.32, lng:78.03},
+    {name:'Goa', lat:15.49, lng:73.83},
+    {name:'Guwahati', lat:26.14, lng:91.74},
+    {name:'Hyderabad', lat:17.38, lng:78.49},
+    {name:'Indore', lat:22.72, lng:75.86},
+    {name:'Jaipur', lat:26.91, lng:75.79},
+    {name:'Kanpur', lat:26.45, lng:80.33},
+    {name:'Kochi', lat:9.93, lng:76.27},
+    {name:'Kolkata', lat:22.57, lng:88.36},
+    {name:'Lucknow', lat:26.85, lng:80.95},
+    {name:'Madurai', lat:9.93, lng:78.12},
+    {name:'Mumbai', lat:19.08, lng:72.88},
+    {name:'Mysuru', lat:12.30, lng:76.64},
+    {name:'Nagpur', lat:21.15, lng:79.09},
+    {name:'New Delhi', lat:28.61, lng:77.21},
+    {name:'Patna', lat:25.59, lng:85.14},
+    {name:'Pune', lat:18.52, lng:73.86},
+    {name:'Ranchi', lat:23.34, lng:85.31},
+    {name:'Shillong', lat:25.57, lng:91.88},
+    {name:'Srinagar', lat:34.08, lng:74.80},
+    {name:'Surat', lat:21.17, lng:72.83},
+    {name:'Thiruvananthapuram', lat:8.52, lng:76.94},
+    {name:'Varanasi', lat:25.32, lng:83.01},
+    {name:'Visakhapatnam', lat:17.69, lng:83.22},
+    {name:'Bangkok', lat:13.76, lng:100.50},
+    {name:'Berlin', lat:52.52, lng:13.41},
+    {name:'Colombo', lat:6.93, lng:79.85},
+    {name:'Dhaka', lat:23.81, lng:90.41},
+    {name:'Dubai', lat:25.20, lng:55.27},
+    {name:'Kathmandu', lat:27.72, lng:85.32},
+    {name:'Kuala Lumpur', lat:3.14, lng:101.69},
+    {name:'London', lat:51.51, lng:-0.13},
+    {name:'Los Angeles', lat:34.05, lng:-118.24},
+    {name:'New York', lat:40.71, lng:-74.01},
+    {name:'Paris', lat:48.86, lng:2.35},
+    {name:'San Francisco', lat:37.77, lng:-122.42},
+    {name:'Singapore', lat:1.35, lng:103.82},
+    {name:'Sydney', lat:-33.87, lng:151.21},
+    {name:'Tokyo', lat:35.68, lng:139.69},
+    {name:'Toronto', lat:43.65, lng:-79.38}
+  ];
+
+  const TEMPLATES = [
+    {
+      id:'classic', name:'Classic Slam', desc:'The all-rounder. Fun and sweet in equal parts.',
+      questions:[
+        {id:'q_likely', label:'Most likely to...', ph:'e.g. Become famous by accident'},
+        {id:'q_power', label:'A superpower you\u2019d give them', ph:'e.g. Reading minds before exams'},
+        {id:'q_song', label:'A song that reminds you of them', ph:'e.g. Whatever\u2019s stuck in your head'},
+        {id:'q_memory', label:'Your best memory together', ph:'That one time when...', long:true},
+        {id:'q_advice', label:'One piece of advice for them', ph:'Something you actually mean.', long:true},
+        {id:'q_future', label:'Where you see them in 10 years', ph:'e.g. Running the place, still late'}
+      ]
+    },
+    {
+      id:'deep', name:'Deep Cuts', desc:'For the friends who mean it. Slower, warmer questions.',
+      questions:[
+        {id:'q_taught', label:'Something they taught you without knowing it', ph:'They probably have no idea...', long:true},
+        {id:'q_seen', label:'A moment they made you feel seen', ph:'It might seem small to them...', long:true},
+        {id:'q_lastnote', label:'If this were your last note to them', ph:'Say the thing.', long:true},
+        {id:'q_forgive', label:'Something they should forgive themselves for', ph:'Gently.', long:true},
+        {id:'q_neverlose', label:'The quality you hope they never lose', ph:'e.g. The way they check on people'}
+      ]
+    },
+    {
+      id:'laughs', name:'Just for Laughs', desc:'Zero seriousness. Maximum roasting (with love).',
+      questions:[
+        {id:'q_unhinged', label:'Their most unhinged moment', ph:'We both know which one.', long:true},
+        {id:'q_remind', label:'A food, smell, or animal they remind you of', ph:'Explain yourself.'},
+        {id:'q_search', label:'What their search history probably looks like', ph:'Be honest.'},
+        {id:'q_movie', label:'If they were a movie character', ph:'e.g. The chaotic sidekick who steals the film'},
+        {id:'q_phrase', label:'Their catchphrase', ph:'The thing they always say'},
+        {id:'q_arrested', label:'What they\u2019d get arrested for', ph:'Hypothetically. Obviously.'}
+      ]
+    },
+    {
+      id:'yearbook', name:'Yearbook / Farewell', desc:'For goodbyes \u2014 school, college, a job, a city.',
+      questions:[
+        {id:'q_met', label:'How we met', ph:'The origin story', long:true},
+        {id:'q_miss', label:'What I\u2019ll miss most', ph:'Be specific.', long:true},
+        {id:'q_fav', label:'Favourite memory from this chapter', ph:'A class, a trip, a 2am conversation...', long:true},
+        {id:'q_predict', label:'My prediction for you', ph:'Where you\u2019ll be, what you\u2019ll do'},
+        {id:'q_touch', label:'How we\u2019ll stay in touch', ph:'A promise, not a plan'},
+        {id:'q_road', label:'Advice for the road', ph:'One thing to carry with you', long:true}
+      ]
+    }
+  ];
+  let profile = null;
+  let entries = [];
+
+  let selectedInk = PEN_COLORS[0];
+  let selectedPen = PEN_COLORS[1];
+
+  function buildSwatches(containerId, currentColorGetter, onPick){
+    const el = document.getElementById(containerId);
+    el.innerHTML = '';
+    PEN_COLORS.forEach(c=>{
+      const s = document.createElement('button');
+      s.type = 'button';
+      s.className = 'swatch' + (currentColorGetter()===c ? ' selected':'');
+      s.style.background = c;
+      s.setAttribute('aria-label','choose colour '+c);
+      s.onclick = ()=>{ onPick(c); buildSwatches(containerId, currentColorGetter, onPick); };
+      el.appendChild(s);
+    });
+  }
+
+  buildSwatches('inkSwatches', ()=>selectedInk, c=>selectedInk=c);
+  buildSwatches('penSwatches', ()=>selectedPen, c=>selectedPen=c);
+
+  let selectedTemplateId = 'classic';
+  let enabledQuestionIds = new Set(TEMPLATES[0].questions.map(q=>q.id));
+
+  function renderTemplatePicker(){
+    const grid = document.getElementById('templateGrid');
+    grid.innerHTML = TEMPLATES.map(t=>`
+      <button type="button" class="template-card ${t.id===selectedTemplateId?'selected':''}" onclick="selectTemplate('${t.id}')">
+        <strong>${t.name}</strong>
+        <span>${t.desc}</span>
+      </button>`).join('');
+    renderQuestionList();
+  }
+
+  function selectTemplate(id){
+    selectedTemplateId = id;
+    const t = TEMPLATES.find(x=>x.id===id);
+    enabledQuestionIds = new Set(t.questions.map(q=>q.id));
+    renderTemplatePicker();
+  }
+
+  function renderQuestionList(){
+    const t = TEMPLATES.find(x=>x.id===selectedTemplateId);
+    document.getElementById('questionList').innerHTML = t.questions.map(q=>`
+      <label class="question-item ${enabledQuestionIds.has(q.id)?'':'off'}">
+        <input type="checkbox" ${enabledQuestionIds.has(q.id)?'checked':''} onchange="toggleQuestion('${q.id}')">
+        ${escapeHtml(q.label)}
+      </label>`).join('');
+  }
+
+  function toggleQuestion(qid){
+    if (enabledQuestionIds.has(qid)){
+      if (enabledQuestionIds.size === 1){
+        showToast('Keep at least one question');
+        renderQuestionList();
+        return;
+      }
+      enabledQuestionIds.delete(qid);
+    } else {
+      enabledQuestionIds.add(qid);
+    }
+    renderQuestionList();
+  }
+
+  function getChosenQuestions(){
+    const t = TEMPLATES.find(x=>x.id===selectedTemplateId);
+    return t.questions.filter(q=>enabledQuestionIds.has(q.id))
+      .map(q=>({id:q.id, label:q.label, ph:q.ph, long:!!q.long}));
+  }
+
+  let avatarDataUrl = null;
+  let coverDataUrl = null;
+  let entryPhotos = [];
+  const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
+  const MAX_PHOTOS = 6;
+
+  function readImageFile(file){
+    return new Promise((resolve, reject)=>{
+      if (!file.type.startsWith('image/')){ reject('type'); return; }
+      if (file.size > MAX_IMAGE_BYTES){ reject('size'); return; }
+      const reader = new FileReader();
+      reader.onload = ()=>resolve(reader.result);
+      reader.onerror = ()=>reject('read');
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function handleUpload(event, kind){
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    readImageFile(file).then(dataUrl=>{
+      if (kind === 'cover'){
+        coverDataUrl = dataUrl;
+        document.getElementById('coverPreviewImg').src = dataUrl;
+        document.getElementById('coverPreview').style.display = 'flex';
+      } else {
+        avatarDataUrl = dataUrl;
+        document.getElementById('avatarPreviewImg').src = dataUrl;
+        document.getElementById('avatarPreview').style.display = 'flex';
+      }
+    }).catch(err=>{
+      showToast(err === 'size' ? 'Image is too large (max 4MB)' : 'Please choose an image file');
+      event.target.value = '';
+    });
+  }
+
+  function clearUpload(kind){
+    if (kind === 'cover'){
+      coverDataUrl = null;
+      document.getElementById('cCover').value = '';
+      document.getElementById('coverPreview').style.display = 'none';
+    } else {
+      avatarDataUrl = null;
+      document.getElementById('cAvatar').value = '';
+      document.getElementById('avatarPreview').style.display = 'none';
+    }
+  }
+
+  function renderCover(prefix, profileObj){
+    const img = document.getElementById(prefix + 'CoverImg');
+    if (profileObj.cover){
+      img.src = profileObj.cover;
+      img.style.display = 'block';
+    } else {
+      img.style.display = 'none';
+    }
+  }
+
+  function handleQuickAvatarChange(event){
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    readImageFile(file).then(dataUrl=>{
+      profile.avatar = dataUrl;
+      renderSeal('ownerSeal');
+      showToast('Profile photo updated');
+    }).catch(err=>{
+      showToast(err === 'size' ? 'Image is too large (max 4MB)' : 'Please choose an image file');
+    });
+    event.target.value = '';
+  }
+
+  function handleQuickCoverChange(event){
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    readImageFile(file).then(dataUrl=>{
+      profile.cover = dataUrl;
+      renderCover('owner', profile);
+      showToast('Cover photo updated');
+    }).catch(err=>{
+      showToast(err === 'size' ? 'Image is too large (max 4MB)' : 'Please choose an image file');
+    });
+    event.target.value = '';
+  }
+
+  function handlePhotoUpload(event){
+    const files = Array.from(event.target.files || []);
+    if (!files.length) return;
+    const room = MAX_PHOTOS - entryPhotos.length;
+    if (room <= 0){
+      showToast(`You can attach up to ${MAX_PHOTOS} photos`);
+      event.target.value = '';
+      return;
+    }
+    const toAdd = files.slice(0, room);
+    Promise.all(toAdd.map(f=>readImageFile(f).catch(()=>null))).then(results=>{
+      results.filter(Boolean).forEach(url=>entryPhotos.push(url));
+      renderPhotoThumbs();
+      if (files.length > toAdd.length) showToast(`You can attach up to ${MAX_PHOTOS} photos`);
+      event.target.value = '';
+    });
+  }
+
+  function removeEntryPhoto(index){
+    entryPhotos.splice(index, 1);
+    renderPhotoThumbs();
+  }
+
+  function renderPhotoThumbs(){
+    const wrap = document.getElementById('photoThumbs');
+    wrap.innerHTML = entryPhotos.map((url, i)=>`
+      <div class="upload-thumb">
+        <img src="${url}" alt="">
+        <button type="button" class="thumb-remove" onclick="removeEntryPhoto(${i})" aria-label="Remove photo">✕</button>
+      </div>`).join('');
+    const countEl = document.getElementById('photoCount');
+    if (entryPhotos.length){
+      countEl.style.display = 'block';
+      countEl.textContent = `${entryPhotos.length} of ${MAX_PHOTOS} added`;
+    } else {
+      countEl.style.display = 'none';
+    }
+  }
+
+  let createVisibilityPublic = true;
+  function toggleCreateVisibility(){
+    createVisibilityPublic = !createVisibilityPublic;
+    syncVisibilityToggleUI();
+  }
+  function syncVisibilityToggleUI(){
+    document.getElementById('visSwitch').classList.toggle('on', createVisibilityPublic);
+    document.getElementById('visLabel').textContent = createVisibilityPublic ? 'Public page' : 'Private page';
+    document.getElementById('visDesc').textContent = createVisibilityPublic
+      ? 'Anyone with the link can see who\'s signed.'
+      : 'Only you can see who\'s signed.';
+  }
+
+  function initials(name){
+    return name.trim().split(/\s+/).map(p=>p[0]).slice(0,2).join('').toUpperCase();
+  }
+
+  function renderSeal(elId, profileObj){
+    const p = profileObj || profile;
+    const seal = document.getElementById(elId);
+    seal.style.setProperty('--seal-color', p.ink);
+    if (p.avatar){
+      seal.innerHTML = `<img src="${p.avatar}" alt="${escapeHtml(p.name)}">`;
+    } else {
+      seal.innerHTML = '';
+      seal.textContent = initials(p.name);
+    }
+  }
+
+  function randomCode(){
+    return Math.random().toString(36).slice(2,8);
+  }
+
+  function makeId(){
+    return 'e_' + Math.random().toString(36).slice(2,10);
+  }
+
+  function isApproved(entry){
+    return entry.status !== 'pending';
+  }
+
+  let editMode = false;
+
+  /* ---------- REAL SIGN-IN (Stage 2, piece 2) ---------- */
+  let currentUser = null;
+  let pendingAuthEmail = null;
+
+  if (db){
+    db.auth.onAuthStateChange((event, session)=>{
+      currentUser = session ? session.user : null;
+      if (event === 'SIGNED_IN' && currentUser){
+        showToast('Signed in as ' + (currentUser.email || 'your account'));
+        // If the user is sitting on the sign-in screen, move them forward.
+        if (document.getElementById('screen-auth').classList.contains('active')){
+          startNewBook();
+        }
+      }
+    });
+  }
+
+  function mockAuth(method){
+    showToast('Sign-in with ' + method + ' isn\u2019t enabled yet.');
+  }
+
+  function signInWithGoogle(){
+    if (!db){ showToast('Not connected to the server'); return; }
+    if (location.protocol === 'file:'){
+      showToast('Google sign-in needs the site to run on a web address \u2014 it will work once hosted (or via a local server).');
+      return;
+    }
+    db.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: location.href.split('#')[0] }
+    }).then(({ error })=>{
+      if (error) showToast('Google sign-in failed: ' + error.message);
+    });
+  }
+
+  function startEmailFlow(){
+    const flow = document.getElementById('emailFlow');
+    flow.style.display = flow.style.display === 'none' ? 'block' : 'none';
+    backToEmailStep1();
+  }
+
+  function backToEmailStep1(){
+    document.getElementById('emailStep1').style.display = 'block';
+    document.getElementById('emailStep2').style.display = 'none';
+    document.getElementById('authCode').value = '';
+  }
+
+  function sendEmailCode(){
+    const email = document.getElementById('authEmail').value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+      showToast('Enter a valid email address');
+      return;
+    }
+    if (!db){ showToast('Not connected to the server'); return; }
+    showToast('Sending code\u2026');
+    db.auth.signInWithOtp({ email, options: { shouldCreateUser: true } }).then(({ error })=>{
+      if (error){
+        showToast('Could not send: ' + error.message);
+        return;
+      }
+      pendingAuthEmail = email;
+      document.getElementById('emailSentTo').textContent = email;
+      document.getElementById('emailStep1').style.display = 'none';
+      document.getElementById('emailStep2').style.display = 'block';
+      showToast('Check your inbox for the code');
+    });
+  }
+
+  function verifyEmailCode(){
+    const code = document.getElementById('authCode').value.trim();
+    if (!/^\d{6}$/.test(code)){
+      showToast('Enter the 6-digit code');
+      return;
+    }
+    if (!db || !pendingAuthEmail){ showToast('Start by sending a code first'); return; }
+    showToast('Verifying\u2026');
+    db.auth.verifyOtp({ email: pendingAuthEmail, token: code, type: 'email' }).then(({ error })=>{
+      if (error){
+        showToast('Wrong or expired code \u2014 try again');
+        return;
+      }
+      // Success: the auth listener above fires SIGNED_IN and routes forward.
+    });
+  }
+
+  function continueAsGuest(){
+    startNewBook();
+  }
+
+  function startNewBook(){
+    editMode = false;
+    resetCreateFormUI();
+    showScreen('create');
+  }
+
+  function openEditProfile(){
+    editMode = true;
+    document.getElementById('cName').value = profile.name;
+    document.getElementById('cUsername').value = profile.username || '';
+    document.getElementById('cBio').value = profile.bio;
+    selectedInk = profile.ink;
+    buildSwatches('inkSwatches', ()=>selectedInk, c=>selectedInk=c);
+    avatarDataUrl = profile.avatar || null;
+    if (avatarDataUrl){
+      document.getElementById('avatarPreviewImg').src = avatarDataUrl;
+      document.getElementById('avatarPreview').style.display = 'flex';
+    } else {
+      document.getElementById('avatarPreview').style.display = 'none';
+    }
+    coverDataUrl = profile.cover || null;
+    if (coverDataUrl){
+      document.getElementById('coverPreviewImg').src = coverDataUrl;
+      document.getElementById('coverPreview').style.display = 'flex';
+    } else {
+      document.getElementById('coverPreview').style.display = 'none';
+    }
+    createVisibilityPublic = profile.visibility === 'public';
+    syncVisibilityToggleUI();
+    selectedTemplateId = profile.templateId || 'classic';
+    enabledQuestionIds = new Set((profile.questions || TEMPLATES[0].questions).map(q=>q.id));
+    renderTemplatePicker();
+    const links = profile.links || {};
+    document.getElementById('cLinkInstagram').value = links.instagram || '';
+    document.getElementById('cLinkLinkedin').value = links.linkedin || '';
+    document.getElementById('cLinkFacebook').value = links.facebook || '';
+    document.getElementById('cLinkWebsite').value = links.website || '';
+    document.getElementById('createEyebrow').textContent = 'Editing';
+    document.getElementById('createHeading').textContent = 'Update your page';
+    document.getElementById('createSubmitBtn').textContent = 'Save changes';
+    showScreen('create');
+  }
+
+  function resetCreateFormUI(){
+    document.getElementById('createForm').reset();
+    document.getElementById('usernameStatus').style.display = 'none';
+    avatarDataUrl = null;
+    document.getElementById('avatarPreview').style.display = 'none';
+    coverDataUrl = null;
+    document.getElementById('coverPreview').style.display = 'none';
+    document.getElementById('createEyebrow').textContent = 'Step one';
+    document.getElementById('createHeading').textContent = 'Make your page';
+    document.getElementById('createSubmitBtn').textContent = 'Create my page →';
+    createVisibilityPublic = true;
+    syncVisibilityToggleUI();
+    selectedInk = PEN_COLORS[0];
+    buildSwatches('inkSwatches', ()=>selectedInk, c=>selectedInk=c);
+    selectedTemplateId = 'classic';
+    enabledQuestionIds = new Set(TEMPLATES[0].questions.map(q=>q.id));
+    renderTemplatePicker();
+  }
+
+  function collectLinks(){
+    const links = {
+      instagram: document.getElementById('cLinkInstagram').value.trim(),
+      linkedin: document.getElementById('cLinkLinkedin').value.trim(),
+      facebook: document.getElementById('cLinkFacebook').value.trim(),
+      website: document.getElementById('cLinkWebsite').value.trim()
+    };
+    Object.keys(links).forEach(k=>{ if(!links[k]) delete links[k]; });
+    return links;
+  }
+
+  function takenUsernames(){
+    // STAGE 2 WIRING POINT: replace with the username_available() Supabase function.
+    // Locally there is no registry, so no names are taken yet.
+    let taken = [];
+    if (editMode && profile && profile.username){
+      taken = taken.filter(u => u !== profile.username);
+    }
+    return taken;
+  }
+
+  function validateUsername(u){
+    if (!u) return { ok:false, msg:'Pick a username \u2014 it becomes your page link.' };
+    if (!/^[a-z0-9_]{3,20}$/.test(u)) return { ok:false, msg:'3\u201320 characters: lowercase letters, numbers, and _ only.' };
+    if (takenUsernames().includes(u)) return { ok:false, msg:'@' + u + ' is already taken \u2014 try another.' };
+    return { ok:true, msg:'@' + u + ' is available!' };
+  }
+
+  function checkUsername(){
+    const input = document.getElementById('cUsername');
+    input.value = input.value.toLowerCase().replace(/[^a-z0-9_]/g,'');
+    const status = document.getElementById('usernameStatus');
+    const u = input.value;
+    if (!u){ status.style.display='none'; return; }
+    const res = validateUsername(u);
+    status.style.display = 'block';
+    status.textContent = res.msg;
+    status.style.color = res.ok ? 'var(--moss)' : 'var(--blush)';
+  }
+
+  function cancelCreateForm(){
+    const wasEditing = editMode;
+    editMode = false;
+    resetCreateFormUI();
+    showScreen(wasEditing ? 'dashboard' : 'landing');
+  }
+
+  function createProfile(e){
+    e.preventDefault();
+    const name = document.getElementById('cName').value.trim();
+    const bio = document.getElementById('cBio').value.trim();
+    const username = document.getElementById('cUsername').value.trim();
+
+    const uCheck = validateUsername(username);
+    if (!uCheck.ok){
+      checkUsername();
+      document.getElementById('cUsername').focus();
+      showToast(uCheck.msg);
+      return;
+    }
+
+    if (editMode){
+      profile.name = name;
+      profile.username = username;
+      profile.bio = bio || 'Just here to collect some words.';
+      profile.ink = selectedInk;
+      profile.avatar = avatarDataUrl;
+      profile.cover = coverDataUrl;
+      profile.visibility = createVisibilityPublic ? 'public' : 'private';
+      profile.templateId = selectedTemplateId;
+      profile.questions = getChosenQuestions();
+      profile.links = collectLinks();
+      editMode = false;
+      resetCreateFormUI();
+      renderDashboard();
+      showScreen('dashboard');
+      showToast('Page updated');
+      return;
+    }
+
+    profile = {
+      name,
+      username,
+      bio: bio || 'Just here to collect some words.',
+      ink: selectedInk,
+      avatar: avatarDataUrl,
+      cover: coverDataUrl,
+      visibility: createVisibilityPublic ? 'public' : 'private',
+      templateId: selectedTemplateId,
+      questions: getChosenQuestions(),
+      links: collectLinks(),
+      code: randomCode()
+    };
+    entries = [];
+    resetCreateFormUI();
+    renderDashboard();
+    showScreen('dashboard');
+  }
+
+  function renderSocialLinks(elId, profileObj){
+    const el = document.getElementById(elId);
+    const links = profileObj.links || {};
+    const icons = {
+      instagram:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg>',
+      linkedin:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.5 8.5v11H3v-11h3.5zM4.75 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM21 13.4v6.1h-3.5v-5.6c0-1.4-.6-2.3-1.8-2.3-1 0-1.6.7-1.9 1.4-.1.2-.1.6-.1.9v5.6H10.2v-11h3.5v1.5c.5-.8 1.4-1.8 3.3-1.8 2.4 0 4 1.6 4 5.2z"/></svg>',
+      facebook:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 8.5V6.8c0-.8.2-1.3 1.4-1.3H17V2.5h-2.6C11.6 2.5 10.5 4 10.5 6.4v2.1H8v3.2h2.5v9.8H14v-9.8h2.7l.4-3.2H14z"/></svg>',
+      website:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.7-3.8-9S9.5 5.6 12 3z"/></svg>'
+    };
+    const labels = {instagram:'Instagram', linkedin:'LinkedIn', facebook:'Facebook', website:'Website'};
+    el.innerHTML = Object.keys(labels).filter(k=>links[k]).map(k=>{
+      let url = links[k];
+      if (!/^https?:\/\//i.test(url)){
+        url = k === 'instagram' && url.startsWith('@')
+          ? 'https://instagram.com/' + url.slice(1)
+          : 'https://' + url;
+      }
+      return `<a class="social-chip" href="${encodeURI(url)}" target="_blank" rel="noopener noreferrer">${icons[k]}${labels[k]}</a>`;
+    }).join('');
+  }
+
+  function renderDashboard(){
+    document.getElementById('ownerName').innerHTML = escapeHtml(profile.name) +
+      (profile.username ? ` <span style="font-family:'Work Sans',sans-serif; font-weight:400; font-size:14px; color:var(--ink-soft);">@${escapeHtml(profile.username)}</span>` : '');
+    document.getElementById('ownerBio').textContent = profile.bio;
+    renderSeal('ownerSeal');
+    renderCover('owner', profile);
+    renderSocialLinks('ownerLinks', profile);
+    document.getElementById('inviteLink').textContent =
+      'earthlive.in/u/' + (profile.username || profile.code);
+
+    updateVisibilityPill();
+    const tpl = TEMPLATES.find(t=>t.id===profile.templateId) || TEMPLATES[0];
+    const qCount = (profile.questions || tpl.questions).length;
+    document.getElementById('templatePillText').textContent = tpl.name + ' \u00b7 ' + qCount + ' questions';
+    renderEntries('ownerEntries', entries.filter(isApproved), 'entryCount', true);
+    renderMemoryMap('ownerMapPanel', 'ownerMap', 'ownerMapCount', entries.filter(isApproved));
+    renderPendingPanel(entries.filter(e => e.status === 'pending'));
+  }
+
+  function renderPendingPanel(pending){
+    const panel = document.getElementById('pendingPanel');
+    if (!pending.length){
+      panel.style.display = 'none';
+      return;
+    }
+    panel.style.display = 'block';
+    document.getElementById('pendingCount').textContent =
+      `(${pending.length} ${pending.length === 1 ? 'entry' : 'entries'})`;
+
+    document.getElementById('pendingList').innerHTML = pending.map(entry => `
+      <div class="pending-card">
+        <div class="entry-top">
+          <span class="pen-dot" style="background:${entry.color}"></span>
+          <span class="entry-name">${escapeHtml(entry.name)}</span>
+        </div>
+        <p class="entry-msg">"${escapeHtml(entry.message)}"</p>
+        <div class="pending-actions">
+          <button class="btn-small" onclick="acceptEntry('${entry.id}')">Accept &amp; post</button>
+          <button class="btn-small btn-decline" onclick="declineEntry('${entry.id}')">Decline</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function acceptEntry(id){
+    const entry = entries.find(e => e.id === id);
+    if (!entry) return;
+    entry.status = 'approved';
+    renderDashboard();
+    showToast(entry.name + '\u2019s signature is now on your page');
+  }
+
+  function declineEntry(id){
+    const entry = entries.find(e => e.id === id);
+    entries = entries.filter(e => e.id !== id);
+    renderDashboard();
+    if (entry) showToast(entry.name + '\u2019s signature was declined');
+  }
+
+  function updateVisibilityPill(){
+    const pill = document.getElementById('visPill');
+    pill.classList.toggle('private', profile.visibility === 'private');
+    document.getElementById('visPillText').textContent = profile.visibility === 'private' ? 'Private' : 'Public';
+  }
+
+  function toggleDashVisibility(){
+    profile.visibility = profile.visibility === 'public' ? 'private' : 'public';
+    updateVisibilityPill();
+  }
+
+  let modalEntrySource = [];
+  let modalIsOwner = false;
+  let lastRenderContainer = null;
+
+  function entryActionsHtml(entry, i){
+    const likes = entry.likes || 0;
+    const comments = (entry.comments || []).length;
+    const likedCls = entry.likedByMe ? ' liked' : '';
+    const heartFill = entry.likedByMe ? 'currentColor' : 'none';
+    return `
+      <div class="entry-actions">
+        <button class="action-btn${likedCls}" onclick="event.stopPropagation(); toggleLike(${i})" aria-label="Like">
+          <svg viewBox="0 0 24 24" fill="${heartFill}" stroke="currentColor" stroke-width="2"><path d="M12 21C7 17.5 3 14 3 9.5 3 6.5 5.5 4 8.2 4c1.6 0 2.9.7 3.8 1.9C12.9 4.7 14.2 4 15.8 4 18.5 4 21 6.5 21 9.5c0 4.5-4 8-9 11.5z"/></svg>
+          ${likes || ''}
+        </button>
+        <button class="action-btn" onclick="event.stopPropagation(); openEntryModal(${i}, true)" aria-label="Comments">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-8 8H4l2.3-2.9A8 8 0 1 1 21 12z"/></svg>
+          ${comments || ''}
+        </button>
+        <button class="action-btn" onclick="event.stopPropagation(); shareEntry(${i})" aria-label="Share">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8.7 10.6l6.6-3.2M8.7 13.4l6.6 3.2"/></svg>
+        </button>
+      </div>`;
+  }
+
+  function renderEntries(containerId, entriesArr, countElId, isOwner){
+    const el = document.getElementById(containerId);
+    const countEl = countElId ? document.getElementById(countElId) : null;
+    if (countEl) countEl.textContent = entriesArr.length + (entriesArr.length===1 ? ' person' : ' people');
+
+    if (entriesArr.length === 0){
+      el.innerHTML = `
+        <div class="empty-state">
+          <div class="stamp-outline"></div>
+          <p>Nobody's signed yet.<br>Share your link to get the first one.</p>
+        </div>`;
+      return;
+    }
+
+    modalEntrySource = entriesArr;
+    modalIsOwner = !!isOwner;
+    lastRenderContainer = { containerId, countElId, isOwner: !!isOwner };
+
+    el.innerHTML = '<div class="entries-grid">' + entriesArr.map((entry, i)=>{
+      const angle = ((i*37)%7) - 3;
+      const photos = entry.photos || [];
+      let photosHtml = '';
+      if (photos.length){
+        const shown = photos.slice(0, 4);
+        const extra = photos.length - shown.length;
+        const tiles = shown.map((url, idx)=>{
+          if (idx === 3 && extra > 0){
+            return `<div class="photo-more"><img src="${url}" alt="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"><span style="position:relative;">+${extra}</span></div>`;
+          }
+          return `<img src="${url}" alt="Photo from ${escapeHtml(entry.name)}">`;
+        }).join('');
+        photosHtml = `<div class="entry-photos count-${shown.length}">${tiles}</div>`;
+      }
+      const nickHtml = entry.nickname
+        ? ` <span class="entry-nick">"${escapeHtml(entry.nickname)}"</span>`
+        : '';
+      const wordHtml = entry.word
+        ? `<span class="word-chip">${escapeHtml(entry.word)}</span>`
+        : '';
+      const hasMore = entry.relation || (entry.answers && entry.answers.length);
+      const moreHint = hasMore ? `<p class="entry-meta" style="margin-bottom:8px;">Tap to read the full entry →</p>` : '';
+
+      return `
+        <div class="entry-card" style="transform:rotate(${angle}deg)" onclick="openEntryModal(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter') openEntryModal(${i})">
+          ${photosHtml}
+          <div class="entry-top">
+            <span class="pen-dot" style="background:${entry.color}"></span>
+            <span class="entry-name">${escapeHtml(entry.name)}${nickHtml}</span>
+          </div>
+          ${wordHtml}<br>
+          <p class="entry-msg">"${escapeHtml(entry.message)}"</p>
+          ${moreHint}
+          ${entryActionsHtml(entry, i)}
+          <div class="entry-date">${entry.date}</div>
+        </div>`;
+    }).join('') + '</div>';
+  }
+
+  function openEntryModal(index, focusComment){
+    const entry = modalEntrySource[index];
+    if (!entry) return;
+    currentModalIndex = index;
+
+    const photos = entry.photos || [];
+    let photosHtml = '';
+    if (photos.length){
+      photosHtml = `<div class="entry-photos count-${Math.min(photos.length,4)}">` +
+        photos.map(url=>`<img src="${url}" alt="Photo from ${escapeHtml(entry.name)}">`).join('') +
+        `</div>`;
+    }
+
+    const answers = [
+      ['Knows them as', entry.relation],
+      ['One word', entry.word]
+    ].filter(a => a[1]).map(a => ({label: a[0], value: a[1]}));
+    (entry.answers || []).forEach(a => answers.push(a));
+
+    const answersHtml = answers.length
+      ? `<div class="modal-answers">` + answers.map(a=>`
+          <div class="modal-answer">
+            <span class="qlabel">${escapeHtml(a.label)}</span>
+            <span class="aval">${escapeHtml(a.value)}</span>
+          </div>`).join('') + `</div>`
+      : '';
+
+    const nickHtml = entry.nickname ? ` <span class="entry-nick">"${escapeHtml(entry.nickname)}"</span>` : '';
+
+    const comments = entry.comments || [];
+    const commentsHtml = `
+      <div class="comments-section">
+        <h4>Comments (${comments.length})</h4>
+        <div id="modalComments">${comments.map(c=>`
+          <div class="comment">
+            <div class="comment-meta">
+              <b>${escapeHtml(c.name)}</b>
+              ${modalIsOwner ? `<button class="comment-del" onclick="deleteComment('${c.id}')">remove</button>` : ''}
+            </div>
+            ${escapeHtml(c.text)}
+          </div>`).join('') || '<p style="font-size:13px; color:var(--ink-soft); margin:0 0 6px;">No comments yet.</p>'}</div>
+        <div class="comment-form">
+          <input type="text" id="commentName" placeholder="Your name" maxlength="40">
+          <textarea id="commentText" placeholder="Say something about this entry..." maxlength="500"></textarea>
+          <button type="button" class="btn-small" onclick="postComment()">Post comment</button>
+        </div>
+      </div>`;
+
+    document.getElementById('entryModalBody').innerHTML = `
+      <div class="entry-top">
+        <span class="pen-dot" style="background:${entry.color}"></span>
+        <span class="entry-name" style="font-size:16px;">${escapeHtml(entry.name)}${nickHtml}</span>
+      </div>
+      ${photosHtml}
+      <p class="entry-msg">"${escapeHtml(entry.message)}"</p>
+      ${answersHtml}
+      ${entryActionsHtml(entry, index)}
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="entry-date">${entry.date}</div>
+        <button onclick="reportEntry()" style="background:none; border:none; font-size:11.5px; color:var(--ink-soft); text-decoration:underline; padding:0;">Report</button>
+      </div>
+      ${commentsHtml}`;
+
+    document.getElementById('entryModalOverlay').classList.add('open');
+    if (focusComment){
+      setTimeout(()=>{
+        const inp = document.getElementById('commentText');
+        if (inp){ inp.scrollIntoView({behavior:'smooth', block:'center'}); inp.focus(); }
+      }, 120);
+    }
+    document.body.style.overflow = 'hidden';
+  }
+
+  let currentModalIndex = -1;
+
+  function rerenderCurrentEntries(){
+    if (!lastRenderContainer) return;
+    renderEntries(lastRenderContainer.containerId, modalEntrySource, lastRenderContainer.countElId, lastRenderContainer.isOwner);
+  }
+
+  function toggleLike(i){
+    const entry = modalEntrySource[i];
+    if (!entry) return;
+    if (entry.likedByMe){
+      entry.likedByMe = false;
+      entry.likes = Math.max(0, (entry.likes || 0) - 1);
+    } else {
+      entry.likedByMe = true;
+      entry.likes = (entry.likes || 0) + 1;
+    }
+    rerenderCurrentEntries();
+    if (document.getElementById('entryModalOverlay').classList.contains('open') && currentModalIndex === i){
+      openEntryModal(i);
+    }
+  }
+
+  function shareEntry(i){
+    const entry = modalEntrySource[i];
+    if (!entry) return;
+    const pageProfile = modalIsOwner ? profile : (currentVisitorProfile || profile);
+    const slug = pageProfile
+      ? (pageProfile.username || pageProfile.code)
+      : 'page';
+    const url = 'https://earthlive.in/u/' + slug + '#entry-' + (entry.id || i);
+    if (navigator.share){
+      navigator.share({ title:'A note on earthlive', text:`See what ${entry.name} wrote`, url }).catch(()=>{});
+    } else {
+      try{
+        navigator.clipboard.writeText(url).then(()=>showToast('Entry link copied'));
+      }catch(err){
+        showToast('Copy this link: ' + url);
+      }
+    }
+  }
+
+  function postComment(){
+    const entry = modalEntrySource[currentModalIndex];
+    if (!entry) return;
+    const name = document.getElementById('commentName').value.trim();
+    const text = document.getElementById('commentText').value.trim();
+    if (!name || !text){
+      showToast('Add your name and a comment');
+      return;
+    }
+    entry.comments = entry.comments || [];
+    entry.comments.push({ id: makeId(), name, text });
+    openEntryModal(currentModalIndex);
+    rerenderCurrentEntries();
+    showToast('Comment posted');
+  }
+
+  function deleteComment(commentId){
+    const entry = modalEntrySource[currentModalIndex];
+    if (!entry || !modalIsOwner) return;
+    entry.comments = (entry.comments || []).filter(c => c.id !== commentId);
+    openEntryModal(currentModalIndex);
+    rerenderCurrentEntries();
+    showToast('Comment removed');
+  }
+
+  function reportEntry(){
+    const entry = modalEntrySource[currentModalIndex];
+    if (!entry) return;
+    const sure = confirm('Report this entry for review?\n\nUse this for harassment, impersonation, or content that shouldn\u2019t be here.');
+    if (!sure) return;
+    showToast('Report submitted \u2014 thank you. (Goes to moderators once the backend is live.)');
+  }
+
+  function closeEntryModal(){
+    document.getElementById('entryModalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', e=>{
+    if (e.key === 'Escape') closeEntryModal();
+  });
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  let fillTarget = null;
+
+  function openFillForm(profileObj, entriesArr, isOwn, returnScreen){
+    fillTarget = { profileObj, entriesArr, isOwn, returnScreen: returnScreen || 'dashboard' };
+    document.getElementById('fillOwnerName').textContent = profileObj.name;
+    document.getElementById('fillOwnerName2').textContent = profileObj.name;
+    renderTemplateQuestionFields(profileObj);
+    showScreen('fill');
+  }
+
+  function renderTemplateQuestionFields(profileObj){
+    const questions = profileObj.questions && profileObj.questions.length
+      ? profileObj.questions
+      : TEMPLATES[0].questions;
+    document.getElementById('templateQuestionFields').innerHTML = questions.map(q=>{
+      const input = q.long
+        ? `<textarea data-qid="${q.id}" data-qlabel="${escapeHtml(q.label)}" placeholder="${escapeHtml(q.ph||'')}"></textarea>`
+        : `<input type="text" data-qid="${q.id}" data-qlabel="${escapeHtml(q.label)}" placeholder="${escapeHtml(q.ph||'')}">`;
+      return `
+        <div class="field">
+          <label>${escapeHtml(q.label)} <span class="hint">optional</span></label>
+          ${input}
+        </div>`;
+    }).join('');
+  }
+
+  function cancelFillForm(){
+    document.getElementById('fillForm').reset();
+    selectedCity = null;
+    document.getElementById('citySuggestions').style.display = 'none';
+    entryPhotos = [];
+    renderPhotoThumbs();
+    if (fillTarget && !fillTarget.isOwn){
+      previewProfile(fillTarget.profileObj, fillTarget.entriesArr, fillTarget.returnScreen);
+    } else {
+      showScreen('dashboard');
+    }
+  }
+
+  function submitFill(e){
+    e.preventDefault();
+    const target = fillTarget || { profileObj: profile, entriesArr: entries, isOwn: true, returnScreen: 'dashboard' };
+    const name = document.getElementById('fName').value.trim();
+    const nickname = document.getElementById('fNick').value.trim();
+    const relation = document.getElementById('fRelation').value;
+    const word = document.getElementById('fWord').value.trim();
+    const msg = document.getElementById('fMsg').value.trim();
+
+    const answers = [];
+    document.querySelectorAll('#templateQuestionFields [data-qid]').forEach(el=>{
+      const val = el.value.trim();
+      if (val) answers.push({ label: el.getAttribute('data-qlabel'), value: val });
+    });
+
+    const cityText = document.getElementById('fCity').value.trim();
+    const city = selectedCity
+      ? { ...selectedCity }
+      : (CITIES.find(c=>c.name.toLowerCase() === cityText.toLowerCase()) ? { ...CITIES.find(c=>c.name.toLowerCase() === cityText.toLowerCase()) } : null);
+    if (cityText && !city){
+      showToast('City not recognised \u2014 entry saved without a pin');
+    }
+
+    target.entriesArr.unshift({
+      id: makeId(),
+      status: 'pending',
+      name, nickname, relation, word,
+      answers,
+      city,
+      message: msg,
+      photos: entryPhotos.slice(),
+      color: selectedPen,
+      likes: 0,
+      likedByMe: false,
+      comments: [],
+      date: 'Signed just now'
+    });
+    document.getElementById('fillForm').reset();
+    selectedCity = null;
+    document.getElementById('citySuggestions').style.display = 'none';
+    entryPhotos = [];
+    renderPhotoThumbs();
+
+    if (target.isOwn){
+      renderDashboard();
+      showScreen('dashboard');
+      showToast(name + '\u2019s signature is waiting for your approval');
+    } else {
+      previewProfile(target.profileObj, target.entriesArr, target.returnScreen);
+      showToast('Your signature is waiting for ' + target.profileObj.name + '\u2019s approval');
+    }
+  }
+
+  let visitorReturnScreen = 'dashboard';
+  let currentVisitorProfile = null;
+  let currentVisitorEntries = null;
+  let currentVisitorIsOwn = false;
+
+  function previewAsVisitor(){
+    previewProfile(profile, entries, 'dashboard');
+  }
+
+  function signCurrentVisitorProfile(){
+    if (!currentVisitorProfile) return;
+    openFillForm(currentVisitorProfile, currentVisitorEntries, currentVisitorIsOwn, visitorReturnScreen);
+  }
+
+  function previewProfile(profileObj, entriesArr, returnScreen){
+    visitorReturnScreen = returnScreen || 'dashboard';
+    currentVisitorProfile = profileObj;
+    currentVisitorEntries = entriesArr;
+    currentVisitorIsOwn = (entriesArr === entries);
+
+    document.getElementById('visitorName').innerHTML = escapeHtml(profileObj.name) +
+      (profileObj.username ? ` <span style="font-family:'Work Sans',sans-serif; font-weight:400; font-size:13px; color:var(--ink-soft);">@${escapeHtml(profileObj.username)}</span>` : '');
+    document.getElementById('visitorBio').textContent = profileObj.bio;
+    renderSeal('visitorSeal', profileObj);
+    renderCover('visitor', profileObj);
+    renderSocialLinks('visitorLinks', profileObj);
+
+    const isPrivate = profileObj.visibility === 'private';
+    document.getElementById('visitorPublicView').style.display = isPrivate ? 'none' : 'block';
+    document.getElementById('visitorLockedView').style.display = isPrivate ? 'block' : 'none';
+    document.getElementById('lockText').textContent =
+      `Only ${profileObj.name} can see who's signed.`;
+
+    if (!isPrivate){
+      renderEntries('visitorEntries', entriesArr.filter(isApproved), 'visitorEntryCount', false);
+      renderMemoryMap('visitorMapPanel', 'visitorMap', 'visitorMapCount', entriesArr.filter(isApproved));
+    }
+    showScreen('visitor');
+  }
+
+  function exitVisitorPreview(){
+    showScreen(visitorReturnScreen);
+  }
+
+  function copyInvite(){
+    const text = document.getElementById('inviteLink').textContent;
+    try{
+      navigator.clipboard.writeText(text).then(()=>showToast('Link copied'));
+    }catch(err){
+      showToast('Select the link to copy it');
+    }
+  }
+
+  function shareInvite(){
+    const link = document.getElementById('inviteLink').textContent;
+    const url = 'https://' + link;
+    const shareData = {
+      title: `Sign ${profile.name}'s page`,
+      text: `Come sign my slam book page on Earthlive`,
+      url
+    };
+    if (navigator.share){
+      navigator.share(shareData).catch(()=>{});
+    } else {
+      copyInvite();
+      showToast('Link copied — share it anywhere');
+    }
+  }
+
+  function toggleQr(){
+    const box = document.getElementById('qrBox');
+    if (box.style.display === 'flex'){
+      box.style.display = 'none';
+      return;
+    }
+    const link = document.getElementById('inviteLink').textContent;
+    const url = 'https://' + link;
+    document.getElementById('qrImg').src =
+      'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(url);
+    box.style.display = 'flex';
+  }
+
+  let lastSearchResults = [];
+
+  function runSearch(){
+    const q = document.getElementById('searchInput').value.trim();
+    const el = document.getElementById('searchResults');
+    if (!q){
+      el.innerHTML = '';
+      return;
+    }
+    const candidates = [];
+    if (profile && profile.visibility === 'public'){
+      candidates.push({ profileObj: profile, entriesArr: entries, returnScreen: 'dashboard' });
+    }
+    // STAGE 2 WIRING POINT: query Supabase profiles (visibility='public',
+    // name/username ilike the search text) and push each result here.
+
+    const ql = q.toLowerCase().replace(/^@/,'');
+    const matches = candidates.filter(c =>
+      c.profileObj.name.toLowerCase().includes(ql) ||
+      (c.profileObj.username || '').includes(ql)
+    );
+    lastSearchResults = matches;
+
+    if (matches.length){
+      el.innerHTML = matches.map((c,i)=>`
+        <div class="search-result">
+          <div class="seal" id="searchSeal${i}"></div>
+          <div class="search-result-info">
+            <strong>${escapeHtml(c.profileObj.name)}${c.profileObj.username ? ` <span style="font-weight:400; color:var(--ink-soft); font-size:13px;">@${escapeHtml(c.profileObj.username)}</span>` : ''}</strong>
+            <span>${escapeHtml(c.profileObj.bio)}</span>
+          </div>
+          <button class="btn-small" onclick="viewSearchResult(${i})">View page</button>
+        </div>`).join('');
+      matches.forEach((c,i)=>renderSeal(`searchSeal${i}`, c.profileObj));
+    } else {
+      el.innerHTML = `
+        <div class="empty-state" style="margin-top:22px;">
+          <div class="stamp-outline"></div>
+          <p>No one found for "${escapeHtml(q)}".</p>
+        </div>`;
+    }
+  }
+
+  function viewSearchResult(i){
+    const c = lastSearchResults[i];
+    if (!c) return;
+    previewProfile(c.profileObj, c.entriesArr, c.returnScreen);
+  }
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 2200);
+  }
+
+  function confirmSignOut(){
+    const sure = confirm(
+      "Sign out and clear this page?\n\nNothing is saved on a server yet, so your page and every signature on it will be gone for good."
+    );
+    if (!sure) return;
+    if (db) db.auth.signOut();
+    currentUser = null;
+    pendingAuthEmail = null;
+    profile = null;
+    entries = [];
+    avatarDataUrl = null;
+    coverDataUrl = null;
+    entryPhotos = [];
+    editMode = false;
+    fillTarget = null;
+    currentVisitorProfile = null;
+    currentVisitorEntries = null;
+    currentVisitorIsOwn = false;
+    modalEntrySource = [];
+    lastSearchResults = [];
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchResults').innerHTML = '';
+    resetCreateFormUI();
+    showScreen('landing');
+    showToast('Signed out');
+  }
+
+  function showScreen(name){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('screen-'+name).classList.add('active');
+    if (name === 'search'){
+      setTimeout(()=>document.getElementById('searchInput').focus(), 50);
+    }
+    const navRight = document.getElementById('navRight');
+    navRight.innerHTML = '';
+
+    const about = document.createElement('button');
+    about.className = 'nav-link';
+    about.textContent = 'About';
+    about.onclick = ()=>showScreen('about');
+    navRight.appendChild(about);
+
+    const home = document.createElement('button');
+    home.className = 'nav-link';
+    home.textContent = 'Home';
+    home.onclick = ()=>showScreen('landing');
+    navRight.appendChild(home);
+
+    const find = document.createElement('button');
+    find.className = 'nav-link';
+    find.textContent = 'Find someone';
+    find.onclick = ()=>showScreen('search');
+    navRight.appendChild(find);
+
+    if (profile){
+      const myPage = document.createElement('button');
+      myPage.className = 'nav-link';
+      myPage.textContent = 'My page';
+      myPage.onclick = ()=>showScreen('dashboard');
+      navRight.appendChild(myPage);
+
+      const signOut = document.createElement('button');
+      signOut.className = 'nav-link';
+      signOut.textContent = 'Sign out';
+      signOut.onclick = confirmSignOut;
+      navRight.appendChild(signOut);
+    }
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  renderTemplatePicker();
+
+  const THEME_VARS = ['--page','--oat','--oat-deep','--card','--line','--ink','--ink-soft','--glow1','--glow2','--tile-filter'];
+  const THEMES = [
+    {
+      id:'white', name:'White',
+      swatch:'#FFFFFF',
+      vars:{ '--page':'#FFFFFF', '--oat':'#F5F4F1', '--oat-deep':'#E8E6E1', '--card':'#FFFFFF', '--line':'#E5E2DB',
+             '--ink':'#2E2A22', '--ink-soft':'#6E6A60', '--glow1':'rgba(255,255,255,0.5)', '--glow2':'rgba(255,255,255,0.3)',
+             '--tile-filter':'brightness(1.1) contrast(.9)' }
+    },
+    {
+      id:'black', name:'Black',
+      swatch:'#1C1A17',
+      vars:{ '--page':'#1C1A17', '--oat':'#242220', '--oat-deep':'#343029', '--card':'#262421', '--line':'#3B372F',
+             '--ink':'#F0EBE0', '--ink-soft':'#A69F8F', '--glow1':'rgba(255,255,255,0.04)', '--glow2':'rgba(255,255,255,0.03)',
+             '--tile-filter':'grayscale(1) brightness(.45)' }
+    },
+    {
+      id:'beige', name:'Beige',
+      swatch:'#E4DBC6',
+      vars:{ '--page':'#FAF7EF', '--oat':'#F1EBDD', '--oat-deep':'#E4DBC6', '--card':'#FFFDF8', '--line':'#E0D8C3',
+             '--ink':'#2E2A22', '--ink-soft':'#726A59', '--glow1':'rgba(255,255,255,0.35)', '--glow2':'rgba(255,255,255,0.25)',
+             '--tile-filter':'sepia(.25) brightness(1.05) contrast(.95)' }
+    }
+  ];
+  let activeThemeId = null;
+
+  function applyTheme(id){
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (activeThemeId === id){
+      // Clicking the active box returns to the default beige
+      activeThemeId = null;
+      THEME_VARS.forEach(k=>document.documentElement.style.removeProperty(k));
+      if (metaTheme) metaTheme.setAttribute('content', '#F1EBDD');
+      renderThemeSwitcher();
+      return;
+    }
+    const theme = THEMES.find(t=>t.id===id);
+    if (!theme) return;
+    activeThemeId = id;
+    THEME_VARS.forEach(k=>document.documentElement.style.removeProperty(k));
+    Object.entries(theme.vars).forEach(([k,v])=>{
+      document.documentElement.style.setProperty(k, v);
+    });
+    if (metaTheme) metaTheme.setAttribute('content', theme.vars['--oat']);
+    renderThemeSwitcher();
+  }
+
+  function renderThemeSwitcher(){
+    document.getElementById('themeSwitcher').innerHTML = THEMES.map(t=>`
+      <button class="theme-box ${t.id===activeThemeId?'active':''}"
+              style="background:${t.swatch}"
+              title="${t.name}" aria-label="${t.name} theme"
+              onclick="applyTheme('${t.id}')"></button>`).join('');
+  }
+
+  renderThemeSwitcher();
+
+  let selectedCity = null;
+
+  function cityAutocomplete(){
+    const input = document.getElementById('fCity');
+    const box = document.getElementById('citySuggestions');
+    const q = input.value.trim().toLowerCase();
+    selectedCity = null;
+
+    if (!q){
+      box.style.display = 'none';
+      box.innerHTML = '';
+      return;
+    }
+    // startsWith matches first, then contains
+    const starts = CITIES.filter(c=>c.name.toLowerCase().startsWith(q));
+    const contains = CITIES.filter(c=>!c.name.toLowerCase().startsWith(q) && c.name.toLowerCase().includes(q));
+    const matches = starts.concat(contains).slice(0, 6);
+
+    // exact typed match auto-selects
+    const exact = CITIES.find(c=>c.name.toLowerCase() === q);
+    if (exact) selectedCity = exact;
+
+    if (!matches.length){
+      box.style.display = 'none';
+      box.innerHTML = '';
+      return;
+    }
+    box.innerHTML = matches.map(c=>{
+      const idx = CITIES.indexOf(c);
+      const i = c.name.toLowerCase().indexOf(q);
+      const hl = i > -1
+        ? escapeHtml(c.name.slice(0,i)) + '<b>' + escapeHtml(c.name.slice(i, i+q.length)) + '</b>' + escapeHtml(c.name.slice(i+q.length))
+        : escapeHtml(c.name);
+      return `<button type="button" class="city-suggestion" onclick="pickCity(${idx})">${hl}</button>`;
+    }).join('');
+    box.style.display = 'block';
+  }
+
+  function pickCity(idx){
+    selectedCity = CITIES[idx];
+    document.getElementById('fCity').value = selectedCity.name;
+    const box = document.getElementById('citySuggestions');
+    box.style.display = 'none';
+    box.innerHTML = '';
+  }
+
+  const mapInstances = {};
+
+  function renderMemoryMap(panelId, mapId, countId, entriesArr){
+    const tagged = entriesArr
+      .map((e,i)=>({entry:e, index:i}))
+      .filter(x => x.entry.city);
+    const panel = document.getElementById(panelId);
+
+    if (!tagged.length || typeof L === 'undefined'){
+      panel.style.display = 'none';
+      if (mapInstances[mapId]){ mapInstances[mapId].remove(); delete mapInstances[mapId]; }
+      return;
+    }
+    panel.style.display = 'block';
+    document.getElementById(countId).textContent =
+      tagged.length + (tagged.length===1 ? ' pinned memory' : ' pinned memories');
+
+    // Defer so the container is visible and sized before Leaflet measures it
+    setTimeout(()=>{
+      if (mapInstances[mapId]){ mapInstances[mapId].remove(); delete mapInstances[mapId]; }
+      const map = L.map(mapId, {
+        scrollWheelZoom:false, worldCopyJump:true, minZoom:2, maxZoom:18,
+        zoomControl:true, attributionControl:false
+      });
+      mapInstances[mapId] = map;
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19, subdomains: ['a','b','c']
+      }).addTo(map);
+      L.control.attribution({prefix:false})
+        .addAttribution('&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>')
+        .addTo(map);
+
+      const dotIcon = L.divIcon({ className:'', html:'<div class="mem-marker"></div>', iconSize:[11,11], iconAnchor:[6,6] });
+
+      const bounds = [];
+      tagged.forEach(({entry, index})=>{
+        const c = entry.city;
+        // slight jitter so same-city pins don't stack (as in the source map)
+        const jLat = c.lat + (Math.random()-0.5)*0.12;
+        const jLng = c.lng + (Math.random()-0.5)*0.12;
+        bounds.push([jLat, jLng]);
+        const thumb = (entry.photos && entry.photos[0])
+          ? `<img src="${entry.photos[0]}" alt="">`
+          : '';
+        const popupHtml = `
+          <div class="map-popup">
+            ${thumb}
+            <b>${escapeHtml(entry.name)}</b>
+            <div class="map-city">${escapeHtml(c.name)}</div>
+            <p>"${escapeHtml(entry.message.length > 70 ? entry.message.slice(0,70) + '\u2026' : entry.message)}"</p>
+            <button onclick="openEntryModal(${index})">Read full entry \u2192</button>
+          </div>`;
+        L.marker([jLat, jLng], {icon: dotIcon}).addTo(map)
+          .bindPopup(popupHtml, { maxWidth:230, className:'mem-popup-wrap' });
+      });
+
+      // Global preview, as in the source EarthLive map
+      map.setView([20, 10], 2);
+      setTimeout(()=>map.invalidateSize(), 120);
+    }, 80);
+  }
+
+  document.getElementById('landingTemplateShowcase').innerHTML = TEMPLATES.map(t=>`
+    <div class="template-card" style="cursor:default;">
+      <strong>${t.name}</strong>
+      <span>${t.desc}</span>
+      <span style="margin-top:8px; font-style:italic;">e.g. \u201c${escapeHtml(t.questions[0].label)}\u201d</span>
+    </div>`).join('');
+</script>
+</body>
+</html>
