@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Earthlive — sign my page</title>
+<title>EarthLive — sign my page</title>
 <meta name="description" content="Make your page, send it to your people, and watch it fill up with their handwriting, their words, their little stamps of you.">
 <link rel="canonical" href="https://earthlive.in/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Earthlive — sign my page">
+<meta property="og:title" content="EarthLive — sign my page">
 <meta property="og:description" content="Everyone's got something to say about you. Make a slam book page and send it to your people.">
 <meta property="og:url" content="https://earthlive.in/">
-<meta property="og:site_name" content="Earthlive">
+<meta property="og:site_name" content="EarthLive">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Earthlive — sign my page">
+<meta name="twitter:title" content="EarthLive — sign my page">
 <meta name="twitter:description" content="Everyone's got something to say about you.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23EAE1CC'/%3E%3Ccircle cx='16' cy='16' r='6' fill='none' stroke='%23A9764F' stroke-width='2.5'/%3E%3C/svg%3E">
 <meta name="theme-color" content="#F1EBDD">
@@ -213,11 +213,42 @@
   .dash{padding:44px 0 90px;}
 
   .profile-cover{
-    position:relative; width:100%; height:170px; border-radius:16px; overflow:hidden;
+    position:relative; width:100%; height:280px; border-radius:16px; overflow:hidden;
     background:linear-gradient(135deg, var(--oat-deep), var(--oat));
     border:1px solid var(--line); margin-bottom:14px;
   }
-  .profile-cover img{width:100%; height:100%; object-fit:cover; display:block;}
+  @media (max-width:600px){.profile-cover{height:190px;}}
+  .profile-cover img{width:100%; height:100%; object-fit:cover; display:block; cursor:zoom-in;}
+  .seal img{cursor:zoom-in;}
+
+  /* ---------- PHOTO LIGHTBOX ---------- */
+  .lightbox{
+    position:fixed; inset:0; background:rgba(20,18,15,0.88); z-index:120;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .lightbox img{
+    max-width:92vw; max-height:88vh; border-radius:12px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  }
+  .lightbox-close{
+    position:absolute; top:18px; right:22px; background:rgba(255,255,255,0.12);
+    color:#fff; border:none; width:38px; height:38px; border-radius:50%; font-size:17px;
+  }
+  .lightbox-close:hover{background:rgba(255,255,255,0.25);}
+
+  /* ---------- PHOTO ADJUST (crop/resize) ---------- */
+  .crop-card{
+    background:var(--card); border-radius:16px; padding:22px; max-width:520px; width:100%;
+    border:1px solid var(--line);
+  }
+  .crop-card canvas{
+    width:100%; border-radius:12px; border:1px solid var(--line);
+    display:block; cursor:grab; touch-action:none; background:var(--oat);
+  }
+  .crop-card canvas:active{cursor:grabbing;}
+  .crop-card input[type=range]{width:100%; margin:14px 0 6px; accent-color:var(--camel);}
+  .crop-hint{font-size:12px; color:var(--ink-soft); text-align:center; margin:0 0 14px;}
+  .crop-actions{display:flex; gap:10px; justify-content:flex-end;}
   .cover-edit-btn{
     position:absolute; right:14px; top:14px; background:rgba(30,28,24,0.68); color:#F6F1E7;
     border:none; padding:8px 14px; border-radius:999px; font-size:12.5px; font-weight:600; z-index:2;
@@ -366,6 +397,21 @@
     padding:12px 18px; background:var(--oat); font-size:13px; display:flex;
     align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
   }
+  .mention{color:var(--camel); font-weight:600; cursor:pointer;}
+  .mention:hover{text-decoration:underline;}
+  .hashtag{color:var(--moss); font-weight:600;}
+  .nav-badge{
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:17px; height:17px; padding:0 5px; margin-left:5px; border-radius:999px;
+    background:var(--blush); color:#fff; font-size:10.5px; font-weight:700; vertical-align:1px;
+  }
+  .followers-list{margin-top:10px; display:none;}
+  .followers-list.open{display:block;}
+  .follower-item{
+    display:inline-flex; align-items:center; gap:6px; margin:0 8px 8px 0; padding:6px 12px;
+    background:var(--oat); border-radius:999px; font-size:12.5px; cursor:pointer; border:1px solid var(--line);
+  }
+  .follower-item:hover{border-color:var(--ink-soft);}
 
   .toast{
     position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px);
@@ -625,13 +671,13 @@
 <body>
 <noscript>
   <div style="max-width:520px; margin:80px auto; padding:0 24px; font-family:Georgia, serif; color:#2E2A22; text-align:center;">
-    <h1 style="font-size:26px;">earthlive needs JavaScript</h1>
+    <h1 style="font-size:26px;">EarthLive needs JavaScript</h1>
     <p style="color:#726A59; line-height:1.6;">Please enable JavaScript in your browser to create and sign slam book pages.</p>
   </div>
 </noscript>
 
 <nav class="nav">
-  <div class="brand"><span class="dot"></span>earthlive</div>
+  <div class="brand"><span class="dot"></span>EarthLive</div>
   <div class="nav-right" id="navRight">
     <button class="nav-link" onclick="showScreen('about')">About</button>
     <button class="nav-link" onclick="showScreen('landing')">Home</button>
@@ -688,7 +734,7 @@
         <button onclick="showScreen('privacy')">Privacy Policy</button>
         <button onclick="showScreen('terms')">Terms of Use</button>
       </div>
-      <p style="margin:18px 0 0; font-size:12px; color:var(--ink-soft);">© 2026 Earthlive · earthlive.in · All rights reserved. "Earthlive" and the Earthlive seal are trademarks of their owner.</p>
+      <p style="margin:18px 0 0; font-size:12px; color:var(--ink-soft);">© 2026 EarthLive · earthlive.in · All rights reserved. "EarthLive" and the EarthLive seal are trademarks of their owner.</p>
     </div>
   </div>
 </section>
@@ -793,7 +839,8 @@
           <h2 id="ownerName"></h2>
           <p id="ownerBio"></p>
           <div class="social-row" id="ownerLinks"></div>
-          <p id="ownerFollowers" style="font-size:12.5px; color:var(--ink-soft); margin:8px 0 0;"></p>
+          <p id="ownerFollowers" style="font-size:12.5px; color:var(--ink-soft); margin:8px 0 0; cursor:pointer; text-decoration:underline;" onclick="toggleFollowersList()" title="See who follows you"></p>
+          <div class="followers-list" id="followersList"></div>
         </div>
       </div>
         <div class="dash-actions">
@@ -830,6 +877,19 @@
         <button class="btn-small" onclick="previewAsVisitor()">Preview as a visitor</button>
         <button class="btn-small" onclick="showScreen('search')">Search pages</button>
       </div>
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">Account</p>
+      <div class="demo-row">
+        <button class="btn-small" onclick="deactivatePage()">Deactivate page</button>
+        <button class="btn-small" onclick="toggleBlockedList()">Blocked pages</button>
+        <button class="btn-small btn-decline" onclick="deleteAccount()">Delete my page &amp; data</button>
+      </div>
+      <div id="blockedList" style="display:none; margin-top:14px;"></div>
+      <p style="font-size:12px; color:var(--ink-soft); margin:12px 0 0;">
+        Deactivating hides your page from everyone — switch it back to Public anytime to reactivate. Deleting removes your page, signatures, comments, likes, follows, and messages permanently.
+      </p>
     </div>
 
     <div class="panel" id="pendingPanel" style="display:none;">
@@ -1024,7 +1084,7 @@
   <div class="center-wrap">
     <div class="form-card" style="max-width:420px;">
       <div class="form-eyebrow">Welcome</div>
-      <h2>Sign in to earthlive</h2>
+      <h2>Sign in to EarthLive</h2>
       <button class="auth-btn" onclick="signInWithGoogle()">
         <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18A11 11 0 0 0 1 12c0 1.77.43 3.45 1.18 4.94l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
         Continue with Google
@@ -1040,7 +1100,7 @@
             <label for="authEmail">Your email</label>
             <input type="text" id="authEmail" placeholder="you@example.com">
           </div>
-          <button type="button" class="btn-small" style="width:100%; padding:11px;" onclick="sendEmailCode()">Send verification code</button>
+          <button type="button" class="btn-small" style="width:100%; padding:11px;" onclick="sendEmailCode()">Send sign-in email</button>
         </div>
         <div id="emailStep2" style="display:none;">
           <p style="font-size:13px; color:var(--ink-soft); margin:0 0 10px;">
@@ -1054,14 +1114,8 @@
           <button type="button" class="link-quiet" style="margin-top:8px;" onclick="backToEmailStep1()">Change email</button>
         </div>
       </div>
-      <button class="auth-btn" onclick="mockAuth('mobile')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
-        Continue with mobile number
-      </button>
-      <div class="auth-divider">or</div>
-      <button class="btn btn-primary" style="width:100%;" onclick="continueAsGuest()">Continue without an account</button>
       <div class="demo-note">
-        Email and Google sign-in are live. Mobile sign-in is coming soon. You can also continue without an account — but your page won't be saved to it.
+        Sign in with Google or email to create a page, sign someone's book, or comment.
       </div>
       <button class="link-quiet" style="margin-top:18px;" onclick="showScreen('landing')">Back</button>
     </div>
@@ -1074,7 +1128,7 @@
     <div class="about-body">
       <div class="eyebrow">About us</div>
       <h2>Some things deserve to be written down.</h2>
-      <p>Earthlive brings back the slam book — the notebook that went around the classroom, the one you filled with questions for your friends and got back covered in their handwriting, inside jokes, and things they'd never say out loud.</p>
+      <p>EarthLive brings back the slam book — the notebook that went around the classroom, the one you filled with questions for your friends and got back covered in their handwriting, inside jokes, and things they'd never say out loud.</p>
       <p>Here, your page is your book. You choose the questions, send one link, and your people fill it with words you'll actually want to keep. You approve every entry before it appears, and you decide whether your page is open to the world or just for you.</p>
       <h3>How it works</h3>
       <p>Make your page and pick a question set — classic, deep, funny, or farewell. Share your link anywhere. Every signature waits for your approval before it's posted, and anyone can tap an entry to read the whole thing.</p>
@@ -1094,18 +1148,17 @@
     <div class="about-body">
       <div class="eyebrow">Legal</div>
       <h2>Privacy Policy</h2>
-      <p style="font-size:13px; background:var(--oat); border-radius:10px; padding:12px 15px;"><b>Draft for review:</b> this is a starting template. Before launch, have it reviewed by a lawyer familiar with Indian data protection law (DPDP Act, 2023) and the laws of other regions you serve. It is not legal advice.</p>
       <p><b>Last updated:</b> July 2026</p>
       <h3>What we collect</h3>
       <p>When you create a page: your name, bio, profile and cover photos, chosen questions, optional social links, and your email or mobile number if you sign up. When you sign someone's page: your name, answers, message, and any photos you attach. We also collect basic technical data (device, browser, approximate location) to keep the service working and secure.</p>
       <h3>How we use it</h3>
-      <p>To run Earthlive: showing your page to people you share it with, delivering signatures to page owners for approval, and keeping accounts secure. We do not sell your personal data. We do not show your private pages to anyone but you.</p>
+      <p>To run EarthLive: showing your page to people you share it with, delivering signatures to page owners for approval, and keeping accounts secure. We do not sell your personal data. We do not show your private pages to anyone but you.</p>
       <h3>Who can see what</h3>
       <p>Public pages are visible to anyone with the link and may appear in search. Private pages show only your name, bio, and photos — the entries are visible only to you. Signatures never appear publicly until the page owner approves them.</p>
       <h3>Your choices</h3>
       <p>You can edit or delete your page, decline or remove any signature, switch between public and private at any time, and request deletion of your account and data by writing to privacy@earthlive.in. We will act on verified requests within 30 days.</p>
       <h3>Children</h3>
-      <p>Earthlive is not intended for children under 13 (or the higher minimum age in your region). If you believe a child's data has been collected, contact us and we will remove it.</p>
+      <p>EarthLive is not intended for children under 13 (or the higher minimum age in your region). If you believe a child's data has been collected, contact us and we will remove it.</p>
       <h3>Contact</h3>
       <p>Privacy questions: privacy@earthlive.in</p>
       <button class="link-quiet" onclick="showScreen('landing')">Back to home</button>
@@ -1119,16 +1172,15 @@
     <div class="about-body">
       <div class="eyebrow">Legal</div>
       <h2>Terms of Use</h2>
-      <p style="font-size:13px; background:var(--oat); border-radius:10px; padding:12px 15px;"><b>Draft for review:</b> this is a starting template, not legal advice. Have a lawyer adapt it to your entity, jurisdiction, and final feature set before launch.</p>
       <p><b>Last updated:</b> July 2026</p>
-      <h3>Using Earthlive</h3>
-      <p>By using Earthlive (earthlive.in) you agree to these terms. You must be at least 13 years old, or the minimum age required in your region. You are responsible for your account and everything posted from it.</p>
+      <h3>Using EarthLive</h3>
+      <p>By using EarthLive (earthlive.in) you agree to these terms. You must be at least 13 years old, or the minimum age required in your region. You are responsible for your account and everything posted from it.</p>
       <h3>Your content</h3>
-      <p>You own what you write and upload. By posting, you give Earthlive a licence to store and display it as needed to run the service. Only upload photos and words you have the right to share — no impersonation, and no posting other people's private information.</p>
+      <p>You own what you write and upload. By posting, you give EarthLive a licence to store and display it as needed to run the service. Only upload photos and words you have the right to share — no impersonation, and no posting other people's private information.</p>
       <h3>What's not allowed</h3>
       <p>Harassment, bullying, hate speech, threats, sexual content involving minors, spam, malware, or using the service to harm anyone. Page owners control their own pages and may decline or remove any signature. We may remove content or suspend accounts that break these rules.</p>
       <h3>Our service</h3>
-      <p>Earthlive is provided "as is." We work hard to keep it available and your data safe, but we can't guarantee uninterrupted service, and we're not liable for content posted by users. We may update features and these terms; continued use means acceptance of updates.</p>
+      <p>EarthLive is provided "as is." We work hard to keep it available and your data safe, but we can't guarantee uninterrupted service, and we're not liable for content posted by users. We may update features and these terms; continued use means acceptance of updates.</p>
       <h3>Contact</h3>
       <p>Questions about these terms: hello@earthlive.in</p>
       <button class="link-quiet" onclick="showScreen('landing')">Back to home</button>
@@ -1167,6 +1219,24 @@
   </div>
 </section>
 
+<div class="lightbox" id="photoLightbox" style="display:none;" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">✕</button>
+  <img id="lightboxImg" alt="" onclick="event.stopPropagation()">
+</div>
+
+<div class="lightbox" id="cropModal" style="display:none;">
+  <div class="crop-card" onclick="event.stopPropagation()">
+    <p class="panel-title">Adjust your photo</p>
+    <canvas id="cropCanvas"></canvas>
+    <input type="range" id="cropZoom" min="100" max="300" value="100" oninput="cropDraw()" aria-label="Resize photo">
+    <p class="crop-hint">Drag the photo to reposition · slide to resize</p>
+    <div class="crop-actions">
+      <button class="btn btn-ghost" onclick="closeCropper()">Cancel</button>
+      <button class="btn btn-primary" onclick="applyCrop()">Use photo</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">Copied to clipboard</div>
 
 <script>
@@ -1183,13 +1253,13 @@
     // Connectivity self-test: calls the username_available() function created by supabase-setup.sql
     db.rpc('username_available', { candidate: 'connectivity_test' }).then(({ data, error })=>{
       if (error){
-        console.error('[earthlive] Supabase reachable but query failed:', error.message);
+        console.error('[EarthLive] Supabase reachable but query failed:', error.message);
       } else {
-        console.log('[earthlive] Supabase connected \u2713 (username_available returned', data + ')');
+        console.log('[EarthLive] Supabase connected \u2713 (username_available returned', data + ')');
       }
     });
   } else {
-    console.warn('[earthlive] Supabase not connected yet \u2014 anon key not set. Running in local mode.');
+    console.warn('[EarthLive] Supabase not connected yet \u2014 anon key not set. Running in local mode.');
   }
 
   const PEN_COLORS = ['#57614A','#3C4A5E','#A9764F','#6B4C6B','#A65A3C','#4E7065'];
@@ -1384,19 +1454,21 @@
     const file = event.target.files && event.target.files[0];
     if (!file) return;
     readImageFile(file).then(dataUrl=>{
-      if (kind === 'cover'){
-        coverDataUrl = dataUrl;
-        document.getElementById('coverPreviewImg').src = dataUrl;
-        document.getElementById('coverPreview').style.display = 'flex';
-      } else {
-        avatarDataUrl = dataUrl;
-        document.getElementById('avatarPreviewImg').src = dataUrl;
-        document.getElementById('avatarPreview').style.display = 'flex';
-      }
+      openCropper(dataUrl, kind === 'cover' ? 'cover' : 'avatar', adjusted=>{
+        if (kind === 'cover'){
+          coverDataUrl = adjusted;
+          document.getElementById('coverPreviewImg').src = adjusted;
+          document.getElementById('coverPreview').style.display = 'flex';
+        } else {
+          avatarDataUrl = adjusted;
+          document.getElementById('avatarPreviewImg').src = adjusted;
+          document.getElementById('avatarPreview').style.display = 'flex';
+        }
+      });
     }).catch(err=>{
       showToast(err === 'size' ? 'Image is too large (max 4MB)' : 'Please choose an image file');
-      event.target.value = '';
     });
+    event.target.value = '';
   }
 
   function clearUpload(kind){
@@ -1416,6 +1488,7 @@
     if (profileObj.cover){
       img.src = profileObj.cover;
       img.style.display = 'block';
+      img.onclick = ()=>openLightbox(profileObj.cover);
     } else {
       img.style.display = 'none';
     }
@@ -1424,18 +1497,19 @@
   function handleQuickAvatarChange(event){
     const file = event.target.files && event.target.files[0];
     if (!file) return;
-    readImageFile(file).then(async dataUrl=>{
-      profile.avatar = dataUrl;
+    readImageFile(file).then(dataUrl=>openCropper(dataUrl, 'avatar', async adjusted=>{
+      const dataUrl2 = adjusted;
+      profile.avatar = dataUrl2;
       renderSeal('ownerSeal');
       if (db && currentUser && profile.dbId){
-        const url = await uploadImage(dataUrl, 'avatars', currentUser.id + '/avatar');
+        const url = await uploadImage(dataUrl2, 'avatars', currentUser.id + '/avatar');
         if (url){
           profile.avatar = url;
           await db.from('profiles').update({ avatar_url: url }).eq('id', profile.dbId);
         }
       }
       showToast('Profile photo updated');
-    }).catch(err=>{
+    })).catch(err=>{
       showToast(err === 'size' ? 'Image is too large (max 4MB)' : 'Please choose an image file');
     });
     event.target.value = '';
@@ -1444,18 +1518,19 @@
   function handleQuickCoverChange(event){
     const file = event.target.files && event.target.files[0];
     if (!file) return;
-    readImageFile(file).then(async dataUrl=>{
-      profile.cover = dataUrl;
+    readImageFile(file).then(dataUrl=>openCropper(dataUrl, 'cover', async adjusted=>{
+      const dataUrl2 = adjusted;
+      profile.cover = dataUrl2;
       renderCover('owner', profile);
       if (db && currentUser && profile.dbId){
-        const url = await uploadImage(dataUrl, 'covers', currentUser.id + '/cover');
+        const url = await uploadImage(dataUrl2, 'covers', currentUser.id + '/cover');
         if (url){
           profile.cover = url;
           await db.from('profiles').update({ cover_url: url }).eq('id', profile.dbId);
         }
       }
       showToast('Cover photo updated');
-    }).catch(err=>{
+    })).catch(err=>{
       showToast(err === 'size' ? 'Image is too large (max 4MB)' : 'Please choose an image file');
     });
     event.target.value = '';
@@ -1523,6 +1598,7 @@
     seal.style.setProperty('--seal-color', p.ink);
     if (p.avatar){
       seal.innerHTML = `<img src="${p.avatar}" alt="${escapeHtml(p.name)}">`;
+      seal.querySelector('img').onclick = (e)=>{ e.stopPropagation(); openLightbox(p.avatar); };
     } else {
       seal.innerHTML = '';
       seal.textContent = initials(p.name);
@@ -1555,6 +1631,7 @@
         showToast('Signed in as ' + (currentUser.email || 'your account'));
         loadMyBlocks();
         loadProfileFromDb().then(found=>{
+          refreshMsgBadge();
           if (pendingLinkUsername){
             const u = pendingLinkUsername;
             pendingLinkUsername = null;
@@ -1575,6 +1652,7 @@
           // Returning visitor with a live session: restore their page silently.
           loadMyBlocks();
           loadProfileFromDb().then(found=>{
+            refreshMsgBadge();
             if (pendingLinkUsername){
               const u = pendingLinkUsername;
               pendingLinkUsername = null;
@@ -1607,7 +1685,264 @@
     showScreen('auth');
   }
 
-  /* ---------- FOLLOW / BLOCK ---------- */
+  async function deleteOwnEntry(){
+    const entry = modalEntrySource[currentModalIndex];
+    if (!entry || !modalIsOwner) return;
+    const sure = confirm('Remove ' + entry.name + '\u2019s entry from your page?\n\nThis deletes it permanently, including its comments and likes.');
+    if (!sure) return;
+    if (db && isDbEntry(entry)){
+      const { error } = await db.from('entries').delete().eq('id', entry.id);
+      if (error){
+        showToast('Could not remove: ' + error.message);
+        return;
+      }
+    }
+    entries = entries.filter(e => e.id !== entry.id);
+    closeEntryModal();
+    renderDashboard();
+    showToast('Entry removed from your page');
+  }
+
+  /* ---------- FOLLOWERS LIST ---------- */
+  let followersListOpen = false;
+
+  async function toggleFollowersList(){
+    const box = document.getElementById('followersList');
+    followersListOpen = !followersListOpen;
+    box.classList.toggle('open', followersListOpen);
+    if (!followersListOpen || !db || !profile || !profile.dbId) return;
+    box.innerHTML = '<p style="font-size:12.5px; color:var(--ink-soft);">Loading\u2026</p>';
+    const { data: rows, error } = await db.from('follows')
+      .select('follower_user_id').eq('followed_profile_id', profile.dbId);
+    if (error || !rows || !rows.length){
+      box.innerHTML = '<p style="font-size:12.5px; color:var(--ink-soft);">No followers yet.</p>';
+      return;
+    }
+    const ids = rows.map(r=>r.follower_user_id);
+    const { data: people } = await db.from('profiles')
+      .select('name, username').in('user_id', ids);
+    if (!people || !people.length){
+      box.innerHTML = '<p style="font-size:12.5px; color:var(--ink-soft);">' + rows.length + ' follower' + (rows.length===1?'':'s') + ' (private pages)</p>';
+      return;
+    }
+    const hidden = rows.length - people.length;
+    box.innerHTML = people.map(p=>`
+      <span class="follower-item" onclick="openProfileByUsername('${escapeHtml(p.username)}')">
+        ${escapeHtml(p.name)} <span style="color:var(--ink-soft);">@${escapeHtml(p.username)}</span>
+      </span>`).join('') +
+      (hidden > 0 ? `<span class="follower-item" style="cursor:default;">+${hidden} private</span>` : '');
+  }
+
+  /* ---------- MESSAGE NOTIFICATIONS ---------- */
+  let pendingMsgCount = 0;
+
+  async function refreshMsgBadge(){
+    if (!db || !currentUser || !profile || !profile.dbId){
+      pendingMsgCount = 0;
+      return;
+    }
+    const { count } = await db.from('conversations')
+      .select('*', { count:'exact', head:true })
+      .eq('recipient_profile_id', profile.dbId)
+      .eq('status', 'pending');
+    const prev = pendingMsgCount;
+    pendingMsgCount = count || 0;
+    if (pendingMsgCount !== prev) refreshNav();
+  }
+
+  /* ---------- PHOTO LIGHTBOX (view like LinkedIn/Facebook) ---------- */
+  function openLightbox(src){
+    if (!src) return;
+    document.getElementById('lightboxImg').src = src;
+    document.getElementById('photoLightbox').style.display = 'flex';
+  }
+  function closeLightbox(){
+    document.getElementById('photoLightbox').style.display = 'none';
+  }
+
+  /* ---------- PHOTO ADJUST: drag to reposition, slide to resize ---------- */
+  const crop = { img:null, mode:'avatar', onDone:null, ox:0, oy:0, dragging:false, lastX:0, lastY:0 };
+  const CROP_SIZES = { avatar:{w:500,h:500, view:360}, cover:{w:1200,h:400, view:480} };
+
+  function openCropper(dataUrl, mode, onDone){
+    const img = new Image();
+    img.onload = ()=>{
+      crop.img = img; crop.mode = mode; crop.onDone = onDone;
+      crop.ox = 0; crop.oy = 0;
+      document.getElementById('cropZoom').value = 100;
+      const cfg = CROP_SIZES[mode];
+      const canvas = document.getElementById('cropCanvas');
+      canvas.width = cfg.view;
+      canvas.height = Math.round(cfg.view * cfg.h / cfg.w);
+      document.getElementById('cropModal').style.display = 'flex';
+      cropDraw();
+    };
+    img.src = dataUrl;
+  }
+
+  function cropTransform(cw, ch){
+    // cover-fit base scale, multiplied by the slider, offsets clamped so the frame stays filled
+    const zoom = Number(document.getElementById('cropZoom').value) / 100;
+    const s = Math.max(cw / crop.img.width, ch / crop.img.height) * zoom;
+    const dw = crop.img.width * s, dh = crop.img.height * s;
+    const maxX = (dw - cw) / 2, maxY = (dh - ch) / 2;
+    crop.ox = Math.max(-maxX, Math.min(maxX, crop.ox));
+    crop.oy = Math.max(-maxY, Math.min(maxY, crop.oy));
+    return { x:(cw - dw)/2 + crop.ox, y:(ch - dh)/2 + crop.oy, dw, dh };
+  }
+
+  function cropDraw(){
+    if (!crop.img) return;
+    const canvas = document.getElementById('cropCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const t = cropTransform(canvas.width, canvas.height);
+    ctx.drawImage(crop.img, t.x, t.y, t.dw, t.dh);
+  }
+
+  function applyCrop(){
+    const cfg = CROP_SIZES[crop.mode];
+    const out = document.createElement('canvas');
+    out.width = cfg.w; out.height = cfg.h;
+    const ctx = out.getContext('2d');
+    const view = document.getElementById('cropCanvas');
+    const ratio = cfg.w / view.width;
+    const t = cropTransform(view.width, view.height);
+    ctx.drawImage(crop.img, t.x * ratio, t.y * ratio, t.dw * ratio, t.dh * ratio);
+    const dataUrl = out.toDataURL('image/jpeg', 0.87);
+    closeCropper();
+    if (crop.onDone) crop.onDone(dataUrl);
+  }
+
+  function closeCropper(){
+    document.getElementById('cropModal').style.display = 'none';
+  }
+
+  // Drag to reposition (mouse + touch via pointer events)
+  (function(){
+    const canvas = document.getElementById('cropCanvas');
+    canvas.addEventListener('pointerdown', e=>{
+      crop.dragging = true; crop.lastX = e.clientX; crop.lastY = e.clientY;
+      canvas.setPointerCapture(e.pointerId);
+    });
+    canvas.addEventListener('pointermove', e=>{
+      if (!crop.dragging) return;
+      crop.ox += e.clientX - crop.lastX;
+      crop.oy += e.clientY - crop.lastY;
+      crop.lastX = e.clientX; crop.lastY = e.clientY;
+      cropDraw();
+    });
+    canvas.addEventListener('pointerup', ()=>{ crop.dragging = false; });
+  })();
+
+  /* ---------- ACCOUNT: deactivate / delete / blocked list ---------- */
+
+  function deactivatePage(){
+    if (!profile){ return; }
+    if (profile.visibility === 'private'){
+      showToast('Your page is already hidden. Switch the pill to Public to reactivate.');
+      return;
+    }
+    const sure = confirm('Deactivate your page?\n\nIt disappears from search, links, and visitors. Nothing is deleted \u2014 switch back to Public anytime to reactivate.');
+    if (!sure) return;
+    profile.visibility = 'private';
+    updateVisibilityPill();
+    if (db && currentUser && profile.dbId){
+      db.from('profiles').update({ visibility: 'private' }).eq('id', profile.dbId)
+        .then(({ error })=>{
+          if (error) showToast('Could not save: ' + error.message);
+          else showToast('Page deactivated \u2014 it\u2019s now invisible to everyone');
+        });
+    } else {
+      showToast('Page deactivated');
+    }
+  }
+
+  async function deleteAccount(){
+    const first = confirm('Delete your page and ALL its data?\n\nThis removes your page, every signature on it, your comments, likes, follows, and messages. This cannot be undone.');
+    if (!first) return;
+    const second = confirm('Last check \u2014 permanently delete everything?');
+    if (!second) return;
+
+    if (db && currentUser && profile && profile.dbId){
+      const { error } = await db.from('profiles').delete().eq('id', profile.dbId);
+      if (error){
+        showToast('Could not delete: ' + error.message);
+        return;
+      }
+      await db.auth.signOut();
+    }
+    currentUser = null;
+    profile = null;
+    entries = [];
+    myBlockedProfileIds = new Set();
+    pendingMsgCount = 0;
+    showScreen('landing');
+    showToast('Your page and data have been deleted');
+  }
+
+  async function toggleBlockedList(){
+    const box = document.getElementById('blockedList');
+    const opening = box.style.display === 'none';
+    box.style.display = opening ? 'block' : 'none';
+    if (!opening) return;
+    if (!db || !currentUser){
+      box.innerHTML = '<p style="font-size:12.5px; color:var(--ink-soft);">Sign in to manage blocks.</p>';
+      return;
+    }
+    box.innerHTML = '<p style="font-size:12.5px; color:var(--ink-soft);">Loading\u2026</p>';
+    const { data, error } = await db.from('blocks')
+      .select('id, blocked_profile_id, blocked:profiles!blocks_blocked_profile_id_fkey(name, username)')
+      .eq('blocker_user_id', currentUser.id);
+    if (error){
+      box.innerHTML = '<p style="font-size:12.5px; color:var(--blush);">Could not load: ' + escapeHtml(error.message) + '</p>';
+      return;
+    }
+    if (!data || !data.length){
+      box.innerHTML = '<p style="font-size:12.5px; color:var(--ink-soft);">You haven\u2019t blocked anyone.</p>';
+      return;
+    }
+    box.innerHTML = data.map(b=>{
+      const who = b.blocked ? escapeHtml(b.blocked.name) + ' <span style="color:var(--ink-soft);">@' + escapeHtml(b.blocked.username) + '</span>' : 'A private page';
+      return `<div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); font-size:13.5px;">
+        <span>${who}</span>
+        <button class="btn-small" onclick="unblockProfile('${b.blocked_profile_id}')">Unblock</button>
+      </div>`;
+    }).join('');
+  }
+
+  async function unblockProfile(profileId){
+    if (!db || !currentUser) return;
+    const { error } = await db.from('blocks').delete()
+      .eq('blocker_user_id', currentUser.id)
+      .eq('blocked_profile_id', profileId);
+    if (error){
+      showToast('Could not unblock: ' + error.message);
+      return;
+    }
+    myBlockedProfileIds.delete(profileId);
+    showToast('Unblocked \u2014 their page will appear again');
+    // Refresh the open list
+    const box = document.getElementById('blockedList');
+    box.style.display = 'none';
+    toggleBlockedList();
+  }
+
+  // 60-word cap for all free-text descriptions
+  function wordCount(text){
+    const t = (text || '').trim();
+    return t ? t.split(/\s+/).length : 0;
+  }
+  function enforceWordLimit(text, fieldLabel){
+    const n = wordCount(text);
+    if (n > 60){
+      showToast(fieldLabel + ' is too long \u2014 keep it under 60 words (currently ' + n + ')');
+      return false;
+    }
+    return true;
+  }
+
+
   let myBlockedProfileIds = new Set();
 
   async function loadMyBlocks(){
@@ -1626,6 +1961,14 @@
     bb.style.display = show ? '' : 'none';
     mb.style.display = (show && profile && profile.dbId) ? '' : 'none';
     if (!show) return;
+    // Already blocked? Offer Unblock instead, and hide follow/message.
+    if (myBlockedProfileIds.has(profileObj.dbId)){
+      bb.textContent = 'Unblock';
+      fb.style.display = 'none';
+      mb.style.display = 'none';
+      return;
+    }
+    bb.textContent = 'Block';
     fb.textContent = '\u2026';
     const { data } = await db.from('follows').select('id')
       .eq('follower_user_id', currentUser.id)
@@ -1665,6 +2008,11 @@
 
   async function blockThisPage(){
     if (!db || !currentUser || !currentVisitorProfile || !currentVisitorProfile.dbId) return;
+    if (myBlockedProfileIds.has(currentVisitorProfile.dbId)){
+      await unblockProfile(currentVisitorProfile.dbId);
+      updateFollowUi(currentVisitorProfile);
+      return;
+    }
     const sure = confirm('Block ' + currentVisitorProfile.name + '?\n\nTheir page will stop appearing in your searches.');
     if (!sure) return;
     const { error } = await db.from('blocks').insert({
@@ -1711,6 +2059,7 @@
     showScreen('messages');
     backToConvList();
     renderConvList();
+    refreshMsgBadge();
   }
 
   function backToConvList(){
@@ -1801,7 +2150,7 @@
       .order('created_at', { ascending:true });
     const box = document.getElementById('threadMsgs');
     box.innerHTML = (msgs || []).map(m=>`
-      <div class="msg-bubble ${m.sender_profile_id === profile.dbId ? 'mine' : ''}">${escapeHtml(m.body)}</div>
+      <div class="msg-bubble ${m.sender_profile_id === profile.dbId ? 'mine' : ''}">${linkify(m.body)}</div>
     `).join('') || '<p style="font-size:13px; color:var(--ink-soft); text-align:center;">No messages yet.</p>';
     box.scrollTop = box.scrollHeight;
   }
@@ -1813,6 +2162,7 @@
       .eq('id', currentConversationId);
     if (error){ showToast('Could not update: ' + error.message); return; }
     showToast(accept ? 'Request accepted \u2014 say hi!' : 'Request declined');
+    refreshMsgBadge();
     openThread(currentConversationId);
   }
 
@@ -1939,7 +2289,7 @@
   async function loadProfileFromDb(){
     if (!db || !currentUser) return false;
     const { data, error } = await db.from('profiles').select('*').eq('user_id', currentUser.id).maybeSingle();
-    if (error){ console.error('[earthlive] profile load failed:', error.message); return false; }
+    if (error){ console.error('[EarthLive] profile load failed:', error.message); return false; }
     if (!data) return false;
     profile = dbRowToProfile(data);
     await loadEntriesFromDb();
@@ -1951,7 +2301,7 @@
     const { data, error } = await db.from('entries').select('*')
       .eq('profile_id', profile.dbId)
       .order('created_at', { ascending:false });
-    if (error){ console.error('[earthlive] entries load failed:', error.message); return; }
+    if (error){ console.error('[EarthLive] entries load failed:', error.message); return; }
     entries = (data || []).map(dbRowToEntry);
     await hydrateSocial(entries);
   }
@@ -2009,7 +2359,7 @@
     const blob = await (await fetch(dataUrl)).blob();
     const { error } = await db.storage.from(bucket).upload(path, blob, { upsert: true, contentType: blob.type });
     if (error){
-      console.error('[earthlive] upload failed:', error.message);
+      console.error('[EarthLive] upload failed:', error.message);
       showToast('Photo upload failed: ' + error.message);
       return null;
     }
@@ -2021,7 +2371,7 @@
   async function isUsernameFree(u){
     if (db){
       const { data, error } = await db.rpc('username_available', { candidate: u });
-      if (error){ console.error('[earthlive] username check failed:', error.message); return true; }
+      if (error){ console.error('[EarthLive] username check failed:', error.message); return true; }
       // While editing, your own current handle is always allowed
       if (editMode && profile && profile.username === u) return true;
       return data === true;
@@ -2066,7 +2416,7 @@
       return;
     }
     if (!db){ showToast('Not connected to the server'); return; }
-    showToast('Sending code\u2026');
+    showToast('Sending\u2026');
     db.auth.signInWithOtp({ email, options: { shouldCreateUser: true } }).then(({ error })=>{
       if (error){
         showToast('Could not send: ' + error.message);
@@ -2076,7 +2426,7 @@
       document.getElementById('emailSentTo').textContent = email;
       document.getElementById('emailStep1').style.display = 'none';
       document.getElementById('emailStep2').style.display = 'block';
-      showToast('Check your inbox for the code');
+      showToast('Check your inbox');
     });
   }
 
@@ -2086,19 +2436,14 @@
       showToast('Enter the 6-digit code');
       return;
     }
-    if (!db || !pendingAuthEmail){ showToast('Start by sending a code first'); return; }
+    if (!db || !pendingAuthEmail){ showToast('Start by sending the email first'); return; }
     showToast('Verifying\u2026');
     db.auth.verifyOtp({ email: pendingAuthEmail, token: code, type: 'email' }).then(({ error })=>{
       if (error){
         showToast('Wrong or expired code \u2014 try again');
-        return;
       }
-      // Success: the auth listener above fires SIGNED_IN and routes forward.
+      // Success: the auth listener fires SIGNED_IN and routes forward.
     });
-  }
-
-  function continueAsGuest(){
-    startNewBook();
   }
 
   function startNewBook(){
@@ -2234,6 +2579,8 @@
     const bio = document.getElementById('cBio').value.trim();
     const username = document.getElementById('cUsername').value.trim();
 
+    if (!enforceWordLimit(bio, 'Your bio')) return;
+
     if (!/^[a-z0-9_]{3,20}$/.test(username)){
       checkUsername();
       document.getElementById('cUsername').focus();
@@ -2287,7 +2634,7 @@
             showToast('@' + username + ' is already taken \u2014 try another.');
           } else {
             showToast('Could not save: ' + error.message);
-            console.error('[earthlive] profile save failed:', error);
+            console.error('[EarthLive] profile save failed:', error);
           }
           return;
         }
@@ -2346,7 +2693,7 @@
     } catch (err){
       restoreBtn();
       showToast('Something went wrong \u2014 try again');
-      console.error('[earthlive] createProfile error:', err);
+      console.error('[EarthLive] createProfile error:', err);
     }
   }
 
@@ -2407,7 +2754,7 @@
           <span class="pen-dot" style="background:${entry.color}"></span>
           <span class="entry-name">${escapeHtml(entry.name)}</span>
         </div>
-        <p class="entry-msg">"${escapeHtml(entry.message)}"</p>
+        <p class="entry-msg">"${linkify(entry.message)}"</p>
         <div class="pending-actions">
           <button class="btn-small" onclick="acceptEntry('${entry.id}')">Accept &amp; post</button>
           <button class="btn-small btn-decline" onclick="declineEntry('${entry.id}')">Decline</button>
@@ -2536,7 +2883,7 @@
             <span class="entry-name">${escapeHtml(entry.name)}${nickHtml}</span>
           </div>
           ${wordHtml}<br>
-          <p class="entry-msg">"${escapeHtml(entry.message)}"</p>
+          <p class="entry-msg">"${linkify(entry.message)}"</p>
           ${moreHint}
           ${entryActionsHtml(entry, i)}
           <div class="entry-date">${entry.date}</div>
@@ -2583,10 +2930,11 @@
               <b>${escapeHtml(c.name)}</b>
               ${modalIsOwner ? `<button class="comment-del" onclick="deleteComment('${c.id}')">remove</button>` : ''}
             </div>
-            ${escapeHtml(c.text)}
+            ${linkify(c.text)}
           </div>`).join('') || '<p style="font-size:13px; color:var(--ink-soft); margin:0 0 6px;">No comments yet.</p>'}</div>
         <div class="comment-form">
-          <input type="text" id="commentName" placeholder="Your name" maxlength="40">
+          <input type="text" id="commentName" placeholder="Your name" maxlength="60"
+                 ${currentUser && profile && profile.name ? `value="${escapeHtml(profile.name)}" readonly style="opacity:0.7;" title="Commenting as your EarthLive account"` : ''}>
           <textarea id="commentText" placeholder="Say something about this entry..." maxlength="500"></textarea>
           <button type="button" class="btn-small" onclick="postComment()">Post comment</button>
         </div>
@@ -2598,12 +2946,15 @@
         <span class="entry-name" style="font-size:16px;">${escapeHtml(entry.name)}${nickHtml}</span>
       </div>
       ${photosHtml}
-      <p class="entry-msg">"${escapeHtml(entry.message)}"</p>
+      <p class="entry-msg">"${linkify(entry.message)}"</p>
       ${answersHtml}
       ${entryActionsHtml(entry, index)}
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <div class="entry-date">${entry.date}</div>
-        <button onclick="reportEntry()" style="background:none; border:none; font-size:11.5px; color:var(--ink-soft); text-decoration:underline; padding:0;">Report</button>
+        <span style="display:flex; gap:14px;">
+          ${modalIsOwner ? `<button onclick="deleteOwnEntry()" style="background:none; border:none; font-size:11.5px; color:var(--blush); text-decoration:underline; padding:0;">Remove from page</button>` : ''}
+          <button onclick="reportEntry()" style="background:none; border:none; font-size:11.5px; color:var(--ink-soft); text-decoration:underline; padding:0;">Report</button>
+        </span>
       </div>
       ${commentsHtml}`;
 
@@ -2664,7 +3015,7 @@
       : 'page';
     const url = 'https://earthlive.in/?u=' + slug + '#entry-' + (entry.id || i);
     if (navigator.share){
-      navigator.share({ title:'A note on earthlive', text:`See what ${entry.name} wrote`, url }).catch(()=>{});
+      navigator.share({ title:'A note on EarthLive', text:`See what ${entry.name} wrote`, url }).catch(()=>{});
     } else {
       try{
         navigator.clipboard.writeText(url).then(()=>showToast('Entry link copied'));
@@ -2677,12 +3028,17 @@
   async function postComment(){
     const entry = modalEntrySource[currentModalIndex];
     if (!entry) return;
+    if (db && !currentUser){
+      showToast('Sign in to comment');
+      return;
+    }
     const name = document.getElementById('commentName').value.trim();
     const text = document.getElementById('commentText').value.trim();
     if (!name || !text){
       showToast('Add your name and a comment');
       return;
     }
+    if (!enforceWordLimit(text, 'Your comment')) return;
     entry.comments = entry.comments || [];
 
     if (db && isDbEntry(entry)){
@@ -2757,13 +3113,40 @@
     return d.innerHTML;
   }
 
+  // Renders text with clickable @mentions and styled #hashtags (escapes HTML first).
+  function linkify(text){
+    let safe = escapeHtml(text);
+    safe = safe.replace(/@([a-z0-9_]{3,20})\b/gi, (m,u)=>
+      `<span class="mention" onclick="event.stopPropagation(); openProfileByUsername('${u.toLowerCase()}')">@${u}</span>`);
+    safe = safe.replace(/#([\p{L}\p{N}_]+)/gu, '<span class="hashtag">#$1</span>');
+    return safe;
+  }
+
   let fillTarget = null;
 
   function openFillForm(profileObj, entriesArr, isOwn, returnScreen){
+    if (db && !currentUser){
+      showToast('Sign in to sign someone\u2019s page');
+      showScreen('auth');
+      return;
+    }
     fillTarget = { profileObj, entriesArr, isOwn, returnScreen: returnScreen || 'dashboard' };
     document.getElementById('fillOwnerName').textContent = profileObj.name;
     document.getElementById('fillOwnerName2').textContent = profileObj.name;
     renderTemplateQuestionFields(profileObj);
+
+    // Your name comes from your account and can't be changed while signing.
+    const nameInput = document.getElementById('fName');
+    if (currentUser && profile && profile.name){
+      nameInput.value = profile.name + (profile.username ? ' (@' + profile.username + ')' : '');
+      nameInput.readOnly = true;
+      nameInput.style.opacity = '0.7';
+      nameInput.title = 'Signed as your EarthLive account';
+    } else {
+      nameInput.readOnly = false;
+      nameInput.style.opacity = '';
+      nameInput.title = '';
+    }
     showScreen('fill');
   }
 
@@ -2805,11 +3188,19 @@
     const word = document.getElementById('fWord').value.trim();
     const msg = document.getElementById('fMsg').value.trim();
 
+    if (!enforceWordLimit(msg, 'Your message')) return;
+
     const answers = [];
+    let answersOk = true;
     document.querySelectorAll('#templateQuestionFields [data-qid]').forEach(el=>{
       const val = el.value.trim();
+      if (val && wordCount(val) > 60) answersOk = false;
       if (val) answers.push({ label: el.getAttribute('data-qlabel'), value: val });
     });
+    if (!answersOk){
+      showToast('Keep each answer under 60 words');
+      return;
+    }
 
     const cityText = document.getElementById('fCity').value.trim();
     const city = selectedCity
@@ -2853,7 +3244,7 @@
       const { error } = await db.from('entries').insert(row);
       if (error){
         showToast('Could not sign: ' + error.message);
-        console.error('[earthlive] entry insert failed:', error);
+        console.error('[EarthLive] entry insert failed:', error);
         return;
       }
 
@@ -2957,7 +3348,7 @@
     const url = 'https://' + link;
     const shareData = {
       title: `Sign ${profile.name}'s page`,
-      text: `Come sign my slam book page on Earthlive`,
+      text: `Come sign my slam book page on EarthLive`,
       url
     };
     if (navigator.share){
@@ -3017,7 +3408,7 @@
           .or(`name.ilike.%${safe}%,username.ilike.%${safe}%`)
           .limit(10);
         if (error){
-          console.error('[earthlive] search failed:', error.message);
+          console.error('[EarthLive] search failed:', error.message);
         } else {
           (data || []).forEach(row=>{
             const isSelf = (currentUser && row.user_id === currentUser.id) ||
@@ -3062,7 +3453,7 @@
     const { data, error } = await db.from('entries').select('*')
       .eq('profile_id', profileDbId)
       .order('created_at', { ascending:false });
-    if (error){ console.error('[earthlive] entries fetch failed:', error.message); return []; }
+    if (error){ console.error('[EarthLive] entries fetch failed:', error.message); return []; }
     const list = (data || []).map(dbRowToEntry);
     await hydrateSocial(list);
     return list;
@@ -3148,7 +3539,7 @@
     if (currentUser && profile && profile.dbId){
       const msgs = document.createElement('button');
       msgs.className = 'nav-link';
-      msgs.textContent = 'Messages';
+      msgs.innerHTML = 'Messages' + (pendingMsgCount > 0 ? '<span class="nav-badge">' + pendingMsgCount + '</span>' : '');
       msgs.onclick = openMessages;
       navRight.appendChild(msgs);
     }
