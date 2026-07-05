@@ -605,7 +605,7 @@
       <h1>Everyone's got<br>something to say <em>about you.</em></h1>
       <p class="lede">Make a page, send it to your people, and watch it fill up with their handwriting, their words, their little stamps of you.</p>
       <div class="cta-row">
-        <button class="btn btn-primary" onclick="showScreen('auth')">Start your book →</button>
+        <button class="btn btn-primary" onclick="beginFlow()">Start your book →</button>
         <button class="link-quiet" onclick="document.getElementById('howSection').scrollIntoView()">See how it works</button>
       </div>
     </div>
@@ -1034,7 +1034,7 @@
       <h3>Get in touch</h3>
       <p>Questions, ideas, or something broken? Write to us at hello@earthlive.in.</p>
       <div class="cta-row" style="margin-top:34px;">
-        <button class="btn btn-primary" onclick="showScreen('auth')">Start your book →</button>
+        <button class="btn btn-primary" onclick="beginFlow()">Start your book →</button>
         <button class="link-quiet" onclick="showScreen('landing')">Back to home</button>
       </div>
     </div>
@@ -1480,7 +1480,8 @@
           if (found){
             renderDashboard();
             showScreen('dashboard');
-          } else if (document.getElementById('screen-auth').classList.contains('active')){
+          } else {
+            // New user, no page yet — take them straight to creating one.
             startNewBook();
           }
         });
@@ -1495,6 +1496,20 @@
         });
       }
     });
+  }
+
+  // Smart entry point: skips the sign-in screen if you're already signed in.
+  function beginFlow(){
+    if (currentUser && profile && profile.dbId){
+      renderDashboard();
+      showScreen('dashboard');
+      return;
+    }
+    if (currentUser){
+      startNewBook();
+      return;
+    }
+    showScreen('auth');
   }
 
   /* ---------- REAL PAGES (Stage 2, piece 3) ---------- */
