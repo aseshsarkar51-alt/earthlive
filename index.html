@@ -997,7 +997,7 @@
         </div>
         <div id="emailStep2" style="display:none;">
           <p style="font-size:13px; color:var(--ink-soft); margin:0 0 10px;">
-            We've sent a 6-digit code to <b id="emailSentTo"></b>. It can take a minute — check spam too.
+            We've emailed a sign-in link to <b id="emailSentTo"></b>. Click it and you'll come back here signed in. (Check spam if it's slow — and if your email shows a code instead, enter it below.)
           </p>
           <div class="field" style="margin-bottom:12px;">
             <label for="authCode">Verification code</label>
@@ -1348,9 +1348,16 @@
   function handleQuickAvatarChange(event){
     const file = event.target.files && event.target.files[0];
     if (!file) return;
-    readImageFile(file).then(dataUrl=>{
+    readImageFile(file).then(async dataUrl=>{
       profile.avatar = dataUrl;
       renderSeal('ownerSeal');
+      if (db && currentUser && profile.dbId){
+        const url = await uploadImage(dataUrl, 'avatars', currentUser.id + '/avatar');
+        if (url){
+          profile.avatar = url;
+          await db.from('profiles').update({ avatar_url: url }).eq('id', profile.dbId);
+        }
+      }
       showToast('Profile photo updated');
     }).catch(err=>{
       showToast(err === 'size' ? 'Image is too large (max 4MB)' : 'Please choose an image file');
@@ -1361,9 +1368,16 @@
   function handleQuickCoverChange(event){
     const file = event.target.files && event.target.files[0];
     if (!file) return;
-    readImageFile(file).then(dataUrl=>{
+    readImageFile(file).then(async dataUrl=>{
       profile.cover = dataUrl;
       renderCover('owner', profile);
+      if (db && currentUser && profile.dbId){
+        const url = await uploadImage(dataUrl, 'covers', currentUser.id + '/cover');
+        if (url){
+          profile.cover = url;
+          await db.from('profiles').update({ cover_url: url }).eq('id', profile.dbId);
+        }
+      }
       showToast('Cover photo updated');
     }).catch(err=>{
       showToast(err === 'size' ? 'Image is too large (max 4MB)' : 'Please choose an image file');
@@ -1462,12 +1476,106 @@
       currentUser = session ? session.user : null;
       if (event === 'SIGNED_IN' && currentUser){
         showToast('Signed in as ' + (currentUser.email || 'your account'));
-        // If the user is sitting on the sign-in screen, move them forward.
-        if (document.getElementById('screen-auth').classList.contains('active')){
-          startNewBook();
-        }
+        loadProfileFromDb().then(found=>{
+          if (found){
+            renderDashboard();
+            showScreen('dashboard');
+          } else if (document.getElementById('screen-auth').classList.contains('active')){
+            startNewBook();
+          }
+        });
+      }
+      if (event === 'INITIAL_SESSION' && currentUser){
+        // Returning visitor with a live session: restore their page silently.
+        loadProfileFromDb().then(found=>{
+          if (found){
+            renderDashboard();
+            showScreen('dashboard');
+          }
+        });
       }
     });
+  }
+
+  /* ---------- REAL PAGES (Stage 2, piece 3) ---------- */
+
+  function dbRowToProfile(row){
+    return {
+      dbId: row.id,
+      name: row.name,
+      username: row.username,
+      bio: row.bio || 'Just here to collect some words.',
+      ink: row.ink || PEN_COLORS[0],
+      avatar: row.avatar_url || null,
+      cover: row.cover_url || null,
+      visibility: row.visibility,
+      templateId: row.template_id || 'classic',
+      questions: (row.questions && row.questions.length) ? row.questions : TEMPLATES[0].questions,
+      links: row.links || {},
+      code: row.username
+    };
+  }
+
+  function dbRowToEntry(row){
+    return {
+      id: row.id,
+      status: row.status,
+      name: row.name,
+      nickname: row.nickname || '',
+      relation: row.relation || '',
+      word: row.word || '',
+      answers: row.answers || [],
+      city: row.city || null,
+      message: row.message,
+      photos: row.photos || [],
+      color: row.color || '#3C4A5E',
+      likes: 0,
+      likedByMe: false,
+      comments: [],
+      date: new Date(row.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
+    };
+  }
+
+  async function loadProfileFromDb(){
+    if (!db || !currentUser) return false;
+    const { data, error } = await db.from('profiles').select('*').eq('user_id', currentUser.id).maybeSingle();
+    if (error){ console.error('[earthlive] profile load failed:', error.message); return false; }
+    if (!data) return false;
+    profile = dbRowToProfile(data);
+    await loadEntriesFromDb();
+    return true;
+  }
+
+  async function loadEntriesFromDb(){
+    if (!db || !profile || !profile.dbId) return;
+    const { data, error } = await db.from('entries').select('*')
+      .eq('profile_id', profile.dbId)
+      .order('created_at', { ascending:false });
+    if (error){ console.error('[earthlive] entries load failed:', error.message); return; }
+    entries = (data || []).map(dbRowToEntry);
+  }
+
+  async function uploadImage(dataUrl, bucket, path){
+    // Converts a local data-URL image into a real file in Supabase Storage; returns its public URL.
+    if (!dataUrl) return null;
+    if (/^https?:\/\//.test(dataUrl)) return dataUrl; // already uploaded previously
+    const blob = await (await fetch(dataUrl)).blob();
+    const { error } = await db.storage.from(bucket).upload(path, blob, { upsert: true, contentType: blob.type });
+    if (error){ console.error('[earthlive] upload failed:', error.message); return null; }
+    const { data } = db.storage.from(bucket).getPublicUrl(path);
+    // cache-bust so a replaced photo shows immediately
+    return data.publicUrl + '?v=' + Date.now();
+  }
+
+  async function isUsernameFree(u){
+    if (db){
+      const { data, error } = await db.rpc('username_available', { candidate: u });
+      if (error){ console.error('[earthlive] username check failed:', error.message); return true; }
+      // While editing, your own current handle is always allowed
+      if (editMode && profile && profile.username === u) return true;
+      return data === true;
+    }
+    return !takenUsernames().includes(u);
   }
 
   function mockAuth(method){
@@ -1632,16 +1740,34 @@
     return { ok:true, msg:'@' + u + ' is available!' };
   }
 
+  let usernameCheckTimer = null;
+
   function checkUsername(){
     const input = document.getElementById('cUsername');
     input.value = input.value.toLowerCase().replace(/[^a-z0-9_]/g,'');
     const status = document.getElementById('usernameStatus');
     const u = input.value;
     if (!u){ status.style.display='none'; return; }
-    const res = validateUsername(u);
+
+    // Format check is instant
+    if (!/^[a-z0-9_]{3,20}$/.test(u)){
+      status.style.display = 'block';
+      status.textContent = '3\u201320 characters: lowercase letters, numbers, and _ only.';
+      status.style.color = 'var(--blush)';
+      return;
+    }
     status.style.display = 'block';
-    status.textContent = res.msg;
-    status.style.color = res.ok ? 'var(--moss)' : 'var(--blush)';
+    status.textContent = 'Checking @' + u + '\u2026';
+    status.style.color = 'var(--ink-soft)';
+
+    // Availability check hits the database, debounced
+    clearTimeout(usernameCheckTimer);
+    usernameCheckTimer = setTimeout(async ()=>{
+      const free = await isUsernameFree(u);
+      if (document.getElementById('cUsername').value !== u) return; // stale
+      status.textContent = free ? '@' + u + ' is available!' : '@' + u + ' is already taken \u2014 try another.';
+      status.style.color = free ? 'var(--moss)' : 'var(--blush)';
+    }, 350);
   }
 
   function cancelCreateForm(){
@@ -1651,56 +1777,121 @@
     showScreen(wasEditing ? 'dashboard' : 'landing');
   }
 
-  function createProfile(e){
+  async function createProfile(e){
     e.preventDefault();
     const name = document.getElementById('cName').value.trim();
     const bio = document.getElementById('cBio').value.trim();
     const username = document.getElementById('cUsername').value.trim();
 
-    const uCheck = validateUsername(username);
-    if (!uCheck.ok){
+    if (!/^[a-z0-9_]{3,20}$/.test(username)){
       checkUsername();
       document.getElementById('cUsername').focus();
-      showToast(uCheck.msg);
+      showToast('Pick a valid username first');
       return;
     }
 
-    if (editMode){
-      profile.name = name;
-      profile.username = username;
-      profile.bio = bio || 'Just here to collect some words.';
-      profile.ink = selectedInk;
-      profile.avatar = avatarDataUrl;
-      profile.cover = coverDataUrl;
-      profile.visibility = createVisibilityPublic ? 'public' : 'private';
-      profile.templateId = selectedTemplateId;
-      profile.questions = getChosenQuestions();
-      profile.links = collectLinks();
-      editMode = false;
+    const submitBtn = document.getElementById('createSubmitBtn');
+    const oldLabel = submitBtn.textContent;
+    submitBtn.textContent = 'Saving\u2026';
+    submitBtn.disabled = true;
+    const restoreBtn = ()=>{ submitBtn.textContent = oldLabel; submitBtn.disabled = false; };
+
+    try {
+      // ----- Signed in: save to the database -----
+      if (db && currentUser){
+        const free = await isUsernameFree(username);
+        if (!free){
+          restoreBtn();
+          checkUsername();
+          document.getElementById('cUsername').focus();
+          showToast('@' + username + ' is already taken \u2014 try another.');
+          return;
+        }
+
+        const avatarUrl = await uploadImage(avatarDataUrl, 'avatars', currentUser.id + '/avatar');
+        const coverUrl  = await uploadImage(coverDataUrl, 'covers', currentUser.id + '/cover');
+
+        const row = {
+          user_id: currentUser.id,
+          username,
+          name,
+          bio: bio || 'Just here to collect some words.',
+          ink: selectedInk,
+          avatar_url: avatarUrl,
+          cover_url: coverUrl,
+          visibility: createVisibilityPublic ? 'public' : 'private',
+          template_id: selectedTemplateId,
+          questions: getChosenQuestions(),
+          links: collectLinks()
+        };
+
+        const { data, error } = await db.from('profiles')
+          .upsert(row, { onConflict: 'user_id' })
+          .select()
+          .single();
+
+        if (error){
+          restoreBtn();
+          if (error.code === '23505'){
+            showToast('@' + username + ' is already taken \u2014 try another.');
+          } else {
+            showToast('Could not save: ' + error.message);
+            console.error('[earthlive] profile save failed:', error);
+          }
+          return;
+        }
+
+        const wasEdit = editMode;
+        profile = dbRowToProfile(data);
+        if (!wasEdit) entries = [];
+        editMode = false;
+        resetCreateFormUI();
+        renderDashboard();
+        showScreen('dashboard');
+        showToast(wasEdit ? 'Page updated' : 'Your page is live \u2014 saved to your account');
+        restoreBtn();
+        return;
+      }
+
+      // ----- Guest (not signed in): local only, honest about it -----
+      if (editMode){
+        profile.name = name;
+        profile.username = username;
+        profile.bio = bio || 'Just here to collect some words.';
+        profile.ink = selectedInk;
+        profile.avatar = avatarDataUrl;
+        profile.cover = coverDataUrl;
+        profile.visibility = createVisibilityPublic ? 'public' : 'private';
+        profile.templateId = selectedTemplateId;
+        profile.questions = getChosenQuestions();
+        profile.links = collectLinks();
+        editMode = false;
+      } else {
+        profile = {
+          name,
+          username,
+          bio: bio || 'Just here to collect some words.',
+          ink: selectedInk,
+          avatar: avatarDataUrl,
+          cover: coverDataUrl,
+          visibility: createVisibilityPublic ? 'public' : 'private',
+          templateId: selectedTemplateId,
+          questions: getChosenQuestions(),
+          links: collectLinks(),
+          code: randomCode()
+        };
+        entries = [];
+      }
       resetCreateFormUI();
       renderDashboard();
       showScreen('dashboard');
-      showToast('Page updated');
-      return;
+      showToast('Page created locally \u2014 sign in to save it permanently');
+      restoreBtn();
+    } catch (err){
+      restoreBtn();
+      showToast('Something went wrong \u2014 try again');
+      console.error('[earthlive] createProfile error:', err);
     }
-
-    profile = {
-      name,
-      username,
-      bio: bio || 'Just here to collect some words.',
-      ink: selectedInk,
-      avatar: avatarDataUrl,
-      cover: coverDataUrl,
-      visibility: createVisibilityPublic ? 'public' : 'private',
-      templateId: selectedTemplateId,
-      questions: getChosenQuestions(),
-      links: collectLinks(),
-      code: randomCode()
-    };
-    entries = [];
-    resetCreateFormUI();
-    renderDashboard();
-    showScreen('dashboard');
   }
 
   function renderSocialLinks(elId, profileObj){
@@ -1791,6 +1982,12 @@
   function toggleDashVisibility(){
     profile.visibility = profile.visibility === 'public' ? 'private' : 'public';
     updateVisibilityPill();
+    if (db && currentUser && profile.dbId){
+      db.from('profiles').update({ visibility: profile.visibility }).eq('id', profile.dbId)
+        .then(({ error })=>{
+          if (error) showToast('Could not save visibility: ' + error.message);
+        });
+    }
   }
 
   let modalEntrySource = [];
