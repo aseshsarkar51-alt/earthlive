@@ -130,7 +130,7 @@
   .center-wrap{padding:56px 0 90px; display:flex; justify-content:center;}
   .form-card{
     background:var(--card); border-radius:20px; box-shadow:var(--shadow);
-    padding:44px 42px; width:100%; max-width:480px; border:1px solid var(--line);
+    padding:44px 42px; width:100%; max-width:600px; border:1px solid var(--line);
     position:relative;
   }
   .form-card::before{
@@ -593,7 +593,7 @@
   <div class="nav-right" id="navRight">
     <button class="nav-link" onclick="showScreen('about')">About</button>
     <button class="nav-link" onclick="showScreen('landing')">Home</button>
-    <button class="nav-link" onclick="showScreen('search')">Find someone</button>
+    <button class="nav-link" onclick="showScreen('auth')">Sign in</button>
   </div>
 </nav>
 
@@ -751,6 +751,7 @@
           <h2 id="ownerName"></h2>
           <p id="ownerBio"></p>
           <div class="social-row" id="ownerLinks"></div>
+          <p id="ownerFollowers" style="font-size:12.5px; color:var(--ink-soft); margin:8px 0 0;"></p>
         </div>
       </div>
         <div class="dash-actions">
@@ -777,7 +778,7 @@
       </div>
       <div class="qr-box" id="qrBox" style="display:none;">
         <img id="qrImg" alt="QR code for your page link">
-        <p>Anyone can scan this to open your page directly. It'll go live once earthlive is connected to a real domain and backend.</p>
+        <p>Anyone can scan this to open your page directly.</p>
       </div>
     </div>
 
@@ -906,9 +907,11 @@
           <div class="social-row" id="visitorLinks"></div>
         </div>
       </div>
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <button class="btn btn-ghost" id="followBtn" style="display:none;" onclick="toggleFollow()">Follow</button>
         <button class="btn btn-primary" onclick="signCurrentVisitorProfile()">Sign this page</button>
-        <button class="btn btn-ghost" onclick="exitVisitorPreview()">Exit preview</button>
+        <button class="btn btn-ghost" onclick="exitVisitorPreview()">Back</button>
+        <button class="link-quiet" id="blockBtn" style="display:none;" onclick="blockThisPage()">Block</button>
       </div>
     </div>
 
@@ -951,13 +954,14 @@
           <label for="searchInput">Name</label>
           <div style="display:flex; gap:10px;">
             <input type="text" id="searchInput" placeholder="Search by name or @username"
+                   oninput="searchTyped()"
                    onkeydown="if(event.key==='Enter'){event.preventDefault(); runSearch();}">
             <button class="btn-small" style="flex:none; padding:0 20px;" onclick="runSearch()">Search</button>
           </div>
         </div>
         <div id="searchResults"></div>
         <p style="font-size:12.5px; color:var(--ink-soft); margin-top:22px; line-height:1.6;">
-          This is a preview of search. Right now it can only find the page open in this browser tab — once earthlive has real accounts, everyone who's made a public page will turn up here.
+          Search finds public pages by name or @username. Private pages never appear here.
         </p>
       </div>
     </div>
@@ -1477,7 +1481,14 @@
       refreshNav();
       if (event === 'SIGNED_IN' && currentUser){
         showToast('Signed in as ' + (currentUser.email || 'your account'));
+        loadMyBlocks();
         loadProfileFromDb().then(found=>{
+          if (pendingLinkUsername){
+            const u = pendingLinkUsername;
+            pendingLinkUsername = null;
+            openProfileByUsername(u);
+            return;
+          }
           if (found){
             renderDashboard();
             showScreen('dashboard');
@@ -1487,14 +1498,25 @@
           }
         });
       }
-      if (event === 'INITIAL_SESSION' && currentUser){
-        // Returning visitor with a live session: restore their page silently.
-        loadProfileFromDb().then(found=>{
-          if (found){
-            renderDashboard();
-            showScreen('dashboard');
-          }
-        });
+      if (event === 'INITIAL_SESSION'){
+        if (currentUser){
+          // Returning visitor with a live session: restore their page silently.
+          loadMyBlocks();
+          loadProfileFromDb().then(found=>{
+            if (pendingLinkUsername){
+              const u = pendingLinkUsername;
+              pendingLinkUsername = null;
+              openProfileByUsername(u);
+              return;
+            }
+            if (found){
+              renderDashboard();
+              showScreen('dashboard');
+            }
+          });
+        } else {
+          handleIncomingLink();
+        }
       }
     });
   }
@@ -1511,6 +1533,128 @@
       return;
     }
     showScreen('auth');
+  }
+
+  /* ---------- FOLLOW / BLOCK ---------- */
+  let myBlockedProfileIds = new Set();
+
+  async function loadMyBlocks(){
+    if (!db || !currentUser) return;
+    const { data } = await db.from('blocks').select('blocked_profile_id').eq('blocker_user_id', currentUser.id);
+    myBlockedProfileIds = new Set((data || []).map(r=>r.blocked_profile_id));
+  }
+
+  async function updateFollowUi(profileObj){
+    const fb = document.getElementById('followBtn');
+    const bb = document.getElementById('blockBtn');
+    const isOwnPage = profile && profile.dbId && profileObj.dbId === profile.dbId;
+    const show = !!(db && currentUser && profileObj.dbId && !isOwnPage);
+    fb.style.display = show ? '' : 'none';
+    bb.style.display = show ? '' : 'none';
+    if (!show) return;
+    fb.textContent = '\u2026';
+    const { data } = await db.from('follows').select('id')
+      .eq('follower_user_id', currentUser.id)
+      .eq('followed_profile_id', profileObj.dbId)
+      .maybeSingle();
+    fb.dataset.following = data ? '1' : '0';
+    fb.textContent = data ? 'Following' : 'Follow';
+  }
+
+  async function toggleFollow(){
+    if (!db || !currentUser || !currentVisitorProfile || !currentVisitorProfile.dbId) return;
+    const fb = document.getElementById('followBtn');
+    const isFollowing = fb.dataset.following === '1';
+    fb.disabled = true;
+    if (isFollowing){
+      await db.from('follows').delete()
+        .eq('follower_user_id', currentUser.id)
+        .eq('followed_profile_id', currentVisitorProfile.dbId);
+      fb.dataset.following = '0';
+      fb.textContent = 'Follow';
+      showToast('Unfollowed ' + currentVisitorProfile.name);
+    } else {
+      const { error } = await db.from('follows').insert({
+        follower_user_id: currentUser.id,
+        followed_profile_id: currentVisitorProfile.dbId
+      });
+      if (!error){
+        fb.dataset.following = '1';
+        fb.textContent = 'Following';
+        showToast('Following ' + currentVisitorProfile.name);
+      } else {
+        showToast('Could not follow: ' + error.message);
+      }
+    }
+    fb.disabled = false;
+  }
+
+  async function blockThisPage(){
+    if (!db || !currentUser || !currentVisitorProfile || !currentVisitorProfile.dbId) return;
+    const sure = confirm('Block ' + currentVisitorProfile.name + '?\n\nTheir page will stop appearing in your searches.');
+    if (!sure) return;
+    const { error } = await db.from('blocks').insert({
+      blocker_user_id: currentUser.id,
+      blocked_profile_id: currentVisitorProfile.dbId
+    });
+    if (error){
+      showToast('Could not block: ' + error.message);
+      return;
+    }
+    myBlockedProfileIds.add(currentVisitorProfile.dbId);
+    // Also unfollow if following
+    db.from('follows').delete()
+      .eq('follower_user_id', currentUser.id)
+      .eq('followed_profile_id', currentVisitorProfile.dbId);
+    showToast(currentVisitorProfile.name + ' blocked');
+    showScreen('search');
+  }
+
+  async function refreshFollowerCount(){
+    const el = document.getElementById('ownerFollowers');
+    if (!el) return;
+    if (!db || !profile || !profile.dbId){ el.textContent = ''; return; }
+    const { count } = await db.from('follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('followed_profile_id', profile.dbId);
+    el.textContent = (count || 0) + (count === 1 ? ' follower' : ' followers');
+  }
+
+  /* ---------- INVITE LINK ROUTING (earthlive.in/?u=username) ---------- */
+  let pendingLinkUsername = new URLSearchParams(location.search).get('u');
+
+  async function openProfileByUsername(username){
+    if (!db) return false;
+    const { data, error } = await db.from('profiles').select('*')
+      .eq('username', username.toLowerCase())
+      .maybeSingle();
+    if (error || !data){
+      showToast('That page was not found (or is private)');
+      return false;
+    }
+    const p = dbRowToProfile(data);
+    const isOwn = currentUser && data.user_id === currentUser.id;
+    if (isOwn){
+      renderDashboard();
+      showScreen('dashboard');
+      return true;
+    }
+    const theirEntries = await fetchEntriesForProfile(p.dbId);
+    previewProfile(p, theirEntries, currentUser ? 'search' : 'landing');
+    return true;
+  }
+
+  function handleIncomingLink(){
+    if (!pendingLinkUsername) return false;
+    const u = pendingLinkUsername;
+    if (!currentUser){
+      showToast('Sign in to open ' + '@' + u + '\u2019s page');
+      showScreen('auth');
+      return true; // keep pendingLinkUsername; resumes after sign-in
+    }
+    pendingLinkUsername = null;
+    openProfileByUsername(u);
+    return true;
   }
 
   /* ---------- REAL PAGES (Stage 2, piece 3) ---------- */
@@ -1569,6 +1713,53 @@
       .order('created_at', { ascending:false });
     if (error){ console.error('[earthlive] entries load failed:', error.message); return; }
     entries = (data || []).map(dbRowToEntry);
+    await hydrateSocial(entries);
+  }
+
+  /* ---------- PERSISTENT LIKES + COMMENTS (Stage 2, piece 6) ---------- */
+
+  function myLikerKey(){
+    if (currentUser) return currentUser.id;
+    try {
+      let k = localStorage.getItem('el_device');
+      if (!k){ k = 'dev_' + Math.random().toString(36).slice(2,12); localStorage.setItem('el_device', k); }
+      return k;
+    } catch(e){
+      return 'dev_session';
+    }
+  }
+
+  function isDbEntry(entry){
+    return entry && typeof entry.id === 'string' && entry.id.includes('-'); // uuid vs local 'e_xxx'
+  }
+
+  async function hydrateSocial(entriesArr){
+    if (!db) return;
+    const ids = entriesArr.filter(isDbEntry).map(e=>e.id);
+    if (!ids.length) return;
+    const me = myLikerKey();
+
+    const [likesRes, commentsRes] = await Promise.all([
+      db.from('likes').select('entry_id, liker_key').in('entry_id', ids),
+      db.from('comments').select('*').in('entry_id', ids).order('created_at', { ascending:true })
+    ]);
+
+    const likeCounts = {}, likedByMe = {};
+    (likesRes.data || []).forEach(l=>{
+      likeCounts[l.entry_id] = (likeCounts[l.entry_id] || 0) + 1;
+      if (l.liker_key === me) likedByMe[l.entry_id] = true;
+    });
+    const commentMap = {};
+    (commentsRes.data || []).forEach(c=>{
+      (commentMap[c.entry_id] = commentMap[c.entry_id] || []).push({ id: c.id, name: c.name, text: c.body });
+    });
+
+    entriesArr.forEach(e=>{
+      if (!isDbEntry(e)) return;
+      e.likes = likeCounts[e.id] || 0;
+      e.likedByMe = !!likedByMe[e.id];
+      e.comments = commentMap[e.id] || [];
+    });
   }
 
   async function uploadImage(dataUrl, bucket, path){
@@ -1948,9 +2139,10 @@
     renderCover('owner', profile);
     renderSocialLinks('ownerLinks', profile);
     document.getElementById('inviteLink').textContent =
-      'earthlive.in/u/' + (profile.username || profile.code);
+      'earthlive.in/?u=' + (profile.username || profile.code);
 
     updateVisibilityPill();
+    refreshFollowerCount();
     const tpl = TEMPLATES.find(t=>t.id===profile.templateId) || TEMPLATES[0];
     const qCount = (profile.questions || tpl.questions).length;
     document.getElementById('templatePillText').textContent = tpl.name + ' \u00b7 ' + qCount + ' questions';
@@ -1983,16 +2175,30 @@
       </div>`).join('');
   }
 
-  function acceptEntry(id){
+  async function acceptEntry(id){
     const entry = entries.find(e => e.id === id);
     if (!entry) return;
+    if (db && isDbEntry(entry)){
+      const { error } = await db.from('entries').update({ status: 'approved' }).eq('id', id);
+      if (error){
+        showToast('Could not approve: ' + error.message);
+        return;
+      }
+    }
     entry.status = 'approved';
     renderDashboard();
     showToast(entry.name + '\u2019s signature is now on your page');
   }
 
-  function declineEntry(id){
+  async function declineEntry(id){
     const entry = entries.find(e => e.id === id);
+    if (db && entry && isDbEntry(entry)){
+      const { error } = await db.from('entries').delete().eq('id', id);
+      if (error){
+        showToast('Could not decline: ' + error.message);
+        return;
+      }
+    }
     entries = entries.filter(e => e.id !== id);
     renderDashboard();
     if (entry) showToast(entry.name + '\u2019s signature was declined');
@@ -2181,16 +2387,31 @@
   function toggleLike(i){
     const entry = modalEntrySource[i];
     if (!entry) return;
-    if (entry.likedByMe){
-      entry.likedByMe = false;
-      entry.likes = Math.max(0, (entry.likes || 0) - 1);
-    } else {
-      entry.likedByMe = true;
-      entry.likes = (entry.likes || 0) + 1;
-    }
+    const wasLiked = !!entry.likedByMe;
+
+    // Optimistic UI first
+    entry.likedByMe = !wasLiked;
+    entry.likes = Math.max(0, (entry.likes || 0) + (wasLiked ? -1 : 1));
     rerenderCurrentEntries();
     if (document.getElementById('entryModalOverlay').classList.contains('open') && currentModalIndex === i){
       openEntryModal(i);
+    }
+
+    // Persist to the database
+    if (db && isDbEntry(entry)){
+      const key = myLikerKey();
+      const op = wasLiked
+        ? db.from('likes').delete().eq('entry_id', entry.id).eq('liker_key', key)
+        : db.from('likes').insert({ entry_id: entry.id, liker_key: key });
+      op.then(({ error })=>{
+        if (error && error.code !== '23505'){ // duplicate like = already saved, fine
+          // Revert on real failure
+          entry.likedByMe = wasLiked;
+          entry.likes = Math.max(0, (entry.likes || 0) + (wasLiked ? 1 : -1));
+          rerenderCurrentEntries();
+          showToast('Could not save like: ' + error.message);
+        }
+      });
     }
   }
 
@@ -2201,7 +2422,7 @@
     const slug = pageProfile
       ? (pageProfile.username || pageProfile.code)
       : 'page';
-    const url = 'https://earthlive.in/u/' + slug + '#entry-' + (entry.id || i);
+    const url = 'https://earthlive.in/?u=' + slug + '#entry-' + (entry.id || i);
     if (navigator.share){
       navigator.share({ title:'A note on earthlive', text:`See what ${entry.name} wrote`, url }).catch(()=>{});
     } else {
@@ -2213,7 +2434,7 @@
     }
   }
 
-  function postComment(){
+  async function postComment(){
     const entry = modalEntrySource[currentModalIndex];
     if (!entry) return;
     const name = document.getElementById('commentName').value.trim();
@@ -2223,15 +2444,39 @@
       return;
     }
     entry.comments = entry.comments || [];
-    entry.comments.push({ id: makeId(), name, text });
+
+    if (db && isDbEntry(entry)){
+      const { data, error } = await db.from('comments').insert({
+        entry_id: entry.id,
+        author_user_id: currentUser ? currentUser.id : null,
+        name,
+        body: text
+      }).select().single();
+      if (error){
+        showToast('Could not post: ' + error.message);
+        return;
+      }
+      entry.comments.push({ id: data.id, name, text });
+    } else {
+      entry.comments.push({ id: makeId(), name, text });
+    }
+
     openEntryModal(currentModalIndex);
     rerenderCurrentEntries();
     showToast('Comment posted');
   }
 
-  function deleteComment(commentId){
+  async function deleteComment(commentId){
     const entry = modalEntrySource[currentModalIndex];
     if (!entry || !modalIsOwner) return;
+
+    if (db && isDbEntry(entry) && String(commentId).includes('-')){
+      const { error } = await db.from('comments').delete().eq('id', commentId);
+      if (error){
+        showToast('Could not remove: ' + error.message);
+        return;
+      }
+    }
     entry.comments = (entry.comments || []).filter(c => c.id !== commentId);
     openEntryModal(currentModalIndex);
     rerenderCurrentEntries();
@@ -2243,7 +2488,18 @@
     if (!entry) return;
     const sure = confirm('Report this entry for review?\n\nUse this for harassment, impersonation, or content that shouldn\u2019t be here.');
     if (!sure) return;
-    showToast('Report submitted \u2014 thank you. (Goes to moderators once the backend is live.)');
+    if (db && isDbEntry(entry)){
+      db.from('reports').insert({
+        target_type: 'entry',
+        target_id: entry.id,
+        reason: 'Reported from entry view',
+        reporter_key: myLikerKey()
+      }).then(({ error })=>{
+        showToast(error ? 'Could not submit report: ' + error.message : 'Report submitted \u2014 thank you.');
+      });
+    } else {
+      showToast('Report submitted \u2014 thank you.');
+    }
   }
 
   function closeEntryModal(){
@@ -2300,7 +2556,7 @@
     }
   }
 
-  function submitFill(e){
+  async function submitFill(e){
     e.preventDefault();
     const target = fillTarget || { profileObj: profile, entriesArr: entries, isOwn: true, returnScreen: 'dashboard' };
     const name = document.getElementById('fName').value.trim();
@@ -2323,6 +2579,59 @@
       showToast('City not recognised \u2014 entry saved without a pin');
     }
 
+    const clearForm = ()=>{
+      document.getElementById('fillForm').reset();
+      selectedCity = null;
+      document.getElementById('citySuggestions').style.display = 'none';
+      entryPhotos = [];
+      renderPhotoThumbs();
+    };
+
+    // ----- Real signing: write to the entries table -----
+    if (db && target.profileObj.dbId){
+      showToast('Signing\u2026');
+
+      // Upload attached photos to storage first
+      const photoUrls = [];
+      for (let i = 0; i < entryPhotos.length; i++){
+        const url = await uploadImage(entryPhotos[i], 'entry-photos', 'e_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2,8));
+        if (url) photoUrls.push(url);
+      }
+
+      const row = {
+        profile_id: target.profileObj.dbId,
+        signer_user_id: currentUser ? currentUser.id : null,
+        name, nickname, relation, word,
+        answers,
+        message: msg,
+        city,
+        photos: photoUrls,
+        color: selectedPen,
+        status: 'pending'
+      };
+
+      const { error } = await db.from('entries').insert(row);
+      if (error){
+        showToast('Could not sign: ' + error.message);
+        console.error('[earthlive] entry insert failed:', error);
+        return;
+      }
+
+      clearForm();
+
+      if (target.isOwn){
+        await loadEntriesFromDb();
+        renderDashboard();
+        showScreen('dashboard');
+        showToast(name + '\u2019s signature is waiting for your approval');
+      } else {
+        previewProfile(target.profileObj, target.entriesArr, target.returnScreen);
+        showToast('Signed! Your entry is waiting for ' + target.profileObj.name + '\u2019s approval');
+      }
+      return;
+    }
+
+    // ----- Local fallback (guest page not saved to an account) -----
     target.entriesArr.unshift({
       id: makeId(),
       status: 'pending',
@@ -2337,11 +2646,7 @@
       comments: [],
       date: 'Signed just now'
     });
-    document.getElementById('fillForm').reset();
-    selectedCity = null;
-    document.getElementById('citySuggestions').style.display = 'none';
-    entryPhotos = [];
-    renderPhotoThumbs();
+    clearForm();
 
     if (target.isOwn){
       renderDashboard();
@@ -2379,6 +2684,7 @@
     renderSeal('visitorSeal', profileObj);
     renderCover('visitor', profileObj);
     renderSocialLinks('visitorLinks', profileObj);
+    updateFollowUi(profileObj);
 
     const isPrivate = profileObj.visibility === 'private';
     document.getElementById('visitorPublicView').style.display = isPrivate ? 'none' : 'block';
@@ -2437,19 +2743,52 @@
 
   let lastSearchResults = [];
 
-  function runSearch(){
+  let searchTypeTimer = null;
+  function searchTyped(){
+    clearTimeout(searchTypeTimer);
+    const q = document.getElementById('searchInput').value.trim();
+    if (q.length < 2){
+      document.getElementById('searchResults').innerHTML = '';
+      return;
+    }
+    searchTypeTimer = setTimeout(runSearch, 350);
+  }
+
+  async function runSearch(){
     const q = document.getElementById('searchInput').value.trim();
     const el = document.getElementById('searchResults');
     if (!q){
       el.innerHTML = '';
       return;
     }
+    el.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Searching\u2026</p>';
+
     const candidates = [];
     if (profile && profile.visibility === 'public'){
       candidates.push({ profileObj: profile, entriesArr: entries, returnScreen: 'dashboard' });
     }
-    // STAGE 2 WIRING POINT: query Supabase profiles (visibility='public',
-    // name/username ilike the search text) and push each result here.
+
+    // Real search against the profiles table (public pages only — enforced by RLS too)
+    if (db){
+      const safe = q.replace(/^@/,'').replace(/[%,()]/g,'').trim();
+      if (safe){
+        const { data, error } = await db.from('profiles').select('*')
+          .eq('visibility', 'public')
+          .or(`name.ilike.%${safe}%,username.ilike.%${safe}%`)
+          .limit(10);
+        if (error){
+          console.error('[earthlive] search failed:', error.message);
+        } else {
+          (data || []).forEach(row=>{
+            const isSelf = (currentUser && row.user_id === currentUser.id) ||
+                           (profile && profile.username === row.username);
+            if (!isSelf && !myBlockedProfileIds.has(row.id)){
+              candidates.push({ profileObj: dbRowToProfile(row), entriesArr: null, returnScreen: 'search' });
+            }
+          });
+        }
+      }
+    }
 
     const ql = q.toLowerCase().replace(/^@/,'');
     const matches = candidates.filter(c =>
@@ -2478,9 +2817,24 @@
     }
   }
 
-  function viewSearchResult(i){
+  async function fetchEntriesForProfile(profileDbId){
+    if (!db || !profileDbId) return [];
+    const { data, error } = await db.from('entries').select('*')
+      .eq('profile_id', profileDbId)
+      .order('created_at', { ascending:false });
+    if (error){ console.error('[earthlive] entries fetch failed:', error.message); return []; }
+    const list = (data || []).map(dbRowToEntry);
+    await hydrateSocial(list);
+    return list;
+  }
+
+  async function viewSearchResult(i){
     const c = lastSearchResults[i];
     if (!c) return;
+    if (c.entriesArr === null){
+      showToast('Opening\u2026');
+      c.entriesArr = await fetchEntriesForProfile(c.profileObj.dbId);
+    }
     previewProfile(c.profileObj, c.entriesArr, c.returnScreen);
   }
 
@@ -2537,11 +2891,19 @@
     home.onclick = ()=>showScreen('landing');
     navRight.appendChild(home);
 
-    const find = document.createElement('button');
-    find.className = 'nav-link';
-    find.textContent = 'Find someone';
-    find.onclick = ()=>showScreen('search');
-    navRight.appendChild(find);
+    if (currentUser){
+      const find = document.createElement('button');
+      find.className = 'nav-link';
+      find.textContent = 'Find someone';
+      find.onclick = ()=>showScreen('search');
+      navRight.appendChild(find);
+    } else {
+      const signIn = document.createElement('button');
+      signIn.className = 'nav-link';
+      signIn.textContent = 'Sign in';
+      signIn.onclick = ()=>showScreen('auth');
+      navRight.appendChild(signIn);
+    }
 
     if (profile){
       const myPage = document.createElement('button');
@@ -2561,6 +2923,10 @@
   }
 
   function showScreen(name){
+    if (name === 'search' && !currentUser){
+      showToast('Sign in to find and view pages');
+      name = 'auth';
+    }
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
     document.getElementById('screen-'+name).classList.add('active');
     if (name === 'search'){
