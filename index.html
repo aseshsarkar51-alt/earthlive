@@ -325,6 +325,48 @@
   .city-suggestion:hover{background:var(--oat);}
   .city-suggestion b{color:var(--camel);}
 
+  /* ---------- MESSAGES ---------- */
+  .conv-item{
+    display:flex; align-items:center; gap:14px; padding:16px; margin-bottom:12px;
+    background:var(--card); border:1px solid var(--line); border-radius:14px; cursor:pointer;
+  }
+  .conv-item:hover{border-color:var(--ink-soft);}
+  .conv-item .seal{width:44px; height:44px; font-size:17px;}
+  .conv-info{flex:1; min-width:0;}
+  .conv-info strong{display:block; font-size:14.5px;}
+  .conv-info span{font-size:12.5px; color:var(--ink-soft);}
+  .conv-chip{
+    font-size:11px; font-weight:600; padding:4px 10px; border-radius:999px;
+    background:var(--oat); color:var(--ink-soft); flex:none;
+  }
+  .conv-chip.pending{background:var(--blush); color:#fff;}
+  .thread-box{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    display:flex; flex-direction:column; height:60vh; min-height:380px; overflow:hidden;
+  }
+  .thread-head{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:14px 18px; border-bottom:1px solid var(--line);
+  }
+  .thread-msgs{flex:1; overflow-y:auto; padding:18px; display:flex; flex-direction:column; gap:10px;}
+  .msg-bubble{
+    max-width:75%; padding:9px 14px; border-radius:14px; font-size:14px; line-height:1.5;
+    background:var(--oat); align-self:flex-start; border-bottom-left-radius:4px;
+  }
+  .msg-bubble.mine{
+    background:var(--ink); color:var(--page); align-self:flex-end;
+    border-bottom-left-radius:14px; border-bottom-right-radius:4px;
+  }
+  .thread-input{display:flex; gap:10px; padding:12px; border-top:1px solid var(--line);}
+  .thread-input input{
+    flex:1; padding:11px 14px; border:1px solid var(--line); border-radius:999px;
+    background:var(--page); font-size:14px; color:var(--ink); font-family:inherit;
+  }
+  .request-bar{
+    padding:12px 18px; background:var(--oat); font-size:13px; display:flex;
+    align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  }
+
   .toast{
     position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px);
     background:var(--ink); color:var(--page); padding:10px 20px; border-radius:999px;
@@ -909,6 +951,7 @@
       </div>
       <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
         <button class="btn btn-ghost" id="followBtn" style="display:none;" onclick="toggleFollow()">Follow</button>
+        <button class="btn btn-ghost" id="msgBtn" style="display:none;" onclick="startConversationWithVisitor()">Message</button>
         <button class="btn btn-primary" onclick="signCurrentVisitorProfile()">Sign this page</button>
         <button class="btn btn-ghost" onclick="exitVisitorPreview()">Back</button>
         <button class="link-quiet" id="blockBtn" style="display:none;" onclick="blockThisPage()">Block</button>
@@ -1094,6 +1137,35 @@
 </section>
 
 <div class="theme-switcher" id="themeSwitcher" aria-label="Choose theme"></div>
+
+<!-- ============ MESSAGES ============ -->
+<section class="screen" id="screen-messages">
+  <div class="wrap" style="max-width:680px; padding-top:44px; padding-bottom:90px;">
+    <div id="convListView">
+      <div class="entries-head" style="margin-bottom:20px;">
+        <h3>Messages</h3>
+        <button class="btn-small" onclick="renderConvList()">Refresh</button>
+      </div>
+      <div id="convList"></div>
+    </div>
+    <div id="threadView" style="display:none;">
+      <button class="link-quiet" style="margin-bottom:14px;" onclick="backToConvList()">← All messages</button>
+      <div class="thread-box">
+        <div class="thread-head">
+          <strong id="threadName"></strong>
+          <button class="btn-small" onclick="openThread(currentConversationId)">Refresh</button>
+        </div>
+        <div class="request-bar" id="requestBar" style="display:none;"></div>
+        <div class="thread-msgs" id="threadMsgs"></div>
+        <div class="thread-input" id="threadInputRow">
+          <input type="text" id="msgInput" placeholder="Write a message…" maxlength="2000"
+                 onkeydown="if(event.key==='Enter'){event.preventDefault(); sendMessage();}">
+          <button class="btn-small" style="flex:none;" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <div class="toast" id="toast">Copied to clipboard</div>
 
@@ -1547,10 +1619,12 @@
   async function updateFollowUi(profileObj){
     const fb = document.getElementById('followBtn');
     const bb = document.getElementById('blockBtn');
+    const mb = document.getElementById('msgBtn');
     const isOwnPage = profile && profile.dbId && profileObj.dbId === profile.dbId;
     const show = !!(db && currentUser && profileObj.dbId && !isOwnPage);
     fb.style.display = show ? '' : 'none';
     bb.style.display = show ? '' : 'none';
+    mb.style.display = (show && profile && profile.dbId) ? '' : 'none';
     if (!show) return;
     fb.textContent = '\u2026';
     const { data } = await db.from('follows').select('id')
@@ -1618,6 +1692,172 @@
       .select('*', { count: 'exact', head: true })
       .eq('followed_profile_id', profile.dbId);
     el.textContent = (count || 0) + (count === 1 ? ' follower' : ' followers');
+  }
+
+  /* ---------- MESSAGES (request + approval) ---------- */
+  let currentConversationId = null;
+  let currentConversation = null;
+
+  function otherParty(conv){
+    const iAmRequester = conv.requester_profile_id === profile.dbId;
+    return iAmRequester ? conv.recipient : conv.requester;
+  }
+
+  async function openMessages(){
+    if (!currentUser || !profile || !profile.dbId){
+      showToast('Create your page first to use messages');
+      return;
+    }
+    showScreen('messages');
+    backToConvList();
+    renderConvList();
+  }
+
+  function backToConvList(){
+    document.getElementById('threadView').style.display = 'none';
+    document.getElementById('convListView').style.display = 'block';
+  }
+
+  async function renderConvList(){
+    const el = document.getElementById('convList');
+    el.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Loading\u2026</p>';
+    const { data, error } = await db.from('conversations')
+      .select('*, requester:profiles!conversations_requester_profile_id_fkey(id,name,username,ink,avatar_url), recipient:profiles!conversations_recipient_profile_id_fkey(id,name,username,ink,avatar_url)')
+      .or('requester_profile_id.eq.' + profile.dbId + ',recipient_profile_id.eq.' + profile.dbId)
+      .order('created_at', { ascending:false });
+    if (error){
+      el.innerHTML = '<p style="font-size:13.5px; color:var(--blush);">Could not load: ' + escapeHtml(error.message) + '</p>';
+      return;
+    }
+    if (!data || !data.length){
+      el.innerHTML = `
+        <div class="empty-state">
+          <div class="stamp-outline"></div>
+          <p>No conversations yet.<br>Open someone's page and tap Message.</p>
+        </div>`;
+      return;
+    }
+    el.innerHTML = data.map((c,i)=>{
+      const other = otherParty(c) || { name:'A private page', username:'', ink:'#726A59', avatar_url:null };
+      const iAmRecipient = c.recipient_profile_id === profile.dbId;
+      let chip = '';
+      if (c.status === 'pending') chip = iAmRecipient ? '<span class="conv-chip pending">Request</span>' : '<span class="conv-chip">Request sent</span>';
+      if (c.status === 'declined') chip = '<span class="conv-chip">Declined</span>';
+      return `
+        <div class="conv-item" onclick="openThread('${c.id}')">
+          <div class="seal" id="convSeal${i}"></div>
+          <div class="conv-info">
+            <strong>${escapeHtml(other.name)}</strong>
+            <span>${other.username ? '@' + escapeHtml(other.username) : ''}</span>
+          </div>
+          ${chip}
+        </div>`;
+    }).join('');
+    data.forEach((c,i)=>{
+      const other = otherParty(c) || { name:'?', ink:'#726A59', avatar_url:null };
+      renderSeal('convSeal' + i, { name: other.name || '?', ink: other.ink || '#726A59', avatar: other.avatar_url || null });
+    });
+  }
+
+  async function openThread(convId){
+    currentConversationId = convId;
+    const { data: conv, error } = await db.from('conversations')
+      .select('*, requester:profiles!conversations_requester_profile_id_fkey(id,name,username,ink,avatar_url), recipient:profiles!conversations_recipient_profile_id_fkey(id,name,username,ink,avatar_url)')
+      .eq('id', convId).single();
+    if (error || !conv){ showToast('Could not open conversation'); return; }
+    currentConversation = conv;
+
+    const other = otherParty(conv) || { name:'A private page' };
+    document.getElementById('threadName').textContent = other.name;
+    document.getElementById('convListView').style.display = 'none';
+    document.getElementById('threadView').style.display = 'block';
+
+    const bar = document.getElementById('requestBar');
+    const inputRow = document.getElementById('threadInputRow');
+    const iAmRecipient = conv.recipient_profile_id === profile.dbId;
+    if (conv.status === 'pending' && iAmRecipient){
+      bar.style.display = 'flex';
+      bar.innerHTML = `<span>${escapeHtml(other.name)} wants to message you.</span>
+        <span style="display:flex; gap:8px;">
+          <button class="btn-small" onclick="decideConversation(true)">Accept</button>
+          <button class="btn-small btn-decline" onclick="decideConversation(false)">Decline</button>
+        </span>`;
+      inputRow.style.display = 'none';
+    } else if (conv.status === 'pending'){
+      bar.style.display = 'flex';
+      bar.innerHTML = '<span>Request sent \u2014 you can write until they decide.</span>';
+      inputRow.style.display = 'flex';
+    } else if (conv.status === 'declined'){
+      bar.style.display = 'flex';
+      bar.innerHTML = '<span>This request was declined.</span>';
+      inputRow.style.display = 'none';
+    } else {
+      bar.style.display = 'none';
+      inputRow.style.display = 'flex';
+    }
+
+    const { data: msgs } = await db.from('messages').select('*')
+      .eq('conversation_id', convId)
+      .order('created_at', { ascending:true });
+    const box = document.getElementById('threadMsgs');
+    box.innerHTML = (msgs || []).map(m=>`
+      <div class="msg-bubble ${m.sender_profile_id === profile.dbId ? 'mine' : ''}">${escapeHtml(m.body)}</div>
+    `).join('') || '<p style="font-size:13px; color:var(--ink-soft); text-align:center;">No messages yet.</p>';
+    box.scrollTop = box.scrollHeight;
+  }
+
+  async function decideConversation(accept){
+    if (!currentConversationId) return;
+    const { error } = await db.from('conversations')
+      .update({ status: accept ? 'accepted' : 'declined' })
+      .eq('id', currentConversationId);
+    if (error){ showToast('Could not update: ' + error.message); return; }
+    showToast(accept ? 'Request accepted \u2014 say hi!' : 'Request declined');
+    openThread(currentConversationId);
+  }
+
+  async function sendMessage(){
+    const input = document.getElementById('msgInput');
+    const body = input.value.trim();
+    if (!body || !currentConversationId) return;
+    input.value = '';
+    const { error } = await db.from('messages').insert({
+      conversation_id: currentConversationId,
+      sender_profile_id: profile.dbId,
+      body
+    });
+    if (error){
+      showToast('Could not send: ' + error.message);
+      input.value = body;
+      return;
+    }
+    openThread(currentConversationId);
+  }
+
+  async function startConversationWithVisitor(){
+    if (!currentUser || !profile || !profile.dbId){
+      showToast('Create your page first to send messages');
+      return;
+    }
+    const them = currentVisitorProfile;
+    if (!them || !them.dbId) return;
+    const { data: existing } = await db.from('conversations').select('id')
+      .or(`and(requester_profile_id.eq.${profile.dbId},recipient_profile_id.eq.${them.dbId}),and(requester_profile_id.eq.${them.dbId},recipient_profile_id.eq.${profile.dbId})`)
+      .maybeSingle();
+    if (existing){
+      showScreen('messages');
+      openThread(existing.id);
+      return;
+    }
+    const { data, error } = await db.from('conversations').insert({
+      requester_profile_id: profile.dbId,
+      recipient_profile_id: them.dbId,
+      status: 'pending'
+    }).select().single();
+    if (error){ showToast('Could not start: ' + error.message); return; }
+    showToast('Message request sent to ' + them.name);
+    showScreen('messages');
+    openThread(data.id);
   }
 
   /* ---------- INVITE LINK ROUTING (earthlive.in/?u=username) ---------- */
@@ -2903,6 +3143,14 @@
       signIn.textContent = 'Sign in';
       signIn.onclick = ()=>showScreen('auth');
       navRight.appendChild(signIn);
+    }
+
+    if (currentUser && profile && profile.dbId){
+      const msgs = document.createElement('button');
+      msgs.className = 'nav-link';
+      msgs.textContent = 'Messages';
+      msgs.onclick = openMessages;
+      navRight.appendChild(msgs);
     }
 
     if (profile){
