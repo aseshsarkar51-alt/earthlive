@@ -1474,6 +1474,7 @@
   if (db){
     db.auth.onAuthStateChange((event, session)=>{
       currentUser = session ? session.user : null;
+      refreshNav();
       if (event === 'SIGNED_IN' && currentUser){
         showToast('Signed in as ' + (currentUser.email || 'your account'));
         loadProfileFromDb().then(found=>{
@@ -1576,7 +1577,11 @@
     if (/^https?:\/\//.test(dataUrl)) return dataUrl; // already uploaded previously
     const blob = await (await fetch(dataUrl)).blob();
     const { error } = await db.storage.from(bucket).upload(path, blob, { upsert: true, contentType: blob.type });
-    if (error){ console.error('[earthlive] upload failed:', error.message); return null; }
+    if (error){
+      console.error('[earthlive] upload failed:', error.message);
+      showToast('Photo upload failed: ' + error.message);
+      return null;
+    }
     const { data } = db.storage.from(bucket).getPublicUrl(path);
     // cache-bust so a replaced photo shows immediately
     return data.publicUrl + '?v=' + Date.now();
@@ -1857,7 +1862,12 @@
         }
 
         const wasEdit = editMode;
+        const localAvatar = avatarDataUrl;
+        const localCover = coverDataUrl;
         profile = dbRowToProfile(data);
+        // If a storage upload failed, keep showing the local copy rather than losing the photo.
+        if (!profile.avatar && localAvatar) profile.avatar = localAvatar;
+        if (!profile.cover && localCover) profile.cover = localCover;
         if (!wasEdit) entries = [];
         editMode = false;
         resetCreateFormUI();
@@ -2482,8 +2492,11 @@
   }
 
   function confirmSignOut(){
+    const savedToAccount = !!(db && currentUser && profile && profile.dbId);
     const sure = confirm(
-      "Sign out and clear this page?\n\nNothing is saved on a server yet, so your page and every signature on it will be gone for good."
+      savedToAccount
+        ? "Sign out?\n\nYour page is saved to your account. Sign back in anytime and it'll be right here waiting."
+        : "Sign out and clear this page?\n\nThis page isn't saved to an account, so it and every signature on it will be gone for good."
     );
     if (!sure) return;
     if (db) db.auth.signOut();
@@ -2508,12 +2521,7 @@
     showToast('Signed out');
   }
 
-  function showScreen(name){
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    document.getElementById('screen-'+name).classList.add('active');
-    if (name === 'search'){
-      setTimeout(()=>document.getElementById('searchInput').focus(), 50);
-    }
+  function refreshNav(){
     const navRight = document.getElementById('navRight');
     navRight.innerHTML = '';
 
@@ -2541,13 +2549,24 @@
       myPage.textContent = 'My page';
       myPage.onclick = ()=>showScreen('dashboard');
       navRight.appendChild(myPage);
+    }
 
+    if (profile || currentUser){
       const signOut = document.createElement('button');
       signOut.className = 'nav-link';
       signOut.textContent = 'Sign out';
       signOut.onclick = confirmSignOut;
       navRight.appendChild(signOut);
     }
+  }
+
+  function showScreen(name){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('screen-'+name).classList.add('active');
+    if (name === 'search'){
+      setTimeout(()=>document.getElementById('searchInput').focus(), 50);
+    }
+    refreshNav();
     window.scrollTo({top:0, behavior:'smooth'});
   }
 
