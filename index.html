@@ -54,6 +54,7 @@
   html{scroll-behavior:smooth;}
   body{
     margin:0;
+    overflow-x:hidden;
     background:
       radial-gradient(circle at 15% 8%, var(--glow1), transparent 45%),
       radial-gradient(circle at 85% 92%, var(--glow2), transparent 50%),
@@ -865,69 +866,77 @@
   }
 
   /* ---------- PROFILE PAGE: SHARP / MINIMAL OVERRIDE ---------- */
-  #screen-dashboard.style-a, #screen-dashboard.style-a *{
+  .style-a, .style-a *{
     border-radius:0 !important;
     font-family:"Inter Tight", sans-serif !important;
     letter-spacing:-0.01em;
   }
-  #screen-dashboard.style-a .wrap.dash{max-width:760px;}
-  #screen-dashboard.style-a .profile-cover{
+  .style-a .wrap.dash{max-width:760px;}
+  .style-a .profile-cover{
     border:1px solid var(--ink); background:var(--oat);
+    height:340px;
+    position:relative; left:50%; width:100vw;
+    transform:translateX(-50%);
   }
-  #screen-dashboard.style-a .cover-edit-btn{
+  @media (max-width:600px){
+    .style-a .profile-cover{ height:220px; }
+  }
+  .style-a .cover-edit-btn{
     border:1px solid var(--ink) !important; box-shadow:none !important;
-    background:var(--page); font-weight:600;
+    background:var(--page) !important; color:var(--ink) !important; font-weight:600;
   }
-  #screen-dashboard.style-a .seal, #screen-dashboard.style-a .seal-lg{
+  .style-a .seal, .style-a .seal-lg{
     box-shadow:none !important;
     border:2px solid var(--ink) !important;
   }
-  #screen-dashboard.style-a .seal-edit-btn{
+  .style-a .seal-edit-btn{
     box-shadow:none !important; border:1px solid var(--ink) !important;
+    background:var(--page) !important; color:var(--ink) !important;
+    width:24px; height:24px;
   }
-  #screen-dashboard.style-a h2#ownerName{
+  .style-a h2#ownerName{
     font-weight:800; letter-spacing:-0.03em; text-transform:none;
   }
-  #screen-dashboard.style-a .panel,
-  #screen-dashboard.style-a .details-card,
-  #screen-dashboard.style-a .hint-card,
-  #screen-dashboard.style-a .map-panel{
+  .style-a .panel,
+  .style-a .details-card,
+  .style-a .hint-card,
+  .style-a .map-panel{
     box-shadow:none !important;
     border:1px solid var(--line);
   }
-  #screen-dashboard.style-a .panel-title{
+  .style-a .panel-title{
     font-size:12px; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; color:var(--ink-soft);
   }
-  #screen-dashboard.style-a .visibility-pill,
-  #screen-dashboard.style-a .btn-small,
-  #screen-dashboard.style-a .btn,
-  #screen-dashboard.style-a .link-quiet,
-  #screen-dashboard.style-a .invite-link,
-  #screen-dashboard.style-a .stats-row span,
-  #screen-dashboard.style-a .social-row span,
-  #screen-dashboard.style-a .stat-pill{
+  .style-a .visibility-pill,
+  .style-a .btn-small,
+  .style-a .btn,
+  .style-a .link-quiet,
+  .style-a .invite-link,
+  .style-a .stats-row span,
+  .style-a .social-row span,
+  .style-a .stat-pill{
     box-shadow:none !important;
   }
-  #screen-dashboard.style-a .visibility-pill,
-  #screen-dashboard.style-a .btn-small{
+  .style-a .visibility-pill,
+  .style-a .btn-small{
     border:1px solid var(--ink) !important;
     background:var(--page);
   }
-  #screen-dashboard.style-a .btn-primary{
+  .style-a .btn-primary{
     background:var(--ink) !important; color:var(--page) !important; border-color:var(--ink) !important;
   }
-  #screen-dashboard.style-a .btn-decline{
+  .style-a .btn-decline{
     border-color:var(--blush) !important; color:var(--blush) !important;
   }
-  #screen-dashboard.style-a .entry-card{
+  .style-a .entry-card{
     box-shadow:none !important; border:1px solid var(--line) !important; transition:border-color .15s ease;
   }
-  #screen-dashboard.style-a .entry-card:hover{
+  .style-a .entry-card:hover{
     box-shadow:none !important; border-color:var(--ink) !important;
   }
-  #screen-dashboard.style-a .entry-card::before{display:none !important;}
-  #screen-dashboard.style-a .pen-dot{border-radius:0 !important;}
-  #screen-dashboard.style-a input, #screen-dashboard.style-a textarea{
+  .style-a .entry-card::before{display:none !important;}
+  .style-a .pen-dot{border-radius:0 !important;}
+  .style-a input, .style-a textarea{
     border-radius:0 !important; border:1px solid var(--ink) !important;
   }
 
@@ -1328,7 +1337,7 @@
 </section>
 
 <!-- ============ VISITOR VIEW ============ -->
-<section class="screen" id="screen-visitor">
+<section class="screen style-a" id="screen-visitor">
   <div class="wrap">
     <div class="profile-cover" id="visitorCoverBox">
       <img id="visitorCoverImg" alt="" style="display:none;">
@@ -4415,6 +4424,7 @@
   try{
     renderDashboard();
     showScreen('dashboard');
+    previewAsVisitor();
   }catch(e){ console.error('[preview] could not render sample dashboard', e); }
 </script>
 </body>
