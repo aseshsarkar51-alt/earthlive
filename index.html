@@ -16,7 +16,12 @@
 <meta name="twitter:description" content="Everyone's got something to say about you.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23EAE1CC'/%3E%3Ccircle cx='16' cy='16' r='6' fill='none' stroke='%23A9764F' stroke-width='2.5'/%3E%3C/svg%3E">
 <meta name="theme-color" content="#F1EBDD">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23EAE1CC'/%3E%3Ccircle cx='16' cy='16' r='6' fill='none' stroke='%23A9764F' stroke-width='2.5'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="EarthLive">
 <meta property="og:image" content="https://earthlive.in/og-image.png">
 <meta name="twitter:image" content="https://earthlive.in/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -81,8 +86,21 @@
   }
   .brand .dot{width:8px; height:8px; border-radius:50%; background:var(--camel); display:inline-block;}
   .nav-right{display:flex; align-items:center; gap:18px; font-size:14px; color:var(--ink-soft);}
-  .nav-link{background:none; border:none; color:var(--ink-soft); font-size:14px; padding:6px 2px; border-bottom:1px solid transparent;}
+  .nav-link{background:none; border:none; color:var(--ink-soft); font-size:14px; padding:6px 2px; border-bottom:1px solid transparent; white-space:nowrap;}
   .nav-link:hover{color:var(--ink); border-color:var(--ink-soft);}
+  @media (max-width:640px){
+    .nav{padding:14px 16px; gap:10px;}
+    .brand{font-size:19px; flex:none;}
+    .nav-right{
+      gap:12px; font-size:13px; overflow-x:auto; -webkit-overflow-scrolling:touch;
+      scrollbar-width:none; max-width:70vw; justify-content:flex-start;
+    }
+    .nav-right::-webkit-scrollbar{display:none;}
+    .nav-link{font-size:13px; flex:none;}
+    .wrap{padding-left:18px; padding-right:18px;}
+    .form-card{padding:30px 22px;}
+    .crop-card{padding:16px;}
+  }
 
   /* ---------- SCREENS ---------- */
   .screen{display:none;}
@@ -249,6 +267,40 @@
   .crop-card input[type=range]{width:100%; margin:14px 0 6px; accent-color:var(--camel);}
   .crop-hint{font-size:12px; color:var(--ink-soft); text-align:center; margin:0 0 14px;}
   .crop-actions{display:flex; gap:10px; justify-content:flex-end;}
+
+  /* ---------- PROFILE EXTRAS ---------- */
+  .stats-row{display:flex; gap:16px; flex-wrap:wrap; margin:12px 0 0; font-size:12.5px; color:var(--ink-soft);}
+  .stats-row .stat b{color:var(--ink); font-family:"Fraunces", serif; font-size:15px; margin-right:4px;}
+  .details-card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:20px 22px; margin-bottom:22px; box-shadow:var(--shadow);
+  }
+  .details-card .entries-head{margin-bottom:12px;}
+  .detail-rows{display:grid; grid-template-columns:1fr 1fr; column-gap:40px;}
+  @media (max-width:560px){.detail-rows{grid-template-columns:1fr;}}
+  .detail-row{
+    display:flex; justify-content:space-between; align-items:baseline; gap:16px;
+    padding:9px 0; border-bottom:1px solid var(--line); font-size:13.5px;
+  }
+  .detail-label{color:var(--ink-soft); font-size:12px; flex:none;}
+  .detail-value{text-align:right;}
+  .details-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;}
+  @media (max-width:520px){.details-grid{grid-template-columns:1fr;}}
+  .details-grid label{display:block; font-size:11.5px; color:var(--ink-soft); margin-bottom:4px; font-weight:600;}
+  .details-grid input{
+    width:100%; padding:9px 12px; border:1px solid var(--line); border-radius:10px;
+    background:var(--page); font-size:13.5px; color:var(--ink); font-family:inherit;
+  }
+  .hint-card{
+    background:var(--oat); border:1px dashed var(--line); border-radius:12px;
+    padding:12px 16px; font-size:13px; color:var(--ink-soft); margin-bottom:22px;
+  }
+  .hint-card b{color:var(--ink);}
+  .mutual-badge{
+    display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600;
+    background:var(--oat); border:1px solid var(--camel); color:var(--camel);
+    border-radius:999px; padding:6px 13px;
+  }
   .cover-edit-btn{
     position:absolute; right:14px; top:14px; background:rgba(30,28,24,0.68); color:#F6F1E7;
     border:none; padding:8px 14px; border-radius:999px; font-size:12.5px; font-weight:600; z-index:2;
@@ -412,6 +464,31 @@
     background:var(--oat); border-radius:999px; font-size:12.5px; cursor:pointer; border:1px solid var(--line);
   }
   .follower-item:hover{border-color:var(--ink-soft);}
+  .fol-stack{display:flex; align-items:center; margin:2px 0 14px;}
+  .fol-av{
+    width:42px; height:42px; border-radius:50%; border:2.5px solid var(--card);
+    margin-left:-10px; cursor:pointer; overflow:hidden; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    font-family:"Fraunces", serif; font-weight:600; font-size:16px; color:var(--page);
+    box-shadow:0 1px 4px rgba(46,42,34,0.18); transition:transform .12s ease;
+    background:var(--ink-soft);
+  }
+  .fol-av:first-child{margin-left:0;}
+  .fol-av:hover{transform:translateY(-3px);}
+  .fol-av img{width:100%; height:100%; object-fit:cover;}
+  .fol-more{background:var(--oat-deep); color:var(--ink); font-size:12.5px; cursor:default;}
+  .fol-more:hover{transform:none;}
+  .fol-search{
+    width:100%; padding:9px 14px; border:1px solid var(--line); border-radius:999px;
+    background:var(--page); font-size:13px; color:var(--ink); font-family:inherit;
+  }
+  .fol-row{
+    display:flex; align-items:center; gap:11px; padding:9px 2px;
+    border-bottom:1px solid var(--line); cursor:pointer; font-size:13.5px;
+  }
+  .fol-row:hover{background:var(--oat);}
+  .fol-row .fol-av{width:32px; height:32px; margin-left:0; font-size:13px; border-width:1.5px;}
+  .fol-row .fuser{color:var(--ink-soft); font-size:12px;}
 
   .toast{
     position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px);
@@ -839,8 +916,7 @@
           <h2 id="ownerName"></h2>
           <p id="ownerBio"></p>
           <div class="social-row" id="ownerLinks"></div>
-          <p id="ownerFollowers" style="font-size:12.5px; color:var(--ink-soft); margin:8px 0 0; cursor:pointer; text-decoration:underline;" onclick="toggleFollowersList()" title="See who follows you"></p>
-          <div class="followers-list" id="followersList"></div>
+          <div class="stats-row" id="ownerStats"></div>
         </div>
       </div>
         <div class="dash-actions">
@@ -855,6 +931,15 @@
         </div>
         <button class="link-quiet" onclick="openEditProfile()">Edit page</button>
       </div>
+    </div>
+
+    <div class="hint-card" id="completeHint" style="display:none;"></div>
+
+    <div class="details-card" id="ownerDetailsCard" style="display:none;"></div>
+
+    <div class="panel" id="followersPanel">
+      <p class="panel-title">Followers <span id="followersPanelCount"></span></p>
+      <div id="followersPanelList"></div>
     </div>
 
     <div class="panel">
@@ -982,6 +1067,10 @@
                  oninput="cityAutocomplete()" onfocus="cityAutocomplete()">
           <div class="city-suggestions" id="citySuggestions" style="display:none;"></div>
         </div>
+        <div class="field">
+          <label for="fSealDate">Seal this note until a date <span class="hint">optional — a time capsule they can only open then</span></label>
+          <input type="date" id="fSealDate">
+        </div>
 
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Sign the page</button>
@@ -1012,6 +1101,7 @@
       <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
         <button class="btn btn-ghost" id="followBtn" style="display:none;" onclick="toggleFollow()">Follow</button>
         <button class="btn btn-ghost" id="msgBtn" style="display:none;" onclick="startConversationWithVisitor()">Message</button>
+        <span class="mutual-badge" id="mutualBadge" style="display:none;">\U0001f91d You've signed each other's books</span>
         <button class="btn btn-primary" onclick="signCurrentVisitorProfile()">Sign this page</button>
         <button class="btn btn-ghost" onclick="exitVisitorPreview()">Back</button>
         <button class="link-quiet" id="blockBtn" style="display:none;" onclick="blockThisPage()">Block</button>
@@ -1019,6 +1109,7 @@
     </div>
 
     <div id="visitorPublicView">
+      <div class="details-card" id="visitorDetailsCard" style="display:none;"></div>
       <div class="map-panel" id="visitorMapPanel" style="display:none;">
         <div class="entries-head">
           <h3>Memory map</h3>
@@ -1237,6 +1328,18 @@
   </div>
 </div>
 
+<div class="lightbox" id="detailsModal" style="display:none;">
+  <div class="crop-card" style="max-width:560px;" onclick="event.stopPropagation()">
+    <p class="panel-title">Your details</p>
+    <p style="font-size:12.5px; color:var(--ink-soft); margin:0 0 14px;">The classic slam book page — fill in what you like, leave the rest blank.</p>
+    <div class="details-grid" id="detailsGrid"></div>
+    <div class="crop-actions">
+      <button class="btn btn-ghost" onclick="closeDetailsEditor()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDetails()">Save details</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">Copied to clipboard</div>
 
 <script>
@@ -1260,6 +1363,11 @@
     });
   } else {
     console.warn('[EarthLive] Supabase not connected yet \u2014 anon key not set. Running in local mode.');
+  }
+
+  // Installable app: register the service worker (skipped when opened as a local file)
+  if ('serviceWorker' in navigator && location.protocol === 'https:'){
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
   }
 
   const PEN_COLORS = ['#57614A','#3C4A5E','#A9764F','#6B4C6B','#A65A3C','#4E7065'];
@@ -1703,34 +1811,108 @@
     showToast('Entry removed from your page');
   }
 
-  /* ---------- FOLLOWERS LIST ---------- */
-  let followersListOpen = false;
+  /* ---------- MUTUAL SIGNATURE BADGE ---------- */
+  async function updateMutualBadge(profileObj){
+    const badge = document.getElementById('mutualBadge');
+    badge.style.display = 'none';
+    const isOwnPage = profile && profile.dbId && profileObj.dbId === profile.dbId;
+    if (!db || !currentUser || !profile || !profile.dbId || !profileObj.dbId || !profileObj.userId || isOwnPage) return;
 
-  async function toggleFollowersList(){
-    const box = document.getElementById('followersList');
-    followersListOpen = !followersListOpen;
-    box.classList.toggle('open', followersListOpen);
-    if (!followersListOpen || !db || !profile || !profile.dbId) return;
-    box.innerHTML = '<p style="font-size:12.5px; color:var(--ink-soft);">Loading\u2026</p>';
+    const [iSignedThem, theySignedMe] = await Promise.all([
+      db.from('entries').select('id', { count:'exact', head:true })
+        .eq('profile_id', profileObj.dbId)
+        .eq('signer_user_id', currentUser.id)
+        .eq('status', 'approved'),
+      db.from('entries').select('id', { count:'exact', head:true })
+        .eq('profile_id', profile.dbId)
+        .eq('signer_user_id', profileObj.userId)
+        .eq('status', 'approved')
+    ]);
+    if ((iSignedThem.count || 0) > 0 && (theySignedMe.count || 0) > 0){
+      badge.style.display = 'inline-flex';
+    }
+  }
+
+  /* ---------- FOLLOWERS SECTION ---------- */
+  let myFollowersList = [];   // [{name, username, ink, avatar}] latest first
+  let myFollowersHidden = 0;  // followers with private pages
+
+  async function renderFollowersPanel(){
+    const box = document.getElementById('followersPanelList');
+    const countEl = document.getElementById('followersPanelCount');
+    if (!db || !profile || !profile.dbId){
+      countEl.textContent = '';
+      box.innerHTML = '<p style="font-size:13px; color:var(--ink-soft); margin:0;">Followers appear here once your page is saved to your account.</p>';
+      return;
+    }
     const { data: rows, error } = await db.from('follows')
-      .select('follower_user_id').eq('followed_profile_id', profile.dbId);
-    if (error || !rows || !rows.length){
-      box.innerHTML = '<p style="font-size:12.5px; color:var(--ink-soft);">No followers yet.</p>';
+      .select('follower_user_id, created_at')
+      .eq('followed_profile_id', profile.dbId)
+      .order('created_at', { ascending:false });
+    if (error){ box.innerHTML = ''; countEl.textContent = ''; return; }
+
+    const ids = (rows || []).map(r=>r.follower_user_id);
+    let people = [];
+    if (ids.length){
+      const { data } = await db.from('profiles')
+        .select('user_id, name, username, ink, avatar_url').in('user_id', ids);
+      const byUser = {};
+      (data || []).forEach(p=>{ byUser[p.user_id] = p; });
+      // keep the follows order (latest first)
+      people = ids.map(id=>byUser[id]).filter(Boolean)
+        .map(p=>({ name:p.name, username:p.username, ink:p.ink || '#726A59', avatar:p.avatar_url || null }));
+    }
+    myFollowersList = people;
+    myFollowersHidden = (rows || []).length - people.length;
+    renderFollowersUi();
+  }
+
+  function folAvatar(p, extraClass){
+    const inner = p.avatar
+      ? `<img src="${p.avatar}" alt="${escapeHtml(p.name)}">`
+      : escapeHtml((p.name || '?').charAt(0).toUpperCase());
+    return `<span class="fol-av ${extraClass || ''}" style="${p.avatar ? '' : 'background:' + p.ink + ';'}"
+      title="${escapeHtml(p.name)}" onclick="openProfileByUsername('${escapeHtml(p.username)}')">${inner}</span>`;
+  }
+
+  function renderFollowersUi(){
+    const box = document.getElementById('followersPanelList');
+    const countEl = document.getElementById('followersPanelCount');
+    const total = myFollowersList.length + myFollowersHidden;
+    countEl.textContent = '\u00b7 ' + total;
+    const stat = document.getElementById('statFollowers');
+    if (stat) stat.textContent = total;
+
+    if (!total){
+      box.innerHTML = '<p style="font-size:13px; color:var(--ink-soft); margin:0;">No followers yet \u2014 share your link and they\u2019ll show up here.</p>';
       return;
     }
-    const ids = rows.map(r=>r.follower_user_id);
-    const { data: people } = await db.from('profiles')
-      .select('name, username').in('user_id', ids);
-    if (!people || !people.length){
-      box.innerHTML = '<p style="font-size:12.5px; color:var(--ink-soft);">' + rows.length + ' follower' + (rows.length===1?'':'s') + ' (private pages)</p>';
-      return;
-    }
-    const hidden = rows.length - people.length;
-    box.innerHTML = people.map(p=>`
-      <span class="follower-item" onclick="openProfileByUsername('${escapeHtml(p.username)}')">
-        ${escapeHtml(p.name)} <span style="color:var(--ink-soft);">@${escapeHtml(p.username)}</span>
-      </span>`).join('') +
-      (hidden > 0 ? `<span class="follower-item" style="cursor:default;">+${hidden} private</span>` : '');
+    const latest = myFollowersList.slice(0, 5);
+    const rest = total - latest.length;
+    box.innerHTML = `
+      <div class="fol-stack">
+        ${latest.map(p=>folAvatar(p)).join('')}
+        ${rest > 0 ? `<span class="fol-av fol-more">+${rest}</span>` : ''}
+      </div>
+      ${myFollowersList.length > 0 ? `
+        <input type="text" class="fol-search" id="folSearch" placeholder="Search your followers\u2026"
+               oninput="filterFollowers()" autocomplete="off">
+        <div id="folResults"></div>` : ''}`;
+  }
+
+  function filterFollowers(){
+    const q = document.getElementById('folSearch').value.trim().toLowerCase().replace(/^@/,'');
+    const out = document.getElementById('folResults');
+    if (!q){ out.innerHTML = ''; return; }
+    const matches = myFollowersList.filter(p=>
+      p.name.toLowerCase().includes(q) || (p.username || '').includes(q));
+    out.innerHTML = matches.length
+      ? matches.map(p=>`
+          <div class="fol-row" onclick="openProfileByUsername('${escapeHtml(p.username)}')">
+            ${folAvatar(p)}
+            <span>${escapeHtml(p.name)} <span class="fuser">@${escapeHtml(p.username)}</span></span>
+          </div>`).join('')
+      : '<p style="font-size:12.5px; color:var(--ink-soft); margin:8px 0 0;">No follower matches "' + escapeHtml(q) + '"</p>';
   }
 
   /* ---------- MESSAGE NOTIFICATIONS ---------- */
@@ -1871,7 +2053,112 @@
     canvas.addEventListener('pointerup', ()=>{ crop.dragging = false; });
   })();
 
-  /* ---------- ACCOUNT: deactivate / delete / blocked list ---------- */
+  /* ---------- PROFILE DETAILS, STATS & HINTS ---------- */
+  const DETAIL_FIELDS = [
+    { key:'home',  emoji:'\ud83c\udfe0', label:'Hometown' },
+    { key:'city',  emoji:'\ud83d\udccd', label:'Current city' },
+    { key:'bday',  emoji:'\ud83c\udf82', label:'Birthday' },
+    { key:'song',  emoji:'\ud83c\udfb5', label:'Favourite song' },
+    { key:'movie', emoji:'\ud83c\udfac', label:'Favourite movie' },
+    { key:'food',  emoji:'\ud83c\udf5c', label:'Comfort food' },
+    { key:'word',  emoji:'\u2728', label:'One word for me' },
+    { key:'trip',  emoji:'\u2708\ufe0f', label:'Dream destination' }
+  ];
+
+  function renderDetails(cardId, profileObj, isOwner){
+    const card = document.getElementById(cardId);
+    const extras = profileObj.extras || {};
+    const filled = DETAIL_FIELDS.filter(f => extras[f.key]);
+    if (!filled.length && !isOwner){
+      card.style.display = 'none';
+      return;
+    }
+    card.style.display = 'block';
+    const rows = filled.map(f=>`
+      <div class="detail-row">
+        <span class="detail-label">${f.label}</span>
+        <span class="detail-value">${escapeHtml(extras[f.key])}</span>
+      </div>`).join('');
+    card.innerHTML = `
+      <div class="entries-head">
+        <h3 style="font-size:17px;">A few things about ${isOwner ? 'me' : escapeHtml(profileObj.name.split(' ')[0])}</h3>
+        ${isOwner ? `<button class="btn-small" onclick="openDetailsEditor()">${filled.length ? 'Edit' : '\uff0b Add details'}</button>` : ''}
+      </div>
+      ${filled.length
+        ? `<div class="detail-rows">${rows}</div>`
+        : `<p style="font-size:13.5px; color:var(--ink-soft); margin:0;">The classic slam book intro \u2014 favourite song, comfort food, one word for yourself. Add a few and your page instantly feels like you.</p>`}`;
+  }
+
+  function openDetailsEditor(){
+    const extras = (profile && profile.extras) || {};
+    document.getElementById('detailsGrid').innerHTML = DETAIL_FIELDS.map(f=>`
+      <div>
+        <label for="d_${f.key}">${f.label}</label>
+        <input type="text" id="d_${f.key}" maxlength="60" value="${escapeHtml(extras[f.key] || '')}">
+      </div>`).join('');
+    document.getElementById('detailsModal').style.display = 'flex';
+  }
+
+  function closeDetailsEditor(){
+    document.getElementById('detailsModal').style.display = 'none';
+  }
+
+  async function saveDetails(){
+    const extras = {};
+    DETAIL_FIELDS.forEach(f=>{
+      const v = document.getElementById('d_' + f.key).value.trim();
+      if (v) extras[f.key] = v;
+    });
+    profile.extras = extras;
+    closeDetailsEditor();
+    renderDetails('ownerDetailsCard', profile, true);
+    renderCompleteHint();
+    if (db && currentUser && profile.dbId){
+      const { error } = await db.from('profiles').update({ extras }).eq('id', profile.dbId);
+      if (error){
+        showToast(error.message.includes('extras')
+          ? 'Run supabase-extras.sql in Supabase first, then save again'
+          : 'Could not save: ' + error.message);
+        return;
+      }
+    }
+    showToast('Details saved');
+  }
+
+  function renderStats(){
+    const el = document.getElementById('ownerStats');
+    if (!profile){ el.innerHTML = ''; return; }
+    const approved = entries.filter(isApproved);
+    const cities = new Set(approved.filter(e=>e.city).map(e=>e.city.name)).size;
+    const since = profile.createdAt
+      ? new Date(profile.createdAt).toLocaleDateString('en-IN', { month:'short', year:'numeric' })
+      : null;
+    el.innerHTML = `
+      <span class="stat"><b>${approved.length}</b> signature${approved.length===1?'':'s'}</span>
+      <span class="stat"><b id="statFollowers">\u2013</b> followers</span>
+      ${cities ? `<span class="stat"><b>${cities}</b> cit${cities===1?'y':'ies'}</span>` : ''}
+      ${since ? `<span class="stat">since <b>${since}</b></span>` : ''}`;
+  }
+
+  function renderCompleteHint(){
+    const el = document.getElementById('completeHint');
+    if (!profile){ el.style.display='none'; return; }
+    const missing = [];
+    if (!profile.avatar) missing.push('a profile photo');
+    if (!profile.cover) missing.push('a cover photo');
+    if (!profile.bio || profile.bio === 'Just here to collect some words.') missing.push('a bio');
+    if (Object.keys(profile.extras || {}).length < 3) missing.push('a few details');
+    if (!Object.keys(profile.links || {}).length) missing.push('a social link');
+    if (!missing.length){
+      el.style.display = 'none';
+      return;
+    }
+    el.style.display = 'block';
+    el.innerHTML = '<b>Make your page pop</b> \u2014 still missing: ' + missing.join(' \u00b7 ') +
+      '. <button class="link-quiet" style="font-size:13px;" onclick="openDetailsEditor()">Add details</button> or <button class="link-quiet" style="font-size:13px;" onclick="openEditProfile()">edit your page</button>.';
+  }
+
+
 
   function deactivatePage(){
     if (!profile){ return; }
@@ -2069,13 +2356,7 @@
   }
 
   async function refreshFollowerCount(){
-    const el = document.getElementById('ownerFollowers');
-    if (!el) return;
-    if (!db || !profile || !profile.dbId){ el.textContent = ''; return; }
-    const { count } = await db.from('follows')
-      .select('*', { count: 'exact', head: true })
-      .eq('followed_profile_id', profile.dbId);
-    el.textContent = (count || 0) + (count === 1 ? ' follower' : ' followers');
+    renderFollowersPanel();
   }
 
   /* ---------- MESSAGES (request + approval) ---------- */
@@ -2128,6 +2409,7 @@
       let chip = '';
       if (c.status === 'pending') chip = iAmRecipient ? '<span class="conv-chip pending">Request</span>' : '<span class="conv-chip">Request sent</span>';
       if (c.status === 'declined') chip = '<span class="conv-chip">Declined</span>';
+      if (c.status === 'accepted' && unreadConvIds.has(c.id)) chip = '<span class="conv-chip pending">New</span>';
       if (c.status === 'accepted' && unreadConvIds.has(c.id)) chip = '<span class="conv-chip pending">New</span>';
       return `
         <div class="conv-item" onclick="openThread('${c.id}')">
@@ -2194,6 +2476,9 @@
       <div class="msg-bubble ${m.sender_profile_id === profile.dbId ? 'mine' : ''}">${linkify(m.body)}</div>
     `).join('') || '<p style="font-size:13px; color:var(--ink-soft); text-align:center;">No messages yet.</p>';
     box.scrollTop = box.scrollHeight;
+
+    // Mark this conversation as read (clears its badge)
+    db.rpc('mark_conversation_read', { conv: convId }).then(()=>refreshMsgBadge());
   }
 
   async function decideConversation(accept){
@@ -2293,6 +2578,7 @@
   function dbRowToProfile(row){
     return {
       dbId: row.id,
+      userId: row.user_id,
       name: row.name,
       username: row.username,
       bio: row.bio || 'Just here to collect some words.',
@@ -2303,6 +2589,8 @@
       templateId: row.template_id || 'classic',
       questions: (row.questions && row.questions.length) ? row.questions : TEMPLATES[0].questions,
       links: row.links || {},
+      extras: row.extras || {},
+      createdAt: row.created_at,
       code: row.username
     };
   }
@@ -2320,6 +2608,7 @@
       message: row.message,
       photos: row.photos || [],
       color: row.color || '#3C4A5E',
+      unlockAt: row.unlock_at || null,
       likes: 0,
       likedByMe: false,
       comments: [],
@@ -2432,7 +2721,10 @@
     }
     db.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: location.href.split('#')[0] }
+      options: {
+        redirectTo: location.href.split('#')[0],
+        queryParams: { prompt: 'select_account' }
+      }
     }).then(({ error })=>{
       if (error) showToast('Google sign-in failed: ' + error.message);
     });
@@ -2661,7 +2953,8 @@
           visibility: createVisibilityPublic ? 'public' : 'private',
           template_id: selectedTemplateId,
           questions: getChosenQuestions(),
-          links: collectLinks()
+          links: collectLinks(),
+          extras: (profile && profile.extras) || {}
         };
 
         const { data, error } = await db.from('profiles')
@@ -2722,6 +3015,7 @@
           templateId: selectedTemplateId,
           questions: getChosenQuestions(),
           links: collectLinks(),
+          extras: (profile && profile.extras) || {},
           code: randomCode()
         };
         entries = [];
@@ -2771,6 +3065,9 @@
 
     updateVisibilityPill();
     refreshFollowerCount();
+    renderDetails('ownerDetailsCard', profile, true);
+    renderStats();
+    renderCompleteHint();
     const tpl = TEMPLATES.find(t=>t.id===profile.templateId) || TEMPLATES[0];
     const qCount = (profile.questions || tpl.questions).length;
     document.getElementById('templatePillText').textContent = tpl.name + ' \u00b7 ' + qCount + ' questions';
@@ -2789,18 +3086,37 @@
     document.getElementById('pendingCount').textContent =
       `(${pending.length} ${pending.length === 1 ? 'entry' : 'entries'})`;
 
-    document.getElementById('pendingList').innerHTML = pending.map(entry => `
+    document.getElementById('pendingList').innerHTML = pending.map(entry => {
+      const sealed = entry.unlockAt && new Date(entry.unlockAt) > new Date();
+      if (sealed){
+        const opens = new Date(entry.unlockAt);
+        const days = Math.ceil((opens - new Date()) / 86400000);
+        return `
+      <div class="pending-card" style="text-align:center;">
+        <div style="font-size:26px; margin-bottom:6px;">\ud83d\udd12</div>
+        <div class="entry-top" style="justify-content:center;">
+          <span class="pen-dot" style="background:${entry.color}"></span>
+          <span class="entry-name">A sealed note from ${escapeHtml(entry.name)}</span>
+        </div>
+        <p style="font-size:13.5px; color:var(--ink-soft); margin:8px 0 4px;">
+          Opens on <b>${opens.toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'})}</b> \u00b7 ${days} day${days===1?'':'s'} to go
+        </p>
+        <p style="font-size:12px; color:var(--ink-soft); margin:0;">You'll be able to read and post it then.</p>
+      </div>`;
+      }
+      return `
       <div class="pending-card">
         <div class="entry-top">
           <span class="pen-dot" style="background:${entry.color}"></span>
-          <span class="entry-name">${escapeHtml(entry.name)}</span>
+          <span class="entry-name">${escapeHtml(entry.name)}${entry.unlockAt ? ' <span style="font-size:11px; color:var(--camel);">\ud83d\udd13 unsealed today</span>' : ''}</span>
         </div>
         <p class="entry-msg">"${linkify(entry.message)}"</p>
         <div class="pending-actions">
           <button class="btn-small" onclick="acceptEntry('${entry.id}')">Accept &amp; post</button>
           <button class="btn-small btn-decline" onclick="declineEntry('${entry.id}')">Decline</button>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }
 
   async function acceptEntry(id){
@@ -2880,10 +3196,16 @@
     if (countEl) countEl.textContent = entriesArr.length + (entriesArr.length===1 ? ' person' : ' people');
 
     if (entriesArr.length === 0){
-      el.innerHTML = `
+      el.innerHTML = isOwner ? `
         <div class="empty-state">
           <div class="stamp-outline"></div>
-          <p>Nobody's signed yet.<br>Share your link to get the first one.</p>
+          <p><b>Your book is waiting for its first signature.</b><br>
+          Send your link to one friend — slam books fill up fast once the first person signs.</p>
+          <button class="btn btn-primary" onclick="copyInvite()">Copy my invite link</button>
+        </div>` : `
+        <div class="empty-state">
+          <div class="stamp-outline"></div>
+          <p>Nobody's signed yet.<br>Be the first — sign this page.</p>
         </div>`;
       return;
     }
@@ -2893,7 +3215,6 @@
     lastRenderContainer = { containerId, countElId, isOwner: !!isOwner };
 
     el.innerHTML = '<div class="entries-grid">' + entriesArr.map((entry, i)=>{
-      const angle = ((i*37)%7) - 3;
       const photos = entry.photos || [];
       let photosHtml = '';
       if (photos.length){
@@ -2917,7 +3238,7 @@
       const moreHint = hasMore ? `<p class="entry-meta" style="margin-bottom:8px;">Tap to read the full entry →</p>` : '';
 
       return `
-        <div class="entry-card" style="transform:rotate(${angle}deg)" onclick="openEntryModal(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter') openEntryModal(${i})">
+        <div class="entry-card" onclick="openEntryModal(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter') openEntryModal(${i})">
           ${photosHtml}
           <div class="entry-top">
             <span class="pen-dot" style="background:${entry.color}"></span>
@@ -3251,6 +3572,17 @@
       showToast('City not recognised \u2014 entry saved without a pin');
     }
 
+    let unlockAt = null;
+    const sealDate = document.getElementById('fSealDate').value;
+    if (sealDate){
+      const d = new Date(sealDate + 'T00:00:00');
+      if (!(d > new Date())){
+        showToast('The seal date must be in the future');
+        return;
+      }
+      unlockAt = d.toISOString();
+    }
+
     const clearForm = ()=>{
       document.getElementById('fillForm').reset();
       selectedCity = null;
@@ -3279,7 +3611,8 @@
         city,
         photos: photoUrls,
         color: selectedPen,
-        status: 'pending'
+        status: 'pending',
+        unlock_at: unlockAt
       };
 
       const { error } = await db.from('entries').insert(row);
@@ -3298,7 +3631,9 @@
         showToast(name + '\u2019s signature is waiting for your approval');
       } else {
         previewProfile(target.profileObj, target.entriesArr, target.returnScreen);
-        showToast('Signed! Your entry is waiting for ' + target.profileObj.name + '\u2019s approval');
+        showToast(unlockAt
+          ? 'Sealed! ' + target.profileObj.name + ' can open it on ' + new Date(unlockAt).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})
+          : 'Signed! Your entry is waiting for ' + target.profileObj.name + '\u2019s approval');
       }
       return;
     }
@@ -3313,6 +3648,7 @@
       message: msg,
       photos: entryPhotos.slice(),
       color: selectedPen,
+      unlockAt: unlockAt,
       likes: 0,
       likedByMe: false,
       comments: [],
@@ -3356,7 +3692,9 @@
     renderSeal('visitorSeal', profileObj);
     renderCover('visitor', profileObj);
     renderSocialLinks('visitorLinks', profileObj);
+    renderDetails('visitorDetailsCard', profileObj, false);
     updateFollowUi(profileObj);
+    updateMutualBadge(profileObj);
 
     const isPrivate = profileObj.visibility === 'private';
     document.getElementById('visitorPublicView').style.display = isPrivate ? 'none' : 'block';
