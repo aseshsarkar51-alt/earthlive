@@ -874,12 +874,12 @@
   .style-a .wrap.dash{max-width:760px;}
   .style-a .profile-cover{
     border:1px solid var(--ink); background:var(--oat);
-    height:340px;
+    height:400px;
     position:relative; left:50%; width:100vw;
     transform:translateX(-50%);
   }
   @media (max-width:600px){
-    .style-a .profile-cover{ height:220px; }
+    .style-a .profile-cover{ height:260px; }
   }
   .style-a .cover-edit-btn{
     border:1px solid var(--ink) !important; box-shadow:none !important;
@@ -4382,50 +4382,6 @@
       <span>${t.desc}</span>
       <span style="margin-top:8px; font-style:italic;">e.g. \u201c${escapeHtml(t.questions[0].label)}\u201d</span>
     </div>`).join('');
-
-  /* ---------- PREVIEW ONLY: sample data so the redesigned profile page is visible on load ---------- */
-  profile = {
-    name:'Aisha Rao',
-    username:'aisharao',
-    bio:'Just here to collect some words.',
-    ink:'#2E2A22',
-    avatar:'',
-    cover:'',
-    visibility:'public',
-    templateId:(TEMPLATES[0] && TEMPLATES[0].id) || 'classic',
-    questions:(TEMPLATES[0] && TEMPLATES[0].questions) || [],
-    links:{ instagram:'@aisharao' },
-    extras:{ 'Favorite place':'The library', 'Currently into':'Pottery' },
-    code:'demo01'
-  };
-  function samplePhoto(hex1, hex2, label){
-    return 'data:image/svg+xml;utf8,' + encodeURIComponent(
-      '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400">' +
-      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
-      '<stop offset="0" stop-color="'+hex1+'"/><stop offset="1" stop-color="'+hex2+'"/></linearGradient></defs>' +
-      '<rect width="400" height="400" fill="url(#g)"/>' +
-      '<text x="50%" y="52%" font-family="sans-serif" font-size="28" fill="rgba(255,255,255,0.85)" text-anchor="middle">'+label+'</text>' +
-      '</svg>');
-  }
-  const CITY_BLR = CITIES.find(c=>c.name==='Bengaluru');
-  const CITY_MUM = CITIES.find(c=>c.name==='Mumbai');
-  const CITY_GOA = CITIES.find(c=>c.name==='Goa');
-  entries = [
-    { id:'e1', name:'Kabir', color:'#A9764F', date:'2 Jul 2026', city:CITY_BLR,
-      message:'You throw the best dinner parties, no contest.', status:'approved',
-      photos:[ samplePhoto('#A9764F','#7a5638','Dinner \u2014 Blr') ] },
-    { id:'e2', name:'Meera', color:'#57614A', date:'28 Jun 2026', city:CITY_GOA,
-      message:'Still thinking about that road trip playlist you made.', status:'approved',
-      photos:[ samplePhoto('#57614A','#3a4230','Road trip'), samplePhoto('#C08078','#8a5750','Goa') ] },
-    { id:'e3', name:'Dev', color:'#3C4A5E', date:'21 Jun 2026', city:CITY_MUM,
-      message:'You always know exactly what to say.', status:'approved',
-      photos:[ samplePhoto('#3C4A5E','#242e3d','Mumbai') ] }
-  ];
-  try{
-    renderDashboard();
-    showScreen('dashboard');
-    previewAsVisitor();
-  }catch(e){ console.error('[preview] could not render sample dashboard', e); }
 </script>
 </body>
 </html>
