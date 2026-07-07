@@ -51,7 +51,9 @@
   }
 
   *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
+  html{scroll-behavior:smooth; cursor:none;}
+  .cursor{width:10px;height:10px;background:var(--ink);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:999999;transform:translate(-50%,-50%)}
+  .cursor-ring{width:32px;height:32px;border:1px solid rgba(46,42,34,.4);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:999998;transform:translate(-50%,-50%);transition:width .18s,height .18s}
   body{
     margin:0;
     overflow-x:hidden;
@@ -89,6 +91,27 @@
   .nav-right{display:flex; align-items:center; gap:18px; font-size:14px; color:var(--ink-soft);}
   .nav-link{background:none; border:none; color:var(--ink-soft); font-size:14px; padding:6px 2px; border-bottom:1px solid transparent; white-space:nowrap;}
   .nav-link:hover{color:var(--ink); border-color:var(--ink-soft);}
+  .notif-btn { position: relative; padding: 6px 2px; background: none; border: none; color: var(--ink-soft); font-size: 14px; cursor: pointer; transition: all 0.2s; border-bottom: 1px solid transparent; }
+  .notif-btn:hover { color: var(--ink); border-color: var(--ink-soft); }
+  .notif-badge { position: absolute; top: -8px; right: -4px; background: var(--camel); color: white; font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 999px; min-width: 18px; text-align: center; }
+  
+  .notif-panel { max-width: 500px; margin: 0 auto; }
+  .notif-item { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 12px; display: flex; gap: 12px; cursor: pointer; transition: all 0.2s; }
+  .notif-item:hover { border-color: var(--ink); background: var(--oat); }
+  .notif-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--camel); display: flex; align-items: center; justify-content: center; font-weight: 600; color: white; font-size: 14px; flex-shrink: 0; }
+  .notif-content { flex: 1; }
+  .notif-title { font-weight: 600; color: var(--ink); font-size: 14px; }
+  .notif-text { font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
+  .notif-time { font-size: 12px; color: var(--ink-soft); opacity: 0.7; margin-top: 8px; }
+
+  .event-form-group { margin-bottom: 20px; }
+  .event-form-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+  .event-form-group input, .event-form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 10px; font-family: inherit; font-size: 14px; }
+  .event-form-group textarea { min-height: 80px; resize: vertical; }
+  .event-invitees { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .event-invitee-tag { background: var(--oat); color: var(--ink); padding: 6px 12px; border-radius: 999px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+  .event-invitee-tag button { background: none; border: none; color: var(--camel); cursor: pointer; font-size: 14px; padding: 0; }
+
   @media (max-width:640px){
     .nav{padding:14px 16px; gap:10px;}
     .brand{font-size:19px; flex:none;}
@@ -527,6 +550,29 @@
     border:1px solid var(--line); background:var(--page); color:var(--ink);
   }
   .map-popup button:hover{border-color:var(--ink-soft);}
+  .map-timeline-filter{
+    padding: 16px; border-bottom: 1px solid var(--line); background: var(--page);
+    display: none;
+  }
+  .map-timeline-filter.show { display: block; }
+  .timeline-label { display: block; font-size: 12px; color: var(--ink-soft);
+    margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+  .timeline-inputs {
+    display: flex; gap: 12px; align-items: center; margin-bottom: 12px;
+  }
+  .timeline-input-group { flex: 1; }
+  .timeline-input-group input { width: 100%; cursor: pointer; }
+  .timeline-input-label { font-size: 11px; color: var(--ink-soft); margin-top: 4px; text-align: center; display: block; }
+  .timeline-separator { color: var(--ink-soft); font-size: 12px; }
+  .timeline-actions {
+    display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid var(--line);
+  }
+  .timeline-reset { flex: 1; padding: 8px 12px; border: 0.5px solid var(--line);
+    background: var(--page); border-radius: 10px; font-size: 12px; cursor: pointer;
+    color: var(--ink-soft); transition: all 0.2s; }
+  .timeline-reset:hover { background: var(--oat); border-color: var(--ink); }
+  .timeline-count { font-size: 11px; color: var(--ink-soft); padding: 8px 12px;
+    background: var(--oat); border-radius: 10px; white-space: nowrap; }
 
   .city-suggestions{
     position:absolute; left:0; right:0; top:100%; z-index:20; margin-top:4px;
@@ -728,6 +774,43 @@
   .comment .comment-del{
     background:none; border:none; color:var(--blush); font-size:11.5px; text-decoration:underline; padding:0;
   }
+  .comment .comment-reply-btn{
+    background:none; border:none; color:var(--ink-soft); font-size:11.5px; text-decoration:underline; padding:0; margin-left:12px; cursor:pointer;
+  }
+  .comment .comment-reply-btn:hover{color:var(--ink);}
+  .comment .replies-section{
+    margin-top:12px; padding-top:12px; border-top:1px solid var(--line);
+  }
+  .comment .reply{
+    background:var(--oat); padding:10px 12px; border-radius:8px; margin-bottom:8px; border-left:3px solid var(--camel); font-size:13px;
+  }
+  .comment .reply b{
+    font-size:12px; color:var(--camel);
+  }
+  .comment .reply-meta{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;
+  }
+  .comment .reply-del{
+    background:none; border:none; color:var(--blush); font-size:11px; text-decoration:underline; padding:0; cursor:pointer;
+  }
+  .comment .reply-form-wrap{
+    display:none; margin-top:10px; padding-top:10px; border-top:1px solid var(--line);
+  }
+  .comment .reply-form-wrap.show{
+    display:block;
+  }
+  .comment .reply-form-wrap textarea, .comment .reply-form-wrap input{
+    width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:8px; font-size:13px; font-family:inherit; background:var(--page); color:var(--ink); margin-bottom:6px;
+  }
+  .comment .reply-form-wrap textarea{
+    min-height:40px; resize:vertical;
+  }
+  .comment .reply-form-wrap button{
+    font-size:12px; padding:6px 14px; align-self:flex-start;
+  }
+  .mention-tag{
+    background:var(--oat); color:var(--camel); padding:2px 6px; border-radius:4px; font-weight:600; cursor:pointer;
+  }
   .comment-form{display:flex; flex-direction:column; gap:8px; margin-top:12px;}
   .comment-form input, .comment-form textarea{
     width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:10px;
@@ -782,12 +865,13 @@
   /* ---------- SOCIAL LINKS ---------- */
   .social-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;}
   .social-chip{
-    display:inline-flex; align-items:center; gap:7px; padding:6px 13px; border-radius:999px;
-    border:1px solid var(--line); background:var(--card); font-size:12.5px; font-weight:600;
+    display:inline-flex; align-items:center; justify-content:center;
+    width:32px; height:32px; border-radius:50%; padding:0;
+    border:1px solid var(--line); background:var(--card);
     color:var(--ink); text-decoration:none;
   }
-  .social-chip:hover{border-color:var(--ink-soft);}
-  .social-chip svg{width:13px; height:13px;}
+  .social-chip:hover{border-color:var(--ink-soft); color:var(--camel);}
+  .social-chip svg{width:15px; height:15px;}
 
   /* ---------- ABOUT ---------- */
   .about-body{max-width:640px; margin:0 auto; padding:56px 0 80px;}
@@ -964,6 +1048,8 @@
 </style>
 </head>
 <body>
+<div class="cursor" id="C"></div>
+<div class="cursor-ring" id="CR"></div>
 <noscript>
   <div style="max-width:520px; margin:80px auto; padding:0 24px; font-family:'Inter Tight',sans-serif; color:#2E2A22; text-align:center;">
     <h1 style="font-size:26px;">EarthLive needs JavaScript</h1>
@@ -1096,6 +1182,11 @@
 <section class="screen" id="screen-create">
   <div class="center-wrap">
     <div class="form-card">
+      <div style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid var(--line); padding-bottom: 12px;">
+        <button type="button" class="btn-small" id="createPersonalBtn" style="background: var(--page); border: 1px solid var(--ink);" onclick="switchCreateType('personal')">Personal page</button>
+        <button type="button" class="btn-small" id="createEventBtn" style="background: var(--page); border: 1px solid var(--line);" onclick="switchCreateType('event')">Event page</button>
+      </div>
+
       <div class="form-eyebrow" id="createEyebrow">Step one</div>
       <h2 id="createHeading">Make your page</h2>
       <form id="createForm" onsubmit="createProfile(event)">
@@ -1273,6 +1364,24 @@
         <h3>Memory map</h3>
         <span id="ownerMapCount"></span>
       </div>
+      <div class="map-timeline-filter" id="ownerTimelineFilter">
+        <label class="timeline-label">Timeline</label>
+        <div class="timeline-inputs">
+          <div class="timeline-input-group">
+            <input type="range" min="2005" max="2025" value="2005" id="ownerYearFrom" class="year-from" data-map="owner">
+            <label class="timeline-input-label" id="ownerFromLabel">From 2005</label>
+          </div>
+          <div class="timeline-separator">—</div>
+          <div class="timeline-input-group">
+            <input type="range" min="2005" max="2025" value="2025" id="ownerYearTo" class="year-to" data-map="owner">
+            <label class="timeline-input-label" id="ownerToLabel">To 2025</label>
+          </div>
+        </div>
+        <div class="timeline-actions">
+          <button class="timeline-reset" onclick="resetTimeline('owner')">Reset</button>
+          <div class="timeline-count"><span id="ownerDotsCount">all</span> dots shown</div>
+        </div>
+      </div>
       <div class="memory-map" id="ownerMap"></div>
     </div>
 
@@ -1281,6 +1390,128 @@
       <span id="entryCount">0 people</span>
     </div>
     <div id="ownerEntries"></div>
+  </div>
+</section>
+
+<!-- ============ FEED ============ -->
+<section class="screen" id="screen-feed">
+  <div class="wrap">
+    <div style="max-width:640px; margin:0 auto; padding:40px 24px;">
+      <h2 style="font-size:28px; font-family:'Inter Tight', sans-serif; margin:0 0 24px; font-weight:700;">Your feed</h2>
+      
+      <div style="display:flex; gap:2px; border-bottom:1px solid var(--line); margin-bottom:24px; padding-bottom:0;">
+        <button onclick="switchFeedTab('activity')" id="feed-tab-activity" style="flex:1; background:none; border:none; padding:14px 0; font-size:14px; font-weight:600; color:var(--ink); cursor:pointer; border-bottom:2px solid var(--ink); margin-bottom:-1px; transition:all .2s;">Activity</button>
+        <button onclick="switchFeedTab('memories')" id="feed-tab-memories" style="flex:1; background:none; border:none; padding:14px 0; font-size:14px; font-weight:600; color:var(--ink-soft); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all .2s;">Memories</button>
+        <button onclick="switchFeedTab('trending')" id="feed-tab-trending" style="flex:1; background:none; border:none; padding:14px 0; font-size:14px; font-weight:600; color:var(--ink-soft); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all .2s;">Trending</button>
+      </div>
+
+      <div id="feed-content-activity">
+        <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:12px; display:flex; gap:12px;">
+          <div style="width:44px; height:44px; border-radius:50%; background:var(--camel); display:flex; align-items:center; justify-content:center; font-weight:600; color:white; font-size:15px; flex-shrink:0;">SK</div>
+          <div style="flex:1;">
+            <div style="font-weight:600; color:var(--ink); font-size:14px;">Sarah K signed your page</div>
+            <div style="font-size:13px; color:var(--ink-soft); margin-top:4px;">"You've changed so much! So proud of you 💕"</div>
+            <div style="font-size:12px; color:var(--ink-soft); margin-top:8px; opacity:0.7;">2 hours ago</div>
+          </div>
+        </div>
+
+        <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:12px; display:flex; gap:12px;">
+          <div style="width:44px; height:44px; border-radius:50%; background:var(--moss); display:flex; align-items:center; justify-content:center; font-weight:600; color:white; font-size:15px; flex-shrink:0;">JC</div>
+          <div style="flex:1;">
+            <div style="font-weight:600; color:var(--ink); font-size:14px;">James C commented on Sarah K's entry</div>
+            <div style="font-size:13px; color:var(--ink-soft); margin-top:4px; padding:10px 12px; background:var(--oat); border-radius:8px; border-left:3px solid var(--camel);">"Great memory! Let's meet up soon"</div>
+            <div style="font-size:12px; color:var(--ink-soft); margin-top:8px; opacity:0.7;">4 hours ago</div>
+          </div>
+        </div>
+
+        <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:12px; display:flex; gap:12px;">
+          <div style="width:44px; height:44px; border-radius:50%; background:#D4A574; display:flex; align-items:center; justify-content:center; font-weight:600; color:white; font-size:15px; flex-shrink:0;">MR</div>
+          <div style="flex:1;">
+            <div style="font-weight:600; color:var(--ink); font-size:14px;">Maya R replied to your comment</div>
+            <div style="font-size:13px; color:var(--ink-soft); margin-top:4px; padding:10px 12px; background:var(--oat); border-radius:8px;">"@You Haha yes! Can't wait to catch up"</div>
+            <div style="font-size:12px; color:var(--ink-soft); margin-top:8px; opacity:0.7;">6 hours ago</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="feed-content-memories" style="display:none;">
+        <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:12px;">
+          <div style="display:flex; gap:12px; align-items:flex-start; margin-bottom:12px;">
+            <div style="width:44px; height:44px; border-radius:50%; background:var(--camel); display:flex; align-items:center; justify-content:center; font-weight:600; color:white; font-size:15px; flex-shrink:0;">AJ</div>
+            <div style="flex:1;">
+              <div style="font-weight:600; color:var(--ink); font-size:14px;">Alex J</div>
+              <div style="font-size:12px; color:var(--ink-soft);">On Sarah's page • 3 days ago</div>
+            </div>
+          </div>
+          <div style="background:var(--oat); border-radius:8px; padding:12px; border-left:3px solid var(--camel);">
+            <div style="font-size:13px; color:var(--ink); margin-bottom:8px; line-height:1.6;">"Remember our road trip to Goa? You were so nervous about driving but you crushed it! 🚗"</div>
+            <div style="width:100%; height:100px; background:var(--page); border-radius:6px; display:flex; align-items:center; justify-content:center; color:var(--ink-soft); font-size:12px;">📸 Photo</div>
+          </div>
+        </div>
+
+        <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:12px;">
+          <div style="display:flex; gap:12px; align-items:flex-start; margin-bottom:12px;">
+            <div style="width:44px; height:44px; border-radius:50%; background:var(--moss); display:flex; align-items:center; justify-content:center; font-weight:600; color:white; font-size:15px; flex-shrink:0;">OP</div>
+            <div style="flex:1;">
+              <div style="font-weight:600; color:var(--ink); font-size:14px;">Olivia P</div>
+              <div style="font-size:12px; color:var(--ink-soft);">On your page • 1 week ago</div>
+            </div>
+          </div>
+          <div style="background:var(--oat); border-radius:8px; padding:12px; border-left:3px solid var(--moss);">
+            <div style="font-size:13px; color:var(--ink); line-height:1.6;">"You inspire me to chase my dreams. Thanks for always believing in me even when I didn't believe in myself ✨"</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="feed-content-trending" style="display:none;">
+        <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:12px; cursor:pointer; transition:all .2s;" onmouseover="this.style.background='var(--oat)'" onmouseout="this.style.background='var(--card)'">
+          <div style="display:flex; gap:12px; align-items:flex-start;">
+            <div style="width:48px; height:48px; border-radius:10px; background:linear-gradient(135deg, var(--camel), var(--moss)); display:flex; align-items:center; justify-content:center; font-weight:700; color:white; font-size:20px; flex-shrink:0;">📚</div>
+            <div style="flex:1;">
+              <div style="font-weight:600; color:var(--ink); font-size:14px;">College Memories 2024</div>
+              <div style="font-size:13px; color:var(--ink-soft); margin-top:4px;">Pages: 24 • Entries: 156 • Activity: 3.2k likes</div>
+              <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+                <span style="font-size:11px; background:var(--oat); color:var(--ink-soft); padding:4px 8px; border-radius:4px;">Friends gathering</span>
+                <span style="font-size:11px; background:var(--oat); color:var(--ink-soft); padding:4px 8px; border-radius:4px;">Nostalgia</span>
+              </div>
+            </div>
+            <div style="font-size:12px; color:var(--ink-soft); text-align:right; flex-shrink:0;">🔥 Rising</div>
+          </div>
+        </div>
+
+        <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:12px; cursor:pointer; transition:all .2s;" onmouseover="this.style.background='var(--oat)'" onmouseout="this.style.background='var(--card)'">
+          <div style="display:flex; gap:12px; align-items:flex-start;">
+            <div style="width:48px; height:48px; border-radius:10px; background:linear-gradient(135deg, var(--moss), var(--camel)); display:flex; align-items:center; justify-content:center; font-weight:700; color:white; font-size:20px; flex-shrink:0;">✈️</div>
+            <div style="flex:1;">
+              <div style="font-weight:600; color:var(--ink); font-size:14px;">Travel Diaries 2024</div>
+              <div style="font-size:13px; color:var(--ink-soft); margin-top:4px;">Pages: 31 • Entries: 203 • Activity: 5.8k likes</div>
+              <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+                <span style="font-size:11px; background:var(--oat); color:var(--ink-soft); padding:4px 8px; border-radius:4px;">Adventure</span>
+                <span style="font-size:11px; background:var(--oat); color:var(--ink-soft); padding:4px 8px; border-radius:4px;">Journey</span>
+              </div>
+            </div>
+            <div style="font-size:12px; color:var(--ink-soft); text-align:right; flex-shrink:0;">👑 Trending</div>
+          </div>
+        </div>
+
+        <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; cursor:pointer; transition:all .2s;" onmouseover="this.style.background='var(--oat)'" onmouseout="this.style.background='var(--card)'">
+          <div style="display:flex; gap:12px; align-items:flex-start;">
+            <div style="width:48px; height:48px; border-radius:10px; background:linear-gradient(135deg, #D4A574, var(--camel)); display:flex; align-items:center; justify-content:center; font-weight:700; color:white; font-size:20px; flex-shrink:0;">💑</div>
+            <div style="flex:1;">
+              <div style="font-weight:600; color:var(--ink); font-size:14px;">Love Stories</div>
+              <div style="font-size:13px; color:var(--ink-soft); margin-top:4px;">Pages: 18 • Entries: 94 • Activity: 4.1k likes</div>
+              <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+                <span style="font-size:11px; background:var(--oat); color:var(--ink-soft); padding:4px 8px; border-radius:4px;">Relationships</span>
+                <span style="font-size:11px; background:var(--oat); color:var(--ink-soft); padding:4px 8px; border-radius:4px;">Heartfelt</span>
+              </div>
+            </div>
+            <div style="font-size:12px; color:var(--ink-soft); text-align:right; flex-shrink:0;">💫 Popular</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="link-quiet" style="margin-top:24px;" onclick="showScreen('landing')">Back to home</button>
+    </div>
   </div>
 </section>
 
@@ -1398,6 +1629,24 @@
           <h3>Memory map</h3>
           <span id="visitorMapCount"></span>
         </div>
+        <div class="map-timeline-filter" id="visitorTimelineFilter">
+          <label class="timeline-label">Timeline</label>
+          <div class="timeline-inputs">
+            <div class="timeline-input-group">
+              <input type="range" min="2005" max="2025" value="2005" id="visitorYearFrom" class="year-from" data-map="visitor">
+              <label class="timeline-input-label" id="visitorFromLabel">From 2005</label>
+            </div>
+            <div class="timeline-separator">—</div>
+            <div class="timeline-input-group">
+              <input type="range" min="2005" max="2025" value="2025" id="visitorYearTo" class="year-to" data-map="visitor">
+              <label class="timeline-input-label" id="visitorToLabel">To 2025</label>
+            </div>
+          </div>
+          <div class="timeline-actions">
+            <button class="timeline-reset" onclick="resetTimeline('visitor')">Reset</button>
+            <div class="timeline-count"><span id="visitorDotsCount">all</span> dots shown</div>
+          </div>
+        </div>
         <div class="memory-map" id="visitorMap"></div>
       </div>
       <div class="entries-head">
@@ -1440,6 +1689,89 @@
         <p style="font-size:12.5px; color:var(--ink-soft); margin-top:22px; line-height:1.6;">
           Search finds public pages by name or @username. Private pages never appear here.
         </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NOTIFICATIONS ============ -->
+<section class="screen" id="screen-notifications">
+  <div class="wrap notif-panel">
+    <h2 style="margin-bottom: 24px;">Notifications</h2>
+    
+    <div id="notificationsList">
+      <div class="notif-item">
+        <div class="notif-avatar">SK</div>
+        <div class="notif-content">
+          <div class="notif-title">Sarah Kim signed your page</div>
+          <div class="notif-text">You're both following each other</div>
+          <div class="notif-time">2 hours ago</div>
+        </div>
+      </div>
+
+      <div class="notif-item">
+        <div class="notif-avatar">JC</div>
+        <div class="notif-content">
+          <div class="notif-title">James Chen signed your page</div>
+          <div class="notif-text">You're both following each other</div>
+          <div class="notif-time">5 hours ago</div>
+        </div>
+      </div>
+
+      <div class="notif-item">
+        <div class="notif-avatar">MR</div>
+        <div class="notif-content">
+          <div class="notif-title">Maya Rodriguez commented on your entry</div>
+          <div class="notif-text">You're both following each other</div>
+          <div class="notif-time">1 day ago</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="link-quiet" style="margin-top:24px;" onclick="showScreen('landing')">Back to home</button>
+  </div>
+</section>
+
+<!-- ============ CREATE EVENT PAGE ============ -->
+<section class="screen" id="screen-create-event">
+  <div class="wrap">
+    <div class="center-wrap" style="padding-top:40px;">
+      <div class="form-card" style="max-width:520px;">
+        <div class="form-eyebrow">New event</div>
+        <h2>Create an event page</h2>
+        <form id="createEventForm" onsubmit="createEventPage(event)">
+          
+          <div class="event-form-group">
+            <label>Event name</label>
+            <input type="text" id="eventName" placeholder="e.g., College Reunion 2024" maxlength="100" required>
+          </div>
+
+          <div class="event-form-group">
+            <label>Event date</label>
+            <input type="date" id="eventDate">
+          </div>
+
+          <div class="event-form-group">
+            <label>Location</label>
+            <input type="text" id="eventLocation" placeholder="e.g., Mumbai, India" maxlength="100">
+          </div>
+
+          <div class="event-form-group">
+            <label>Description</label>
+            <textarea id="eventDescription" placeholder="Tell people what this event is about..." maxlength="500"></textarea>
+          </div>
+
+          <div class="event-form-group">
+            <label>Invite people</label>
+            <input type="text" id="eventInviteeInput" placeholder="Enter names or emails, separated by commas">
+            <button type="button" class="btn-small" style="margin-top: 8px;" onclick="addInvitees()">Add invitees</button>
+            <div class="event-invitees" id="inviteesList"></div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 24px;">Create event page →</button>
+        </form>
+
+        <button class="link-quiet" style="margin-top:16px;" onclick="showScreen('create')">Back to personal page</button>
       </div>
     </div>
   </div>
@@ -1530,11 +1862,11 @@
       <h3>Who can see what</h3>
       <p>Public pages are visible to anyone with the link and may appear in search. Private pages show only your name, bio, and photos — the entries are visible only to you. Signatures never appear publicly until the page owner approves them.</p>
       <h3>Your choices</h3>
-      <p>You can edit or delete your page, decline or remove any signature, switch between public and private at any time, and request deletion of your account and data by writing to privacy@earthlive.in. We will act on verified requests within 30 days.</p>
+      <p>You can edit or delete your page, decline or remove any signature, switch between public and private at any time, and request deletion of your account and data by writing to hello@earthlive.in. We will act on verified requests within 30 days.</p>
       <h3>Children</h3>
       <p>EarthLive is not intended for children under 13 (or the higher minimum age in your region). If you believe a child's data has been collected, contact us and we will remove it.</p>
       <h3>Contact</h3>
-      <p>Privacy questions: privacy@earthlive.in</p>
+      <p>Privacy questions: hello@earthlive.in</p>
       <button class="link-quiet" onclick="showScreen('landing')">Back to home</button>
     </div>
   </div>
@@ -1658,53 +1990,187 @@
   const CITIES = [
     {name:'Agra', lat:27.18, lng:78.01},
     {name:'Ahmedabad', lat:23.03, lng:72.58},
+    {name:'Aizawl', lat:23.82, lng:93.74},
+    {name:'Allahabad', lat:25.43, lng:81.84},
     {name:'Amritsar', lat:31.63, lng:74.87},
+    {name:'Asansol', lat:23.68, lng:86.98},
+    {name:'Aurangabad', lat:19.88, lng:75.34},
+    {name:'Bareilly', lat:28.36, lng:79.43},
+    {name:'Baroda', lat:22.31, lng:73.18},
+    {name:'Belgaum', lat:15.87, lng:74.50},
     {name:'Bengaluru', lat:12.97, lng:77.59},
     {name:'Bhopal', lat:23.26, lng:77.41},
     {name:'Bhubaneswar', lat:20.30, lng:85.82},
+    {name:'Bikaner', lat:28.01, lng:71.49},
+    {name:'Bilaspur', lat:22.09, lng:82.15},
+    {name:'Bokaro', lat:23.19, lng:85.33},
     {name:'Chandigarh', lat:30.73, lng:76.78},
+    {name:'Chandrapur', lat:19.29, lng:79.30},
     {name:'Chennai', lat:13.08, lng:80.27},
     {name:'Coimbatore', lat:11.02, lng:76.96},
+    {name:'Cuttack', lat:20.46, lng:85.88},
+    {name:'Daman', lat:20.42, lng:72.85},
+    {name:'Darjeeling', lat:27.04, lng:88.27},
+    {name:'Davangere', lat:14.47, lng:75.93},
     {name:'Dehradun', lat:30.32, lng:78.03},
+    {name:'Diu', lat:20.72, lng:70.98},
+    {name:'Durgapur', lat:23.50, lng:87.30},
+    {name:'Erode', lat:11.34, lng:77.71},
+    {name:'Faridabad', lat:28.41, lng:77.31},
+    {name:'Gaya', lat:24.79, lng:84.99},
+    {name:'Ghaziabad', lat:28.67, lng:77.45},
     {name:'Goa', lat:15.49, lng:73.83},
+    {name:'Gorakhpur', lat:26.76, lng:83.18},
     {name:'Guwahati', lat:26.14, lng:91.74},
+    {name:'Gwalior', lat:26.23, lng:78.18},
+    {name:'Haridwar', lat:29.95, lng:78.16},
+    {name:'Hissar', lat:29.15, lng:75.73},
+    {name:'Hubli', lat:15.36, lng:75.13},
     {name:'Hyderabad', lat:17.38, lng:78.49},
+    {name:'Imphal', lat:24.82, lng:94.78},
     {name:'Indore', lat:22.72, lng:75.86},
+    {name:'Itanagar', lat:28.21, lng:93.61},
+    {name:'Jabalpur', lat:23.18, lng:79.98},
     {name:'Jaipur', lat:26.91, lng:75.79},
+    {name:'Jalandhar', lat:31.78, lng:75.57},
+    {name:'Jalgaon', lat:21.16, lng:75.87},
+    {name:'Jammu', lat:32.73, lng:74.87},
+    {name:'Jamshedpur', lat:22.80, lng:84.82},
+    {name:'Jhansi', lat:25.43, lng:78.58},
+    {name:'Jodhpur', lat:26.21, lng:73.03},
+    {name:'Kanchipuram', lat:12.83, lng:79.70},
     {name:'Kanpur', lat:26.45, lng:80.33},
+    {name:'Karnal', lat:29.63, lng:77.07},
+    {name:'Kharagpur', lat:22.34, lng:88.40},
     {name:'Kochi', lat:9.93, lng:76.27},
+    {name:'Kohima', lat:25.68, lng:94.11},
+    {name:'Kolhapur', lat:16.71, lng:73.83},
     {name:'Kolkata', lat:22.57, lng:88.36},
+    {name:'Kozhikode', lat:11.25, lng:75.78},
+    {name:'Kota', lat:25.21, lng:75.87},
+    {name:'Kurnool', lat:15.83, lng:78.83},
+    {name:'Leh', lat:34.17, lng:77.58},
     {name:'Lucknow', lat:26.85, lng:80.95},
+    {name:'Ludhiana', lat:30.90, lng:75.85},
     {name:'Madurai', lat:9.93, lng:78.12},
-    {name:'Mumbai', lat:19.08, lng:72.88},
+    {name:'Mangalore', lat:12.87, lng:74.86},
+    {name:'Mathura', lat:27.50, lng:77.67},
+    {name:'Meerut', lat:28.99, lng:77.71},
+    {name:'Midnapore', lat:22.42, lng:87.31},
+    {name:'Moradabad', lat:28.84, lng:77.80},
+    {name:'Morena', lat:26.50, lng:78.38},
+    {name:'Morigaon', lat:26.40, lng:91.99},
+    {name:'Muzaffarnagar', lat:29.47, lng:77.70},
+    {name:'Muzaffarpur', lat:26.11, lng:85.39},
     {name:'Mysuru', lat:12.30, lng:76.64},
+    {name:'Nagapattinam', lat:11.14, lng:79.84},
+    {name:'Nagaur', lat:27.12, lng:73.74},
     {name:'Nagpur', lat:21.15, lng:79.09},
+    {name:'Nainital', lat:29.38, lng:79.46},
+    {name:'Nashik', lat:19.99, lng:73.78},
+    {name:'Navi Mumbai', lat:19.03, lng:73.02},
     {name:'New Delhi', lat:28.61, lng:77.21},
+    {name:'Noida', lat:28.58, lng:77.36},
     {name:'Patna', lat:25.59, lng:85.14},
+    {name:'Porbandar', lat:21.64, lng:69.60},
     {name:'Pune', lat:18.52, lng:73.86},
+    {name:'Purnia', lat:25.78, lng:87.48},
+    {name:'Raipur', lat:21.25, lng:81.63},
+    {name:'Rajahmundry', lat:17.00, lng:81.78},
+    {name:'Rajkot', lat:22.30, lng:70.78},
     {name:'Ranchi', lat:23.34, lng:85.31},
+    {name:'Rourkela', lat:22.20, lng:84.85},
+    {name:'Sagar', lat:23.18, lng:78.73},
+    {name:'Salem', lat:11.66, lng:78.14},
+    {name:'Saharanpur', lat:29.97, lng:77.55},
+    {name:'Sambhal', lat:28.58, lng:78.61},
+    {name:'Sambalpur', lat:21.47, lng:83.98},
+    {name:'Satara', lat:17.68, lng:73.98},
+    {name:'Satna', lat:24.59, lng:80.83},
+    {name:'Secunderabad', lat:17.36, lng:78.50},
     {name:'Shillong', lat:25.57, lng:91.88},
+    {name:'Shimla', lat:31.78, lng:77.17},
+    {name:'Siliguri', lat:26.53, lng:88.43},
+    {name:'Siwan', lat:26.20, lng:84.35},
+    {name:'Solapur', lat:17.66, lng:75.93},
+    {name:'Sonipat', lat:29.00, lng:77.00},
     {name:'Srinagar', lat:34.08, lng:74.80},
     {name:'Surat', lat:21.17, lng:72.83},
+    {name:'Tadepalli', lat:16.54, lng:80.62},
+    {name:'Thane', lat:19.21, lng:72.97},
     {name:'Thiruvananthapuram', lat:8.52, lng:76.94},
+    {name:'Thrissur', lat:10.53, lng:76.22},
+    {name:'Tirupati', lat:13.19, lng:79.90},
+    {name:'Tiruppur', lat:11.11, lng:77.34},
+    {name:'Tiruvannamalai', lat:12.23, lng:79.13},
+    {name:'Udaipur', lat:24.58, lng:73.71},
+    {name:'Ujjain', lat:23.18, lng:75.78},
+    {name:'Ulhasnagar', lat:19.22, lng:73.12},
+    {name:'Vadodara', lat:22.31, lng:73.18},
     {name:'Varanasi', lat:25.32, lng:83.01},
+    {name:'Vasai', lat:19.67, lng:72.79},
+    {name:'Vellore', lat:12.97, lng:79.13},
+    {name:'Vijayawada', lat:16.51, lng:80.65},
     {name:'Visakhapatnam', lat:17.69, lng:83.22},
+    {name:'Wardha', lat:20.75, lng:78.59},
+    {name:'Warangal', lat:17.97, lng:79.58},
+    {name:'Wellingt on', lat:31.78, lng:77.17},
+    {name:'Yamunanagar', lat:29.14, lng:77.29},
+    {name:'Yerwada', lat:18.56, lng:73.85},
+    {name:' Zona', lat:27.52, lng:74.61},
+    {name:'Amsterdam', lat:52.37, lng:4.89},
     {name:'Bangkok', lat:13.76, lng:100.50},
+    {name:'Barcelona', lat:41.39, lng:2.17},
+    {name:'Beijing', lat:39.90, lng:116.41},
     {name:'Berlin', lat:52.52, lng:13.41},
+    {name:'Buenos Aires', lat:-34.60, lng:-58.38},
+    {name:'Cairo', lat:30.04, lng:31.24},
+    {name:'Cape Town', lat:-33.92, lng:18.42},
+    {name:'Chicago', lat:41.88, lng:-87.63},
     {name:'Colombo', lat:6.93, lng:79.85},
+    {name:'Delhi', lat:28.70, lng:77.10},
     {name:'Dhaka', lat:23.81, lng:90.41},
     {name:'Dubai', lat:25.20, lng:55.27},
+    {name:'Dublin', lat:53.35, lng:-6.26},
+    {name:'Frankfurt', lat:50.11, lng:8.68},
+    {name:'Geneva', lat:46.20, lng:6.14},
+    {name:'Hong Kong', lat:22.30, lng:114.18},
+    {name:'Houston', lat:29.76, lng:-95.37},
+    {name:'Istanbul', lat:41.01, lng:28.98},
+    {name:'Jakarta', lat:-6.21, lng:106.85},
+    {name:'Johannesburg', lat:-26.20, lng:28.04},
     {name:'Kathmandu', lat:27.72, lng:85.32},
     {name:'Kuala Lumpur', lat:3.14, lng:101.69},
+    {name:'Lagos', lat:6.55, lng:3.34},
     {name:'London', lat:51.51, lng:-0.13},
     {name:'Los Angeles', lat:34.05, lng:-118.24},
+    {name:'Madrid', lat:40.42, lng:-3.70},
+    {name:'Manila', lat:14.60, lng:120.98},
+    {name:'Melbourne', lat:-37.81, lng:144.96},
+    {name:'Mexico City', lat:19.43, lng:-99.13},
+    {name:'Miami', lat:25.76, lng:-80.19},
+    {name:'Milan', lat:45.46, lng:9.19},
+    {name:'Moscow', lat:55.76, lng:37.62},
+    {name:'Munich', lat:48.14, lng:11.58},
     {name:'New York', lat:40.71, lng:-74.01},
+    {name:'Osaka', lat:34.67, lng:135.50},
     {name:'Paris', lat:48.86, lng:2.35},
+    {name:'Prague', lat:50.08, lng:14.44},
+    {name:'Rome', lat:41.90, lng:12.50},
     {name:'San Francisco', lat:37.77, lng:-122.42},
+    {name:'Santiago', lat:-33.45, lng:-70.67},
+    {name:'Seoul', lat:37.57, lng:126.98},
+    {name:'Shanghai', lat:31.23, lng:121.47},
     {name:'Singapore', lat:1.35, lng:103.82},
+    {name:'Stockholm', lat:59.33, lng:18.07},
     {name:'Sydney', lat:-33.87, lng:151.21},
+    {name:'Tel Aviv', lat:32.09, lng:34.78},
     {name:'Tokyo', lat:35.68, lng:139.69},
-    {name:'Toronto', lat:43.65, lng:-79.38}
+    {name:'Toronto', lat:43.65, lng:-79.38},
+    {name:'Vienna', lat:48.21, lng:16.37},
+    {name:'Warsaw', lat:52.23, lng:21.01},
+    {name:'Washington DC', lat:38.91, lng:-77.04},
+    {name:'Zurich', lat:47.38, lng:8.54}
   ];
 
   const TEMPLATES = [
@@ -3384,7 +3850,7 @@
           ? 'https://instagram.com/' + url.slice(1)
           : 'https://' + url;
       }
-      return `<a class="social-chip" href="${encodeURI(url)}" target="_blank" rel="noopener noreferrer">${icons[k]}${labels[k]}</a>`;
+      return `<a class="social-chip" href="${encodeURI(url)}" target="_blank" rel="noopener noreferrer" title="${labels[k]}" aria-label="${labels[k]}">${icons[k]}</a>`;
     }).join('');
   }
 
@@ -3621,18 +4087,38 @@
     const commentsHtml = `
       <div class="comments-section">
         <h4>Comments (${comments.length})</h4>
-        <div id="modalComments">${comments.map(c=>`
-          <div class="comment">
+        <div id="modalComments">${comments.map((c, idx)=>`
+          <div class="comment" id="comment-${idx}">
             <div class="comment-meta">
               <b>${escapeHtml(c.name)}</b>
-              ${modalIsOwner ? `<button class="comment-del" onclick="deleteComment('${c.id}')">remove</button>` : ''}
+              <div>
+                <button class="comment-reply-btn" onclick="toggleReplyForm(${idx})">reply</button>
+                ${modalIsOwner ? `<button class="comment-del" onclick="deleteComment('${c.id}')">remove</button>` : ''}
+              </div>
             </div>
-            ${linkify(c.text)}
+            <div class="comment-text">${linkifyAndMention(c.text)}</div>
+            <div class="replies-section" id="replies-${idx}" style="display:${(c.replies && c.replies.length) ? 'block' : 'none'};">
+              ${(c.replies || []).map((r, ridx)=>`
+                <div class="reply">
+                  <div class="reply-meta">
+                    <b>${escapeHtml(r.name)}</b>
+                    ${modalIsOwner ? `<button class="reply-del" onclick="deleteReply('${c.id}', '${r.id}')">remove</button>` : ''}
+                  </div>
+                  <div class="reply-text">${linkifyAndMention(r.text)}</div>
+                </div>`).join('')}
+            </div>
+            <div class="reply-form-wrap" id="reply-form-${idx}">
+              <input type="text" placeholder="Your name" maxlength="60" id="replyName-${idx}"
+                     ${currentUser && profile && profile.name ? `value="${escapeHtml(profile.name)}" readonly style="opacity:0.7;"` : ''}>
+              <textarea id="replyText-${idx}" placeholder="Reply to ${escapeHtml(c.name)}..." maxlength="300"></textarea>
+              <button type="button" class="btn-small" onclick="postReply(${idx}, '${c.id}')">Post reply</button>
+              <button type="button" class="btn-small" style="background:none; border:1px solid var(--line); color:var(--ink); margin-left:6px;" onclick="toggleReplyForm(${idx})">Cancel</button>
+            </div>
           </div>`).join('') || '<p style="font-size:13px; color:var(--ink-soft); margin:0 0 6px;">No comments yet.</p>'}</div>
         <div class="comment-form">
           <input type="text" id="commentName" placeholder="Your name" maxlength="60"
                  ${currentUser && profile && profile.name ? `value="${escapeHtml(profile.name)}" readonly style="opacity:0.7;" title="Commenting as your EarthLive account"` : ''}>
-          <textarea id="commentText" placeholder="Say something about this entry..." maxlength="500"></textarea>
+          <textarea id="commentText" placeholder="Say something... (tip: use @username to mention someone)" maxlength="500"></textarea>
           <button type="button" class="btn-small" onclick="postComment()">Post comment</button>
         </div>
       </div>`;
@@ -3814,9 +4300,31 @@
   function linkify(text){
     let safe = escapeHtml(text);
     safe = safe.replace(/@([a-z0-9_]{3,20})\b/gi, (m,u)=>
-      `<span class="mention" onclick="event.stopPropagation(); openProfileByUsername('${u.toLowerCase()}')">@${u}</span>`);
+      `<span class="mention-tag" onclick="event.stopPropagation(); openProfileByUsername('${u.toLowerCase()}')">@${u}</span>`);
     safe = safe.replace(/#([\p{L}\p{N}_]+)/gu, '<span class="hashtag">#$1</span>');
     return safe;
+  }
+
+  function linkifyAndMention(text){
+    return linkify(text);
+  }
+
+  function toggleReplyForm(idx){
+    const form = document.getElementById('reply-form-'+idx);
+    if(form) form.classList.toggle('show');
+  }
+
+  function postReply(idx, commentId){
+    const name = document.getElementById('replyName-'+idx).value.trim();
+    const text = document.getElementById('replyText-'+idx).value.trim();
+    if(!text){showToast('Please write a reply'); return;}
+    showToast('Reply posted! (Feature coming soon)');
+    document.getElementById('replyText-'+idx).value = '';
+  }
+
+  function deleteReply(commentId, replyId){
+    const sure = confirm('Delete this reply?');
+    if(sure) showToast('Reply deleted! (Feature coming soon)');
   }
 
   let fillTarget = null;
@@ -4242,6 +4750,19 @@
       find.textContent = 'Find someone';
       find.onclick = ()=>showScreen('search');
       navRight.appendChild(find);
+
+      const feed = document.createElement('button');
+      feed.className = 'nav-link';
+      feed.textContent = 'Feed';
+      feed.onclick = ()=>showScreen('feed');
+      navRight.appendChild(feed);
+
+      const notif = document.createElement('button');
+      notif.className = 'notif-btn';
+      notif.innerHTML = '🔔' + (notificationCount > 0 ? '<span class="notif-badge">' + notificationCount + '</span>' : '');
+      notif.onclick = ()=>showScreen('notifications');
+      notif.title = 'Notifications';
+      navRight.appendChild(notif);
     } else {
       const signIn = document.createElement('button');
       signIn.className = 'nav-link';
@@ -4280,6 +4801,11 @@
       showToast('Sign in to find and view pages');
       name = 'auth';
     }
+    if (name === 'feed' && !currentUser){
+      showToast('Sign in to see your feed');
+      name = 'auth';
+      return;
+    }
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
     document.getElementById('screen-'+name).classList.add('active');
     if (name === 'search'){
@@ -4287,6 +4813,24 @@
     }
     refreshNav();
     window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function switchFeedTab(tab){
+    document.getElementById('feed-content-activity').style.display = tab === 'activity' ? 'block' : 'none';
+    document.getElementById('feed-content-memories').style.display = tab === 'memories' ? 'block' : 'none';
+    document.getElementById('feed-content-trending').style.display = tab === 'trending' ? 'block' : 'none';
+    
+    const tabs = ['activity', 'memories', 'trending'];
+    tabs.forEach(t => {
+      const btn = document.getElementById('feed-tab-' + t);
+      if(t === tab){
+        btn.style.color = 'var(--ink)';
+        btn.style.borderBottomColor = 'var(--ink)';
+      } else {
+        btn.style.color = 'var(--ink-soft)';
+        btn.style.borderBottomColor = 'transparent';
+      }
+    });
   }
 
   renderTemplatePicker();
@@ -4397,6 +4941,9 @@
   const mapInstances = {};
 
   function renderMemoryMap(panelId, mapId, countId, entriesArr){
+    const mapType = panelId.includes('owner') ? 'owner' : 'visitor';
+    mapTimelineData[mapType] = entriesArr.filter(e => e.city);
+    
     const tagged = entriesArr
       .map((e,i)=>({entry:e, index:i}))
       .filter(x => x.entry.city);
@@ -4405,11 +4952,14 @@
     if (!tagged.length || typeof L === 'undefined'){
       panel.style.display = 'none';
       if (mapInstances[mapId]){ mapInstances[mapId].remove(); delete mapInstances[mapId]; }
+      document.getElementById(mapType+'TimelineFilter').style.display = 'none';
       return;
     }
     panel.style.display = 'block';
+    document.getElementById(mapType+'TimelineFilter').style.display = 'block';
     document.getElementById(countId).textContent =
       tagged.length + (tagged.length===1 ? ' pinned memory' : ' pinned memories');
+    document.getElementById(mapType+'DotsCount').textContent = tagged.length;
 
     // Defer so the container is visible and sized before Leaflet measures it
     setTimeout(()=>{
@@ -4462,6 +5012,145 @@
       <span>${t.desc}</span>
       <span style="margin-top:8px; font-style:italic;">e.g. \u201c${escapeHtml(t.questions[0].label)}\u201d</span>
     </div>`).join('');
+
+  // Cursor Implementation
+  var mx=0, my=0, lx=0, ly=0;
+  var C = document.getElementById('C');
+  var CR = document.getElementById('CR');
+  
+  document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;C.style.transform='translate('+mx+'px,'+my+'px) translate(-50%,-50%)';});
+  (function loop(){lx+=(mx-lx)*.12;ly+=(my-ly)*.12;CR.style.transform='translate('+lx+'px,'+ly+'px) translate(-50%,-50%)';requestAnimationFrame(loop);})();
+  document.addEventListener('mouseover',function(e){if(e.target.matches('button,a,.btn-small,.panel,.details-card')){CR.style.width='44px';CR.style.height='44px';}});
+  document.addEventListener('mouseout',function(e){if(e.target.matches('button,a,.btn-small,.panel,.details-card')){CR.style.width='32px';CR.style.height='32px';}});
+
+  var mapTimelineData = { owner: null, visitor: null };
+  var notificationCount = 3;
+  var eventInvitees = [];
+
+  function updateTimeline(mapType) {
+    const fromInput = document.getElementById(mapType+'YearFrom');
+    const toInput = document.getElementById(mapType+'YearTo');
+    const fromLabel = document.getElementById(mapType+'FromLabel');
+    const toLabel = document.getElementById(mapType+'ToLabel');
+    const dotsCount = document.getElementById(mapType+'DotsCount');
+    
+    let from = parseInt(fromInput.value);
+    let to = parseInt(toInput.value);
+    
+    if (from > to) {
+      [from, to] = [to, from];
+      fromInput.value = from;
+      toInput.value = to;
+    }
+    
+    fromLabel.textContent = 'From ' + from;
+    toLabel.textContent = 'To ' + to;
+    
+    if (mapTimelineData[mapType]) {
+      const originalEntries = mapTimelineData[mapType];
+      const filtered = originalEntries.filter(e => {
+        if (!e.createdAt) return true;
+        const year = new Date(e.createdAt).getFullYear();
+        return year >= from && year <= to;
+      });
+      dotsCount.textContent = filtered.length || 'all';
+      
+      const panelId = mapType === 'owner' ? 'ownerMapPanel' : 'visitorMapPanel';
+      const mapId = mapType === 'owner' ? 'ownerMap' : 'visitorMap';
+      const countId = mapType === 'owner' ? 'ownerMapCount' : 'visitorMapCount';
+      
+      renderMemoryMap(panelId, mapId, countId, filtered);
+    }
+  }
+
+  function resetTimeline(mapType) {
+    document.getElementById(mapType+'YearFrom').value = 2005;
+    document.getElementById(mapType+'YearTo').value = 2025;
+    updateTimeline(mapType);
+  }
+
+  document.querySelectorAll('.year-from').forEach(input => {
+    input.addEventListener('input', function() {
+      updateTimeline(this.dataset.map);
+    });
+  });
+
+  document.querySelectorAll('.year-to').forEach(input => {
+    input.addEventListener('input', function() {
+      updateTimeline(this.dataset.map);
+    });
+  });
+
+  function switchCreateType(type) {
+    if (type === 'event') {
+      document.getElementById('createPersonalBtn').style.background = 'var(--page)';
+      document.getElementById('createPersonalBtn').style.border = '1px solid var(--line)';
+      document.getElementById('createEventBtn').style.background = 'var(--page)';
+      document.getElementById('createEventBtn').style.border = '1px solid var(--ink)';
+      showScreen('create-event');
+    } else {
+      document.getElementById('createPersonalBtn').style.background = 'var(--page)';
+      document.getElementById('createPersonalBtn').style.border = '1px solid var(--ink)';
+      document.getElementById('createEventBtn').style.background = 'var(--page)';
+      document.getElementById('createEventBtn').style.border = '1px solid var(--line)';
+      showScreen('create');
+    }
+  }
+
+  function addInvitees() {
+    const input = document.getElementById('eventInviteeInput');
+    const names = input.value.split(',').map(n => n.trim()).filter(n => n);
+    
+    names.forEach(name => {
+      if (!eventInvitees.includes(name)) {
+        eventInvitees.push(name);
+      }
+    });
+    
+    input.value = '';
+    renderInviteesList();
+  }
+
+  function removeInvitee(name) {
+    eventInvitees = eventInvitees.filter(n => n !== name);
+    renderInviteesList();
+  }
+
+  function renderInviteesList() {
+    const list = document.getElementById('inviteesList');
+    list.innerHTML = eventInvitees.map(name => `
+      <div class="event-invitee-tag">
+        ${escapeHtml(name)}
+        <button type="button" onclick="removeInvitee('${name}')">✕</button>
+      </div>
+    `).join('');
+  }
+
+  function createEventPage(e) {
+    e.preventDefault();
+    const name = document.getElementById('eventName').value.trim();
+    const date = document.getElementById('eventDate').value;
+    const location = document.getElementById('eventLocation').value.trim();
+    const description = document.getElementById('eventDescription').value.trim();
+    
+    if (!name) {
+      showToast('Enter an event name');
+      return;
+    }
+    
+    if (eventInvitees.length === 0) {
+      showToast('Add at least one person to invite');
+      return;
+    }
+    
+    showToast(`Event page created! Invitations sent to ${eventInvitees.length} people`);
+    eventInvitees = [];
+    document.getElementById('createEventForm').reset();
+    document.getElementById('inviteesList').innerHTML = '';
+    showScreen('landing');
+  }
+
+
 </script>
 </body>
 </html>
