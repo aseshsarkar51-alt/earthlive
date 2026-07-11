@@ -91,7 +91,18 @@
   .nav-right{display:flex; align-items:center; gap:18px; font-size:14px; color:var(--ink-soft);}
   .nav-link{background:none; border:none; color:var(--ink-soft); font-size:14px; padding:6px 2px; border-bottom:1px solid transparent; white-space:nowrap;}
   .nav-link:hover{color:var(--ink); border-color:var(--ink-soft);}
-
+  .notif-btn { position: relative; padding: 6px 2px; background: none; border: none; color: var(--ink-soft); font-size: 14px; cursor: pointer; transition: all 0.2s; border-bottom: 1px solid transparent; }
+  .notif-btn:hover { color: var(--ink); border-color: var(--ink-soft); }
+  .notif-badge { position: absolute; top: -8px; right: -4px; background: var(--camel); color: white; font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 999px; min-width: 18px; text-align: center; }
+  
+  .notif-panel { max-width: 500px; margin: 0 auto; }
+  .notif-item { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 12px; display: flex; gap: 12px; cursor: pointer; transition: all 0.2s; }
+  .notif-item:hover { border-color: var(--ink); background: var(--oat); }
+  .notif-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--camel); display: flex; align-items: center; justify-content: center; font-weight: 600; color: white; font-size: 14px; flex-shrink: 0; }
+  .notif-content { flex: 1; }
+  .notif-title { font-weight: 600; color: var(--ink); font-size: 14px; }
+  .notif-text { font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
+  .notif-time { font-size: 12px; color: var(--ink-soft); opacity: 0.7; margin-top: 8px; }
 
   .event-form-group { margin-bottom: 20px; }
   .event-form-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
@@ -452,7 +463,7 @@
   .cover-edit-menu button:hover{background:var(--oat);}
   .cover-edit-menu button.danger{color:var(--blush); border-top:1px solid var(--line);}
 
-  .seal-wrap{position:relative; flex:none; z-index:1; margin-top: 0;}
+  .seal-wrap{position:relative; flex:none; z-index:1; margin-top:-56px;}
   .seal.seal-lg{width:84px; height:84px; font-size:30px; border-width:4px; box-shadow:0 2px 12px rgba(46,42,34,0.18);}
   .seal-edit-btn{
     position:absolute; right:-2px; bottom:-2px; width:26px; height:26px; border-radius:50%;
@@ -461,31 +472,12 @@
   }
   .seal-edit-btn:hover{background:var(--moss-deep);}
 
-  .avatar-edit-menu-wrap{position:relative; z-index:10;}
-  .avatar-edit-menu{
-    position:absolute; top:calc(100% + 6px); right:-20px; min-width:150px;
-    background:var(--card); border:1px solid var(--line); border-radius:10px;
-    box-shadow:var(--shadow); overflow:hidden; z-index:15; display:none;
-  }
-  .avatar-edit-menu.show{display:block;}
-  .avatar-edit-menu button{
-    display:block; width:100%; text-align:left; padding:10px 14px; background:none; border:none;
-    font-size:13px; color:var(--ink); font-family:inherit; cursor:pointer;
-  }
-  .avatar-edit-menu button:hover{background:var(--oat);}
-  .avatar-edit-menu button.danger{color:var(--blush); border-top:1px solid var(--line);}
-
-
   .dash-header{
     display:flex; align-items:flex-end; justify-content:space-between; gap:24px;
     padding-bottom:26px; border-bottom:1px solid var(--line); margin-bottom:30px; flex-wrap:wrap;
   }
   .dash-actions{display:flex; flex-direction:column; align-items:flex-end; gap:10px;}
-  .dash-id{display:flex; gap:18px; align-items:flex-start; width:100%;}
-  .dash-id-content{display:flex; gap:20px; flex:1; justify-content:space-between; align-items:flex-start;}
-  .dash-id-main{flex:1;}
-  .dash-id-social{display:flex; flex-direction:column; gap:6px;}
-  .social-column{flex-direction:column; margin-top:0; gap:6px;}
+  .dash-id{display:flex; gap:18px; align-items:center;}
   .seal{
     width:66px; height:66px; border-radius:50%; flex:none;
     display:flex; align-items:center; justify-content:center;
@@ -563,12 +555,24 @@
     display: none;
   }
   .map-timeline-filter.show { display: block; }
-  .timeline-label { display: block; font-size: 11px; color: var(--ink-soft);
-    margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
-  .timeline-slider-wrapper { margin-bottom: 12px; }
-  .timeline-slider { width: 100%; cursor: pointer; }
-  .timeline-range-display { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-soft); margin-top: 8px; }
-  .timeline-range-display .selected { font-weight: 600; color: var(--ink); }
+  .timeline-label { display: block; font-size: 12px; color: var(--ink-soft);
+    margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+  .timeline-inputs {
+    display: flex; gap: 12px; align-items: center; margin-bottom: 12px;
+  }
+  .timeline-input-group { flex: 1; }
+  .timeline-input-group input { width: 100%; cursor: pointer; }
+  .timeline-input-label { font-size: 11px; color: var(--ink-soft); margin-top: 4px; text-align: center; display: block; }
+  .timeline-separator { color: var(--ink-soft); font-size: 12px; }
+  .timeline-actions {
+    display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid var(--line);
+  }
+  .timeline-reset { flex: 1; padding: 8px 12px; border: 0.5px solid var(--line);
+    background: var(--page); border-radius: 10px; font-size: 12px; cursor: pointer;
+    color: var(--ink-soft); transition: all 0.2s; }
+  .timeline-reset:hover { background: var(--oat); border-color: var(--ink); }
+  .timeline-count { font-size: 11px; color: var(--ink-soft); padding: 8px 12px;
+    background: var(--oat); border-radius: 10px; white-space: nowrap; }
 
   .city-suggestions{
     position:absolute; left:0; right:0; top:100%; z-index:20; margin-top:4px;
@@ -866,7 +870,7 @@
     border:1px solid var(--line); background:var(--card);
     color:var(--ink); text-decoration:none;
   }
-  .social-column .social-chip{width:36px; height:36px; font-size:14px;}
+  .social-chip:hover{border-color:var(--ink-soft); color:var(--camel);}
   .social-chip svg{width:15px; height:15px;}
 
   /* ---------- ABOUT ---------- */
@@ -1280,24 +1284,13 @@
         <div class="seal-wrap">
           <div class="seal seal-lg" id="ownerSeal"></div>
           <input type="file" accept="image/*" id="avatarUploadDash" style="display:none" onchange="handleQuickAvatarChange(event)">
-          <div class="avatar-edit-menu-wrap">
-            <button type="button" class="seal-edit-btn" onclick="toggleAvatarMenu(event)" aria-label="Change profile photo" title="Change photo">✎</button>
-            <div class="avatar-edit-menu" id="avatarEditMenu">
-              <button type="button" onclick="closeAvatarMenu(); document.getElementById('avatarUploadDash').click();">Upload photo</button>
-              <button type="button" onclick="closeAvatarMenu(); resizeAvatar();">Resize</button>
-              <button type="button" class="danger" onclick="closeAvatarMenu(); removeAvatar();">Remove</button>
-            </div>
-          </div>
+          <button type="button" class="seal-edit-btn" onclick="document.getElementById('avatarUploadDash').click()" aria-label="Change profile photo">✎</button>
         </div>
-        <div class="dash-id-content">
-          <div class="dash-id-main">
-            <h2 id="ownerName"></h2>
-            <p id="ownerBio"></p>
-            <div class="stats-row" id="ownerStats"></div>
-          </div>
-          <div class="dash-id-social">
-            <div class="social-row social-column" id="ownerLinks"></div>
-          </div>
+        <div>
+          <h2 id="ownerName"></h2>
+          <p id="ownerBio"></p>
+          <div class="social-row" id="ownerLinks"></div>
+          <div class="stats-row" id="ownerStats"></div>
         </div>
       </div>
         <div class="dash-actions">
@@ -1372,14 +1365,21 @@
         <span id="ownerMapCount"></span>
       </div>
       <div class="map-timeline-filter" id="ownerTimelineFilter">
-        <label class="timeline-label">Year range</label>
-        <div class="timeline-slider-wrapper">
-          <input type="range" min="2005" max="2025" value="2015" id="ownerYearSlider" class="timeline-slider" data-map="owner">
-          <div class="timeline-range-display">
-            <span>2005</span>
-            <span class="selected" id="ownerYearDisplay">Selected: 2015</span>
-            <span>2025</span>
+        <label class="timeline-label">Timeline</label>
+        <div class="timeline-inputs">
+          <div class="timeline-input-group">
+            <input type="range" min="2005" max="2025" value="2005" id="ownerYearFrom" class="year-from" data-map="owner">
+            <label class="timeline-input-label" id="ownerFromLabel">From 2005</label>
           </div>
+          <div class="timeline-separator">—</div>
+          <div class="timeline-input-group">
+            <input type="range" min="2005" max="2025" value="2025" id="ownerYearTo" class="year-to" data-map="owner">
+            <label class="timeline-input-label" id="ownerToLabel">To 2025</label>
+          </div>
+        </div>
+        <div class="timeline-actions">
+          <button class="timeline-reset" onclick="resetTimeline('owner')">Reset</button>
+          <div class="timeline-count"><span id="ownerDotsCount">all</span> dots shown</div>
         </div>
       </div>
       <div class="memory-map" id="ownerMap"></div>
@@ -1606,14 +1606,10 @@
         <div class="seal-wrap">
           <div class="seal seal-lg" id="visitorSeal"></div>
         </div>
-        <div class="dash-id-content">
-          <div class="dash-id-main">
-            <h2 id="visitorName" style="font-family:'Inter Tight',sans-serif; font-size:24px; margin:0 0 4px;"></h2>
-            <p id="visitorBio" style="margin:0; color:var(--ink-soft); font-size:14.5px;"></p>
-          </div>
-          <div class="dash-id-social">
-            <div class="social-row social-column" id="visitorLinks"></div>
-          </div>
+        <div>
+          <h2 id="visitorName" style="font-family:'Inter Tight',sans-serif; font-size:24px; margin:0 0 4px;"></h2>
+          <p id="visitorBio" style="margin:0; color:var(--ink-soft); font-size:14.5px;"></p>
+          <div class="social-row" id="visitorLinks"></div>
         </div>
       </div>
       <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
@@ -1634,14 +1630,21 @@
           <span id="visitorMapCount"></span>
         </div>
         <div class="map-timeline-filter" id="visitorTimelineFilter">
-          <label class="timeline-label">Year range</label>
-          <div class="timeline-slider-wrapper">
-            <input type="range" min="2005" max="2025" value="2015" id="visitorYearSlider" class="timeline-slider" data-map="visitor">
-            <div class="timeline-range-display">
-              <span>2005</span>
-              <span class="selected" id="visitorYearDisplay">Selected: 2015</span>
-              <span>2025</span>
+          <label class="timeline-label">Timeline</label>
+          <div class="timeline-inputs">
+            <div class="timeline-input-group">
+              <input type="range" min="2005" max="2025" value="2005" id="visitorYearFrom" class="year-from" data-map="visitor">
+              <label class="timeline-input-label" id="visitorFromLabel">From 2005</label>
             </div>
+            <div class="timeline-separator">—</div>
+            <div class="timeline-input-group">
+              <input type="range" min="2005" max="2025" value="2025" id="visitorYearTo" class="year-to" data-map="visitor">
+              <label class="timeline-input-label" id="visitorToLabel">To 2025</label>
+            </div>
+          </div>
+          <div class="timeline-actions">
+            <button class="timeline-reset" onclick="resetTimeline('visitor')">Reset</button>
+            <div class="timeline-count"><span id="visitorDotsCount">all</span> dots shown</div>
           </div>
         </div>
         <div class="memory-map" id="visitorMap"></div>
@@ -1688,6 +1691,44 @@
         </p>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ============ NOTIFICATIONS ============ -->
+<section class="screen" id="screen-notifications">
+  <div class="wrap notif-panel">
+    <h2 style="margin-bottom: 24px;">Notifications</h2>
+    
+    <div id="notificationsList">
+      <div class="notif-item">
+        <div class="notif-avatar">SK</div>
+        <div class="notif-content">
+          <div class="notif-title">Sarah Kim signed your page</div>
+          <div class="notif-text">You're both following each other</div>
+          <div class="notif-time">2 hours ago</div>
+        </div>
+      </div>
+
+      <div class="notif-item">
+        <div class="notif-avatar">JC</div>
+        <div class="notif-content">
+          <div class="notif-title">James Chen signed your page</div>
+          <div class="notif-text">You're both following each other</div>
+          <div class="notif-time">5 hours ago</div>
+        </div>
+      </div>
+
+      <div class="notif-item">
+        <div class="notif-avatar">MR</div>
+        <div class="notif-content">
+          <div class="notif-title">Maya Rodriguez commented on your entry</div>
+          <div class="notif-text">You're both following each other</div>
+          <div class="notif-time">1 day ago</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="link-quiet" style="margin-top:24px;" onclick="showScreen('landing')">Back to home</button>
   </div>
 </section>
 
@@ -4715,6 +4756,13 @@
       feed.textContent = 'Feed';
       feed.onclick = ()=>showScreen('feed');
       navRight.appendChild(feed);
+
+      const notif = document.createElement('button');
+      notif.className = 'notif-btn';
+      notif.innerHTML = '🔔' + (notificationCount > 0 ? '<span class="notif-badge">' + notificationCount + '</span>' : '');
+      notif.onclick = ()=>showScreen('notifications');
+      notif.title = 'Notifications';
+      navRight.appendChild(notif);
     } else {
       const signIn = document.createElement('button');
       signIn.className = 'nav-link';
@@ -4976,22 +5024,36 @@
   document.addEventListener('mouseout',function(e){if(e.target.matches('button,a,.btn-small,.panel,.details-card')){CR.style.width='32px';CR.style.height='32px';}});
 
   var mapTimelineData = { owner: null, visitor: null };
+  var notificationCount = 3;
   var eventInvitees = [];
 
   function updateTimeline(mapType) {
-    const slider = document.getElementById(mapType+'YearSlider');
-    const yearDisplay = document.getElementById(mapType+'YearDisplay');
+    const fromInput = document.getElementById(mapType+'YearFrom');
+    const toInput = document.getElementById(mapType+'YearTo');
+    const fromLabel = document.getElementById(mapType+'FromLabel');
+    const toLabel = document.getElementById(mapType+'ToLabel');
+    const dotsCount = document.getElementById(mapType+'DotsCount');
     
-    const selectedYear = parseInt(slider.value);
-    yearDisplay.textContent = 'Selected: ' + selectedYear;
+    let from = parseInt(fromInput.value);
+    let to = parseInt(toInput.value);
+    
+    if (from > to) {
+      [from, to] = [to, from];
+      fromInput.value = from;
+      toInput.value = to;
+    }
+    
+    fromLabel.textContent = 'From ' + from;
+    toLabel.textContent = 'To ' + to;
     
     if (mapTimelineData[mapType]) {
       const originalEntries = mapTimelineData[mapType];
       const filtered = originalEntries.filter(e => {
         if (!e.createdAt) return true;
         const year = new Date(e.createdAt).getFullYear();
-        return year >= selectedYear;
+        return year >= from && year <= to;
       });
+      dotsCount.textContent = filtered.length || 'all';
       
       const panelId = mapType === 'owner' ? 'ownerMapPanel' : 'visitorMapPanel';
       const mapId = mapType === 'owner' ? 'ownerMap' : 'visitorMap';
@@ -5002,22 +5064,21 @@
   }
 
   function resetTimeline(mapType) {
-    document.getElementById(mapType+'YearSlider').value = 2005;
+    document.getElementById(mapType+'YearFrom').value = 2005;
+    document.getElementById(mapType+'YearTo').value = 2025;
     updateTimeline(mapType);
   }
 
-  document.querySelectorAll('.timeline-slider').forEach(input => {
+  document.querySelectorAll('.year-from').forEach(input => {
     input.addEventListener('input', function() {
       updateTimeline(this.dataset.map);
     });
   });
 
-  document.addEventListener('click', function(e) {
-    const menu = document.getElementById('avatarEditMenu');
-    const sealWrap = document.querySelector('.avatar-edit-menu-wrap');
-    if (menu && sealWrap && !sealWrap.contains(e.target)) {
-      closeAvatarMenu();
-    }
+  document.querySelectorAll('.year-to').forEach(input => {
+    input.addEventListener('input', function() {
+      updateTimeline(this.dataset.map);
+    });
   });
 
   function switchCreateType(type) {
@@ -5035,43 +5096,6 @@
       showScreen('create');
     }
   }
-
-  function toggleAvatarMenu(e) {
-    e.stopPropagation();
-    const menu = document.getElementById('avatarEditMenu');
-    menu.classList.toggle('show');
-  }
-
-  function closeAvatarMenu() {
-    const menu = document.getElementById('avatarEditMenu');
-    menu.classList.remove('show');
-  }
-
-  function resizeAvatar() {
-    const currentImg = document.getElementById('ownerSeal').style.backgroundImage;
-    if (!currentImg) {
-      showToast('No avatar to resize');
-      return;
-    }
-    showToast('Avatar resize modal opening...');
-    // TODO: Open avatar resize/crop modal
-  }
-
-  function removeAvatar() {
-    const sure = confirm('Remove your profile photo? This can\'t be undone.');
-    if (!sure) return;
-    
-    profile.avatar = null;
-    avatarDataUrl = null;
-    renderSealWithData('ownerSeal', null);
-    showToast('Profile photo removed');
-    
-    // Save to DB if needed
-    if (db && profile.dbId) {
-      db.from('profiles').update({avatar_data: null}).eq('id', profile.dbId).then(()=>{}).catch(()=>{});
-    }
-  }
-
 
   function addInvitees() {
     const input = document.getElementById('eventInviteeInput');
