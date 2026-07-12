@@ -1033,6 +1033,9 @@
     border-radius:0 !important; border:1px solid var(--ink) !important;
   }
 
+  .btn-share-hdr{background:var(--ink); color:var(--oat); border:none; border-radius:999px; padding:9px 20px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; transition:opacity .15s;}
+  .btn-share-hdr:hover{opacity:.85;}
+
   /* ---------- AVATAR MENU & ACCOUNT ---------- */
   .nav-avatar-wrap{position:relative; display:inline-block; margin-left:4px;}
   .nav-avatar{width:32px; height:32px; border-radius:50%; background:var(--moss); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11.5px; cursor:pointer; border:2px solid var(--oat-deep); font-family:inherit; padding:0;}
@@ -1386,34 +1389,13 @@
         </div>
       </div>
         <div class="dash-actions">
-        <div class="visibility-pill" id="visPill">
-          <span class="dotstate"></span>
-          <span id="visPillText">Public</span>
-          <button onclick="toggleDashVisibility()">change</button>
-        </div>
-        <div class="visibility-pill" style="cursor:default;">
-          <span id="templatePillText">Classic Slam</span>
-          <button onclick="openEditProfile()">edit questions</button>
-        </div>
-        <button class="link-quiet" onclick="openEditProfile()">Edit page</button>
+        <button class="btn-share-hdr" onclick="shareInvite()">↗ Share</button>
       </div>
     </div>
 
     <div class="hint-card" id="completeHint" style="display:none;"></div>
 
     <div class="details-card" id="ownerDetailsCard" style="display:none;"></div>
-
-    <div class="panel">
-      <p class="panel-title">Share your book</p>
-      <div class="demo-row">
-        <button class="btn-small" onclick="copyInvite()">Copy my link</button>
-        <button class="btn-small" onclick="shareInvite()">Share</button>
-        <button class="btn-small" onclick="previewAsVisitor()">Preview as a visitor</button>
-      </div>
-      <p style="font-size:12px; color:var(--ink-soft); margin:12px 0 0;">
-        Followers, your QR code, privacy and account settings now live in <b>My account</b> (tap your initials, top right).
-      </p>
-    </div>
 
     <div class="panel" id="pendingPanel" style="display:none;">
       <p class="panel-title">Waiting for your approval <span id="pendingCount"></span></p>
@@ -1506,6 +1488,32 @@
         <div id="acctFollowersList" style="display:none; margin-top:16px;"></div>
       </div>
 
+      <!-- Your book -->
+      <div class="panel">
+        <p class="panel-title">Your book</p>
+        <div class="acct-row">
+          <div>
+            <div class="acct-label">Edit my book</div>
+            <div class="acct-sub">Name, cover, photo, bio, one-word seal, your links.</div>
+          </div>
+          <button class="btn-small" onclick="openEditProfile()">Edit</button>
+        </div>
+        <div class="acct-row">
+          <div>
+            <div class="acct-label">Questions</div>
+            <div class="acct-sub" id="acctTemplateText">—</div>
+          </div>
+          <button class="btn-small" onclick="openEditProfile()">Edit questions</button>
+        </div>
+        <div class="acct-row">
+          <div>
+            <div class="acct-label">Preview as a visitor</div>
+            <div class="acct-sub">See exactly what other people see.</div>
+          </div>
+          <button class="btn-small" onclick="previewAsVisitor()">Preview</button>
+        </div>
+      </div>
+
       <!-- Your link -->
       <div class="panel">
         <p class="panel-title">Your link</p>
@@ -1530,7 +1538,7 @@
             <div class="acct-label">Book visibility</div>
             <div class="acct-sub" id="acctVisibilityText">Public — others can find you in search and sign your book.</div>
           </div>
-          <button class="btn-small" onclick="deactivatePage()">Change</button>
+          <button class="btn-small" onclick="toggleDashVisibility(); renderAccount();">Change</button>
         </div>
         <div class="acct-row">
           <div>
@@ -2090,10 +2098,21 @@
     <div class="about-body">
       <div class="eyebrow">About us</div>
       <h2>Some things deserve to be written down.</h2>
-      <p>EarthLive brings back the memory book — a digital space where your people can add their thoughts, memories, and heartfelt messages. No questions required, just genuine connections and keepsakes you'll treasure forever.</p>
-      <p>Here, your page is your book. You choose the questions, send one link, and your people fill it with words you'll actually want to keep. You approve every entry before it appears, and you decide whether your page is open to the world or just for you.</p>
-      <h3>How it works</h3>
-      <p>Make your page and pick a question set — classic, deep, funny, or farewell. Share your link anywhere. Every signature waits for your approval before it's posted, and anyone can tap an entry to read the whole thing.</p>
+      <p>EarthLive brings back the memory book — a digital space where your people can add their thoughts, memories, and heartfelt messages. No feed to scroll, no strangers, no noise. Just words worth keeping.</p>
+      <p>Here, your page is your book. You choose the questions, send one link, and your people fill it with words you'll actually want to keep. You approve every entry before it appears, and you decide whether your book is open to the world or just for you.</p>
+
+      <h3>Your book</h3>
+      <p>Make your book and pick a question set — classic, deep, funny, or farewell. Share your link anywhere. Every signature waits for your approval before it's posted, and each entry pins to a memory map, so you can see where your people wrote from.</p>
+
+      <h3>Your diary</h3>
+      <p>Not everything is meant to be read by others. Your diary is a private space that belongs to you alone — write freely, and nobody sees a word of it unless you decide otherwise. Each entry is private by default. When you want to, you can send one to a single person like a letter, or add it to your own book. Sharing is always a choice, never the default.</p>
+
+      <h3>Your events</h3>
+      <p>Reunions, farewells, weddings, birthdays. Create an event page and share a link or QR code with the people who were there. You approve who joins. Inside, members write about each other, add photos, tag friends, and pin memories to a shared map — a book the whole group fills together.</p>
+
+      <h3>What we're not</h3>
+      <p>There's no endless feed here, no follower count to chase, no algorithm deciding what you see. EarthLive is quiet on purpose. It's meant to be a place you visit, feel something, and close — not somewhere you get stuck.</p>
+
       <h3>Get in touch</h3>
       <p>Questions, ideas, or something broken? Write to us at hello@earthlive.in.</p>
       <div class="cta-row" style="margin-top:34px;">
@@ -2112,13 +2131,15 @@
       <h2>Privacy Policy</h2>
       <p><b>Last updated:</b> July 2026</p>
       <h3>What we collect</h3>
-      <p>When you create a page: your name, bio, profile and cover photos, chosen questions, optional social links, and your email or mobile number if you sign up. When you sign someone's page: your name, answers, message, and any photos you attach. We also collect basic technical data (device, browser, approximate location) to keep the service working and secure.</p>
+      <p>When you create a book: your name, bio, profile and cover photos, chosen questions, optional social links, and your email or mobile number if you sign up. When you sign someone's book: your name, answers, message, and any photos you attach. When you write in your diary: the text and title you write. When you create or join an event: the event details, your posts, photos, and comments. We also collect basic technical data (device, browser, approximate location) to keep the service working and secure.</p>
       <h3>How we use it</h3>
-      <p>To run EarthLive: showing your page to people you share it with, delivering signatures to page owners for approval, and keeping accounts secure. We do not sell your personal data. We do not show your private pages to anyone but you.</p>
+      <p>To run EarthLive: showing your book to people you share it with, delivering signatures to book owners for approval, keeping your diary private to you, and running event pages for their members. We do not sell your personal data. We do not show your private pages to anyone but you.</p>
       <h3>Who can see what</h3>
-      <p>Public pages are visible to anyone with the link and may appear in search. Private pages show only your name, bio, and photos — the entries are visible only to you. Signatures never appear publicly until the page owner approves them.</p>
+      <p>Public books are visible to anyone with the link and may appear in search. Private books show only your name, bio, and photos — the entries are visible only to you. Signatures never appear publicly until the book owner approves them.</p>
+      <p><b>Your diary is private by default and visible only to you.</b> An entry becomes visible to someone else only when you explicitly choose it: sharing an entry with one person makes it readable by that person alone, and adding an entry to your book makes it visible to whoever can see your book. You can change an entry back to private at any time, which removes it from your book. Nobody at EarthLive reads your diary.</p>
+      <p>Event pages are visible only to approved members. The event host approves every person who joins, and can remove members or posts. People who aren't members see only the event name and member count.</p>
       <h3>Your choices</h3>
-      <p>You can edit or delete your page, decline or remove any signature, switch between public and private at any time, and request deletion of your account and data by writing to hello@earthlive.in. We will act on verified requests within 30 days.</p>
+      <p>You can edit or delete your book, decline or remove any signature, delete any diary entry, leave or delete events, switch between public and private at any time, and request deletion of your account and data by writing to hello@earthlive.in. We will act on verified requests within 30 days.</p>
       <h3>Children</h3>
       <p>EarthLive is not intended for children under 13 (or the higher minimum age in your region). If you believe a child's data has been collected, contact us and we will remove it.</p>
       <h3>Contact</h3>
@@ -3701,6 +3722,8 @@
       photos: row.photos || [],
       color: row.color || '#3C4A5E',
       unlockAt: row.unlock_at || null,
+      fromDiary: !!row.diary_entry_id,
+      diaryEntryId: row.diary_entry_id || null,
       likes: 0,
       likedByMe: false,
       comments: [],
@@ -4168,7 +4191,8 @@
     renderCompleteHint();
     const tpl = TEMPLATES.find(t=>t.id===profile.templateId) || TEMPLATES[0];
     const qCount = (profile.questions || tpl.questions).length;
-    document.getElementById('templatePillText').textContent = tpl.name + ' \u00b7 ' + qCount + ' questions';
+    const tplEl = document.getElementById('acctTemplateText');
+    if (tplEl) tplEl.textContent = tpl.name + ' \u00b7 ' + qCount + ' question' + (qCount===1?'':'s');
     renderEntries('ownerEntries', entries.filter(isApproved), 'entryCount', true);
     renderMemoryMap('ownerMapPanel', 'ownerMap', 'ownerMapCount', entries.filter(isApproved));
     renderPendingPanel(entries.filter(e => e.status === 'pending'));
@@ -4247,9 +4271,19 @@
   }
 
   function updateVisibilityPill(){
+    // The visibility pill now lives in My account; keep this safe if it's not on screen.
     const pill = document.getElementById('visPill');
-    pill.classList.toggle('private', profile.visibility === 'private');
-    document.getElementById('visPillText').textContent = profile.visibility === 'private' ? 'Private' : 'Public';
+    if (pill){
+      pill.classList.toggle('private', profile.visibility === 'private');
+      const t = document.getElementById('visPillText');
+      if (t) t.textContent = profile.visibility === 'private' ? 'Private' : 'Public';
+    }
+    const acctVis = document.getElementById('acctVisibilityText');
+    if (acctVis && profile){
+      acctVis.textContent = (profile.visibility === 'private')
+        ? 'Private \u2014 your book is hidden from search and visitors.'
+        : 'Public \u2014 others can find you in search and sign your book.';
+    }
   }
 
   function toggleDashVisibility(){
@@ -4328,7 +4362,7 @@
       }
       const nickHtml = entry.nickname
         ? ` <span class="entry-nick">"${escapeHtml(entry.nickname)}"</span>`
-        : '';
+        : (entry.fromDiary ? ` <span class="entry-from-diary">FROM MY DIARY</span>` : '');
       const wordHtml = entry.word
         ? `<span class="word-chip">${escapeHtml(entry.word)}</span>`
         : '';
@@ -4947,6 +4981,12 @@
     document.getElementById('acctVisibilityText').textContent = (vis === 'public')
       ? 'Public \u2014 others can find you in search and sign your book.'
       : 'Private \u2014 your book is hidden from search and visitors.';
+
+    // questions template
+    const tpl = TEMPLATES.find(t=>t.id===profile.templateId) || TEMPLATES[0];
+    const qCount = (profile.questions || tpl.questions).length;
+    document.getElementById('acctTemplateText').textContent =
+      tpl.name + ' \u00b7 ' + qCount + ' question' + (qCount===1?'':'s');
 
     await renderFollowersPanel();
 
@@ -5668,7 +5708,7 @@
       const preview = e.body ? escapeHtml(e.body.slice(0, 200)) : '';
       let badge = '<span class="diary-lock-badge private">🔒 Private</span>';
       if (e.visibility === 'shared_person') badge = '<span class="diary-lock-badge shared">💌 Shared with ' + escapeHtml(e.shared_with_name || 'someone') + '</span>';
-      else if (e.visibility === 'on_book') badge = '<span class="diary-lock-badge book">📖 Shared on my book</span>';
+      else if (e.visibility === 'on_book') badge = '<span class="diary-lock-badge book">📖 On my book · <u style="cursor:pointer;" onclick="event.stopPropagation(); removeDiaryFromBook(\'' + e.id + '\')">remove</u></span>';
       return `
         <div class="diary-list-item" onclick="openDiaryEditor('${e.id}')">
           <div class="diary-date-tab">${day}<small>${mon}</small></div>
@@ -5768,6 +5808,21 @@
     if (visibility === 'shared_person' && !diarySharedWithUserId){
       showToast('Pick who you want to share this with'); return;
     }
+
+    // Publishing something you wrote privately is a big step \u2014 confirm it, and show exactly what others will read.
+    if (visibility === 'on_book'){
+      const visNote = (profile && profile.visibility === 'private')
+        ? 'Your book is Private, so only you can see it for now.'
+        : 'Your book is Public \u2014 anyone who can see your book will read this.';
+      const ok = confirm(
+        'Add this to your book?\n\n' +
+        (title ? '\u201c' + title + '\u201d\n' : '') +
+        (body.length > 160 ? body.slice(0,160) + '\u2026' : body) + '\n\n' +
+        visNote + '\n\nYou can remove it from your book anytime \u2014 the diary entry stays yours either way.'
+      );
+      if (!ok) return;
+    }
+
     const payload = {
       author_user_id: currentUser.id,
       title: title || null,
@@ -5788,20 +5843,35 @@
     }
 
     // "Share on my book": mirror this entry onto my own book as a signature from me
-    await syncDiaryToBook(diaryId, visibility, title, body);
+    const ok = await syncDiaryToBook(diaryId, visibility, title, body);
+    if (ok === false) return;   // sync failed and told the user why; stay on the editor
 
     showToast(visibility === 'on_book' ? 'Saved and added to your book ✓'
             : visibility === 'shared_person' ? 'Saved and sent to ' + (diarySharedWithName || 'them') + ' 💌'
             : (diaryEditingId ? 'Entry updated ✓' : 'Saved to your diary ✓'));
-    renderDiary();
-    showScreen('diary');
+
+    if (visibility === 'on_book'){
+      // Take them straight to the book so they can SEE it landed
+      renderDashboard();
+      showScreen('dashboard');
+    } else {
+      renderDiary();
+      showScreen('diary');
+    }
   }
 
   async function syncDiaryToBook(diaryId, visibility, title, body){
-    if (!db || !currentUser || !profile || !profile.dbId) return;
+    if (!db || !currentUser || !profile || !profile.dbId) return true;
+
     // Is there already a book entry mirroring this diary entry?
-    const { data: existing } = await db.from('entries').select('id')
+    const { data: existing, error: findErr } = await db.from('entries').select('id')
       .eq('diary_entry_id', diaryId).maybeSingle();
+    if (findErr){
+      // Almost always means the diary_entry_id column doesn't exist yet.
+      showToast('Could not reach your book: ' + findErr.message);
+      console.error('[EarthLive] diary\u2192book link failed. Did you run SQL_DIARY_SHARING.sql?', findErr);
+      return false;
+    }
 
     if (visibility === 'on_book'){
       const row = {
@@ -5811,22 +5881,40 @@
         word: title || null,
         message: body || '',
         color: (profile && profile.ink) || null,
-        status: 'approved',      // it's your own entry — no approval needed
+        status: 'approved',      // it's your own entry \u2014 no approval needed
         diary_entry_id: diaryId,
         answers: []
       };
       if (existing){
-        await db.from('entries').update({ word: row.word, message: row.message }).eq('id', existing.id);
+        const { error } = await db.from('entries').update({ word: row.word, message: row.message }).eq('id', existing.id);
+        if (error){ showToast('Could not update it on your book: ' + error.message); return false; }
       } else {
         const { error } = await db.from('entries').insert(row);
-        if (error){ showToast('Saved, but could not add to book: ' + error.message); return; }
+        if (error){
+          showToast('Saved to your diary, but could not add to your book: ' + error.message);
+          console.error('[EarthLive] book mirror insert failed:', error);
+          return false;
+        }
       }
       await loadEntriesFromDb();
     } else if (existing){
-      // No longer shared on the book — remove the mirrored entry (the diary entry stays)
+      // No longer shared on the book \u2014 remove the mirrored entry (the diary entry stays)
       await db.from('entries').delete().eq('id', existing.id);
       await loadEntriesFromDb();
+      showToast('Removed from your book \u2014 it\u2019s still in your diary');
     }
+    return true;
+  }
+
+  async function removeDiaryFromBook(diaryId){
+    if (!confirm('Remove this from your book?\n\nThe entry stays in your diary \u2014 it just won\u2019t be on your book anymore.')) return;
+    const { error: e1 } = await db.from('entries').delete().eq('diary_entry_id', diaryId);
+    if (e1){ showToast('Could not remove: ' + e1.message); return; }
+    const { error: e2 } = await db.from('diary_entries').update({ visibility: 'private' }).eq('id', diaryId);
+    if (e2){ showToast('Could not update: ' + e2.message); return; }
+    await loadEntriesFromDb();
+    showToast('Removed from your book \u2014 it\u2019s private again');
+    renderDiary();
   }
 
   async function deleteDiaryEntry(){
