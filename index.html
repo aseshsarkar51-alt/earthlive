@@ -1033,6 +1033,66 @@
     border-radius:0 !important; border:1px solid var(--ink) !important;
   }
 
+  /* ---------- EVENT PAGE ---------- */
+  .ev-cover{position:relative; border-radius:16px 16px 0 0; overflow:hidden; background:linear-gradient(135deg, var(--moss) 0%, var(--camel) 60%, var(--blush) 100%); height:160px;}
+  .ev-caveat{position:absolute; bottom:14px; left:20px; font-family:'Caveat',cursive; font-size:29px; color:#fff; text-shadow:0 1px 8px rgba(46,42,34,.35);}
+  .ev-badge{position:absolute; top:14px; right:14px; background:rgba(255,255,255,.92); border-radius:999px; padding:6px 13px; font-size:12px; font-weight:700; color:var(--moss);}
+  .ev-head{background:var(--card); border:1px solid var(--line); border-top:none; border-radius:0 0 16px 16px; padding:22px; box-shadow:var(--shadow); margin-bottom:14px;}
+  .ev-sub{font-size:13.5px; color:var(--ink-soft); line-height:1.7;}
+  .ev-members-row{display:flex; align-items:center; margin-top:14px;}
+  .ev-avatar{width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; color:#fff; background:var(--camel);}
+  #evAvatars .ev-avatar{border:2.5px solid var(--card); margin-left:-9px;}
+  #evAvatars .ev-avatar:first-child{margin-left:0;}
+  .ev-lock-note{display:flex; gap:8px; background:var(--oat); border-left:3px solid var(--moss); border-radius:0 8px 8px 0; padding:10px 13px; font-size:12.5px; color:var(--ink-soft); margin-top:14px; line-height:1.6;}
+  .card-ev{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; box-shadow:var(--shadow); margin-bottom:14px;}
+  .ev-label{display:block; font-weight:600; font-size:13.5px; margin:0 0 10px; color:var(--ink);}
+  .ev-ta{position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--card); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); z-index:400; overflow:hidden; display:none;}
+  .ev-ta.open{display:block;}
+  .ev-ta-item{display:flex; align-items:center; gap:11px; padding:11px 14px; cursor:pointer; border-bottom:1px solid var(--line); font-size:14px;}
+  .ev-ta-item:last-child{border-bottom:none;}
+  .ev-ta-item:hover{background:var(--oat);}
+  .ev-ta-item .hl{background:#F3E3CE; border-radius:3px;}
+  .ev-ta-none{padding:13px; font-size:13px; color:var(--ink-soft);}
+  .ev-pill{background:var(--oat); border:1px solid var(--line); border-radius:999px; padding:6px 13px; font-size:12.5px; display:flex; align-items:center; gap:7px;}
+  .ev-pill .x{cursor:pointer; color:var(--camel); font-weight:700;}
+  .ev-req{display:flex; gap:12px; align-items:center; padding:12px 0; border-bottom:1px solid var(--line);}
+  .ev-req:last-child{border-bottom:none;}
+  .ev-pending-pill{background:#FBF6F0; border:1px solid var(--camel); color:var(--camel); font-size:10.5px; font-weight:700; padding:2px 9px; border-radius:999px;}
+  .ev-chip{font-size:12.5px; padding:7px 13px; border-radius:999px; border:1px solid var(--line); background:var(--page); cursor:pointer; font-family:inherit; color:var(--ink-soft);}
+  .ev-chip:hover{border-color:var(--ink);}
+  .ev-tagtray{display:none; gap:6px; margin-top:10px; flex-wrap:wrap;}
+  .ev-tagtray.open{display:flex;}
+  .ev-tagpick{font-size:12px; padding:5px 11px; border-radius:999px; border:1px solid var(--line); background:var(--oat); cursor:pointer; font-family:inherit;}
+  .ev-tagpick.on{background:var(--moss); color:#fff; border-color:var(--moss);}
+  .ev-post{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:12px; box-shadow:var(--shadow);}
+  .ev-post-meta{font-size:11.5px; color:var(--ink-soft);}
+  .ev-post-own{font-size:10px; background:var(--oat); border:1px solid var(--line); padding:2px 8px; border-radius:999px; color:var(--ink-soft); font-weight:700;}
+  .ev-post-body{font-size:14px; line-height:1.65; margin:11px 0 0; word-wrap:break-word;}
+  .ev-tagged{color:var(--moss); font-weight:700;}
+  .ev-photos{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:11px;}
+  .ev-photos img{width:100%; height:130px; object-fit:cover; border-radius:10px; cursor:pointer;}
+  .ev-foot{display:flex; gap:15px; margin-top:12px; font-size:12.5px; color:var(--ink-soft); align-items:center; flex-wrap:wrap;}
+  .ev-fbtn{background:none; border:none; cursor:pointer; font-family:inherit; font-size:12.5px; color:var(--ink-soft); padding:0;}
+  .ev-fbtn:hover{color:var(--ink);}
+  .ev-fbtn.edit{color:var(--camel); font-weight:700;}
+  .ev-comments{margin-top:12px; border-top:1px solid var(--line); padding-top:11px; display:none;}
+  .ev-comments.open{display:block;}
+  .ev-comment{display:flex; gap:9px; margin-bottom:9px; font-size:13px;}
+  .ev-comment .ev-avatar{width:26px; height:26px; font-size:10px; flex:none;}
+  .ev-comment-body{background:var(--oat); border-radius:9px; padding:7px 11px; flex:1; line-height:1.5;}
+  .ev-comment-body b{font-size:12.5px;}
+  .ev-comment-row{display:flex; gap:8px; margin-top:8px;}
+  .ev-comment-row input{flex:1; padding:8px 11px; border:1px solid var(--line); border-radius:9px; font-size:13px; font-family:inherit;}
+  .ev-about-card{border-left:3px solid var(--moss); background:var(--oat); border-radius:0 10px 10px 0; padding:13px 15px; margin-bottom:10px;}
+  .ev-about-line{font-size:12.5px; color:var(--ink-soft); margin-bottom:5px;}
+  .ev-about-line b{color:var(--ink);}
+  .ev-about-word{display:inline-block; font-family:'Caveat',cursive; font-size:20px; color:var(--moss); margin:2px 0 3px;}
+  .ev-about-msg{font-size:13.5px; line-height:1.6;}
+  .ev-event-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; box-shadow:var(--shadow);}
+  .ev-req-alert{display:flex; align-items:center; gap:8px; background:#FBF6F0; border:1px solid var(--camel); border-radius:9px; padding:8px 12px; font-size:12.5px; color:var(--camel); font-weight:700; margin-top:12px;}
+  .nav-evbadge{display:inline-flex; align-items:center; justify-content:center; min-width:17px; height:17px; border-radius:999px; background:var(--camel); color:#fff; font-size:10.5px; font-weight:700; padding:0 5px; margin-left:5px; vertical-align:1px;}
+  .ev-member-row{display:flex; gap:11px; align-items:center; padding:10px 0; border-bottom:1px solid var(--line);}
+  .ev-member-row:last-child{border-bottom:none;}
 </style>
 </head>
 <body>
@@ -1170,11 +1230,6 @@
 <section class="screen" id="screen-create">
   <div class="center-wrap">
     <div class="form-card">
-      <div style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid var(--line); padding-bottom: 12px;">
-        <button type="button" class="btn-small" id="createPersonalBtn" style="background: var(--page); border: 1px solid var(--ink);" onclick="switchCreateType('personal')">Personal page</button>
-        <button type="button" class="btn-small" id="createEventBtn" style="background: var(--page); border: 1px solid var(--line);" onclick="switchCreateType('event')">Event page</button>
-      </div>
-
       <div class="form-eyebrow" id="createEyebrow">Step one</div>
       <h2 id="createHeading">Make your page</h2>
       <form id="createForm" onsubmit="createProfile(event)">
@@ -1600,7 +1655,7 @@
           
           <div class="event-form-group">
             <label>Event name</label>
-            <input type="text" id="eventName" placeholder="e.g., College Reunion 2024" maxlength="100" required>
+            <input type="text" id="eventName" placeholder="e.g., College Reunion 2026" maxlength="100" required>
           </div>
 
           <div class="event-form-group">
@@ -1610,7 +1665,7 @@
 
           <div class="event-form-group">
             <label>Location</label>
-            <input type="text" id="eventLocation" placeholder="e.g., Mumbai, India" maxlength="100">
+            <input type="text" id="eventLocation" placeholder="e.g., Bengaluru, India" maxlength="100">
           </div>
 
           <div class="event-form-group">
@@ -1618,14 +1673,9 @@
             <textarea id="eventDescription" placeholder="Tell people what this event is about..." maxlength="500"></textarea>
           </div>
 
-          <div class="event-form-group">
-            <label>Invite people</label>
-            <input type="text" id="eventInviteeInput" placeholder="Enter names or emails, separated by commas">
-            <button type="button" class="btn-small" style="margin-top: 8px;" onclick="addInvitees()">Add invitees</button>
-            <div class="event-invitees" id="inviteesList"></div>
-          </div>
+          <p style="font-size:12.5px; color:var(--ink-soft); line-height:1.6; margin:0 0 6px;">You'll invite people on the next screen — with a link, a QR code, and search.</p>
 
-          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 24px;">Create event page →</button>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 18px;">Create event page →</button>
         </form>
 
         <button class="link-quiet" style="margin-top:16px;" onclick="showScreen('create')">Back to personal page</button>
@@ -1634,62 +1684,130 @@
   </div>
 </section>
 
-<!-- ============ EVENT INVITATIONS ============ -->
-<section class="screen" id="screen-event-invite">
+<!-- ============ EVENT PAGE (members) ============ -->
+<section class="screen" id="screen-event-page">
   <div class="wrap">
-    <div class="center-wrap" style="padding-top:40px;">
-      <div class="form-card" style="max-width:620px;">
-        <div class="form-eyebrow">Share & Invite</div>
-        <h2 id="eventInviteTitle"></h2>
-        <p style="color:var(--ink-soft); font-size:14px; margin:0 0 24px;">Share your event with friends and let them add memories</p>
-        
-        <!-- Event Details -->
-        <div style="background:var(--oat); border-radius:12px; padding:18px; margin-bottom:28px;">
-          <div id="eventDetailsDisplay" style="font-size:14px; line-height:1.8; color:var(--ink);">
-            <!-- Event details will populate here -->
-          </div>
-        </div>
+    <div style="max-width:660px; margin:0 auto; padding:24px 0 50px;">
 
-        <!-- Share URL Section -->
-        <div style="margin-bottom:28px;">
-          <div style="font-weight:600; margin-bottom:12px; font-size:14px;">Share your event link</div>
-          <div style="display:flex; gap:8px; align-items:center;">
-            <input type="text" id="eventInviteUrl" readonly style="flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:13px; background:var(--page);">
-            <button type="button" class="btn-small" onclick="copyEventInviteLink()" style="white-space:nowrap;">Copy link</button>
-          </div>
-          <p style="font-size:12px; color:var(--ink-soft); margin:8px 0 0;">Anyone with this link can view and add to your event</p>
+      <!-- 1. HEADER -->
+      <div class="ev-cover" id="evCover">
+        <div class="ev-badge">🔒 Members only</div>
+        <div class="ev-caveat" id="evCoverName"></div>
+      </div>
+      <div class="ev-head">
+        <h1 id="evName" style="margin:0 0 4px; font-size:23px;"></h1>
+        <div class="ev-sub" id="evMeta"></div>
+        <div class="ev-members-row">
+          <div id="evAvatars" style="display:flex; align-items:center;"></div>
+          <button class="link-quiet" id="evMembersCount" style="margin-left:12px; font-size:13px;" onclick="openMembersModal()"></button>
         </div>
+        <div class="ev-lock-note" id="evLockNote">🔒 <span><b>Only members can see this page.</b> Members can post, add photos, tag each other, and edit their own posts. The host approves every join.</span></div>
+      </div>
 
-        <!-- QR Code Section -->
-        <div style="margin-bottom:28px;">
-          <div style="font-weight:600; margin-bottom:12px; font-size:14px;">QR Code</div>
-          <div style="display:flex; justify-content:center; padding:20px; background:var(--page); border:1px solid var(--line); border-radius:8px;">
-            <div id="eventQRCode" style="width:160px; height:160px; display:flex; align-items:center; justify-content:center; background:white; border-radius:6px;">
-              <div style="font-size:12px; color:var(--ink-soft); text-align:center;">QR Code will appear here</div>
-            </div>
-          </div>
+      <!-- 2. INVITE (host only) -->
+      <div class="card-ev" id="evInviteCard" style="display:none;">
+        <label class="ev-label">Share your event link</label>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="evLink" readonly style="flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:13px; background:var(--page);">
+          <button type="button" class="btn-small" style="flex:none;" onclick="copyEventLink()">Copy</button>
         </div>
+        <div style="display:flex; gap:16px; align-items:center; margin-top:14px; flex-wrap:wrap;">
+          <img id="evQR" alt="Event QR code" style="width:120px; height:120px; border:1px solid var(--line); border-radius:10px;">
+          <div style="font-size:12.5px; color:var(--ink-soft); line-height:1.6;">Anyone can scan this to open the event.<br>They'll request to join → you approve below.</div>
+        </div>
+        <div style="border-top:1px solid var(--line); margin:18px 0 14px;"></div>
+        <label class="ev-label">Search &amp; invite <span class="hint" style="font-weight:400; color:var(--ink-soft); font-size:12px;">type a name — works like Find someone (public pages only)</span></label>
+        <div style="position:relative;">
+          <input type="text" id="evSearchInput" placeholder="Type a name, e.g. kal…" autocomplete="off" oninput="evSearchTyped()" style="width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px;">
+          <div class="ev-ta" id="evTaResults"></div>
+        </div>
+        <div id="evInvitedList" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;"></div>
+      </div>
 
-        <!-- Search & Add People Section -->
-        <div style="margin-bottom:28px;">
-          <div style="font-weight:600; margin-bottom:12px; font-size:14px;">Invite more people</div>
-          <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
-            <input type="text" id="eventSearchInput" placeholder="Search for friends or enter email..." style="flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:13px;">
-            <button type="button" class="btn-small" onclick="searchAndAddEventGuest()" style="white-space:nowrap;">Add guest</button>
-          </div>
-          <div id="eventGuestsList" style="display:flex; flex-wrap:wrap; gap:8px;">
-            <!-- Added guests will appear here -->
-          </div>
-        </div>
+      <!-- 3. APPROVAL QUEUE (host only) -->
+      <div class="card-ev" id="evQueueCard" style="display:none;">
+        <label class="ev-label">Waiting for your approval</label>
+        <div id="evQueue"></div>
+      </div>
 
-        <div style="display:flex; gap:10px; margin-top:28px;">
-          <button type="button" class="btn btn-primary" style="flex:1;" onclick="renderMyEvents(); showScreen('events')">Done</button>
-          <button type="button" class="link-quiet" onclick="showScreen('create-event')" style="padding:10px;">Edit event</button>
+      <!-- 4. WALL -->
+      <div class="card-ev" id="evComposerCard" style="display:none;">
+        <div style="display:flex; gap:12px;">
+          <div class="ev-avatar" id="evMyAvatar" style="flex:none;"></div>
+          <textarea id="evComposerText" placeholder="Share a memory with the group…" style="flex:1; min-height:64px; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px; resize:vertical;"></textarea>
         </div>
+        <div class="ev-tagtray" id="evTagTray"></div>
+        <div style="display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap;">
+          <input type="file" accept="image/*" id="evPhotoInput" multiple style="display:none;" onchange="evHandlePhotos(event)">
+          <button type="button" class="ev-chip" id="evPhotoBtn" onclick="document.getElementById('evPhotoInput').click()">📷 Add photos</button>
+          <button type="button" class="ev-chip" onclick="document.getElementById('evTagTray').classList.toggle('open')">@ Tag members</button>
+          <button type="button" class="btn-small" style="margin-left:auto;" onclick="evAddPost()">Post to the page</button>
+        </div>
+      </div>
+      <div id="evFeed"></div>
+
+      <!-- 5. WRITE ABOUT SOMEONE -->
+      <div class="card-ev" id="evAboutCard" style="display:none;">
+        <label class="ev-label" style="font-size:15px;">✍️ Write about someone</label>
+        <div class="field" style="margin-bottom:13px;">
+          <label style="font-size:13px;">Who are you writing about?</label>
+          <select id="evAboutWho" style="width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px; background:var(--page);"></select>
+        </div>
+        <div class="field" style="margin-bottom:13px;">
+          <label style="font-size:13px;">Describe them in one word</label>
+          <input type="text" id="evAboutWord" placeholder="e.g. Unstoppable" maxlength="24" style="width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px;">
+        </div>
+        <div class="field" style="margin-bottom:13px;">
+          <label style="font-size:13px;">Your message</label>
+          <textarea id="evAboutMsg" placeholder="Remember when…" style="width:100%; min-height:70px; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px; resize:vertical;"></textarea>
+        </div>
+        <div class="field" style="margin-bottom:13px;">
+          <label style="font-size:13px;">📷 Photos <span style="font-weight:400; color:var(--ink-soft); font-size:12px;">optional</span></label>
+          <input type="file" accept="image/*" id="evAboutPhotoInput" multiple style="display:none;" onchange="evHandleAboutPhotos(event)">
+          <button type="button" class="ev-chip" id="evAboutPhotoBtn" onclick="document.getElementById('evAboutPhotoInput').click()">Attach photos</button>
+        </div>
+        <div class="field" style="margin-bottom:15px; position:relative;">
+          <label style="font-size:13px;">Tag a city <span style="font-weight:400; color:var(--ink-soft); font-size:12px;">optional — pins on the event map</span></label>
+          <input type="text" id="evAboutCity" placeholder="Start typing a city…" autocomplete="off" oninput="evCityTyped()" style="width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px;">
+          <div class="ev-ta" id="evCitySuggestions"></div>
+        </div>
+        <button type="button" class="btn btn-primary" style="width:100%;" onclick="evSubmitAbout()">Add to the event page</button>
+      </div>
+      <div id="evAboutFeed"></div>
+
+      <!-- 6. MEMORY MAP -->
+      <div class="card-ev" id="evMapCard" style="display:none;">
+        <label class="ev-label">🗺️ Event memory map</label>
+        <div id="evMemMap" style="height:290px; border-radius:12px; border:1px solid var(--line); z-index:1;"></div>
+        <div style="font-size:12.5px; color:var(--ink-soft); margin-top:10px;" id="evMapCount"></div>
+      </div>
+
+      <!-- 7. NON-MEMBER LOCK -->
+      <div id="evLockScreen" style="display:none; background:var(--card); border:1.5px dashed var(--camel); border-radius:14px; padding:32px 22px; text-align:center; font-size:14px; line-height:1.8; margin-top:14px;">
+        <span style="font-size:26px;">🔒</span><br>
+        <b id="evLockName" style="font-size:17px;"></b><br>
+        <span id="evLockMeta" style="color:var(--ink-soft);"></span><br>
+        <span style="color:var(--ink-soft);">This is a private event page.</span><br><br>
+        <div id="evLockAction"></div>
+      </div>
+
+      <div style="display:flex; gap:14px; margin-top:26px; flex-wrap:wrap;">
+        <button class="link-quiet" onclick="renderMyEvents(); showScreen('events')">← My events</button>
+        <button class="link-quiet" id="evLeaveBtn" style="display:none; color:#A65A3C;" onclick="leaveEvent()">Leave this event</button>
+        <button class="link-quiet" id="evDeleteBtn" style="display:none; color:#A65A3C;" onclick="deleteCurrentEvent()">Delete event</button>
       </div>
     </div>
   </div>
 </section>
+
+<!-- ============ MEMBERS MODAL ============ -->
+<div class="modal-overlay" id="membersModalOverlay" onclick="if(event.target===this) closeMembersModal()">
+  <div class="entry-modal" role="dialog" aria-modal="true" aria-label="Event members" style="max-width:420px;">
+    <button class="modal-close" onclick="closeMembersModal()" aria-label="Close">✕</button>
+    <h3 style="margin:0 0 16px; font-size:18px;">Members</h3>
+    <div id="membersModalBody"></div>
+  </div>
+</div>
 
 <!-- ============ MY EVENTS ============ -->
 <section class="screen" id="screen-events">
@@ -1702,7 +1820,7 @@
         </div>
         <button class="btn-small" onclick="showScreen('create-event')">＋ Create an event</button>
       </div>
-      <p style="color:var(--ink-soft); font-size:13.5px; margin:6px 0 26px;">Events are saved in this browser. Tap "Share &amp; invite" any time to reopen the link, QR code and guest list.</p>
+      <p style="color:var(--ink-soft); font-size:13.5px; margin:6px 0 26px;" id="myEventsHint">Events you host and events you've joined.</p>
 
       <div id="myEventsList" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px;">
         <!-- Event cards render here -->
@@ -2474,6 +2592,12 @@
             openProfileByUsername(u);
             return;
           }
+          if (pendingEventSlug){
+            const s = pendingEventSlug;
+            pendingEventSlug = null;
+            openEventBySlug(s);
+            return;
+          }
           if (found){
             renderDashboard();
             showScreen('dashboard');
@@ -2493,6 +2617,12 @@
               const u = pendingLinkUsername;
               pendingLinkUsername = null;
               openProfileByUsername(u);
+              return;
+            }
+            if (pendingEventSlug){
+              const s = pendingEventSlug;
+              pendingEventSlug = null;
+              openEventBySlug(s);
               return;
             }
             if (found){
@@ -3298,6 +3428,18 @@
   }
 
   function handleIncomingLink(){
+    if (pendingEventSlug){
+      const s = pendingEventSlug;
+      if (!currentUser){
+        // Guests can view the event lock screen; sign-in required to request to join
+        pendingEventSlug = null;
+        openEventBySlug(s);
+        return true;
+      }
+      pendingEventSlug = null;
+      openEventBySlug(s);
+      return true;
+    }
     if (!pendingLinkUsername) return false;
     const u = pendingLinkUsername;
     if (!currentUser){
@@ -3714,6 +3856,8 @@
         const localAvatar = avatarDataUrl;
         const localCover = coverDataUrl;
         profile = dbRowToProfile(data);
+        // Ink fix: your newly chosen ink becomes your pen immediately (no reload needed)
+        if (profile.ink) selectedPen = profile.ink;
         // If a storage upload failed, keep showing the local copy rather than losing the photo.
         if (!profile.avatar && localAvatar) profile.avatar = localAvatar;
         if (!profile.cover && localCover) profile.cover = localCover;
@@ -3733,6 +3877,7 @@
         profile.username = username;
         profile.bio = bio || 'Just here to collect some words.';
         profile.ink = selectedInk;
+        selectedPen = selectedInk; // ink fix: reflect immediately when signing
         profile.avatar = avatarDataUrl;
         profile.cover = coverDataUrl;
         profile.visibility = createVisibilityPublic ? 'public' : 'private';
@@ -3847,7 +3992,7 @@
           <span class="pen-dot" style="background:${entry.color}"></span>
           <span class="entry-name">${escapeHtml(entry.name)}${entry.unlockAt ? ' <span style="font-size:11px; color:var(--camel);">\ud83d\udd13 unsealed today</span>' : ''}</span>
         </div>
-        <p class="entry-msg">"${linkify(entry.message)}"</p>
+        <p class="entry-msg" style="color:${entry.color || 'var(--ink)'}">"${linkify(entry.message)}"</p>
         <div class="pending-actions">
           <button class="btn-small" onclick="acceptEntry('${entry.id}')">Accept &amp; post</button>
           <button class="btn-small btn-decline" onclick="declineEntry('${entry.id}')">Decline</button>
@@ -3982,7 +4127,7 @@
             <span class="entry-name">${escapeHtml(entry.name)}${nickHtml}</span>
           </div>
           ${wordHtml}<br>
-          <p class="entry-msg">"${linkify(entry.message)}"</p>
+          <p class="entry-msg" style="color:${entry.color || 'var(--ink)'}">"${linkify(entry.message)}"</p>
           ${moreHint}
           ${entryActionsHtml(entry, i)}
           <div class="entry-date">${entry.date}</div>
@@ -4065,7 +4210,7 @@
         <span class="entry-name" style="font-size:16px;">${escapeHtml(entry.name)}${nickHtml}</span>
       </div>
       ${photosHtml}
-      <p class="entry-msg">"${linkify(entry.message)}"</p>
+      <p class="entry-msg" style="color:${entry.color || 'var(--ink)'}">"${linkify(entry.message)}"</p>
       ${answersHtml}
       ${entryActionsHtml(entry, index)}
       <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -4287,6 +4432,11 @@
       nameInput.readOnly = false;
       nameInput.style.opacity = '';
       nameInput.title = '';
+    }
+    // Your pen defaults to YOUR chosen ink from your own page
+    if (profile && profile.ink){
+      selectedPen = profile.ink;
+      buildSwatches('penSwatches', ()=>selectedPen, c=>selectedPen=c);
     }
     showScreen('fill');
   }
@@ -4696,9 +4846,10 @@
 
       const events = document.createElement('button');
       events.className = 'nav-link';
-      events.textContent = 'Events';
+      events.innerHTML = 'Events<span class="nav-evbadge" id="navEventsBadge" style="display:none;"></span>';
       events.onclick = ()=>{ renderMyEvents(); showScreen('events'); };
       navRight.appendChild(events);
+      refreshEventsBadge();
     } else {
       const signIn = document.createElement('button');
       signIn.className = 'nav-link';
@@ -4960,7 +5111,6 @@
   document.addEventListener('mouseout',function(e){if(e.target.matches('button,a,.btn-small,.panel,.details-card')){CR.style.width='32px';CR.style.height='32px';}});
 
   var mapTimelineData = { owner: null, visitor: null };
-  var eventInvitees = [];
 
   function updateTimeline(mapType) {
     const fromInput = document.getElementById(mapType+'YearFrom');
@@ -5016,87 +5166,108 @@
     });
   });
 
-  function switchCreateType(type) {
-    if (type === 'event') {
-      document.getElementById('createPersonalBtn').style.background = 'var(--page)';
-      document.getElementById('createPersonalBtn').style.border = '1px solid var(--line)';
-      document.getElementById('createEventBtn').style.background = 'var(--page)';
-      document.getElementById('createEventBtn').style.border = '1px solid var(--ink)';
-      showScreen('create-event');
-    } else {
-      document.getElementById('createPersonalBtn').style.background = 'var(--page)';
-      document.getElementById('createPersonalBtn').style.border = '1px solid var(--ink)';
-      document.getElementById('createEventBtn').style.background = 'var(--page)';
-      document.getElementById('createEventBtn').style.border = '1px solid var(--line)';
-      showScreen('create');
-    }
+/* ═══════════════ EVENTS SYSTEM (Supabase-powered, localStorage fallback) ═══════════════ */
+
+  /* ── Local fallback storage (used only when signed out) ── */
+  function getLocalEvents(){
+    try{ return JSON.parse(localStorage.getItem('earthlive_events') || '[]'); }catch(e){ return []; }
+  }
+  function saveLocalEvents(evts){
+    try{ localStorage.setItem('earthlive_events', JSON.stringify(evts)); }catch(e){}
   }
 
-  function addInvitees() {
-    const input = document.getElementById('eventInviteeInput');
-    const names = input.value.split(',').map(n => n.trim()).filter(n => n);
-    
-    names.forEach(name => {
-      if (!eventInvitees.includes(name)) {
-        eventInvitees.push(name);
+  function eventSlugify(name){
+    return name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40)
+      + '-' + Math.random().toString(36).slice(2,6);
+  }
+  function eventUrl(slug){ return 'https://earthlive.in/?e=' + slug; }
+
+  /* ── State for the currently open event ── */
+  let curEvent = null;        // event row
+  let curRole = 'none';       // 'owner' | 'member' | 'requested' | 'invited' | 'none'
+  let curGuests = [];         // all guest rows
+  let curEntries = [];        // event_entries rows
+  let evPostPhotos = [];      // pending photos for wall post
+  let evAboutPhotos = [];     // pending photos for about form
+  let evPendingTags = [];
+  let evSelectedCity = null;
+  let evInvitedNow = [];
+  let evMapInstance = null;
+  let pendingEventSlug = new URLSearchParams(location.search).get('e');
+
+  /* ── Create event ── */
+  async function createEventPage(e){
+    e.preventDefault();
+    const name = document.getElementById('eventName').value.trim();
+    const date = document.getElementById('eventDate').value || null;
+    const location_ = document.getElementById('eventLocation').value.trim();
+    const description = document.getElementById('eventDescription').value.trim();
+    if (!name){ showToast('Enter an event name'); return; }
+
+    // Signed-in path: save to Supabase
+    if (db && currentUser){
+      const slug = eventSlugify(name);
+      const { data, error } = await db.from('events').insert({
+        owner_user_id: currentUser.id,
+        name, event_date: date, location: location_, description, slug,
+        visibility: 'public'
+      }).select().single();
+      if (error){
+        showToast('Could not create event: ' + error.message);
+        console.error('[EarthLive] event insert failed:', error);
+        return;
       }
-    });
-    
-    input.value = '';
-    renderInviteesList();
+      document.getElementById('createEventForm').reset();
+      showToast('Event created ✓');
+      openEventPage(data);
+      return;
+    }
+
+    // Guest fallback: browser-only event (host features only, not shared)
+    const ev = {
+      id: 'local_' + Date.now(), local: true,
+      name, event_date: date, location: location_, description,
+      slug: eventSlugify(name), created_at: new Date().toISOString()
+    };
+    const evts = getLocalEvents(); evts.unshift(ev); saveLocalEvents(evts);
+    document.getElementById('createEventForm').reset();
+    showToast('Event saved in this browser — sign in to make it shareable');
+    openEventPage(ev);
   }
 
-  function removeInvitee(name) {
-    eventInvitees = eventInvitees.filter(n => n !== name);
-    renderInviteesList();
-  }
-
-  function renderInviteesList() {
-    const list = document.getElementById('inviteesList');
-    list.innerHTML = eventInvitees.map(name => `
-      <div class="event-invitee-tag">
-        ${escapeHtml(name)}
-        <button type="button" onclick="removeInvitee('${name}')">✕</button>
-      </div>
-    `).join('');
-  }
-
-  /* ─── EVENT STORAGE (browser localStorage) ─── */
-  function getMyEvents(){
-    try{
-      return JSON.parse(localStorage.getItem('earthlive_events') || '[]');
-    }catch(e){ return []; }
-  }
-  function saveMyEvents(events){
-    try{
-      localStorage.setItem('earthlive_events', JSON.stringify(events));
-    }catch(e){ console.error('[EarthLive] could not save events:', e); }
-  }
-  function saveEvent(eventData){
-    const events = getMyEvents();
-    const idx = events.findIndex(ev => ev.id === eventData.id);
-    if (idx >= 0) events[idx] = eventData;
-    else events.unshift(eventData);
-    saveMyEvents(events);
-  }
-  function deleteEvent(eventId){
-    if (!confirm('Delete this event? This cannot be undone.')) return;
-    saveMyEvents(getMyEvents().filter(ev => ev.id !== eventId));
-    renderMyEvents();
-    showToast('Event deleted');
-  }
-  function reopenEventInvite(eventId){
-    const ev = getMyEvents().find(e => e.id === eventId);
-    if (!ev){ showToast('Event not found'); return; }
-    window.currentEvent = ev;
-    window.eventGuests = (ev.guests || []).slice();
-    populateEventInviteScreen(ev);
-    showScreen('event-invite');
-  }
-  function renderMyEvents(){
+  /* ── My Events list ── */
+  async function renderMyEvents(){
     const list = document.getElementById('myEventsList');
-    const events = getMyEvents();
-    if (!events.length){
+    list.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Loading…</p>';
+    let owned = [], joined = [], pendingCounts = {};
+
+    if (db && currentUser){
+      const { data: own } = await db.from('events').select('*')
+        .eq('owner_user_id', currentUser.id).order('created_at', {ascending:false});
+      owned = own || [];
+      // events I'm a member of
+      const { data: mems } = await db.from('event_guests').select('event_id, status')
+        .eq('user_id', currentUser.id).eq('status','joined');
+      const memIds = (mems || []).map(m=>m.event_id).filter(id=>!owned.some(o=>o.id===id));
+      if (memIds.length){
+        const { data: mevts } = await db.from('events').select('*').in('id', memIds);
+        joined = mevts || [];
+      }
+      // pending request counts per owned event
+      if (owned.length){
+        const { data: reqs } = await db.from('event_guests').select('event_id')
+          .in('event_id', owned.map(o=>o.id)).eq('status','requested');
+        (reqs || []).forEach(r=>{ pendingCounts[r.event_id] = (pendingCounts[r.event_id]||0)+1; });
+      }
+    }
+    const locals = getLocalEvents();
+    const emojis = ['🎓','🎉','💍','✈️','🎂','🏡','🎤','📚'];
+    const all = [
+      ...owned.map(ev=>({ev, role:'Host', pend: pendingCounts[ev.id]||0})),
+      ...joined.map(ev=>({ev, role:'Member', pend:0})),
+      ...locals.map(ev=>({ev, role:'Host · this browser only', pend:0}))
+    ];
+    if (!all.length){
       list.innerHTML = `
         <div style="grid-column:1/-1; background:var(--card); border:1.5px dashed var(--oat-deep); border-radius:14px; padding:38px 20px; text-align:center; color:var(--ink-soft); font-size:14px;">
           <div style="font-size:26px; margin-bottom:8px;">📖</div>
@@ -5105,154 +5276,657 @@
         </div>`;
       return;
     }
-    const emojis = ['🎓','🎉','💍','✈️','🎂','🏡','🎤','📚'];
-    list.innerHTML = events.map((ev, i) => `
-      <div style="background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; box-shadow:var(--shadow);">
+    list.innerHTML = all.map((x,i)=>{
+      const ev = x.ev;
+      const dateTxt = ev.event_date ? new Date(ev.event_date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'TBD';
+      return `
+      <div class="ev-event-card">
         <div style="width:46px; height:46px; border-radius:10px; background:linear-gradient(135deg,var(--camel),var(--moss)); display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:12px;">${emojis[i % emojis.length]}</div>
         <h3 style="margin:0 0 4px; font-size:16.5px;">${escapeHtml(ev.name)}</h3>
         <div style="font-size:13px; color:var(--ink-soft); line-height:1.7;">
-          📅 ${escapeHtml(ev.date || 'TBD')} &nbsp;·&nbsp; 📍 ${escapeHtml(ev.location || 'TBD')}
-          ${ev.description ? '<br>"' + escapeHtml(ev.description.length > 80 ? ev.description.slice(0,80) + '…' : ev.description) + '"' : ''}
+          📅 ${escapeHtml(dateTxt)} · 📍 ${escapeHtml(ev.location || 'TBD')}<br>
+          <span style="font-size:11.5px;">${x.role}</span>
         </div>
-        <span style="display:inline-block; background:var(--oat); border:1px solid var(--line); border-radius:999px; padding:3px 10px; font-size:11.5px; color:var(--ink-soft); margin-top:10px;">👥 ${(ev.guests || []).length} guest${(ev.guests || []).length === 1 ? '' : 's'} invited</span>
+        ${x.pend ? `<div class="ev-req-alert">🔔 ${x.pend} request${x.pend>1?'s':''} waiting for your approval</div>` : ''}
         <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
-          <button class="btn-small" onclick="reopenEventInvite('${ev.id}')">Share &amp; invite</button>
-          <button class="btn-small" style="background:var(--page); color:#A65A3C; border:1px solid var(--line);" onclick="deleteEvent('${ev.id}')">Delete</button>
+          <button class="btn-small" onclick='openEventById(${JSON.stringify(ev.id)}, ${ev.local?'true':'false'})'>Open event page</button>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }
 
-  function createEventPage(e) {
-    e.preventDefault();
-    const name = document.getElementById('eventName').value.trim();
-    const date = document.getElementById('eventDate').value;
-    const location = document.getElementById('eventLocation').value.trim();
-    const description = document.getElementById('eventDescription').value.trim();
-    
-    if (!name) {
-      showToast('Enter an event name');
+  async function openEventById(id, isLocal){
+    if (isLocal){
+      const ev = getLocalEvents().find(e=>e.id===id);
+      if (ev) openEventPage(ev); else showToast('Event not found');
       return;
     }
-    
-    // Store event data
-    const eventId = 'event_' + Date.now();
-    const eventData = {
-      id: eventId,
-      name: name,
-      date: date || 'TBD',
-      location: location || 'TBD',
-      description: description || '',
-      url: 'https://earthlive.in/event/' + eventId,
-      guests: eventInvitees.slice(),
-      createdAt: new Date().toLocaleString()
-    };
-    
-    // Save to localStorage so it appears in My Events and survives refresh
-    saveEvent(eventData);
-    
-    // Keep in session for the invite screen
-    window.currentEvent = eventData;
-    window.eventGuests = eventData.guests.slice();
-    
-    // Reset form
-    eventInvitees = [];
-    document.getElementById('createEventForm').reset();
-    document.getElementById('inviteesList').innerHTML = '';
-    
-    // Show invite screen
-    populateEventInviteScreen(eventData);
-    showScreen('event-invite');
-    showToast('Event saved to My Events ✓');
+    const { data, error } = await db.from('events').select('*').eq('id', id).single();
+    if (error || !data){ showToast('Could not open event'); return; }
+    openEventPage(data);
   }
 
-  function populateEventInviteScreen(eventData) {
-    document.getElementById('eventInviteTitle').textContent = eventData.name;
-    
-    // Populate event details
-    const detailsHtml = `
-      <div><strong>Date:</strong> ${eventData.date}</div>
-      <div><strong>Location:</strong> ${eventData.location}</div>
-      ${eventData.description ? `<div><strong>About:</strong> ${escapeHtml(eventData.description)}</div>` : ''}
-    `;
-    document.getElementById('eventDetailsDisplay').innerHTML = detailsHtml;
-    
-    // Set invite URL
-    document.getElementById('eventInviteUrl').value = eventData.url;
-    
-    // Generate QR code (using a simple API)
-    generateQRCode(eventData.url);
-    
-    // Populate guests list if any from initial invites
-    populateEventGuestsList();
+  async function openEventBySlug(slug){
+    if (!db){ showToast('Connect to the internet to open event links'); return; }
+    const { data, error } = await db.from('events').select('*').eq('slug', slug).single();
+    if (error || !data){ showToast('Event not found — the link may be wrong'); showScreen('landing'); return; }
+    openEventPage(data);
   }
 
-  function generateQRCode(url) {
-    const qrContainer = document.getElementById('eventQRCode');
-    // Using QR server API
-    const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=' + encodeURIComponent(url);
-    qrContainer.innerHTML = `<img src="${qrUrl}" alt="Event QR Code" style="width:160px; height:160px; border-radius:6px;">`;
-  }
+  /* ── Open + render the event page ── */
+  async function openEventPage(ev){
+    curEvent = ev;
+    curGuests = []; curEntries = []; evInvitedNow = [];
+    evPostPhotos = []; evAboutPhotos = []; evPendingTags = []; evSelectedCity = null;
 
-  function copyEventInviteLink() {
-    const linkInput = document.getElementById('eventInviteUrl');
-    linkInput.select();
-    document.execCommand('copy');
-    showToast('Event link copied to clipboard! 📋');
-  }
-
-  function searchAndAddEventGuest() {
-    const searchInput = document.getElementById('eventSearchInput');
-    const guestName = searchInput.value.trim();
-    
-    if (!guestName) {
-      showToast('Enter a name or email');
-      return;
+    if (!ev.local && db){
+      const { data: g } = await db.from('event_guests').select('*').eq('event_id', ev.id);
+      curGuests = g || [];
     }
-    
-    if (window.eventGuests && window.eventGuests.includes(guestName)) {
-      showToast('This person is already invited');
-      return;
-    }
-    
-    if (!window.eventGuests) window.eventGuests = [];
-    window.eventGuests.push(guestName);
-    
-    // Persist guests to the saved event
-    if (window.currentEvent){
-      window.currentEvent.guests = window.eventGuests.slice();
-      saveEvent(window.currentEvent);
-    }
-    
-    searchInput.value = '';
-    populateEventGuestsList();
-    showToast(`Added ${guestName} to invitations`);
-  }
+    // Determine my role
+    if (ev.local){ curRole = 'owner'; }
+    else if (currentUser && ev.owner_user_id === currentUser.id){ curRole = 'owner'; }
+    else if (currentUser){
+      const mine = curGuests.find(g=>g.user_id === currentUser.id);
+      curRole = mine ? (mine.status === 'joined' ? 'member' : mine.status) : 'none';
+    } else { curRole = 'none'; }
 
-  function removeEventGuest(guestName) {
-    if (window.eventGuests) {
-      window.eventGuests = window.eventGuests.filter(g => g !== guestName);
-      if (window.currentEvent){
-        window.currentEvent.guests = window.eventGuests.slice();
-        saveEvent(window.currentEvent);
+    renderEventHeader();
+
+    const isIn = (curRole === 'owner' || curRole === 'member');
+    document.getElementById('evInviteCard').style.display = (curRole==='owner') ? 'block' : 'none';
+    document.getElementById('evQueueCard').style.display = 'none';
+    document.getElementById('evComposerCard').style.display = isIn ? 'block' : 'none';
+    document.getElementById('evAboutCard').style.display = isIn ? 'block' : 'none';
+    document.getElementById('evMapCard').style.display = 'none';
+    document.getElementById('evLockScreen').style.display = isIn ? 'none' : 'block';
+    document.getElementById('evFeed').innerHTML = '';
+    document.getElementById('evAboutFeed').innerHTML = '';
+    document.getElementById('evLeaveBtn').style.display = (curRole==='member') ? 'inline' : 'none';
+    document.getElementById('evDeleteBtn').style.display = (curRole==='owner') ? 'inline' : 'none';
+
+    if (curRole === 'owner'){
+      document.getElementById('evLink').value = eventUrl(ev.slug);
+      document.getElementById('evQR').src = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent(eventUrl(ev.slug));
+      renderEventQueue();
+      renderInvitedNow();
+      if (ev.local){
+        document.getElementById('evInviteCard').insertAdjacentHTML('afterbegin',
+          '<p style="font-size:12.5px; color:#A65A3C; margin:0 0 12px;">⚠️ This event lives only in this browser. Sign in and re-create it to make the link and QR actually work for others.</p>');
       }
-      populateEventGuestsList();
+    }
+    if (!isIn) renderEventLock();
+    if (isIn){
+      renderEvMyAvatar();
+      renderEvTagTray();
+      renderEvAboutWho();
+      await loadEventEntries();
+    }
+    showScreen('event-page');
+    window.scrollTo(0,0);
+  }
+
+  function eventMemberList(){
+    const members = curGuests.filter(g=>g.status==='joined').map(g=>g.guest_name || 'Member');
+    return members;
+  }
+
+  function renderEventHeader(){
+    const ev = curEvent;
+    document.getElementById('evCoverName').textContent = ev.name;
+    document.getElementById('evName').textContent = ev.name;
+    const dateTxt = ev.event_date ? new Date(ev.event_date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'TBD';
+    const hostName = (curRole==='owner') ? 'You' : 'the host';
+    document.getElementById('evMeta').innerHTML =
+      '📅 ' + escapeHtml(dateTxt) + ' · 📍 ' + escapeHtml(ev.location || 'TBD') + ' · Hosted by <b>' + hostName + '</b>' +
+      (ev.description ? '<br>"' + escapeHtml(ev.description) + '"' : '');
+    // avatars
+    const joined = curGuests.filter(g=>g.status==='joined');
+    const colors = ['var(--moss)','var(--navy-ink)','var(--blush)','#6B4C6B','#4E7065','#A65A3C'];
+    let html = '<div class="ev-avatar" title="Host">' + (curRole==='owner'?'You':'H') + '</div>';
+    joined.slice(0,4).forEach((g,i)=>{
+      const initials = (g.guest_name||'M').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+      html += '<div class="ev-avatar" style="background:' + colors[i%colors.length] + ';" title="' + escapeHtml(g.guest_name||'') + '">' + escapeHtml(initials) + '</div>';
+    });
+    if (joined.length > 4) html += '<div class="ev-avatar" style="background:var(--oat-deep); color:var(--ink);">+' + (joined.length-4) + '</div>';
+    document.getElementById('evAvatars').innerHTML = html;
+    document.getElementById('evMembersCount').textContent = (joined.length + 1) + ' member' + (joined.length ? 's' : '') + ' →';
+  }
+
+  function renderEventLock(){
+    document.getElementById('evLockName').textContent = curEvent.name;
+    const joined = curGuests.filter(g=>g.status==='joined').length + 1;
+    document.getElementById('evLockMeta').textContent = joined + ' member' + (joined>1?'s':'');
+    const action = document.getElementById('evLockAction');
+    if (!currentUser){
+      action.innerHTML = '<button class="btn btn-primary" onclick="showScreen(\'auth\')">Sign in to request to join</button>';
+    } else if (curRole === 'requested'){
+      action.innerHTML = '<span style="color:var(--camel); font-weight:700;">⏳ Your request is waiting for the host\'s approval</span>';
+    } else if (curRole === 'invited'){
+      action.innerHTML = '<button class="btn btn-primary" onclick="acceptEventInvite()">You\'re invited — Join this event</button>';
+    } else if (curRole === 'declined'){
+      action.innerHTML = '<span style="color:var(--ink-soft);">The host declined your request.</span>';
+    } else {
+      action.innerHTML = '<button class="btn btn-primary" onclick="requestToJoinEvent()">Request to join</button>';
     }
   }
 
-  function populateEventGuestsList() {
-    const guestsList = document.getElementById('eventGuestsList');
-    if (!window.eventGuests || window.eventGuests.length === 0) {
-      guestsList.innerHTML = '<span style="color:var(--ink-soft); font-size:13px;">No guests added yet. Guests can self-join using the link above.</span>';
+  async function requestToJoinEvent(){
+    if (!db || !currentUser || !curEvent) return;
+    const myName = (profile && profile.name) || (currentUser.email || 'Someone').split('@')[0];
+    const { error } = await db.from('event_guests').insert({
+      event_id: curEvent.id, user_id: currentUser.id,
+      guest_name: myName, status: 'requested'
+    });
+    if (error){ showToast('Could not send request: ' + error.message); return; }
+    showToast('Request sent — waiting for the host\'s approval');
+    openEventPage(curEvent);
+  }
+
+  async function acceptEventInvite(){
+    if (!db || !currentUser || !curEvent) return;
+    const mine = curGuests.find(g=>g.user_id === currentUser.id && g.status === 'invited');
+    if (!mine) return;
+    const { error } = await db.from('event_guests').update({ status:'joined' }).eq('id', mine.id);
+    if (error){ showToast('Could not join: ' + error.message); return; }
+    showToast('Welcome to ' + curEvent.name + ' 🎉');
+    openEventPage(curEvent);
+  }
+
+  /* ── Approval queue (host) ── */
+  function renderEventQueue(){
+    const reqs = curGuests.filter(g=>g.status==='requested');
+    const card = document.getElementById('evQueueCard');
+    if (!reqs.length){ card.style.display='none'; return; }
+    card.style.display = 'block';
+    document.getElementById('evQueue').innerHTML = reqs.map(g=>{
+      const initials = (g.guest_name||'?').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+      return `
+      <div class="ev-req">
+        <div class="ev-avatar" style="background:var(--navy-ink);">${escapeHtml(initials)}</div>
+        <div style="flex:1; font-size:13.5px;"><b>${escapeHtml(g.guest_name||'Someone')}</b> <span class="ev-pending-pill">PENDING</span>
+          <div style="font-size:11.5px; color:var(--ink-soft);">Requested ${g.created_at ? new Date(g.created_at).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}) : ''}</div>
+        </div>
+        <button class="btn-small" style="background:var(--moss); color:#fff; border-color:var(--moss);" onclick="resolveEventRequest('${g.id}', true)">Approve</button>
+        <button class="btn-small" style="color:#A65A3C;" onclick="resolveEventRequest('${g.id}', false)">Decline</button>
+      </div>`;
+    }).join('');
+  }
+
+  async function resolveEventRequest(guestId, approved){
+    if (!db) return;
+    const { error } = approved
+      ? await db.from('event_guests').update({ status:'joined' }).eq('id', guestId)
+      : await db.from('event_guests').update({ status:'declined' }).eq('id', guestId);
+    if (error){ showToast('Could not update: ' + error.message); return; }
+    showToast(approved ? 'Approved — they\'re a member now 🎉' : 'Declined');
+    const { data: g } = await db.from('event_guests').select('*').eq('event_id', curEvent.id);
+    curGuests = g || [];
+    renderEventHeader(); renderEventQueue(); renderEvTagTray(); renderEvAboutWho();
+    refreshEventsBadge();
+  }
+
+  /* ── Invite: typeahead search of public profiles ── */
+  let evSearchTimer = null;
+  function evSearchTyped(){
+    clearTimeout(evSearchTimer);
+    const q = document.getElementById('evSearchInput').value.trim();
+    if (q.length < 2){
+      const box = document.getElementById('evTaResults');
+      box.classList.remove('open'); box.innerHTML=''; return;
+    }
+    evSearchTimer = setTimeout(evRunInviteSearch, 300);
+  }
+  async function evRunInviteSearch(){
+    const q = document.getElementById('evSearchInput').value.trim();
+    const box = document.getElementById('evTaResults');
+    if (!q || !db){ box.classList.remove('open'); return; }
+    const safe = q.replace(/^@/,'').replace(/[%,()]/g,'').trim();
+    const { data, error } = await db.from('profiles').select('id, user_id, name, username, ink, avatar_url')
+      .eq('visibility','public')
+      .or(`name.ilike.%${safe}%,username.ilike.%${safe}%`)
+      .limit(8);
+    if (error){
+      box.innerHTML = '<div class="ev-ta-none">Search failed: ' + escapeHtml(error.message) + '</div>';
+      box.classList.add('open'); return;
+    }
+    const rows = (data||[]).filter(r=>!(currentUser && r.user_id === currentUser.id));
+    if (!rows.length){
+      box.innerHTML = '<div class="ev-ta-none">No public pages found for "' + escapeHtml(q) + '". Their page may be private.</div>';
+      box.classList.add('open'); return;
+    }
+    const re = new RegExp('(' + safe.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')','i');
+    box.innerHTML = rows.map(r=>{
+      const already = curGuests.some(g=>g.user_id === r.user_id) || evInvitedNow.some(u=>u.user_id === r.user_id);
+      const initials = r.name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+      const hlName = escapeHtml(r.name).replace(re,'<span class="hl">$1</span>');
+      return `
+      <div class="ev-ta-item" ${already?'':`onclick='evInviteProfile(${JSON.stringify(r.user_id)}, ${JSON.stringify(r.name)})'`}>
+        <div class="ev-avatar" style="width:32px; height:32px; font-size:11px; background:${r.ink || 'var(--moss)'};">${escapeHtml(initials)}</div>
+        <div style="flex:1;"><b>${hlName}</b>${r.username?'<div style="font-size:12px; color:var(--ink-soft);">@'+escapeHtml(r.username)+'</div>':''}</div>
+        ${already ? '<span style="font-size:12px; color:var(--moss); font-weight:700;">Invited ✓</span>' : '<span class="btn-small" style="pointer-events:none;">Invite</span>'}
+      </div>`;
+    }).join('');
+    box.classList.add('open');
+  }
+  async function evInviteProfile(userId, name){
+    if (!db || !curEvent) return;
+    const { error } = await db.from('event_guests').insert({
+      event_id: curEvent.id, user_id: userId, guest_name: name, status: 'invited'
+    });
+    if (error){ showToast('Could not invite: ' + error.message); return; }
+    evInvitedNow.push({user_id:userId, name});
+    curGuests.push({event_id:curEvent.id, user_id:userId, guest_name:name, status:'invited'});
+    document.getElementById('evSearchInput').value = '';
+    document.getElementById('evTaResults').classList.remove('open');
+    renderInvitedNow();
+    showToast('Invited ' + name + ' ✉️ — they can join from the event link');
+  }
+  function renderInvitedNow(){
+    const invitedGuests = curGuests.filter(g=>g.status==='invited');
+    document.getElementById('evInvitedList').innerHTML = invitedGuests.map(g=>
+      '<div class="ev-pill">✉️ ' + escapeHtml(g.guest_name||'') + ' <span style="font-size:11px; color:var(--ink-soft);">invited</span></div>'
+    ).join('');
+  }
+  document.addEventListener('click', function(e){
+    const ta = document.getElementById('evTaResults');
+    if (ta && !e.target.closest('#evSearchInput') && !e.target.closest('#evTaResults')) ta.classList.remove('open');
+    const cs = document.getElementById('evCitySuggestions');
+    if (cs && !e.target.closest('#evAboutCity') && !e.target.closest('#evCitySuggestions')) cs.classList.remove('open');
+  });
+
+  /* ── Members modal ── */
+  function openMembersModal(){
+    const body = document.getElementById('membersModalBody');
+    const joined = curGuests.filter(g=>g.status==='joined');
+    let html = '<div class="ev-member-row"><div class="ev-avatar">H</div><div style="flex:1; font-size:14px;"><b>' + (curRole==='owner'?'You':'Host') + '</b> <span style="font-size:11.5px; color:var(--camel); font-weight:700;">HOST</span></div></div>';
+    html += joined.map(g=>{
+      const initials = (g.guest_name||'M').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+      const isMe = currentUser && g.user_id === currentUser.id;
+      return '<div class="ev-member-row"><div class="ev-avatar" style="background:var(--moss);">' + escapeHtml(initials) + '</div>' +
+        '<div style="flex:1; font-size:14px;"><b>' + escapeHtml(g.guest_name||'Member') + (isMe?' (you)':'') + '</b></div>' +
+        (curRole==='owner' ? '<button class="btn-small" style="color:#A65A3C;" onclick="removeEventMember(\'' + g.id + '\')">Remove</button>' : '') +
+        '</div>';
+    }).join('');
+    if (!joined.length) html += '<p style="font-size:13px; color:var(--ink-soft); margin:10px 0 0;">No members yet — share your link or QR.</p>';
+    body.innerHTML = html;
+    document.getElementById('membersModalOverlay').classList.add('open');
+  }
+  function closeMembersModal(){ document.getElementById('membersModalOverlay').classList.remove('open'); }
+  async function removeEventMember(guestId){
+    if (!db || !confirm('Remove this member from the event?')) return;
+    const { error } = await db.from('event_guests').delete().eq('id', guestId);
+    if (error){ showToast('Could not remove: ' + error.message); return; }
+    curGuests = curGuests.filter(g=>g.id !== guestId);
+    renderEventHeader(); openMembersModal(); renderEvTagTray(); renderEvAboutWho();
+    showToast('Member removed');
+  }
+  async function leaveEvent(){
+    if (!db || !currentUser || !confirm('Leave this event? You\'ll need to request again to rejoin.')) return;
+    const mine = curGuests.find(g=>g.user_id === currentUser.id);
+    if (!mine) return;
+    const { error } = await db.from('event_guests').delete().eq('id', mine.id);
+    if (error){ showToast('Could not leave: ' + error.message); return; }
+    showToast('You left ' + curEvent.name);
+    renderMyEvents(); showScreen('events');
+  }
+  async function deleteCurrentEvent(){
+    if (!curEvent || !confirm('Delete this event and everything on it? This cannot be undone.')) return;
+    if (curEvent.local){
+      saveLocalEvents(getLocalEvents().filter(e=>e.id!==curEvent.id));
+    } else if (db){
+      const { error } = await db.from('events').delete().eq('id', curEvent.id);
+      if (error){ showToast('Could not delete: ' + error.message); return; }
+    }
+    showToast('Event deleted');
+    renderMyEvents(); showScreen('events');
+  }
+
+  /* ── Wall + about entries ── */
+  function myEventName(){
+    if (curRole==='owner') return (profile && profile.name) || 'Host';
+    const mine = currentUser ? curGuests.find(g=>g.user_id===currentUser.id) : null;
+    return (mine && mine.guest_name) || (profile && profile.name) || 'Member';
+  }
+  function myEventInk(){ return (profile && profile.ink) || '#57614A'; }
+
+  function renderEvMyAvatar(){
+    const el = document.getElementById('evMyAvatar');
+    const n = myEventName();
+    el.textContent = n.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+    el.style.background = myEventInk();
+  }
+  function renderEvTagTray(){
+    const names = eventMemberList();
+    document.getElementById('evTagTray').innerHTML = names.length
+      ? names.map(n=>'<button type="button" class="ev-tagpick" onclick="evTogglePick(this)">@' + escapeHtml(n) + '</button>').join('')
+      : '<span style="font-size:12px; color:var(--ink-soft);">No members to tag yet.</span>';
+  }
+  function evTogglePick(btn){
+    btn.classList.toggle('on');
+    const n = btn.textContent;
+    if (btn.classList.contains('on')) evPendingTags.push(n);
+    else evPendingTags = evPendingTags.filter(t=>t!==n);
+  }
+  function renderEvAboutWho(){
+    const names = eventMemberList();
+    const hostLabel = curRole==='owner' ? [] : ['The host'];
+    const all = [...hostLabel, ...names.filter(n=>n!==myEventName())];
+    document.getElementById('evAboutWho').innerHTML =
+      '<option value="">— choose a member —</option>' +
+      all.map(n=>'<option>' + escapeHtml(n) + '</option>').join('');
+  }
+  function evHandlePhotos(e){
+    const files = Array.from(e.target.files || []).slice(0,4);
+    evPostPhotos = [];
+    let done = 0;
+    if (!files.length) return;
+    files.forEach(f=>{
+      const r = new FileReader();
+      r.onload = ()=>{ evPostPhotos.push(r.result); done++; if (done===files.length) document.getElementById('evPhotoBtn').textContent = '📷 ' + files.length + ' photo' + (files.length>1?'s':'') + ' ✓'; };
+      r.readAsDataURL(f);
+    });
+  }
+  function evHandleAboutPhotos(e){
+    const files = Array.from(e.target.files || []).slice(0,4);
+    evAboutPhotos = [];
+    let done = 0;
+    if (!files.length) return;
+    files.forEach(f=>{
+      const r = new FileReader();
+      r.onload = ()=>{ evAboutPhotos.push(r.result); done++; if (done===files.length) document.getElementById('evAboutPhotoBtn').textContent = files.length + ' photo' + (files.length>1?'s':'') + ' attached ✓'; };
+      r.readAsDataURL(f);
+    });
+  }
+
+  async function evAddPost(){
+    const txt = document.getElementById('evComposerText').value.trim();
+    if (!txt){ showToast('Write something first'); return; }
+    if (curEvent.local || !db || !currentUser){ showToast('Sign in to post on shared events'); return; }
+    showToast('Posting…');
+    const photoUrls = [];
+    for (let i=0; i<evPostPhotos.length; i++){
+      const url = await uploadImage(evPostPhotos[i], 'event-photos', 'ev_' + curEvent.id + '_' + Date.now() + '_' + i);
+      if (url) photoUrls.push(url);
+    }
+    const { error } = await db.from('event_entries').insert({
+      event_id: curEvent.id, author_user_id: currentUser.id,
+      author_name: myEventName(), message: txt,
+      photos: photoUrls, entry_type: 'post',
+      tagged: evPendingTags, color: myEventInk(), approved: true
+    });
+    if (error){ showToast('Could not post: ' + error.message); console.error(error); return; }
+    document.getElementById('evComposerText').value = '';
+    evPostPhotos = []; evPendingTags = [];
+    document.getElementById('evPhotoBtn').textContent = '📷 Add photos';
+    document.getElementById('evPhotoInput').value = '';
+    document.getElementById('evTagTray').classList.remove('open');
+    document.querySelectorAll('.ev-tagpick').forEach(b=>b.classList.remove('on'));
+    await loadEventEntries();
+    showToast('Posted to the page ✓');
+  }
+
+  let evCityTimer = null;
+  function evCityTyped(){
+    clearTimeout(evCityTimer);
+    evSelectedCity = null;
+    evCityTimer = setTimeout(()=>{
+      const q = document.getElementById('evAboutCity').value.trim().toLowerCase();
+      const box = document.getElementById('evCitySuggestions');
+      if (q.length < 2){ box.classList.remove('open'); return; }
+      const starts = CITIES.filter(c=>c.name.toLowerCase().startsWith(q));
+      const contains = CITIES.filter(c=>!c.name.toLowerCase().startsWith(q) && c.name.toLowerCase().includes(q));
+      const hits = [...starts, ...contains].slice(0,6);
+      if (!hits.length){ box.classList.remove('open'); return; }
+      box.innerHTML = hits.map(c=>{
+        const idx = CITIES.indexOf(c);
+        return '<div class="ev-ta-item" onclick="evPickCity(' + idx + ')">📍 ' + escapeHtml(c.name) + '</div>';
+      }).join('');
+      box.classList.add('open');
+    }, 200);
+  }
+  function evPickCity(idx){
+    evSelectedCity = CITIES[idx];
+    document.getElementById('evAboutCity').value = evSelectedCity.name;
+    document.getElementById('evCitySuggestions').classList.remove('open');
+  }
+
+  async function evSubmitAbout(){
+    const who = document.getElementById('evAboutWho').value;
+    const word = document.getElementById('evAboutWord').value.trim();
+    const msg = document.getElementById('evAboutMsg').value.trim();
+    const cityText = document.getElementById('evAboutCity').value.trim();
+    if (!who){ showToast('Pick who you\'re writing about'); return; }
+    if (!msg){ showToast('Write a message'); return; }
+    if (curEvent.local || !db || !currentUser){ showToast('Sign in to post on shared events'); return; }
+    showToast('Adding…');
+    const cityObj = evSelectedCity || (cityText ? CITIES.find(c=>c.name.toLowerCase()===cityText.toLowerCase()) : null);
+    const photoUrls = [];
+    for (let i=0; i<evAboutPhotos.length; i++){
+      const url = await uploadImage(evAboutPhotos[i], 'event-photos', 'ev_' + curEvent.id + '_' + Date.now() + '_a' + i);
+      if (url) photoUrls.push(url);
+    }
+    const { error } = await db.from('event_entries').insert({
+      event_id: curEvent.id, author_user_id: currentUser.id,
+      author_name: myEventName(), message: msg,
+      entry_type: 'about', subject_member: who, one_word: word || null,
+      photos: photoUrls,
+      city: cityObj ? cityObj.name : (cityText || null),
+      lat: cityObj ? cityObj.lat : null, lng: cityObj ? cityObj.lng : null,
+      color: myEventInk(), approved: true
+    });
+    if (error){ showToast('Could not add: ' + error.message); console.error(error); return; }
+    document.getElementById('evAboutWho').value=''; document.getElementById('evAboutWord').value='';
+    document.getElementById('evAboutMsg').value=''; document.getElementById('evAboutCity').value='';
+    evAboutPhotos = []; evSelectedCity = null;
+    document.getElementById('evAboutPhotoBtn').textContent = 'Attach photos';
+    document.getElementById('evAboutPhotoInput').value = '';
+    await loadEventEntries();
+    showToast('Added to the event page ✓');
+  }
+
+  /* ── Load + render entries ── */
+  async function loadEventEntries(){
+    if (curEvent.local || !db){ renderEventFeed(); renderEventAboutFeed(); renderEventMap(); return; }
+    const { data, error } = await db.from('event_entries').select('*')
+      .eq('event_id', curEvent.id).order('created_at', {ascending:false});
+    if (error){ console.error('[EarthLive] event entries load failed:', error); }
+    curEntries = data || [];
+    // comment counts
+    let counts = {};
+    if (curEntries.length){
+      const { data: cms } = await db.from('event_comments').select('entry_id').eq('event_id', curEvent.id);
+      (cms||[]).forEach(c=>{ counts[c.entry_id] = (counts[c.entry_id]||0)+1; });
+    }
+    curEntries.forEach(e=>{ e._commentCount = counts[e.id] || 0; });
+    renderEventFeed(); renderEventAboutFeed(); renderEventMap();
+  }
+
+  function evTimeAgo(ts){
+    if (!ts) return '';
+    const d = new Date(ts), now = new Date(), diff = (now - d)/1000;
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return Math.floor(diff/60) + ' min ago';
+    if (diff < 86400) return Math.floor(diff/3600) + ' hr ago';
+    return d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+  }
+  function evRenderTags(tags){
+    if (!tags || !tags.length) return '';
+    return ' ' + tags.map(t=>'<span class="ev-tagged">' + escapeHtml(t) + '</span>').join(' ');
+  }
+  function evRenderPhotos(photos){
+    if (!photos || !photos.length) return '';
+    return '<div class="ev-photos">' + photos.map(u=>'<img src="' + u + '" alt="" loading="lazy" onclick="window.open(this.src)">').join('') + '</div>';
+  }
+
+  function renderEventFeed(){
+    const posts = curEntries.filter(e=>(e.entry_type||'post')==='post');
+    const feed = document.getElementById('evFeed');
+    if (!posts.length){
+      feed.innerHTML = '<div style="background:var(--card); border:1.5px dashed var(--oat-deep); border-radius:14px; padding:26px 18px; text-align:center; color:var(--ink-soft); font-size:13.5px; margin-bottom:14px;">No posts yet — be the first to share a memory ✍️</div>';
       return;
     }
-    
-    guestsList.innerHTML = window.eventGuests.map(guest => `
-      <div style="background:var(--oat); color:var(--ink); padding:6px 12px; border-radius:999px; font-size:13px; display:flex; align-items:center; gap:6px;">
-        ${escapeHtml(guest)}
-        <button type="button" onclick="removeEventGuest('${guest.replace(/'/g, "\\'")}'); populateEventGuestsList();" style="background:none; border:none; color:var(--camel); cursor:pointer; font-size:14px; padding:0;">✕</button>
-      </div>
-    `).join('');
+    feed.innerHTML = posts.map(p=>{
+      const own = currentUser && p.author_user_id === currentUser.id;
+      const canDelete = own || curRole==='owner';
+      const initials = (p.author_name||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+      return `
+      <div class="ev-post" id="evp-${p.id}">
+        <div style="display:flex; gap:11px; align-items:center;">
+          <div class="ev-avatar" style="background:${p.color || 'var(--camel)'};">${escapeHtml(initials)}</div>
+          <div style="flex:1;"><b style="font-size:14px;">${escapeHtml(p.author_name||'Member')}</b> ${own?'<span class="ev-post-own">YOUR POST</span>':''}
+            <div class="ev-post-meta">${evTimeAgo(p.created_at)}${p.edited?' · edited':''}</div>
+          </div>
+        </div>
+        <div class="ev-post-body" id="evpb-${p.id}" style="color:${p.color || 'var(--ink)'};">${escapeHtml(p.message)}${evRenderTags(p.tagged)}</div>
+        ${evRenderPhotos(p.photos)}
+        <div class="ev-foot">
+          <button class="ev-fbtn" onclick="evToggleComments('${p.id}')">💬 ${p._commentCount||0} comment${(p._commentCount||0)===1?'':'s'}</button>
+          ${own ? `<button class="ev-fbtn edit" onclick="evEditPost('${p.id}')">✎ Edit</button>` : ''}
+          ${canDelete ? `<button class="ev-fbtn" style="color:#A65A3C;" onclick="evDeleteEntry('${p.id}')">Delete</button>` : ''}
+        </div>
+        <div class="ev-comments" id="evc-${p.id}">
+          <div id="evcl-${p.id}"></div>
+          <div class="ev-comment-row">
+            <input type="text" id="evci-${p.id}" placeholder="Write a comment…" onkeydown="if(event.key==='Enter'){evAddComment('${p.id}');}">
+            <button class="btn-small" onclick="evAddComment('${p.id}')">Send</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
   }
+
+  function renderEventAboutFeed(){
+    const abouts = curEntries.filter(e=>e.entry_type==='about');
+    const colors = ['var(--moss)','var(--camel)','var(--navy-ink)','#6B4C6B'];
+    document.getElementById('evAboutFeed').innerHTML = abouts.map((a,i)=>{
+      const own = currentUser && a.author_user_id === currentUser.id;
+      const canDelete = own || curRole==='owner';
+      return `
+      <div class="ev-about-card" style="border-left-color:${a.color || colors[i%colors.length]};">
+        <div class="ev-about-line"><b>${escapeHtml(a.author_name||'Member')}</b> wrote about <b>${escapeHtml(a.subject_member||'')}</b> · ${evTimeAgo(a.created_at)}
+          ${canDelete ? ` · <button class="ev-fbtn" style="color:#A65A3C; font-size:11.5px;" onclick="evDeleteEntry('${a.id}')">delete</button>` : ''}
+        </div>
+        ${a.one_word ? '<span class="ev-about-word" style="color:' + (a.color||'var(--moss)') + ';">"' + escapeHtml(a.one_word) + '"</span>' : ''}
+        <div class="ev-about-msg">${escapeHtml(a.message)}</div>
+        ${evRenderPhotos(a.photos)}
+        ${a.city ? '<div style="font-size:11.5px; color:var(--ink-soft); margin-top:7px;">📍 ' + escapeHtml(a.city) + (a.lat?' — pinned on the map ↓':'') + '</div>' : ''}
+      </div>`;
+    }).join('');
+  }
+
+  function evEditPost(id){
+    const p = curEntries.find(e=>e.id===id);
+    if (!p) return;
+    const body = document.getElementById('evpb-' + id);
+    body.innerHTML = '<textarea id="evedit-' + id + '" style="width:100%; min-height:64px; border:1.5px solid var(--camel); border-radius:10px; padding:10px; font-family:inherit; font-size:14px; margin-top:4px;">' + escapeHtml(p.message) + '</textarea>' +
+      '<div style="display:flex; gap:8px; margin-top:8px;">' +
+      '<button class="btn-small" onclick="evSaveEdit(\'' + id + '\')">Save changes</button>' +
+      '<button class="ev-chip" onclick="renderEventFeed()">Cancel</button></div>';
+  }
+  async function evSaveEdit(id){
+    const val = document.getElementById('evedit-' + id).value.trim();
+    if (!val){ showToast('Post cannot be empty'); return; }
+    const { error } = await db.from('event_entries').update({ message: val, edited: true }).eq('id', id);
+    if (error){ showToast('Could not save: ' + error.message); return; }
+    await loadEventEntries();
+    showToast('Post updated ✓');
+  }
+  async function evDeleteEntry(id){
+    if (!confirm('Delete this post?')) return;
+    const { error } = await db.from('event_entries').delete().eq('id', id);
+    if (error){ showToast('Could not delete: ' + error.message); return; }
+    await loadEventEntries();
+    showToast('Deleted');
+  }
+
+  /* ── Comments ── */
+  async function evToggleComments(entryId){
+    const box = document.getElementById('evc-' + entryId);
+    if (box.classList.contains('open')){ box.classList.remove('open'); return; }
+    box.classList.add('open');
+    const list = document.getElementById('evcl-' + entryId);
+    list.innerHTML = '<p style="font-size:12px; color:var(--ink-soft);">Loading…</p>';
+    const { data, error } = await db.from('event_comments').select('*')
+      .eq('entry_id', entryId).order('created_at', {ascending:true});
+    if (error){ list.innerHTML = '<p style="font-size:12px; color:#A65A3C;">Could not load comments</p>'; return; }
+    list.innerHTML = (data||[]).map(c=>{
+      const initials = (c.author_name||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+      return '<div class="ev-comment"><div class="ev-avatar" style="background:var(--oat-deep); color:var(--ink);">' + escapeHtml(initials) + '</div>' +
+        '<div class="ev-comment-body"><b>' + escapeHtml(c.author_name||'') + '</b> ' + escapeHtml(c.message) + ' <span style="font-size:10.5px; color:var(--ink-soft);">· ' + evTimeAgo(c.created_at) + '</span></div></div>';
+    }).join('') || '<p style="font-size:12px; color:var(--ink-soft);">No comments yet.</p>';
+  }
+  async function evAddComment(entryId){
+    const input = document.getElementById('evci-' + entryId);
+    const msg = input.value.trim();
+    if (!msg || !db || !currentUser) return;
+    const { error } = await db.from('event_comments').insert({
+      entry_id: entryId, event_id: curEvent.id,
+      author_user_id: currentUser.id, author_name: myEventName(), message: msg
+    });
+    if (error){ showToast('Could not comment: ' + error.message); return; }
+    input.value = '';
+    const entry = curEntries.find(e=>e.id===entryId);
+    if (entry) entry._commentCount = (entry._commentCount||0) + 1;
+    // reload just this comment thread
+    const box = document.getElementById('evc-' + entryId);
+    box.classList.remove('open');
+    evToggleComments(entryId);
+  }
+
+  /* ── Event memory map ── */
+  function renderEventMap(){
+    const pinned = curEntries.filter(e=>e.lat && e.lng);
+    const card = document.getElementById('evMapCard');
+    if (!pinned.length || typeof L === 'undefined'){ card.style.display = 'none'; return; }
+    card.style.display = 'block';
+    document.getElementById('evMapCount').textContent =
+      pinned.length + ' memor' + (pinned.length===1?'y':'ies') + ' pinned · ' +
+      [...new Set(pinned.map(p=>p.city))].join(', ');
+    setTimeout(()=>{
+      if (evMapInstance){ evMapInstance.remove(); evMapInstance = null; }
+      evMapInstance = L.map('evMemMap', {scrollWheelZoom:false, minZoom:2, maxZoom:18, attributionControl:false});
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19, subdomains:['a','b','c']}).addTo(evMapInstance);
+      const dotIcon = L.divIcon({className:'', html:'<div style="width:13px;height:13px;border-radius:50%;background:#57614A;border:2.5px solid #fff;box-shadow:0 1px 6px rgba(46,42,34,.4);"></div>', iconSize:[13,13], iconAnchor:[7,7]});
+      const bounds = [];
+      pinned.forEach(p=>{
+        const jLat = p.lat + (Math.random()-0.5)*0.08, jLng = p.lng + (Math.random()-0.5)*0.08;
+        bounds.push([jLat, jLng]);
+        L.marker([jLat, jLng], {icon:dotIcon}).addTo(evMapInstance)
+          .bindPopup('<b>' + escapeHtml(p.author_name||'') + (p.subject_member ? ' → ' + escapeHtml(p.subject_member) : '') + '</b><br>' +
+            '<span style="font-size:12px;">"' + escapeHtml(p.message.length>70 ? p.message.slice(0,70)+'…' : p.message) + '"</span><br>' +
+            '<span style="font-size:11px; color:#6E6A60;">📍 ' + escapeHtml(p.city||'') + '</span>');
+      });
+      if (bounds.length === 1) evMapInstance.setView(bounds[0], 6);
+      else evMapInstance.fitBounds(bounds, {padding:[30,30]});
+      setTimeout(()=>evMapInstance.invalidateSize(), 120);
+    }, 80);
+  }
+
+  /* ── Copy link ── */
+  function copyEventLink(){
+    const inp = document.getElementById('evLink');
+    inp.select();
+    try{ navigator.clipboard.writeText(inp.value); }catch(e){ document.execCommand('copy'); }
+    showToast('Event link copied 📋');
+  }
+
+  /* ── Nav badge: pending join requests across my events ── */
+  async function refreshEventsBadge(){
+    const badge = document.getElementById('navEventsBadge');
+    if (!badge) return;
+    if (!db || !currentUser){ badge.style.display = 'none'; return; }
+    const { data: own } = await db.from('events').select('id').eq('owner_user_id', currentUser.id);
+    if (!own || !own.length){ badge.style.display='none'; return; }
+    const { count } = await db.from('event_guests').select('id', {count:'exact', head:true})
+      .in('event_id', own.map(o=>o.id)).eq('status','requested');
+    if (count && count > 0){ badge.textContent = count; badge.style.display = 'inline-flex'; }
+    else badge.style.display = 'none';
+  }
+
+/* ═══════════════ END EVENTS SYSTEM ═══════════════ */
+
+
 
 
 </script>
