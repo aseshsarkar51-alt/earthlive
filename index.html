@@ -1692,6 +1692,8 @@
       <!-- 1. HEADER -->
       <div class="ev-cover" id="evCover">
         <div class="ev-badge">🔒 Members only</div>
+        <input type="file" accept="image/*" id="evCoverInput" style="display:none;" onchange="evChangeCover(event)">
+        <button type="button" id="evCoverBtn" style="display:none; position:absolute; top:14px; left:14px; background:rgba(255,255,255,.92); border:none; border-radius:999px; padding:6px 13px; font-size:12px; font-weight:700; color:var(--ink); cursor:pointer; font-family:inherit;" onclick="document.getElementById('evCoverInput').click()">📷 Change cover</button>
         <div class="ev-caveat" id="evCoverName"></div>
       </div>
       <div class="ev-head">
@@ -1746,40 +1748,57 @@
       </div>
       <div id="evFeed"></div>
 
-      <!-- 5. WRITE ABOUT SOMEONE -->
-      <div class="card-ev" id="evAboutCard" style="display:none;">
-        <label class="ev-label" style="font-size:15px;">✍️ Write about someone</label>
-        <div class="field" style="margin-bottom:13px;">
-          <label style="font-size:13px;">Who are you writing about?</label>
-          <select id="evAboutWho" style="width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px; background:var(--page);"></select>
-        </div>
-        <div class="field" style="margin-bottom:13px;">
-          <label style="font-size:13px;">Describe them in one word</label>
-          <input type="text" id="evAboutWord" placeholder="e.g. Unstoppable" maxlength="24" style="width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px;">
-        </div>
-        <div class="field" style="margin-bottom:13px;">
-          <label style="font-size:13px;">Your message</label>
-          <textarea id="evAboutMsg" placeholder="Remember when…" style="width:100%; min-height:70px; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px; resize:vertical;"></textarea>
-        </div>
-        <div class="field" style="margin-bottom:13px;">
-          <label style="font-size:13px;">📷 Photos <span style="font-weight:400; color:var(--ink-soft); font-size:12px;">optional</span></label>
-          <input type="file" accept="image/*" id="evAboutPhotoInput" multiple style="display:none;" onchange="evHandleAboutPhotos(event)">
-          <button type="button" class="ev-chip" id="evAboutPhotoBtn" onclick="document.getElementById('evAboutPhotoInput').click()">Attach photos</button>
-        </div>
-        <div class="field" style="margin-bottom:15px; position:relative;">
-          <label style="font-size:13px;">Tag a city <span style="font-weight:400; color:var(--ink-soft); font-size:12px;">optional — pins on the event map</span></label>
-          <input type="text" id="evAboutCity" placeholder="Start typing a city…" autocomplete="off" oninput="evCityTyped()" style="width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px;">
-          <div class="ev-ta" id="evCitySuggestions"></div>
-        </div>
-        <button type="button" class="btn btn-primary" style="width:100%;" onclick="evSubmitAbout()">Add to the event page</button>
-      </div>
-      <div id="evAboutFeed"></div>
-
-      <!-- 6. MEMORY MAP -->
+      <!-- 5. MEMORY MAP -->
       <div class="card-ev" id="evMapCard" style="display:none;">
         <label class="ev-label">🗺️ Event memory map</label>
         <div id="evMemMap" style="height:290px; border-radius:12px; border:1px solid var(--line); z-index:1;"></div>
         <div style="font-size:12.5px; color:var(--ink-soft); margin-top:10px;" id="evMapCount"></div>
+      </div>
+
+      <!-- 6. ABOUT ENTRIES FEED (after the map) -->
+      <div id="evAboutFeed"></div>
+
+      <!-- 7. WRITE ABOUT SOMEONE — collapsed tab at the end -->
+      <div class="card-ev" id="evAboutCard" style="display:none; padding:0; overflow:hidden;">
+        <button type="button" id="evAboutToggle" onclick="toggleAboutForm()" style="width:100%; display:flex; align-items:center; justify-content:space-between; background:none; border:none; padding:17px 18px; font-family:inherit; font-size:15px; font-weight:700; color:var(--ink); cursor:pointer;">
+          <span>✍️ Write about someone</span>
+          <span id="evAboutArrow" style="color:var(--camel); transition:transform .2s;">▾</span>
+        </button>
+        <div id="evAboutForm" style="display:none; padding:0 18px 18px;">
+          <div class="field" style="margin-bottom:13px;">
+            <label style="font-size:13px;">Who are you writing about?</label>
+            <select id="evAboutWho" style="width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px; background:var(--page);"></select>
+          </div>
+          <div class="field" style="margin-bottom:13px;">
+            <label style="font-size:13px;">Describe them in one word</label>
+            <input type="text" id="evAboutWord" placeholder="e.g. Unstoppable" maxlength="24" style="width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px;">
+          </div>
+          <div class="field" style="margin-bottom:8px;">
+            <label style="font-size:13px;">Not sure what to write? Tap a question to answer it <span style="font-weight:400; color:var(--ink-soft); font-size:12px;">optional</span></label>
+            <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:4px;">
+              <button type="button" class="ev-chip" onclick="evInsertPrompt(this)">How did you two meet?</button>
+              <button type="button" class="ev-chip" onclick="evInsertPrompt(this)">Your favourite memory together</button>
+              <button type="button" class="ev-chip" onclick="evInsertPrompt(this)">One thing you admire about them</button>
+              <button type="button" class="ev-chip" onclick="evInsertPrompt(this)">Something they don't know you noticed</button>
+              <button type="button" class="ev-chip" onclick="evInsertPrompt(this)">A wish for their future</button>
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:13px;">
+            <label style="font-size:13px;">Your message</label>
+            <textarea id="evAboutMsg" placeholder="Remember when…" style="width:100%; min-height:90px; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px; resize:vertical;"></textarea>
+          </div>
+          <div class="field" style="margin-bottom:13px;">
+            <label style="font-size:13px;">📷 Photos <span style="font-weight:400; color:var(--ink-soft); font-size:12px;">optional</span></label>
+            <input type="file" accept="image/*" id="evAboutPhotoInput" multiple style="display:none;" onchange="evHandleAboutPhotos(event)">
+            <button type="button" class="ev-chip" id="evAboutPhotoBtn" onclick="document.getElementById('evAboutPhotoInput').click()">Attach photos</button>
+          </div>
+          <div class="field" style="margin-bottom:15px; position:relative;">
+            <label style="font-size:13px;">Tag a city <span style="font-weight:400; color:var(--ink-soft); font-size:12px;">optional — pins on the event map</span></label>
+            <input type="text" id="evAboutCity" placeholder="Start typing a city…" autocomplete="off" oninput="evCityTyped()" style="width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px;">
+            <div class="ev-ta" id="evCitySuggestions"></div>
+          </div>
+          <button type="button" class="btn btn-primary" style="width:100%;" onclick="evSubmitAbout()">Add to the event page</button>
+        </div>
       </div>
 
       <!-- 7. NON-MEMBER LOCK -->
@@ -1806,6 +1825,14 @@
     <button class="modal-close" onclick="closeMembersModal()" aria-label="Close">✕</button>
     <h3 style="margin:0 0 16px; font-size:18px;">Members</h3>
     <div id="membersModalBody"></div>
+  </div>
+</div>
+
+<!-- ============ EVENT POST MODAL ============ -->
+<div class="modal-overlay" id="evEntryModalOverlay" onclick="if(event.target===this) closeEvEntryModal()">
+  <div class="entry-modal" role="dialog" aria-modal="true" aria-label="Event post" style="max-width:520px;">
+    <button class="modal-close" onclick="closeEvEntryModal()" aria-label="Close">✕</button>
+    <div id="evEntryModalBody"></div>
   </div>
 </div>
 
@@ -2576,12 +2603,22 @@
   /* ---------- REAL SIGN-IN (Stage 2, piece 2) ---------- */
   let currentUser = null;
   let pendingAuthEmail = null;
+  // Supabase re-fires SIGNED_IN every time the tab regains focus.
+  // Track the signed-in user so we only navigate on a GENUINE new sign-in,
+  // and stay exactly where the person was when they switch back to the tab.
+  let lastAuthUserId = null;
 
   if (db){
     db.auth.onAuthStateChange((event, session)=>{
       currentUser = session ? session.user : null;
       refreshNav();
+      if (event === 'SIGNED_OUT'){ lastAuthUserId = null; }
       if (event === 'SIGNED_IN' && currentUser){
+        if (lastAuthUserId === currentUser.id){
+          // Same user, tab refocus / token refresh — do NOT navigate anywhere.
+          return;
+        }
+        lastAuthUserId = currentUser.id;
         showToast('Signed in as ' + (currentUser.email || 'your account'));
         loadMyBlocks();
         loadProfileFromDb().then(found=>{
@@ -2609,6 +2646,7 @@
       }
       if (event === 'INITIAL_SESSION'){
         if (currentUser){
+          lastAuthUserId = currentUser.id;
           // Returning visitor with a live session: restore their page silently.
           loadMyBlocks();
           loadProfileFromDb().then(found=>{
@@ -3405,6 +3443,7 @@
 
   /* ---------- INVITE LINK ROUTING (earthlive.in/?u=username) ---------- */
   let pendingLinkUsername = new URLSearchParams(location.search).get('u');
+  var pendingEventSlug = new URLSearchParams(location.search).get('e');
 
   async function openProfileByUsername(username){
     if (!db) return false;
@@ -3549,8 +3588,14 @@
       if (l.liker_key === me) likedByMe[l.entry_id] = true;
     });
     const commentMap = {};
-    (commentsRes.data || []).forEach(c=>{
-      (commentMap[c.entry_id] = commentMap[c.entry_id] || []).push({ id: c.id, name: c.name, text: c.body });
+    const allComments = commentsRes.data || [];
+    // Threaded: top-level comments carry their replies (parent_id links a reply to its comment)
+    const childMap = {};
+    allComments.filter(c=>c.parent_id).forEach(c=>{
+      (childMap[c.parent_id] = childMap[c.parent_id] || []).push({ id: c.id, name: c.name, text: c.body });
+    });
+    allComments.filter(c=>!c.parent_id).forEach(c=>{
+      (commentMap[c.entry_id] = commentMap[c.entry_id] || []).push({ id: c.id, name: c.name, text: c.body, replies: childMap[c.id] || [] });
     });
 
     entriesArr.forEach(e=>{
@@ -4395,17 +4440,49 @@
     if(form) form.classList.toggle('show');
   }
 
-  function postReply(idx, commentId){
-    const name = document.getElementById('replyName-'+idx).value.trim();
+  async function postReply(idx, commentId){
+    const entry = modalEntrySource[currentModalIndex];
+    if (!entry) return;
+    if (db && !currentUser){ showToast('Sign in to reply'); return; }
+    const nameEl = document.getElementById('replyName-'+idx);
+    const name = nameEl ? nameEl.value.trim() : ((profile && profile.name) || '');
     const text = document.getElementById('replyText-'+idx).value.trim();
-    if(!text){showToast('Please write a reply'); return;}
-    showToast('Reply posted! (Feature coming soon)');
-    document.getElementById('replyText-'+idx).value = '';
+    if (!name || !text){ showToast('Add your name and a reply'); return; }
+    if (!enforceWordLimit(text, 'Your reply')) return;
+    const parent = (entry.comments || [])[idx];
+    if (!parent) return;
+    parent.replies = parent.replies || [];
+
+    if (db && isDbEntry(entry)){
+      const { data, error } = await db.from('comments').insert({
+        entry_id: entry.id,
+        author_user_id: currentUser ? currentUser.id : null,
+        name,
+        body: text,
+        parent_id: commentId
+      }).select().single();
+      if (error){ showToast('Could not reply: ' + error.message); return; }
+      parent.replies.push({ id: data.id, name, text });
+    } else {
+      parent.replies.push({ id: makeId(), name, text });
+    }
+    openEntryModal(currentModalIndex);
+    rerenderCurrentEntries();
+    showToast('Reply posted');
   }
 
-  function deleteReply(commentId, replyId){
-    const sure = confirm('Delete this reply?');
-    if(sure) showToast('Reply deleted! (Feature coming soon)');
+  async function deleteReply(commentId, replyId){
+    const entry = modalEntrySource[currentModalIndex];
+    if (!entry || !modalIsOwner) return;
+    if (!confirm('Delete this reply?')) return;
+    if (db && isDbEntry(entry) && String(replyId).includes('-')){
+      const { error } = await db.from('comments').delete().eq('id', replyId);
+      if (error){ showToast('Could not remove: ' + error.message); return; }
+    }
+    const parent = (entry.comments || []).find(c => c.id === commentId);
+    if (parent) parent.replies = (parent.replies || []).filter(r => r.id !== replyId);
+    openEntryModal(currentModalIndex);
+    showToast('Reply removed');
   }
 
   let fillTarget = null;
@@ -5170,7 +5247,12 @@
 
   /* ── Local fallback storage (used only when signed out) ── */
   function getLocalEvents(){
-    try{ return JSON.parse(localStorage.getItem('earthlive_events') || '[]'); }catch(e){ return []; }
+    try{
+      const arr = JSON.parse(localStorage.getItem('earthlive_events') || '[]');
+      // Normalize legacy events saved by the older version (they lacked the
+      // local flag and used `date` instead of `event_date`)
+      return arr.map(e => ({ ...e, local: true, event_date: e.event_date || e.date || null }));
+    }catch(e){ return []; }
   }
   function saveLocalEvents(evts){
     try{ localStorage.setItem('earthlive_events', JSON.stringify(evts)); }catch(e){}
@@ -5185,6 +5267,7 @@
   /* ── State for the currently open event ── */
   let curEvent = null;        // event row
   let curRole = 'none';       // 'owner' | 'member' | 'requested' | 'invited' | 'none'
+  let curHostName = 'The host'; // host's real name (from their profile)
   let curGuests = [];         // all guest rows
   let curEntries = [];        // event_entries rows
   let evPostPhotos = [];      // pending photos for wall post
@@ -5193,7 +5276,6 @@
   let evSelectedCity = null;
   let evInvitedNow = [];
   let evMapInstance = null;
-  let pendingEventSlug = new URLSearchParams(location.search).get('e');
 
   /* ── Create event ── */
   async function createEventPage(e){
@@ -5239,7 +5321,7 @@
   async function renderMyEvents(){
     const list = document.getElementById('myEventsList');
     list.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Loading…</p>';
-    let owned = [], joined = [], pendingCounts = {};
+    let owned = [], joined = [], invitations = [], pendingCounts = {};
 
     if (db && currentUser){
       const { data: own } = await db.from('events').select('*')
@@ -5250,8 +5332,18 @@
         .eq('user_id', currentUser.id).eq('status','joined');
       const memIds = (mems || []).map(m=>m.event_id).filter(id=>!owned.some(o=>o.id===id));
       if (memIds.length){
-        const { data: mevts } = await db.from('events').select('*').in('id', memIds);
-        joined = mevts || [];
+        const { data: mevts2 } = await db.from('events').select('*').in('id', memIds);
+        joined = mevts2 || [];
+      }
+      // NEW: events I've been INVITED to (notification cards with Join button)
+      const { data: invs } = await db.from('event_guests').select('id, event_id')
+        .eq('user_id', currentUser.id).eq('status','invited');
+      const invIds = (invs || []).map(i=>i.event_id);
+      if (invIds.length){
+        const { data: ievts } = await db.from('events').select('*').in('id', invIds);
+        invitations = (ievts || []).map(ev=>({
+          ev, guestRowId: (invs.find(i=>i.event_id===ev.id)||{}).id
+        }));
       }
       // pending request counts per owned event
       if (owned.length){
@@ -5262,12 +5354,33 @@
     }
     const locals = getLocalEvents();
     const emojis = ['🎓','🎉','💍','✈️','🎂','🏡','🎤','📚'];
+
+    // Invitation cards render FIRST — they're the notification
+    let invHtml = invitations.map(x=>{
+      const ev = x.ev;
+      const dateTxt = ev.event_date ? new Date(ev.event_date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'TBD';
+      return `
+      <div class="ev-event-card" style="grid-column:1/-1; border:1.5px solid var(--camel); background:#FBF6F0;">
+        <div style="display:flex; align-items:center; gap:8px; color:var(--camel); font-weight:700; font-size:12.5px; letter-spacing:.05em; margin-bottom:10px;">✉️ YOU'RE INVITED</div>
+        <h3 style="margin:0 0 4px; font-size:16.5px;">${escapeHtml(ev.name)}</h3>
+        <div style="font-size:13px; color:var(--ink-soft); line-height:1.7;">
+          📅 ${escapeHtml(dateTxt)} · 📍 ${escapeHtml(ev.location || 'TBD')}
+          ${ev.description ? '<br>"' + escapeHtml(ev.description.length>90 ? ev.description.slice(0,90)+'…' : ev.description) + '"' : ''}
+        </div>
+        <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
+          <button class="btn-small" style="background:var(--moss); color:#fff; border-color:var(--moss);" onclick="acceptInviteFromList('${x.guestRowId}', '${ev.id}')">Join this event 🎉</button>
+          <button class="btn-small" onclick='openEventById(${JSON.stringify(ev.id)}, false)'>View first</button>
+          <button class="btn-small" style="color:#A65A3C;" onclick="declineInviteFromList('${x.guestRowId}')">Decline</button>
+        </div>
+      </div>`;
+    }).join('');
+
     const all = [
       ...owned.map(ev=>({ev, role:'Host', pend: pendingCounts[ev.id]||0})),
       ...joined.map(ev=>({ev, role:'Member', pend:0})),
       ...locals.map(ev=>({ev, role:'Host · this browser only', pend:0}))
     ];
-    if (!all.length){
+    if (!all.length && !invitations.length){
       list.innerHTML = `
         <div style="grid-column:1/-1; background:var(--card); border:1.5px dashed var(--oat-deep); border-radius:14px; padding:38px 20px; text-align:center; color:var(--ink-soft); font-size:14px;">
           <div style="font-size:26px; margin-bottom:8px;">📖</div>
@@ -5276,9 +5389,11 @@
         </div>`;
       return;
     }
-    list.innerHTML = all.map((x,i)=>{
+    list.innerHTML = invHtml + all.map((x,i)=>{
       const ev = x.ev;
-      const dateTxt = ev.event_date ? new Date(ev.event_date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'TBD';
+      const d = ev.event_date ? new Date(ev.event_date) : null;
+      const dateTxt = (d && !isNaN(d)) ? d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'TBD';
+      const canDelete = x.role !== 'Member';
       return `
       <div class="ev-event-card">
         <div style="width:46px; height:46px; border-radius:10px; background:linear-gradient(135deg,var(--camel),var(--moss)); display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:12px;">${emojis[i % emojis.length]}</div>
@@ -5290,9 +5405,43 @@
         ${x.pend ? `<div class="ev-req-alert">🔔 ${x.pend} request${x.pend>1?'s':''} waiting for your approval</div>` : ''}
         <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
           <button class="btn-small" onclick='openEventById(${JSON.stringify(ev.id)}, ${ev.local?'true':'false'})'>Open event page</button>
+          ${canDelete ? `<button class="btn-small" style="color:#A65A3C;" onclick='deleteEventFromList(${JSON.stringify(ev.id)}, ${ev.local?'true':'false'})'>Delete</button>` : ''}
         </div>
       </div>`;
     }).join('');
+  }
+
+  async function deleteEventFromList(id, isLocal){
+    if (!confirm('Delete this event and everything on it? This cannot be undone.')) return;
+    if (isLocal){
+      try{
+        const raw = JSON.parse(localStorage.getItem('earthlive_events') || '[]');
+        localStorage.setItem('earthlive_events', JSON.stringify(raw.filter(e=>e.id!==id)));
+      }catch(e){}
+    } else {
+      const { error } = await db.from('events').delete().eq('id', id);
+      if (error){ showToast('Could not delete: ' + error.message); return; }
+    }
+    showToast('Event deleted');
+    renderMyEvents();
+    refreshEventsBadge();
+  }
+
+  async function acceptInviteFromList(guestRowId, eventId){
+    if (!db) return;
+    const { error } = await db.from('event_guests').update({ status:'joined' }).eq('id', guestRowId);
+    if (error){ showToast('Could not join: ' + error.message); return; }
+    showToast('Welcome — you\'re in! 🎉');
+    refreshEventsBadge();
+    openEventById(eventId, false);
+  }
+  async function declineInviteFromList(guestRowId){
+    if (!db || !confirm('Decline this invitation?')) return;
+    const { error } = await db.from('event_guests').update({ status:'declined' }).eq('id', guestRowId);
+    if (error){ showToast('Could not decline: ' + error.message); return; }
+    showToast('Invitation declined');
+    refreshEventsBadge();
+    renderMyEvents();
   }
 
   async function openEventById(id, isLocal){
@@ -5302,7 +5451,13 @@
       return;
     }
     const { data, error } = await db.from('events').select('*').eq('id', id).single();
-    if (error || !data){ showToast('Could not open event'); return; }
+    if (error || !data){
+      // Fallback: maybe it's an old browser-only event without the local flag
+      const ev = getLocalEvents().find(e=>e.id===id);
+      if (ev){ openEventPage(ev); return; }
+      showToast('Could not open event');
+      return;
+    }
     openEventPage(data);
   }
 
@@ -5318,10 +5473,15 @@
     curEvent = ev;
     curGuests = []; curEntries = []; evInvitedNow = [];
     evPostPhotos = []; evAboutPhotos = []; evPendingTags = []; evSelectedCity = null;
+    curHostName = 'The host';
 
     if (!ev.local && db){
       const { data: g } = await db.from('event_guests').select('*').eq('event_id', ev.id);
       curGuests = g || [];
+      // Fetch the host's real name from their profile (falls back if private)
+      const { data: hostProf } = await db.from('profiles')
+        .select('name').eq('user_id', ev.owner_user_id).maybeSingle();
+      if (hostProf && hostProf.name) curHostName = hostProf.name;
     }
     // Determine my role
     if (ev.local){ curRole = 'owner'; }
@@ -5338,6 +5498,9 @@
     document.getElementById('evQueueCard').style.display = 'none';
     document.getElementById('evComposerCard').style.display = isIn ? 'block' : 'none';
     document.getElementById('evAboutCard').style.display = isIn ? 'block' : 'none';
+    // form starts collapsed — it's a tab at the end of the page
+    document.getElementById('evAboutForm').style.display = 'none';
+    document.getElementById('evAboutArrow').style.transform = '';
     document.getElementById('evMapCard').style.display = 'none';
     document.getElementById('evLockScreen').style.display = isIn ? 'none' : 'block';
     document.getElementById('evFeed').innerHTML = '';
@@ -5375,15 +5538,26 @@
     const ev = curEvent;
     document.getElementById('evCoverName').textContent = ev.name;
     document.getElementById('evName').textContent = ev.name;
-    const dateTxt = ev.event_date ? new Date(ev.event_date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'TBD';
-    const hostName = (curRole==='owner') ? 'You' : 'the host';
+    // Cover photo: host's uploaded image, or the default gradient
+    const cover = document.getElementById('evCover');
+    if (ev.cover_url){
+      cover.style.background = 'url(' + ev.cover_url + ') center/cover no-repeat';
+    } else {
+      cover.style.background = 'linear-gradient(135deg, var(--moss) 0%, var(--camel) 60%, var(--blush) 100%)';
+    }
+    document.getElementById('evCoverBtn').style.display = (curRole==='owner' && !ev.local) ? 'block' : 'none';
+    const dateTxt2 = ev.event_date ? new Date(ev.event_date) : null;
+    const dateTxt = (dateTxt2 && !isNaN(dateTxt2)) ? dateTxt2.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'TBD';
+    const hostName = (curRole==='owner') ? 'You' : escapeHtml(curHostName);
     document.getElementById('evMeta').innerHTML =
       '📅 ' + escapeHtml(dateTxt) + ' · 📍 ' + escapeHtml(ev.location || 'TBD') + ' · Hosted by <b>' + hostName + '</b>' +
       (ev.description ? '<br>"' + escapeHtml(ev.description) + '"' : '');
     // avatars
     const joined = curGuests.filter(g=>g.status==='joined');
     const colors = ['var(--moss)','var(--navy-ink)','var(--blush)','#6B4C6B','#4E7065','#A65A3C'];
-    let html = '<div class="ev-avatar" title="Host">' + (curRole==='owner'?'You':'H') + '</div>';
+    const hostInitials = (curRole==='owner') ? 'You'
+      : escapeHtml(curHostName.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase());
+    let html = '<div class="ev-avatar" title="' + escapeHtml(curHostName) + '">' + hostInitials + '</div>';
     joined.slice(0,4).forEach((g,i)=>{
       const initials = (g.guest_name||'M').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
       html += '<div class="ev-avatar" style="background:' + colors[i%colors.length] + ';" title="' + escapeHtml(g.guest_name||'') + '">' + escapeHtml(initials) + '</div>';
@@ -5539,7 +5713,11 @@
   function openMembersModal(){
     const body = document.getElementById('membersModalBody');
     const joined = curGuests.filter(g=>g.status==='joined');
-    let html = '<div class="ev-member-row"><div class="ev-avatar">H</div><div style="flex:1; font-size:14px;"><b>' + (curRole==='owner'?'You':'Host') + '</b> <span style="font-size:11.5px; color:var(--camel); font-weight:700;">HOST</span></div></div>';
+    const hostDisplay = (curRole==='owner') ? escapeHtml(curHostName !== 'The host' ? curHostName : (profile && profile.name) || 'You') + ' (you)' : escapeHtml(curHostName);
+    const hostInit = (curRole==='owner' && profile && profile.name)
+      ? profile.name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase()
+      : curHostName.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+    let html = '<div class="ev-member-row"><div class="ev-avatar">' + escapeHtml(hostInit) + '</div><div style="flex:1; font-size:14px;"><b>' + hostDisplay + '</b> <span style="font-size:11.5px; color:var(--camel); font-weight:700;">HOST</span></div></div>';
     html += joined.map(g=>{
       const initials = (g.guest_name||'M').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
       const isMe = currentUser && g.user_id === currentUser.id;
@@ -5610,8 +5788,9 @@
   }
   function renderEvAboutWho(){
     const names = eventMemberList();
-    const hostLabel = curRole==='owner' ? [] : ['The host'];
-    const all = [...hostLabel, ...names.filter(n=>n!==myEventName())];
+    // Members see the host's real name as an option; the host doesn't write about themselves
+    const hostOption = curRole==='owner' ? [] : [curHostName];
+    const all = [...hostOption, ...names.filter(n=>n!==myEventName())];
     document.getElementById('evAboutWho').innerHTML =
       '<option value="">— choose a member —</option>' +
       all.map(n=>'<option>' + escapeHtml(n) + '</option>').join('');
@@ -5732,14 +5911,60 @@
       .eq('event_id', curEvent.id).order('created_at', {ascending:false});
     if (error){ console.error('[EarthLive] event entries load failed:', error); }
     curEntries = data || [];
-    // comment counts
+    // comment counts + likes
     let counts = {};
+    const lc = {}, lm = {};
     if (curEntries.length){
-      const { data: cms } = await db.from('event_comments').select('entry_id').eq('event_id', curEvent.id);
-      (cms||[]).forEach(c=>{ counts[c.entry_id] = (counts[c.entry_id]||0)+1; });
+      const [cmsRes, lksRes] = await Promise.all([
+        db.from('event_comments').select('entry_id').eq('event_id', curEvent.id),
+        db.from('event_likes').select('entry_id, liker_key').eq('event_id', curEvent.id)
+      ]);
+      ((cmsRes && cmsRes.data) || []).forEach(c=>{ counts[c.entry_id] = (counts[c.entry_id]||0)+1; });
+      const me = myLikerKey();
+      ((lksRes && lksRes.data) || []).forEach(l=>{
+        lc[l.entry_id] = (lc[l.entry_id]||0)+1;
+        if (l.liker_key === me) lm[l.entry_id] = true;
+      });
     }
-    curEntries.forEach(e=>{ e._commentCount = counts[e.id] || 0; });
+    curEntries.forEach(e=>{
+      e._commentCount = counts[e.id] || 0;
+      e._likes = lc[e.id] || 0;
+      e._liked = !!lm[e.id];
+    });
     renderEventFeed(); renderEventAboutFeed(); renderEventMap();
+  }
+
+  /* ── Event likes ── */
+  async function evToggleLike(entryId){
+    const entry = curEntries.find(e=>e.id===entryId);
+    if (!entry || !db || curEvent.local) return;
+    if (curRole !== 'owner' && curRole !== 'member'){ showToast('Only members can like'); return; }
+    const key = myLikerKey();
+    const was = !!entry._liked;
+    entry._liked = !was;
+    entry._likes = Math.max(0, (entry._likes||0) + (was ? -1 : 1));
+    renderEventFeed(); renderEventAboutFeed();
+    const op = was
+      ? db.from('event_likes').delete().eq('entry_id', entryId).eq('liker_key', key)
+      : db.from('event_likes').insert({ entry_id: entryId, event_id: curEvent.id, liker_key: key });
+    const { error } = await op;
+    if (error){
+      entry._liked = was;
+      entry._likes = Math.max(0, (entry._likes||0) + (was ? 1 : -1));
+      renderEventFeed(); renderEventAboutFeed();
+      showToast('Could not update like');
+    }
+  }
+
+  /* ── Event share ── */
+  function evShareEvent(){
+    const url = eventUrl(curEvent.slug);
+    const shareData = { title: curEvent.name, text: 'Join "' + curEvent.name + '" on EarthLive', url };
+    if (navigator.share){ navigator.share(shareData).catch(()=>{}); }
+    else {
+      try{ navigator.clipboard.writeText(url); }catch(e){}
+      showToast('Event link copied — share it anywhere 📋');
+    }
   }
 
   function evTimeAgo(ts){
@@ -5754,9 +5979,96 @@
     if (!tags || !tags.length) return '';
     return ' ' + tags.map(t=>'<span class="ev-tagged">' + escapeHtml(t) + '</span>').join(' ');
   }
-  function evRenderPhotos(photos){
+  function evRenderPhotos(photos, entryId){
     if (!photos || !photos.length) return '';
-    return '<div class="ev-photos">' + photos.map(u=>'<img src="' + u + '" alt="" loading="lazy" onclick="window.open(this.src)">').join('') + '</div>';
+    const open = entryId ? `onclick="event.stopPropagation(); openEvEntryModal('${entryId}')"` : '';
+    return '<div class="ev-photos">' + photos.map(u=>'<img src="' + u + '" alt="" loading="lazy" ' + open + '>').join('') + '</div>';
+  }
+
+  /* ── Write-about form: collapsed tab ── */
+  function toggleAboutForm(){
+    const form = document.getElementById('evAboutForm');
+    const arrow = document.getElementById('evAboutArrow');
+    const open = form.style.display !== 'none';
+    form.style.display = open ? 'none' : 'block';
+    arrow.style.transform = open ? '' : 'rotate(180deg)';
+    if (!open) form.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+  function evInsertPrompt(btn){
+    const q = btn.textContent.trim();
+    const ta = document.getElementById('evAboutMsg');
+    const addition = q + '\n';
+    ta.value = ta.value.trim() ? ta.value.trim() + '\n\n' + addition : addition;
+    ta.focus();
+    // put cursor at the end so they answer under the question
+    ta.selectionStart = ta.selectionEnd = ta.value.length;
+  }
+
+  /* ── Event post modal (photo click → post view with comments) ── */
+  function openEvEntryModal(entryId){
+    const p = curEntries.find(e=>e.id === entryId);
+    if (!p) return;
+    const own = currentUser && p.author_user_id === currentUser.id;
+    const canDelete = own || curRole==='owner';
+    const initials = (p.author_name||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+    const isAbout = p.entry_type === 'about';
+    const photosHtml = (p.photos && p.photos.length)
+      ? '<div style="display:flex; flex-direction:column; gap:10px; margin:14px 0 0;">' +
+        p.photos.map(u=>'<img src="' + u + '" alt="" style="width:100%; border-radius:12px;">').join('') + '</div>'
+      : '';
+    document.getElementById('evEntryModalBody').innerHTML = `
+      <div style="display:flex; gap:11px; align-items:center; margin-bottom:4px;">
+        <div class="ev-avatar" style="background:${p.color || 'var(--camel)'};">${escapeHtml(initials)}</div>
+        <div style="flex:1;">
+          <b style="font-size:15px;">${escapeHtml(p.author_name||'Member')}</b>${isAbout && p.subject_member ? ' <span style="color:var(--ink-soft); font-size:13px;">wrote about</span> <b style="font-size:14px;">' + escapeHtml(p.subject_member) + '</b>' : ''}
+          <div class="ev-post-meta">${evTimeAgo(p.created_at)}${p.edited?' · edited':''}</div>
+        </div>
+      </div>
+      ${isAbout && p.one_word ? '<div class="ev-about-word" style="color:' + (p.color||'var(--moss)') + '; font-size:24px; margin-top:8px;">"' + escapeHtml(p.one_word) + '"</div>' : ''}
+      <div style="font-size:14.5px; line-height:1.7; margin-top:10px; white-space:pre-wrap; color:${p.color || 'var(--ink)'};">${escapeHtml(p.message)}${evRenderTags(p.tagged)}</div>
+      ${photosHtml}
+      ${p.city ? '<div style="font-size:12px; color:var(--ink-soft); margin-top:10px;">📍 ' + escapeHtml(p.city) + '</div>' : ''}
+      <div style="display:flex; gap:14px; margin-top:14px; border-top:1px solid var(--line); padding-top:12px;">
+        <button class="ev-fbtn" onclick="evToggleLike('${p.id}'); openEvEntryModal('${p.id}')" style="${p._liked ? 'color:var(--blush); font-weight:700;' : ''}">\u2665 ${p._likes||0}</button>
+        <button class="ev-fbtn" onclick="evShareEvent()">\u2197 Share</button>
+        ${own ? `<button class="ev-fbtn edit" onclick="closeEvEntryModal(); evEditPost('${p.id}')">\u270e Edit</button>` : ''}
+        ${canDelete ? `<button class="ev-fbtn" style="color:#A65A3C;" onclick="closeEvEntryModal(); evDeleteEntry('${p.id}')">Delete</button>` : ''}
+      </div>
+      <div style="margin-top:6px;">
+        <div style="font-weight:700; font-size:13.5px; margin:10px 0 8px;">💬 Comments</div>
+        <div id="evMcl-${p.id}"><p style="font-size:12px; color:var(--ink-soft);">Loading…</p></div>
+        <div class="ev-comment-row">
+          <input type="text" id="evMci-${p.id}" placeholder="Write a comment…" onkeydown="if(event.key==='Enter'){evModalAddComment('${p.id}');}">
+          <button class="btn-small" onclick="evModalAddComment('${p.id}')">Send</button>
+        </div>
+      </div>`;
+    document.getElementById('evEntryModalOverlay').classList.add('open');
+    evLoadModalComments(entryId);
+  }
+  function closeEvEntryModal(){ document.getElementById('evEntryModalOverlay').classList.remove('open'); }
+  async function evLoadModalComments(entryId){
+    const list = document.getElementById('evMcl-' + entryId);
+    if (!list || !db) return;
+    const { data, error } = await db.from('event_comments').select('*')
+      .eq('entry_id', entryId).order('created_at', {ascending:true});
+    if (error){ list.innerHTML = '<p style="font-size:12px; color:#A65A3C;">Could not load comments</p>'; return; }
+    list.innerHTML = evThreadHtml(data || [], entryId, 'm');
+  }
+  async function evModalAddComment(entryId){
+    const input = document.getElementById('evMci-' + entryId);
+    const msg = input.value.trim();
+    if (!msg || !db || !currentUser) return;
+    if (curRole !== 'owner' && curRole !== 'member'){ showToast('Only members can comment'); return; }
+    const { error } = await db.from('event_comments').insert({
+      entry_id: entryId, event_id: curEvent.id,
+      author_user_id: currentUser.id, author_name: myEventName(), message: msg
+    });
+    if (error){ showToast('Could not comment: ' + error.message); return; }
+    input.value = '';
+    const entry = curEntries.find(e=>e.id===entryId);
+    if (entry) entry._commentCount = (entry._commentCount||0) + 1;
+    evLoadModalComments(entryId);
+    renderEventFeed(); renderEventAboutFeed();
   }
 
   function renderEventFeed(){
@@ -5779,9 +6091,11 @@
           </div>
         </div>
         <div class="ev-post-body" id="evpb-${p.id}" style="color:${p.color || 'var(--ink)'};">${escapeHtml(p.message)}${evRenderTags(p.tagged)}</div>
-        ${evRenderPhotos(p.photos)}
+        ${evRenderPhotos(p.photos, p.id)}
         <div class="ev-foot">
+          <button class="ev-fbtn" onclick="evToggleLike('${p.id}')" style="${p._liked ? 'color:var(--blush); font-weight:700;' : ''}">♥ ${p._likes||0}</button>
           <button class="ev-fbtn" onclick="evToggleComments('${p.id}')">💬 ${p._commentCount||0} comment${(p._commentCount||0)===1?'':'s'}</button>
+          <button class="ev-fbtn" onclick="evShareEvent()">↗ Share</button>
           ${own ? `<button class="ev-fbtn edit" onclick="evEditPost('${p.id}')">✎ Edit</button>` : ''}
           ${canDelete ? `<button class="ev-fbtn" style="color:#A65A3C;" onclick="evDeleteEntry('${p.id}')">Delete</button>` : ''}
         </div>
@@ -5803,14 +6117,17 @@
       const own = currentUser && a.author_user_id === currentUser.id;
       const canDelete = own || curRole==='owner';
       return `
-      <div class="ev-about-card" style="border-left-color:${a.color || colors[i%colors.length]};">
-        <div class="ev-about-line"><b>${escapeHtml(a.author_name||'Member')}</b> wrote about <b>${escapeHtml(a.subject_member||'')}</b> · ${evTimeAgo(a.created_at)}
-          ${canDelete ? ` · <button class="ev-fbtn" style="color:#A65A3C; font-size:11.5px;" onclick="evDeleteEntry('${a.id}')">delete</button>` : ''}
-        </div>
+      <div class="ev-about-card" style="border-left-color:${a.color || colors[i%colors.length]}; cursor:pointer;" onclick="openEvEntryModal('${a.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter') openEvEntryModal('${a.id}')">
+        <div class="ev-about-line"><b>${escapeHtml(a.author_name||'Member')}</b> wrote about <b>${escapeHtml(a.subject_member||'')}</b> · ${evTimeAgo(a.created_at)}</div>
         ${a.one_word ? '<span class="ev-about-word" style="color:' + (a.color||'var(--moss)') + ';">"' + escapeHtml(a.one_word) + '"</span>' : ''}
-        <div class="ev-about-msg">${escapeHtml(a.message)}</div>
-        ${evRenderPhotos(a.photos)}
-        ${a.city ? '<div style="font-size:11.5px; color:var(--ink-soft); margin-top:7px;">📍 ' + escapeHtml(a.city) + (a.lat?' — pinned on the map ↓':'') + '</div>' : ''}
+        <div class="ev-about-msg">${escapeHtml(a.message.length > 180 ? a.message.slice(0,180) + '…' : a.message)}</div>
+        ${evRenderPhotos(a.photos, a.id)}
+        <div style="display:flex; gap:14px; align-items:center; margin-top:9px;">
+          <button class="ev-fbtn" onclick="event.stopPropagation(); evToggleLike('${a.id}')" style="${a._liked ? 'color:var(--blush); font-weight:700;' : ''}">♥ ${a._likes||0}</button>
+          <span style="font-size:12px; color:var(--ink-soft);">💬 ${a._commentCount||0} comment${(a._commentCount||0)===1?'':'s'} · tap to open</span>
+          ${a.city ? '<span style="font-size:11.5px; color:var(--ink-soft);">📍 ' + escapeHtml(a.city) + '</span>' : ''}
+          ${canDelete ? `<button class="ev-fbtn" style="color:#A65A3C; font-size:11.5px; margin-left:auto;" onclick="event.stopPropagation(); evDeleteEntry('${a.id}')">delete</button>` : ''}
+        </div>
       </div>`;
     }).join('');
   }
@@ -5840,26 +6157,101 @@
     showToast('Deleted');
   }
 
-  /* ── Comments ── */
+  /* ── Comments (threaded: replies nest under their comment, like Facebook/LinkedIn) ── */
+  function evThreadHtml(comments, entryId, ctx){
+    // ctx keeps element ids unique: 'i' = inline under a post, 'm' = inside the modal
+    const tops = comments.filter(c=>!c.parent_id);
+    const kids = {};
+    comments.filter(c=>c.parent_id).forEach(c=>{ (kids[c.parent_id]=kids[c.parent_id]||[]).push(c); });
+    if (!tops.length) return '<p style="font-size:12px; color:var(--ink-soft);">No comments yet — be the first.</p>';
+    const canReply = (curRole==='owner' || curRole==='member');
+    return tops.map(c=>{
+      const initials = (c.author_name||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+      const isMineOrHost = (currentUser && c.author_user_id === currentUser.id) || curRole==='owner';
+      const repliesHtml = (kids[c.id]||[]).map(r=>{
+        const ri = (r.author_name||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+        const rMineOrHost = (currentUser && r.author_user_id === currentUser.id) || curRole==='owner';
+        return '<div class="ev-comment" style="margin-top:7px;"><div class="ev-avatar" style="width:22px; height:22px; font-size:9px; background:var(--oat-deep); color:var(--ink);">' + escapeHtml(ri) + '</div>' +
+          '<div class="ev-comment-body" style="font-size:12.5px;"><b>' + escapeHtml(r.author_name||'') + '</b> ' + escapeHtml(r.message) +
+          ' <span style="font-size:10px; color:var(--ink-soft);">\u00b7 ' + evTimeAgo(r.created_at) + '</span>' +
+          (rMineOrHost ? ' <button class="ev-fbtn" style="font-size:10.5px; color:#A65A3C;" onclick="evDeleteComment(\'' + r.id + '\', \'' + entryId + '\', \'' + ctx + '\')">remove</button>' : '') +
+          '</div></div>';
+      }).join('');
+      return `
+      <div style="margin-bottom:10px;">
+        <div class="ev-comment" style="margin-bottom:0;">
+          <div class="ev-avatar" style="background:var(--oat-deep); color:var(--ink);">${escapeHtml(initials)}</div>
+          <div class="ev-comment-body"><b>${escapeHtml(c.author_name||'')}</b> ${escapeHtml(c.message)}
+            <span style="font-size:10.5px; color:var(--ink-soft);">\u00b7 ${evTimeAgo(c.created_at)}</span>
+            <div style="display:flex; gap:12px; margin-top:4px;">
+              ${canReply ? `<button class="ev-fbtn" style="font-size:11px; font-weight:700; color:var(--camel);" onclick="evToggleReply('${ctx}','${c.id}')">\u21a9 Reply</button>` : ''}
+              ${isMineOrHost ? `<button class="ev-fbtn" style="font-size:11px; color:#A65A3C;" onclick="evDeleteComment('${c.id}','${entryId}','${ctx}')">remove</button>` : ''}
+            </div>
+          </div>
+        </div>
+        <div style="margin-left:36px;">
+          ${repliesHtml}
+          <div class="ev-comment-row" id="evrf-${ctx}-${c.id}" style="display:none; margin-top:7px;">
+            <input type="text" id="evri-${ctx}-${c.id}" placeholder="Reply to ${escapeHtml((c.author_name||'').split(' ')[0])}\u2026" onkeydown="if(event.key==='Enter'){evSendReply('${ctx}','${entryId}','${c.id}');}">
+            <button class="btn-small" onclick="evSendReply('${ctx}','${entryId}','${c.id}')">Send</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  function evToggleReply(ctx, commentId){
+    const f = document.getElementById('evrf-' + ctx + '-' + commentId);
+    if (!f) return;
+    const show = f.style.display === 'none';
+    f.style.display = show ? 'flex' : 'none';
+    if (show){ const i = document.getElementById('evri-' + ctx + '-' + commentId); if (i) i.focus(); }
+  }
+  async function evSendReply(ctx, entryId, commentId){
+    const input = document.getElementById('evri-' + ctx + '-' + commentId);
+    const msg = input ? input.value.trim() : '';
+    if (!msg || !db || !currentUser) return;
+    if (curRole !== 'owner' && curRole !== 'member'){ showToast('Only members can reply'); return; }
+    const { error } = await db.from('event_comments').insert({
+      entry_id: entryId, event_id: curEvent.id,
+      author_user_id: currentUser.id, author_name: myEventName(),
+      message: msg, parent_id: commentId
+    });
+    if (error){ showToast('Could not reply: ' + error.message); return; }
+    const entry = curEntries.find(e=>e.id===entryId);
+    if (entry) entry._commentCount = (entry._commentCount||0) + 1;
+    if (ctx === 'm') evLoadModalComments(entryId);
+    else evLoadInlineComments(entryId);
+  }
+  async function evDeleteComment(commentId, entryId, ctx){
+    if (!confirm('Delete this comment?')) return;
+    const { error } = await db.from('event_comments').delete().eq('id', commentId);
+    if (error){ showToast('Could not delete: ' + error.message); return; }
+    const entry = curEntries.find(e=>e.id===entryId);
+    if (entry && entry._commentCount) entry._commentCount = Math.max(0, entry._commentCount - 1);
+    if (ctx === 'm') evLoadModalComments(entryId);
+    else evLoadInlineComments(entryId);
+  }
+
   async function evToggleComments(entryId){
     const box = document.getElementById('evc-' + entryId);
     if (box.classList.contains('open')){ box.classList.remove('open'); return; }
     box.classList.add('open');
+    evLoadInlineComments(entryId);
+  }
+  async function evLoadInlineComments(entryId){
     const list = document.getElementById('evcl-' + entryId);
-    list.innerHTML = '<p style="font-size:12px; color:var(--ink-soft);">Loading…</p>';
+    if (!list) return;
+    list.innerHTML = '<p style="font-size:12px; color:var(--ink-soft);">Loading\u2026</p>';
     const { data, error } = await db.from('event_comments').select('*')
       .eq('entry_id', entryId).order('created_at', {ascending:true});
     if (error){ list.innerHTML = '<p style="font-size:12px; color:#A65A3C;">Could not load comments</p>'; return; }
-    list.innerHTML = (data||[]).map(c=>{
-      const initials = (c.author_name||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
-      return '<div class="ev-comment"><div class="ev-avatar" style="background:var(--oat-deep); color:var(--ink);">' + escapeHtml(initials) + '</div>' +
-        '<div class="ev-comment-body"><b>' + escapeHtml(c.author_name||'') + '</b> ' + escapeHtml(c.message) + ' <span style="font-size:10.5px; color:var(--ink-soft);">· ' + evTimeAgo(c.created_at) + '</span></div></div>';
-    }).join('') || '<p style="font-size:12px; color:var(--ink-soft);">No comments yet.</p>';
+    list.innerHTML = evThreadHtml(data || [], entryId, 'i');
   }
   async function evAddComment(entryId){
     const input = document.getElementById('evci-' + entryId);
     const msg = input.value.trim();
     if (!msg || !db || !currentUser) return;
+    if (curRole !== 'owner' && curRole !== 'member'){ showToast('Only members can comment'); return; }
     const { error } = await db.from('event_comments').insert({
       entry_id: entryId, event_id: curEvent.id,
       author_user_id: currentUser.id, author_name: myEventName(), message: msg
@@ -5868,10 +6260,7 @@
     input.value = '';
     const entry = curEntries.find(e=>e.id===entryId);
     if (entry) entry._commentCount = (entry._commentCount||0) + 1;
-    // reload just this comment thread
-    const box = document.getElementById('evc-' + entryId);
-    box.classList.remove('open');
-    evToggleComments(entryId);
+    evLoadInlineComments(entryId);
   }
 
   /* ── Event memory map ── */
@@ -5903,6 +6292,25 @@
     }, 80);
   }
 
+  /* ── Cover photo change (host only) ── */
+  function evChangeCover(e){
+    const file = (e.target.files || [])[0];
+    if (!file || !curEvent || curRole !== 'owner') return;
+    const r = new FileReader();
+    r.onload = async ()=>{
+      showToast('Uploading cover…');
+      const url = await uploadImage(r.result, 'event-photos', 'cover_' + curEvent.id + '_' + Date.now());
+      if (!url) return;
+      const { error } = await db.from('events').update({ cover_url: url }).eq('id', curEvent.id);
+      if (error){ showToast('Could not save cover: ' + error.message); return; }
+      curEvent.cover_url = url;
+      renderEventHeader();
+      showToast('Cover updated ✓');
+    };
+    r.readAsDataURL(file);
+    e.target.value = '';
+  }
+
   /* ── Copy link ── */
   function copyEventLink(){
     const inp = document.getElementById('evLink');
@@ -5911,16 +6319,24 @@
     showToast('Event link copied 📋');
   }
 
-  /* ── Nav badge: pending join requests across my events ── */
+  /* ── Nav badge: pending join requests (as host) + invitations (as invitee) ── */
   async function refreshEventsBadge(){
     const badge = document.getElementById('navEventsBadge');
     if (!badge) return;
     if (!db || !currentUser){ badge.style.display = 'none'; return; }
+    let total = 0;
+    // requests waiting on events I host
     const { data: own } = await db.from('events').select('id').eq('owner_user_id', currentUser.id);
-    if (!own || !own.length){ badge.style.display='none'; return; }
-    const { count } = await db.from('event_guests').select('id', {count:'exact', head:true})
-      .in('event_id', own.map(o=>o.id)).eq('status','requested');
-    if (count && count > 0){ badge.textContent = count; badge.style.display = 'inline-flex'; }
+    if (own && own.length){
+      const { count } = await db.from('event_guests').select('id', {count:'exact', head:true})
+        .in('event_id', own.map(o=>o.id)).eq('status','requested');
+      total += (count || 0);
+    }
+    // invitations waiting for ME
+    const { count: invCount } = await db.from('event_guests').select('id', {count:'exact', head:true})
+      .eq('user_id', currentUser.id).eq('status','invited');
+    total += (invCount || 0);
+    if (total > 0){ badge.textContent = total; badge.style.display = 'inline-flex'; }
     else badge.style.display = 'none';
   }
 
