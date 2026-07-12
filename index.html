@@ -28,7 +28,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Caveat:wght@500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
 <style>
   :root{
     --page:#FFFFFF;
@@ -1033,7 +1033,28 @@
     border-radius:0 !important; border:1px solid var(--ink) !important;
   }
 
-  /* ---------- EVENT PAGE ---------- */
+  /* ---------- DIARY & FOR YOU ---------- */
+  .diary-page{background:#FCFBF7; border:1px solid var(--line); border-radius:14px; padding:26px; box-shadow:var(--shadow); background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 27px, #E8E6E1 27px, #E8E6E1 28px); background-size:100% 28px; background-position:0 62px;}
+  .diary-list-item{display:flex; gap:14px; align-items:flex-start; padding:16px; background:var(--card); border:1px solid var(--line); border-radius:12px; margin-bottom:10px; cursor:pointer; box-shadow:var(--shadow); transition:background .15s;}
+  .diary-list-item:hover{background:var(--oat);}
+  .diary-date-tab{font-family:'Caveat',cursive; font-size:19px; color:var(--camel); min-width:64px; text-align:center; line-height:1.1; border-right:1.5px solid var(--oat-deep); padding-right:14px;}
+  .diary-date-tab small{display:block; font-family:'Inter Tight',sans-serif; font-size:11px; color:var(--ink-soft); font-weight:600;}
+  .diary-item-body{flex:1; min-width:0;}
+  .diary-item-body b{font-family:'Fraunces',serif; font-size:15.5px; font-weight:500;}
+  .diary-item-body p{margin:4px 0 0; font-size:13px; color:var(--ink-soft); line-height:1.55; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .diary-lock-badge{background:var(--oat); border:1px solid var(--line); border-radius:999px; padding:4px 12px; font-size:11.5px; font-weight:600; display:inline-block; margin-top:8px;}
+  .diary-lock-badge.private{color:var(--moss);}
+  .diary-lock-badge.shared{color:var(--camel);}
+  .diary-lock-badge.book{color:var(--blush);}
+  .diary-visibility-opt{display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:9px; cursor:pointer; font-size:13.5px; line-height:1.5; transition:background .1s;}
+  .diary-visibility-opt:hover{background:var(--oat);}
+  .diary-visibility-opt input{margin:0;}
+  .fy-item{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; box-shadow:var(--shadow); margin-bottom:12px;}
+  .fy-row{display:flex; gap:12px; align-items:flex-start;}
+  .fy-preview{font-family:'Caveat',cursive; font-size:17px; line-height:1.55; color:var(--ink); background:var(--oat); border-left:3px solid var(--camel); border-radius:0 8px 8px 0; padding:9px 12px; margin-top:9px;}
+  .fy-preview.plain{font-family:'Inter Tight',sans-serif; font-size:13.5px;}
+  .fy-quiet{text-align:center; padding:44px 20px; background:var(--card); border:1.5px dashed var(--oat-deep); border-radius:14px; color:var(--ink-soft); margin-top:20px;}
+   */
   .ev-cover{position:relative; border-radius:16px 16px 0 0; overflow:hidden; background:linear-gradient(135deg, var(--moss) 0%, var(--camel) 60%, var(--blush) 100%); height:160px;}
   .ev-caveat{position:absolute; bottom:14px; left:20px; font-family:'Caveat',cursive; font-size:29px; color:#fff; text-shadow:0 1px 8px rgba(46,42,34,.35);}
   .ev-badge{position:absolute; top:14px; right:14px; background:rgba(255,255,255,.92); border-radius:999px; padding:6px 13px; font-size:12px; font-weight:700; color:var(--moss);}
@@ -1297,7 +1318,7 @@
           </div>
         </div>
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary" id="createSubmitBtn">Create my page →</button>
+          <button type="submit" class="btn btn-primary" id="createSubmitBtn">Create my book →</button>
           <button type="button" class="link-quiet" onclick="cancelCreateForm()">Cancel</button>
         </div>
       </form>
@@ -1386,7 +1407,7 @@
       <div class="demo-row">
         <button class="btn-small" onclick="deactivatePage()">Deactivate page</button>
         <button class="btn-small" onclick="toggleBlockedList()">Blocked pages</button>
-        <button class="btn-small btn-decline" onclick="deleteAccount()">Delete my page &amp; data</button>
+        <button class="btn-small btn-decline" onclick="deleteAccount()">Delete my book &amp; data</button>
       </div>
       <div id="blockedList" style="display:none; margin-top:14px;"></div>
       <p style="font-size:12px; color:var(--ink-soft); margin:12px 0 0;">
@@ -1440,27 +1461,74 @@
 <section class="screen" id="screen-feed">
   <div class="wrap">
     <div style="max-width:640px; margin:0 auto; padding:40px 24px;">
-      <h2 style="font-size:28px; font-family:'Inter Tight', sans-serif; margin:0 0 24px; font-weight:700;">Your feed</h2>
-      
-      <div style="display:flex; gap:2px; border-bottom:1px solid var(--line); margin-bottom:24px; padding-bottom:0;">
-        <button onclick="switchFeedTab('activity')" id="feed-tab-activity" style="flex:1; background:none; border:none; padding:14px 0; font-size:14px; font-weight:600; color:var(--ink); cursor:pointer; border-bottom:2px solid var(--ink); margin-bottom:-1px; transition:all .2s;">Activity</button>
-        <button onclick="switchFeedTab('memories')" id="feed-tab-memories" style="flex:1; background:none; border:none; padding:14px 0; font-size:14px; font-weight:600; color:var(--ink-soft); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all .2s;">Memories</button>
-        <button onclick="switchFeedTab('trending')" id="feed-tab-trending" style="flex:1; background:none; border:none; padding:14px 0; font-size:14px; font-weight:600; color:var(--ink-soft); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all .2s;">Trending</button>
-      </div>
-
-      <div id="feed-content-activity">
-        <!-- Activity feed will populate here -->
-      </div>
-
-      <div id="feed-content-memories" style="display:none;">
-        <!-- Memories will populate here -->
-      </div>
-
-      <div id="feed-content-trending" style="display:none;">
-        <!-- Trending will populate here -->
-      </div>
-
+      <div class="form-eyebrow">Today</div>
+      <h2 style="font-family:'Fraunces',serif; font-size:34px; margin:0 0 4px; font-weight:500; letter-spacing:-0.01em;">For you</h2>
+      <p style="color:var(--ink-soft); font-size:14px; margin:0 0 24px;">Only what involves you. No infinite scroll.</p>
+      <div id="forYouList"></div>
       <button class="link-quiet" style="margin-top:24px;" onclick="showScreen('landing')">Back to home</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MY DIARY ============ -->
+<section class="screen" id="screen-diary">
+  <div class="wrap">
+    <div style="max-width:640px; margin:0 auto; padding:40px 24px;">
+      <div style="display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:8px;">
+        <div>
+          <div class="form-eyebrow">Your private space</div>
+          <h2 style="font-family:'Fraunces',serif; font-size:34px; margin:0; font-weight:500; letter-spacing:-0.01em;">My diary</h2>
+        </div>
+        <button class="btn-small" onclick="openDiaryEditor(null)">＋ Write today's entry</button>
+      </div>
+      <p style="color:var(--ink-soft); font-size:13.5px; margin:6px 0 22px;">Only you can see this. On each entry you choose: keep private, share with one person, or share on your book.</p>
+      <div id="diaryList"></div>
+      <button class="link-quiet" style="margin-top:24px;" onclick="showScreen('landing')">Back to home</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DIARY EDITOR ============ -->
+<section class="screen" id="screen-diary-editor">
+  <div class="wrap">
+    <div style="max-width:640px; margin:0 auto; padding:40px 24px 60px;">
+      <div class="form-eyebrow" id="diaryEditorDate">Today</div>
+      <h2 style="font-family:'Fraunces',serif; font-size:30px; margin:0 0 4px; font-weight:500;" id="diaryEditorHeadline">Write</h2>
+      <p style="color:var(--ink-soft); font-size:13.5px; margin:0 0 22px;">Yours alone until you decide otherwise.</p>
+
+      <div class="diary-page">
+        <input type="text" id="diaryTitle" placeholder="Give this entry a title…" maxlength="120" style="width:100%; border:none; background:transparent; font-family:'Fraunces',serif; font-size:22px; font-weight:500; color:var(--ink); padding:0 0 10px; outline:none;">
+        <textarea id="diaryBody" placeholder="Write what you want to remember…" style="width:100%; border:none; background:transparent; font-family:'Caveat',cursive; font-size:20px; line-height:28px; color:var(--ink); min-height:280px; padding:0; outline:none; resize:vertical;"></textarea>
+      </div>
+
+      <div style="margin-top:20px; padding:18px 20px; background:var(--card); border:1px solid var(--line); border-radius:12px;">
+        <div style="font-weight:600; font-size:13.5px; margin-bottom:10px;">Who can see this entry?</div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <label class="diary-visibility-opt">
+            <input type="radio" name="diaryVisibility" value="private" checked onchange="onDiaryVisibilityChange()">
+            <span><b>🔒 Private</b> — only you</span>
+          </label>
+          <label class="diary-visibility-opt">
+            <input type="radio" name="diaryVisibility" value="shared_person" onchange="onDiaryVisibilityChange()">
+            <span><b>💌 Share with one person</b> — like a letter</span>
+          </label>
+          <div id="diarySharePersonBox" style="display:none; margin:8px 0 4px 26px; position:relative;">
+            <input type="text" id="diaryPersonSearch" placeholder="Type a name…" oninput="diaryPersonTyped()" style="width:100%; padding:9px 12px; border:1px solid var(--line); border-radius:8px; font-size:13.5px; font-family:inherit;">
+            <div class="ev-ta" id="diaryPersonResults"></div>
+            <div id="diaryPersonPicked" style="margin-top:6px; font-size:12.5px; color:var(--moss); font-weight:600;"></div>
+          </div>
+          <label class="diary-visibility-opt">
+            <input type="radio" name="diaryVisibility" value="on_book" onchange="onDiaryVisibilityChange()">
+            <span><b>📖 Share on my book</b> — as an entry from you to yourself</span>
+          </label>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top:22px;">
+        <button class="btn btn-primary" style="flex:1;" onclick="saveDiaryEntry()">Save entry</button>
+        <button class="link-quiet" onclick="renderDiary(); showScreen('diary')">Cancel</button>
+      </div>
+      <button id="diaryDeleteBtn" class="link-quiet" style="color:#A65A3C; margin-top:14px; display:none;" onclick="deleteDiaryEntry()">Delete this entry</button>
     </div>
   </div>
 </section>
@@ -1678,7 +1746,7 @@
           <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 18px;">Create event page →</button>
         </form>
 
-        <button class="link-quiet" style="margin-top:16px;" onclick="showScreen('create')">Back to personal page</button>
+        <button class="link-quiet" style="margin-top:16px;" onclick="showScreen('create')">Back to my book</button>
       </div>
     </div>
   </div>
@@ -3755,7 +3823,7 @@
     document.getElementById('coverPreview').style.display = 'none';
     document.getElementById('createEyebrow').textContent = 'Step one';
     document.getElementById('createHeading').textContent = 'Make your page';
-    document.getElementById('createSubmitBtn').textContent = 'Create my page →';
+    document.getElementById('createSubmitBtn').textContent = 'Create my book →';
     createVisibilityPublic = true;
     syncVisibilityToggleUI();
     selectedInk = PEN_COLORS[0];
@@ -4917,8 +4985,8 @@
 
       const feed = document.createElement('button');
       feed.className = 'nav-link';
-      feed.textContent = 'Feed';
-      feed.onclick = ()=>showScreen('feed');
+      feed.innerHTML = 'For you<span class="nav-evbadge" id="navForYouBadge" style="display:none;"></span>';
+      feed.onclick = ()=>{ renderForYou(); showScreen('feed'); };
       navRight.appendChild(feed);
 
       const events = document.createElement('button');
@@ -4927,6 +4995,7 @@
       events.onclick = ()=>{ renderMyEvents(); showScreen('events'); };
       navRight.appendChild(events);
       refreshEventsBadge();
+      refreshForYouBadge();
     } else {
       const signIn = document.createElement('button');
       signIn.className = 'nav-link';
@@ -4946,9 +5015,15 @@
     if (profile){
       const myPage = document.createElement('button');
       myPage.className = 'nav-link';
-      myPage.textContent = 'My page';
+      myPage.textContent = 'My book';
       myPage.onclick = ()=>showScreen('dashboard');
       navRight.appendChild(myPage);
+
+      const diary = document.createElement('button');
+      diary.className = 'nav-link';
+      diary.textContent = 'My diary';
+      diary.onclick = ()=>{ renderDiary(); showScreen('diary'); };
+      navRight.appendChild(diary);
     }
 
     if (profile || currentUser){
@@ -4977,24 +5052,6 @@
     }
     refreshNav();
     window.scrollTo({top:0, behavior:'smooth'});
-  }
-
-  function switchFeedTab(tab){
-    document.getElementById('feed-content-activity').style.display = tab === 'activity' ? 'block' : 'none';
-    document.getElementById('feed-content-memories').style.display = tab === 'memories' ? 'block' : 'none';
-    document.getElementById('feed-content-trending').style.display = tab === 'trending' ? 'block' : 'none';
-    
-    const tabs = ['activity', 'memories', 'trending'];
-    tabs.forEach(t => {
-      const btn = document.getElementById('feed-tab-' + t);
-      if(t === tab){
-        btn.style.color = 'var(--ink)';
-        btn.style.borderBottomColor = 'var(--ink)';
-      } else {
-        btn.style.color = 'var(--ink-soft)';
-        btn.style.borderBottomColor = 'transparent';
-      }
-    });
   }
 
   renderTemplatePicker();
@@ -5242,6 +5299,291 @@
       updateTimeline(this.dataset.map);
     });
   });
+
+/* ═══════════════ FOR YOU + MY DIARY ═══════════════ */
+
+  /* ── For You: only things involving ME (new signatures on my book, invites, replies) ── */
+  let lastForYouCheck = null;  // ISO timestamp we last opened For You
+  try { lastForYouCheck = localStorage.getItem('el_last_foryou') || null; } catch(e){}
+
+  async function refreshForYouBadge(){
+    const badge = document.getElementById('navForYouBadge');
+    if (!badge) return;
+    if (!db || !currentUser){ badge.style.display = 'none'; return; }
+    let count = 0;
+    // new signatures on MY book since last check
+    if (profile && profile.dbId){
+      const q = db.from('entries').select('id', {count:'exact', head:true}).eq('profile_id', profile.dbId);
+      if (lastForYouCheck) q.gt('created_at', lastForYouCheck);
+      const { count: c1 } = await q;
+      count += (c1 || 0);
+    }
+    if (count > 0){ badge.textContent = count; badge.style.display = 'inline-flex'; }
+    else badge.style.display = 'none';
+  }
+
+  async function renderForYou(){
+    const list = document.getElementById('forYouList');
+    list.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Loading…</p>';
+    if (!db || !currentUser){
+      list.innerHTML = '<div class="fy-quiet"><b style="color:var(--ink);">Sign in to see what\'s new for you.</b></div>';
+      return;
+    }
+    const items = [];
+    // 1) New signatures on my book
+    if (profile && profile.dbId){
+      const { data: sigs } = await db.from('entries').select('*')
+        .eq('profile_id', profile.dbId).order('created_at', {ascending:false}).limit(6);
+      (sigs || []).forEach(s=>{
+        items.push({
+          kind:'signature',
+          at: s.created_at,
+          avatar: (s.name||'?').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase(),
+          color: s.color || 'var(--blush)',
+          title: escapeHtml(s.name || 'Someone') + ' signed your book',
+          preview: s.body ? escapeHtml(s.body.length > 160 ? s.body.slice(0,160)+'…' : s.body) : '',
+          meta: evTimeAgo(s.created_at)
+        });
+      });
+    }
+    // 2) Event invitations waiting for me
+    const { data: invs } = await db.from('event_guests').select('id, event_id, created_at')
+      .eq('user_id', currentUser.id).eq('status','invited');
+    if (invs && invs.length){
+      const { data: events } = await db.from('events').select('id,name').in('id', invs.map(i=>i.event_id));
+      const nameOf = {}; (events||[]).forEach(e=>{ nameOf[e.id] = e.name; });
+      invs.forEach(iv=>{
+        items.push({
+          kind:'invite',
+          at: iv.created_at,
+          avatar: '✉️', color: 'var(--camel)',
+          title: 'You\'re invited to <b>' + escapeHtml(nameOf[iv.event_id] || 'an event') + '</b>',
+          meta: evTimeAgo(iv.created_at),
+          eventId: iv.event_id, guestRowId: iv.id
+        });
+      });
+    }
+    // 3) Pending approval requests on MY events (host action needed)
+    const { data: own } = await db.from('events').select('id, name').eq('owner_user_id', currentUser.id);
+    if (own && own.length){
+      const { data: reqs } = await db.from('event_guests').select('event_id, guest_name, created_at')
+        .in('event_id', own.map(o=>o.id)).eq('status','requested');
+      const nameOf = {}; own.forEach(e=>{ nameOf[e.id] = e.name; });
+      (reqs || []).forEach(r=>{
+        items.push({
+          kind:'request',
+          at: r.created_at,
+          avatar: (r.guest_name||'?').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase(),
+          color: 'var(--moss)',
+          title: escapeHtml(r.guest_name||'Someone') + ' wants to join <b>' + escapeHtml(nameOf[r.event_id]) + '</b>',
+          meta: evTimeAgo(r.created_at),
+          eventId: r.event_id
+        });
+      });
+    }
+
+    items.sort((a,b)=> new Date(b.at) - new Date(a.at));
+
+    if (!items.length){
+      list.innerHTML = `
+        <div class="fy-quiet">
+          <div style="font-size:26px; margin-bottom:8px;">☕</div>
+          <b style="color:var(--ink); font-size:14.5px;">That's all for today.</b><br>
+          A quiet day is a good day. Come back tomorrow.
+        </div>`;
+    } else {
+      list.innerHTML = items.map(it=>{
+        let action = '';
+        if (it.kind==='signature') action = '<button class="btn-small" onclick="showScreen(\'dashboard\')">Open in my book</button>';
+        if (it.kind==='invite') action = '<button class="btn-small" style="background:var(--moss); color:#fff; border-color:var(--moss);" onclick="acceptInviteFromList(\'' + it.guestRowId + '\',\'' + it.eventId + '\')">Join</button> <button class="btn-small" onclick="openEventById(\'' + it.eventId + '\', false)">View first</button>';
+        if (it.kind==='request') action = '<button class="btn-small" onclick="openEventById(\'' + it.eventId + '\', false)">Open event to approve</button>';
+        return `
+        <div class="fy-item">
+          <div class="fy-row">
+            <div class="ev-avatar" style="background:${it.color};">${it.avatar}</div>
+            <div style="flex:1;">
+              <div style="font-weight:600; font-size:14.5px;">${it.title}</div>
+              <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">${it.meta}</div>
+              ${it.preview ? '<div class="fy-preview">"' + it.preview + '"</div>' : ''}
+              <div style="display:flex; gap:8px; margin-top:12px;">${action}</div>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    // Mark as seen
+    lastForYouCheck = new Date().toISOString();
+    try { localStorage.setItem('el_last_foryou', lastForYouCheck); } catch(e){}
+    refreshForYouBadge();
+  }
+
+  /* ── MY DIARY ── */
+  let diaryEditingId = null;
+  let diarySharedWithUserId = null;
+  let diarySharedWithName = null;
+
+  async function renderDiary(){
+    const list = document.getElementById('diaryList');
+    list.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Loading…</p>';
+    if (!db || !currentUser){
+      list.innerHTML = '<div class="fy-quiet"><b style="color:var(--ink);">Sign in to open your diary.</b></div>';
+      return;
+    }
+    const { data, error } = await db.from('diary_entries').select('*')
+      .eq('author_user_id', currentUser.id).order('created_at', {ascending:false});
+    if (error){
+      list.innerHTML = '<div class="fy-quiet" style="color:#A65A3C;">Could not load diary: ' + escapeHtml(error.message) + '</div>';
+      return;
+    }
+    const entries = data || [];
+    if (!entries.length){
+      list.innerHTML = `
+        <div class="fy-quiet">
+          <div style="font-size:26px; margin-bottom:8px;">📖</div>
+          <b style="color:var(--ink); font-size:14.5px;">Nothing here yet.</b><br>
+          <span style="font-size:13px;">Write your first entry — nobody else will see it.</span><br><br>
+          <button class="btn-small" onclick="openDiaryEditor(null)">＋ Write today's entry</button>
+        </div>`;
+      return;
+    }
+    list.innerHTML = entries.map(e=>{
+      const d = new Date(e.created_at);
+      const day = d.getDate();
+      const mon = d.toLocaleDateString('en-IN',{month:'short'}).toUpperCase();
+      const preview = e.body ? escapeHtml(e.body.slice(0, 200)) : '';
+      let badge = '<span class="diary-lock-badge private">🔒 Private</span>';
+      if (e.visibility === 'shared_person') badge = '<span class="diary-lock-badge shared">💌 Shared with ' + escapeHtml(e.shared_with_name || 'someone') + '</span>';
+      else if (e.visibility === 'on_book') badge = '<span class="diary-lock-badge book">📖 Shared on my book</span>';
+      return `
+        <div class="diary-list-item" onclick="openDiaryEditor('${e.id}')">
+          <div class="diary-date-tab">${day}<small>${mon}</small></div>
+          <div class="diary-item-body">
+            <b>${escapeHtml(e.title || '(untitled)')}</b>
+            <p>${preview}</p>
+            ${badge}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  async function openDiaryEditor(entryId){
+    diaryEditingId = entryId;
+    diarySharedWithUserId = null;
+    diarySharedWithName = null;
+    document.getElementById('diaryTitle').value = '';
+    document.getElementById('diaryBody').value = '';
+    document.querySelector('input[name="diaryVisibility"][value="private"]').checked = true;
+    document.getElementById('diarySharePersonBox').style.display = 'none';
+    document.getElementById('diaryPersonPicked').textContent = '';
+    document.getElementById('diaryPersonSearch').value = '';
+    document.getElementById('diaryDeleteBtn').style.display = 'none';
+
+    const today = new Date().toLocaleDateString('en-IN',{weekday:'long', day:'numeric', month:'long', year:'numeric'});
+    document.getElementById('diaryEditorHeadline').textContent = today;
+    document.getElementById('diaryEditorDate').textContent = entryId ? 'Editing' : 'New entry';
+
+    if (entryId && db){
+      const { data, error } = await db.from('diary_entries').select('*').eq('id', entryId).single();
+      if (!error && data){
+        document.getElementById('diaryTitle').value = data.title || '';
+        document.getElementById('diaryBody').value = data.body || '';
+        const radio = document.querySelector('input[name="diaryVisibility"][value="' + (data.visibility || 'private') + '"]');
+        if (radio) radio.checked = true;
+        if (data.visibility === 'shared_person'){
+          diarySharedWithUserId = data.shared_with_user_id;
+          diarySharedWithName = data.shared_with_name;
+          document.getElementById('diarySharePersonBox').style.display = 'block';
+          document.getElementById('diaryPersonPicked').textContent = '✓ Sharing with ' + (data.shared_with_name || 'someone');
+        }
+        const d = new Date(data.created_at);
+        document.getElementById('diaryEditorHeadline').textContent = d.toLocaleDateString('en-IN',{weekday:'long', day:'numeric', month:'long', year:'numeric'});
+        document.getElementById('diaryDeleteBtn').style.display = 'inline';
+      }
+    }
+    showScreen('diary-editor');
+  }
+
+  function onDiaryVisibilityChange(){
+    const v = document.querySelector('input[name="diaryVisibility"]:checked').value;
+    document.getElementById('diarySharePersonBox').style.display = (v === 'shared_person') ? 'block' : 'none';
+  }
+
+  let diaryPersonTimer = null;
+  function diaryPersonTyped(){
+    clearTimeout(diaryPersonTimer);
+    diaryPersonTimer = setTimeout(diaryPersonSearch, 300);
+  }
+  async function diaryPersonSearch(){
+    const q = document.getElementById('diaryPersonSearch').value.trim();
+    const box = document.getElementById('diaryPersonResults');
+    if (!q || q.length < 2 || !db){ box.classList.remove('open'); return; }
+    const safe = q.replace(/^@/,'').replace(/[%,()]/g,'').trim();
+    const { data, error } = await db.from('profiles').select('user_id, name, username, ink')
+      .eq('visibility','public')
+      .or('name.ilike.%' + safe + '%,username.ilike.%' + safe + '%').limit(6);
+    if (error){ box.classList.remove('open'); return; }
+    const rows = (data||[]).filter(r=>r.user_id !== currentUser.id);
+    if (!rows.length){
+      box.innerHTML = '<div class="ev-ta-none">No public pages found for "' + escapeHtml(q) + '".</div>';
+      box.classList.add('open'); return;
+    }
+    box.innerHTML = rows.map(r=>{
+      const initials = r.name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+      return '<div class="ev-ta-item" onclick="diaryPickPerson(\'' + r.user_id + '\',\'' + r.name.replace(/'/g,"\\'") + '\')">' +
+        '<div class="ev-avatar" style="width:30px; height:30px; font-size:11px; background:' + (r.ink || 'var(--moss)') + ';">' + escapeHtml(initials) + '</div>' +
+        '<div style="flex:1;"><b>' + escapeHtml(r.name) + '</b>' + (r.username ? '<div style="font-size:12px; color:var(--ink-soft);">@' + escapeHtml(r.username) + '</div>' : '') + '</div>' +
+        '</div>';
+    }).join('');
+    box.classList.add('open');
+  }
+  function diaryPickPerson(userId, name){
+    diarySharedWithUserId = userId;
+    diarySharedWithName = name;
+    document.getElementById('diaryPersonPicked').textContent = '✓ Sharing with ' + name;
+    document.getElementById('diaryPersonSearch').value = '';
+    document.getElementById('diaryPersonResults').classList.remove('open');
+  }
+
+  async function saveDiaryEntry(){
+    if (!db || !currentUser){ showToast('Sign in to save diary entries'); return; }
+    const title = document.getElementById('diaryTitle').value.trim();
+    const body = document.getElementById('diaryBody').value.trim();
+    if (!title && !body){ showToast('Write something first'); return; }
+    const visibility = document.querySelector('input[name="diaryVisibility"]:checked').value;
+    if (visibility === 'shared_person' && !diarySharedWithUserId){
+      showToast('Pick who you want to share this with'); return;
+    }
+    const payload = {
+      author_user_id: currentUser.id,
+      title: title || null,
+      body: body || '',
+      visibility,
+      shared_with_user_id: visibility === 'shared_person' ? diarySharedWithUserId : null,
+      shared_with_name: visibility === 'shared_person' ? diarySharedWithName : null
+    };
+    if (diaryEditingId){
+      const { error } = await db.from('diary_entries').update(payload).eq('id', diaryEditingId);
+      if (error){ showToast('Could not save: ' + error.message); return; }
+      showToast('Entry updated ✓');
+    } else {
+      const { error } = await db.from('diary_entries').insert(payload);
+      if (error){ showToast('Could not save: ' + error.message); return; }
+      showToast('Saved to your diary ✓');
+    }
+    renderDiary();
+    showScreen('diary');
+  }
+
+  async function deleteDiaryEntry(){
+    if (!diaryEditingId || !confirm('Delete this diary entry? This cannot be undone.')) return;
+    const { error } = await db.from('diary_entries').delete().eq('id', diaryEditingId);
+    if (error){ showToast('Could not delete: ' + error.message); return; }
+    showToast('Deleted');
+    renderDiary();
+    showScreen('diary');
+  }
+
+/* ═══════════════ END FOR YOU + DIARY ═══════════════ */
 
 /* ═══════════════ EVENTS SYSTEM (Supabase-powered, localStorage fallback) ═══════════════ */
 
