@@ -1033,6 +1033,30 @@
     border-radius:0 !important; border:1px solid var(--ink) !important;
   }
 
+  /* ---------- AVATAR MENU & ACCOUNT ---------- */
+  .nav-avatar-wrap{position:relative; display:inline-block; margin-left:4px;}
+  .nav-avatar{width:32px; height:32px; border-radius:50%; background:var(--moss); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11.5px; cursor:pointer; border:2px solid var(--oat-deep); font-family:inherit; padding:0;}
+  .nav-avatar:hover{border-color:var(--ink-soft);}
+  .nav-avatar-menu{position:absolute; right:0; top:calc(100% + 8px); background:var(--card); border:1px solid var(--line); border-radius:12px; box-shadow:0 12px 32px -10px rgba(46,42,34,.28); width:208px; overflow:hidden; z-index:900; display:none;}
+  .nav-avatar-menu.open{display:block;}
+  .nav-am-head{padding:12px 14px; background:var(--oat); border-bottom:1px solid var(--line);}
+  .nav-am-head b{font-size:13.5px; display:block; color:var(--ink);}
+  .nav-am-head small{font-size:11.5px; color:var(--ink-soft);}
+  .nav-am-item{display:block; width:100%; text-align:left; padding:11px 14px; font-size:13.5px; cursor:pointer; border:none; border-bottom:1px solid var(--line); background:none; color:var(--ink); font-family:inherit;}
+  .nav-am-item:last-child{border-bottom:none;}
+  .nav-am-item:hover{background:var(--oat);}
+  .nav-am-item.danger{color:#A65A3C;}
+  .nav-am-theme{display:flex; align-items:center; justify-content:space-between; padding:11px 14px; font-size:13.5px; border-bottom:1px solid var(--line); color:var(--ink);}
+  .nav-am-theme #navThemeSwatches{display:flex; gap:5px;}
+  .acct-stats{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; text-align:center;}
+  .acct-stat{background:var(--oat); border-radius:10px; padding:14px 8px;}
+  .acct-stat b{display:block; font-family:'Fraunces',serif; font-size:22px; font-weight:500; color:var(--ink);}
+  .acct-stat small{font-size:11.5px; color:var(--ink-soft);}
+  .acct-row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 0; border-bottom:1px solid var(--line);}
+  .acct-row:last-child{border-bottom:none;}
+  .acct-label{font-weight:600; font-size:14px;}
+  .acct-sub{font-size:12.5px; color:var(--ink-soft); margin-top:2px; line-height:1.5;}
+
   /* ---------- DIARY & FOR YOU ---------- */
   .diary-page{background:#FCFBF7; border:1px solid var(--line); border-radius:14px; padding:26px; box-shadow:var(--shadow); background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 27px, #E8E6E1 27px, #E8E6E1 28px); background-size:100% 28px; background-position:0 62px;}
   .diary-list-item{display:flex; gap:14px; align-items:flex-start; padding:16px; background:var(--card); border:1px solid var(--line); border-radius:12px; margin-bottom:10px; cursor:pointer; box-shadow:var(--shadow); transition:background .15s;}
@@ -1054,6 +1078,10 @@
   .fy-preview{font-family:'Caveat',cursive; font-size:17px; line-height:1.55; color:var(--ink); background:var(--oat); border-left:3px solid var(--camel); border-radius:0 8px 8px 0; padding:9px 12px; margin-top:9px;}
   .fy-preview.plain{font-family:'Inter Tight',sans-serif; font-size:13.5px;}
   .fy-quiet{text-align:center; padding:44px 20px; background:var(--card); border:1.5px dashed var(--oat-deep); border-radius:14px; color:var(--ink-soft); margin-top:20px;}
+  .fy-letter{background:#FCFBF7; border:1px solid var(--line); border-left:4px solid var(--blush); border-radius:0 14px 14px 0; padding:20px; box-shadow:var(--shadow); margin-bottom:12px;}
+  .fy-seal{display:inline-block; background:#FBF6F0; border:1px solid var(--blush); color:var(--blush); font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; margin-bottom:10px;}
+  .fy-letter-body{font-family:'Caveat',cursive; font-size:19px; line-height:27px; color:var(--ink); white-space:pre-wrap;}
+  .entry-from-diary{display:inline-block; background:var(--oat); border:1px solid var(--line); color:var(--moss); font-size:10.5px; font-weight:700; letter-spacing:.05em; padding:2px 9px; border-radius:999px; margin-left:6px;}
    */
   .ev-cover{position:relative; border-radius:16px 16px 0 0; overflow:hidden; background:linear-gradient(135deg, var(--moss) 0%, var(--camel) 60%, var(--blush) 100%); height:160px;}
   .ev-caveat{position:absolute; bottom:14px; left:20px; font-family:'Caveat',cursive; font-size:29px; color:#fff; text-shadow:0 1px 8px rgba(46,42,34,.35);}
@@ -1375,43 +1403,15 @@
 
     <div class="details-card" id="ownerDetailsCard" style="display:none;"></div>
 
-    <div class="panel" id="followersPanel">
-      <p class="panel-title">Followers <span id="followersPanelCount"></span></p>
-      <div id="followersPanelList"></div>
-    </div>
-
     <div class="panel">
-      <p class="panel-title">Your link</p>
-      <div class="invite-row">
-        <div class="invite-link" id="inviteLink"></div>
-        <button class="btn-small" onclick="copyInvite()">Copy link</button>
+      <p class="panel-title">Share your book</p>
+      <div class="demo-row">
+        <button class="btn-small" onclick="copyInvite()">Copy my link</button>
         <button class="btn-small" onclick="shareInvite()">Share</button>
-        <button class="btn-small" onclick="toggleQr()">QR code</button>
-      </div>
-      <div class="qr-box" id="qrBox" style="display:none;">
-        <img id="qrImg" alt="QR code for your page link">
-        <p>Anyone can scan this to open your page directly.</p>
-      </div>
-    </div>
-
-    <div class="panel">
-      <p class="panel-title">Preview</p>
-      <div class="demo-row">
         <button class="btn-small" onclick="previewAsVisitor()">Preview as a visitor</button>
-        <button class="btn-small" onclick="showScreen('search')">Search pages</button>
       </div>
-    </div>
-
-    <div class="panel">
-      <p class="panel-title">Account</p>
-      <div class="demo-row">
-        <button class="btn-small" onclick="deactivatePage()">Deactivate page</button>
-        <button class="btn-small" onclick="toggleBlockedList()">Blocked pages</button>
-        <button class="btn-small btn-decline" onclick="deleteAccount()">Delete my book &amp; data</button>
-      </div>
-      <div id="blockedList" style="display:none; margin-top:14px;"></div>
       <p style="font-size:12px; color:var(--ink-soft); margin:12px 0 0;">
-        Deactivating hides your page from everyone — switch it back to Public anytime to reactivate. Deleting removes your page, signatures, comments, likes, follows, and messages permanently.
+        Followers, your QR code, privacy and account settings now live in <b>My account</b> (tap your initials, top right).
       </p>
     </div>
 
@@ -1484,6 +1484,84 @@
       <p style="color:var(--ink-soft); font-size:13.5px; margin:6px 0 22px;">Only you can see this. On each entry you choose: keep private, share with one person, or share on your book.</p>
       <div id="diaryList"></div>
       <button class="link-quiet" style="margin-top:24px;" onclick="showScreen('landing')">Back to home</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MY ACCOUNT ============ -->
+<section class="screen" id="screen-account">
+  <div class="wrap">
+    <div style="max-width:600px; margin:0 auto; padding:40px 24px 60px;">
+      <div class="form-eyebrow">Settings</div>
+      <h2 style="font-family:'Fraunces',serif; font-size:32px; margin:0 0 22px; font-weight:500; letter-spacing:-0.01em;">My account</h2>
+
+      <!-- Your circle -->
+      <div class="panel">
+        <p class="panel-title">Your circle</p>
+        <div class="acct-stats">
+          <div class="acct-stat"><b id="acctSigCount">0</b><small>signatures</small></div>
+          <div class="acct-stat" style="cursor:pointer;" onclick="toggleAcctFollowers()"><b id="acctFollowerCount">0</b><small>followers</small></div>
+          <div class="acct-stat"><b id="acctFollowingCount">0</b><small>following</small></div>
+        </div>
+        <div id="acctFollowersList" style="display:none; margin-top:16px;"></div>
+      </div>
+
+      <!-- Your link -->
+      <div class="panel">
+        <p class="panel-title">Your link</p>
+        <p style="font-size:12.5px; color:var(--ink-soft); margin:0 0 12px;">Anyone with this link can sign your book.</p>
+        <div class="invite-row">
+          <div class="invite-link" id="acctInviteLink"></div>
+          <button class="btn-small" onclick="copyInvite()">Copy link</button>
+          <button class="btn-small" onclick="shareInvite()">Share</button>
+          <button class="btn-small" onclick="toggleAcctQr()">QR code</button>
+        </div>
+        <div class="qr-box" id="acctQrBox" style="display:none;">
+          <img id="acctQrImg" alt="QR code for your book link">
+          <p>Anyone can scan this to open your book directly.</p>
+        </div>
+      </div>
+
+      <!-- Privacy -->
+      <div class="panel">
+        <p class="panel-title">Privacy</p>
+        <div class="acct-row">
+          <div>
+            <div class="acct-label">Book visibility</div>
+            <div class="acct-sub" id="acctVisibilityText">Public — others can find you in search and sign your book.</div>
+          </div>
+          <button class="btn-small" onclick="deactivatePage()">Change</button>
+        </div>
+        <div class="acct-row">
+          <div>
+            <div class="acct-label">Blocked pages</div>
+            <div class="acct-sub">People you've blocked from your book.</div>
+          </div>
+          <button class="btn-small" onclick="toggleBlockedList()">View</button>
+        </div>
+        <div id="blockedList" style="display:none; margin-top:14px;"></div>
+      </div>
+
+      <!-- Account -->
+      <div class="panel">
+        <p class="panel-title">Account</p>
+        <div class="acct-row">
+          <div>
+            <div class="acct-label">Signed in as</div>
+            <div class="acct-sub" id="acctEmail">—</div>
+          </div>
+          <button class="btn-small" onclick="confirmSignOut()">Sign out</button>
+        </div>
+        <div class="acct-row">
+          <div>
+            <div class="acct-label" style="color:#A65A3C;">Delete my book &amp; data</div>
+            <div class="acct-sub">Removes your book, signatures, diary, events, and messages permanently.</div>
+          </div>
+          <button class="btn-small btn-decline" onclick="deleteAccount()">Delete</button>
+        </div>
+      </div>
+
+      <button class="link-quiet" style="margin-top:22px;" onclick="showScreen('dashboard')">← Back to my book</button>
     </div>
   </div>
 </section>
@@ -1765,8 +1843,37 @@
         <div class="ev-caveat" id="evCoverName"></div>
       </div>
       <div class="ev-head">
-        <h1 id="evName" style="margin:0 0 4px; font-size:23px;"></h1>
-        <div class="ev-sub" id="evMeta"></div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+          <div style="flex:1; min-width:0;">
+            <h1 id="evName" style="margin:0 0 4px; font-size:23px;"></h1>
+            <div class="ev-sub" id="evMeta"></div>
+          </div>
+          <button type="button" class="btn-small" id="evEditBtn" style="display:none; flex:none;" onclick="toggleEventEdit()">✎ Edit details</button>
+        </div>
+
+        <div id="evEditBox" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--line);">
+          <div class="field" style="margin-bottom:11px;">
+            <label style="font-size:13px;">Event name</label>
+            <input type="text" id="evEditName" maxlength="100" style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:9px; font-size:14px;">
+          </div>
+          <div class="field" style="margin-bottom:11px;">
+            <label style="font-size:13px;">Event date</label>
+            <input type="date" id="evEditDate" style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:9px; font-size:14px;">
+          </div>
+          <div class="field" style="margin-bottom:11px;">
+            <label style="font-size:13px;">Location</label>
+            <input type="text" id="evEditLocation" maxlength="100" style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:9px; font-size:14px;">
+          </div>
+          <div class="field" style="margin-bottom:14px;">
+            <label style="font-size:13px;">Description</label>
+            <textarea id="evEditDesc" maxlength="500" style="width:100%; min-height:70px; padding:10px 12px; border:1px solid var(--line); border-radius:9px; font-size:14px; resize:vertical;"></textarea>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn-small" onclick="saveEventEdit()">Save changes</button>
+            <button type="button" class="ev-chip" onclick="toggleEventEdit()">Cancel</button>
+          </div>
+        </div>
+
         <div class="ev-members-row">
           <div id="evAvatars" style="display:flex; align-items:center;"></div>
           <button class="link-quiet" id="evMembersCount" style="margin-left:12px; font-size:13px;" onclick="openMembersModal()"></button>
@@ -2802,18 +2909,16 @@
   let myFollowersHidden = 0;  // followers with private pages
 
   async function renderFollowersPanel(){
-    const box = document.getElementById('followersPanelList');
-    const countEl = document.getElementById('followersPanelCount');
+    const box = document.getElementById('acctFollowersList');
     if (!db || !profile || !profile.dbId){
-      countEl.textContent = '';
-      box.innerHTML = '<p style="font-size:13px; color:var(--ink-soft); margin:0;">Followers appear here once your page is saved to your account.</p>';
+      if (box) box.innerHTML = '<p style="font-size:13px; color:var(--ink-soft); margin:0;">Followers appear here once your book is saved to your account.</p>';
       return;
     }
     const { data: rows, error } = await db.from('follows')
       .select('follower_user_id, created_at')
       .eq('followed_profile_id', profile.dbId)
       .order('created_at', { ascending:false });
-    if (error){ box.innerHTML = ''; countEl.textContent = ''; return; }
+    if (error){ if (box) box.innerHTML = ''; return; }
 
     const ids = (rows || []).map(r=>r.follower_user_id);
     let people = [];
@@ -2840,12 +2945,13 @@
   }
 
   function renderFollowersUi(){
-    const box = document.getElementById('followersPanelList');
-    const countEl = document.getElementById('followersPanelCount');
+    const box = document.getElementById('acctFollowersList');
     const total = myFollowersList.length + myFollowersHidden;
-    countEl.textContent = '\u00b7 ' + total;
     const stat = document.getElementById('statFollowers');
     if (stat) stat.textContent = total;
+    const acctCount = document.getElementById('acctFollowerCount');
+    if (acctCount) acctCount.textContent = total;
+    if (!box) return;
 
     if (!total){
       box.innerHTML = '<p style="font-size:13px; color:var(--ink-soft); margin:0;">No followers yet \u2014 share your link and they\u2019ll show up here.</p>';
@@ -4055,9 +4161,6 @@
     renderSeal('ownerSeal');
     renderCover('owner', profile);
     renderSocialLinks('ownerLinks', profile);
-    document.getElementById('inviteLink').textContent =
-      'earthlive.in/?u=' + (profile.username || profile.code);
-
     updateVisibilityPill();
     refreshFollowerCount();
     renderDetails('ownerDetailsCard', profile, true);
@@ -4787,8 +4890,13 @@
     showScreen(visitorReturnScreen);
   }
 
+  function myBookLink(){
+    if (!profile) return 'earthlive.in';
+    return 'earthlive.in/?u=' + (profile.username || profile.code);
+  }
+
   function copyInvite(){
-    const text = document.getElementById('inviteLink').textContent;
+    const text = myBookLink();
     try{
       navigator.clipboard.writeText(text).then(()=>showToast('Link copied'));
     }catch(err){
@@ -4797,10 +4905,9 @@
   }
 
   function shareInvite(){
-    const link = document.getElementById('inviteLink').textContent;
-    const url = 'https://' + link;
+    const url = 'https://' + myBookLink();
     const shareData = {
-      title: `Sign ${profile.name}'s page`,
+      title: `Sign ${profile.name}'s book`,
       text: `Add to my memory book on EarthLive`,
       url
     };
@@ -4808,21 +4915,47 @@
       navigator.share(shareData).catch(()=>{});
     } else {
       copyInvite();
-      showToast('Link copied — share it anywhere');
+      showToast('Link copied \u2014 share it anywhere');
     }
   }
 
-  function toggleQr(){
-    const box = document.getElementById('qrBox');
-    if (box.style.display === 'flex'){
-      box.style.display = 'none';
-      return;
-    }
-    const link = document.getElementById('inviteLink').textContent;
-    const url = 'https://' + link;
-    document.getElementById('qrImg').src =
+  function toggleAcctQr(){
+    const box = document.getElementById('acctQrBox');
+    if (box.style.display === 'flex'){ box.style.display = 'none'; return; }
+    const url = 'https://' + myBookLink();
+    document.getElementById('acctQrImg').src =
       'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(url);
     box.style.display = 'flex';
+  }
+
+  function toggleAcctFollowers(){
+    const box = document.getElementById('acctFollowersList');
+    box.style.display = (box.style.display === 'none' || !box.style.display) ? 'block' : 'none';
+  }
+
+  /* \u2500\u2500 My account screen \u2500\u2500 */
+  async function renderAccount(){
+    if (!profile) return;
+    document.getElementById('acctInviteLink').textContent = myBookLink();
+    document.getElementById('acctEmail').textContent =
+      (currentUser && currentUser.email) ? currentUser.email : 'Not signed in';
+
+    const approved = (entries || []).filter(e=>e.status === 'approved' || !e.status);
+    document.getElementById('acctSigCount').textContent = approved.length;
+
+    const vis = (profile.visibility || 'public');
+    document.getElementById('acctVisibilityText').textContent = (vis === 'public')
+      ? 'Public \u2014 others can find you in search and sign your book.'
+      : 'Private \u2014 your book is hidden from search and visitors.';
+
+    await renderFollowersPanel();
+
+    if (db && currentUser){
+      const { count } = await db.from('follows')
+        .select('id', { count:'exact', head:true })
+        .eq('follower_user_id', currentUser.id);
+      document.getElementById('acctFollowingCount').textContent = count || 0;
+    }
   }
 
   let lastSearchResults = [];
@@ -4964,53 +5097,46 @@
     const navRight = document.getElementById('navRight');
     navRight.innerHTML = '';
 
-    const about = document.createElement('button');
-    about.className = 'nav-link';
-    about.textContent = 'About';
-    about.onclick = ()=>showScreen('about');
-    navRight.appendChild(about);
+    if (!currentUser){
+      // Signed OUT: About + Home + Sign in
+      const about = document.createElement('button');
+      about.className = 'nav-link';
+      about.textContent = 'About';
+      about.onclick = ()=>showScreen('about');
+      navRight.appendChild(about);
 
-    const home = document.createElement('button');
-    home.className = 'nav-link';
-    home.textContent = 'Home';
-    home.onclick = ()=>showScreen('landing');
-    navRight.appendChild(home);
+      const home = document.createElement('button');
+      home.className = 'nav-link';
+      home.textContent = 'Home';
+      home.onclick = ()=>showScreen('landing');
+      navRight.appendChild(home);
 
-    if (currentUser){
-      const find = document.createElement('button');
-      find.className = 'nav-link';
-      find.textContent = 'Find someone';
-      find.onclick = ()=>showScreen('search');
-      navRight.appendChild(find);
-
-      const feed = document.createElement('button');
-      feed.className = 'nav-link';
-      feed.innerHTML = 'For you<span class="nav-evbadge" id="navForYouBadge" style="display:none;"></span>';
-      feed.onclick = ()=>{ renderForYou(); showScreen('feed'); };
-      navRight.appendChild(feed);
-
-      const events = document.createElement('button');
-      events.className = 'nav-link';
-      events.innerHTML = 'Events<span class="nav-evbadge" id="navEventsBadge" style="display:none;"></span>';
-      events.onclick = ()=>{ renderMyEvents(); showScreen('events'); };
-      navRight.appendChild(events);
-      refreshEventsBadge();
-      refreshForYouBadge();
-    } else {
       const signIn = document.createElement('button');
       signIn.className = 'nav-link';
       signIn.textContent = 'Sign in';
       signIn.onclick = ()=>showScreen('auth');
       navRight.appendChild(signIn);
+      return;
     }
 
-    if (currentUser && profile && profile.dbId){
-      const msgs = document.createElement('button');
-      msgs.className = 'nav-link';
-      msgs.innerHTML = 'Messages' + (pendingMsgCount > 0 ? '<span class="nav-badge">' + pendingMsgCount + '</span>' : '');
-      msgs.onclick = openMessages;
-      navRight.appendChild(msgs);
-    }
+    // Signed IN: Find · For you · Events · My book · My diary · Messages · avatar
+    const find = document.createElement('button');
+    find.className = 'nav-link';
+    find.textContent = 'Find';
+    find.onclick = ()=>showScreen('search');
+    navRight.appendChild(find);
+
+    const feed = document.createElement('button');
+    feed.className = 'nav-link';
+    feed.innerHTML = 'For you<span class="nav-evbadge" id="navForYouBadge" style="display:none;"></span>';
+    feed.onclick = ()=>{ renderForYou(); showScreen('feed'); };
+    navRight.appendChild(feed);
+
+    const events = document.createElement('button');
+    events.className = 'nav-link';
+    events.innerHTML = 'Events<span class="nav-evbadge" id="navEventsBadge" style="display:none;"></span>';
+    events.onclick = ()=>{ renderMyEvents(); showScreen('events'); };
+    navRight.appendChild(events);
 
     if (profile){
       const myPage = document.createElement('button');
@@ -5026,14 +5152,62 @@
       navRight.appendChild(diary);
     }
 
-    if (profile || currentUser){
-      const signOut = document.createElement('button');
-      signOut.className = 'nav-link';
-      signOut.textContent = 'Sign out';
-      signOut.onclick = confirmSignOut;
-      navRight.appendChild(signOut);
+    if (profile && profile.dbId){
+      const msgs = document.createElement('button');
+      msgs.className = 'nav-link';
+      msgs.innerHTML = 'Messages' + (pendingMsgCount > 0 ? '<span class="nav-badge">' + pendingMsgCount + '</span>' : '');
+      msgs.onclick = openMessages;
+      navRight.appendChild(msgs);
     }
+
+    // Avatar menu: My account · Theme · About · Sign out (no icons)
+    const wrap = document.createElement('div');
+    wrap.className = 'nav-avatar-wrap';
+    const initials = (profile && profile.name)
+      ? profile.name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase()
+      : (currentUser.email || 'U').slice(0,2).toUpperCase();
+    const avaBtn = document.createElement('button');
+    avaBtn.className = 'nav-avatar';
+    avaBtn.textContent = initials;
+    if (profile && profile.ink) avaBtn.style.background = profile.ink;
+    avaBtn.setAttribute('aria-label', 'Account menu');
+    avaBtn.onclick = (e)=>{ e.stopPropagation(); document.getElementById('navAvatarMenu').classList.toggle('open'); };
+    wrap.appendChild(avaBtn);
+
+    const menu = document.createElement('div');
+    menu.className = 'nav-avatar-menu';
+    menu.id = 'navAvatarMenu';
+    menu.innerHTML =
+      '<div class="nav-am-head"><b>' + escapeHtml((profile && profile.name) || 'Your account') + '</b>' +
+      ((profile && profile.username) ? '<small>@' + escapeHtml(profile.username) + '</small>' : '') + '</div>' +
+      '<button class="nav-am-item" onclick="closeAvatarMenu(); renderAccount(); showScreen(\'account\');">My account</button>' +
+      '<div class="nav-am-theme"><span>Theme</span><div id="navThemeSwatches"></div></div>' +
+      '<button class="nav-am-item" onclick="closeAvatarMenu(); showScreen(\'about\');">About</button>' +
+      '<button class="nav-am-item danger" onclick="closeAvatarMenu(); confirmSignOut();">Sign out</button>';
+    wrap.appendChild(menu);
+    navRight.appendChild(wrap);
+    renderNavThemeSwatches();
+
+    refreshEventsBadge();
+    refreshForYouBadge();
   }
+
+  function renderNavThemeSwatches(){
+    const box = document.getElementById('navThemeSwatches');
+    if (!box || typeof THEMES === 'undefined') return;
+    box.innerHTML = THEMES.map(t=>
+      '<button class="theme-box ' + (t.id===activeThemeId?'active':'') + '"' +
+      ' style="background:' + t.swatch + '" title="' + t.name + '" aria-label="' + t.name + ' theme"' +
+      ' onclick="applyTheme(\'' + t.id + '\'); renderNavThemeSwatches();"></button>').join('');
+  }
+
+  function closeAvatarMenu(){
+    const m = document.getElementById('navAvatarMenu');
+    if (m) m.classList.remove('open');
+  }
+  document.addEventListener('click', function(e){
+    if (!e.target.closest('.nav-avatar-wrap')) closeAvatarMenu();
+  });
 
   function showScreen(name){
     if (name === 'search' && !currentUser){
@@ -5318,6 +5492,12 @@
       const { count: c1 } = await q;
       count += (c1 || 0);
     }
+    // diary entries shared with me since last check
+    const q2 = db.from('diary_entries').select('id', {count:'exact', head:true})
+      .eq('shared_with_user_id', currentUser.id).eq('visibility','shared_person');
+    if (lastForYouCheck) q2.gt('created_at', lastForYouCheck);
+    const { count: c2 } = await q2;
+    count += (c2 || 0);
     if (count > 0){ badge.textContent = count; badge.style.display = 'inline-flex'; }
     else badge.style.display = 'none';
   }
@@ -5382,6 +5562,32 @@
       });
     }
 
+    // 4) Diary entries SHARED WITH ME (private letters)
+    const { data: letters } = await db.from('diary_entries').select('*')
+      .eq('shared_with_user_id', currentUser.id)
+      .eq('visibility','shared_person')
+      .order('created_at', {ascending:false}).limit(10);
+    if (letters && letters.length){
+      // find the authors' names
+      const authorIds = [...new Set(letters.map(l=>l.author_user_id))];
+      const { data: authors } = await db.from('profiles').select('user_id, name, ink').in('user_id', authorIds);
+      const aName = {}, aInk = {};
+      (authors||[]).forEach(a=>{ aName[a.user_id] = a.name; aInk[a.user_id] = a.ink; });
+      letters.forEach(l=>{
+        const who = aName[l.author_user_id] || 'Someone';
+        items.push({
+          kind:'letter',
+          at: l.created_at,
+          avatar: who.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase(),
+          color: aInk[l.author_user_id] || 'var(--blush)',
+          title: escapeHtml(who) + ' shared a diary entry with you',
+          letterTitle: l.title ? escapeHtml(l.title) : '',
+          preview: l.body ? escapeHtml(l.body.length > 280 ? l.body.slice(0,280)+'…' : l.body) : '',
+          meta: evTimeAgo(l.created_at)
+        });
+      });
+    }
+
     items.sort((a,b)=> new Date(b.at) - new Date(a.at));
 
     if (!items.length){
@@ -5393,6 +5599,15 @@
         </div>`;
     } else {
       list.innerHTML = items.map(it=>{
+        if (it.kind === 'letter'){
+          return `
+          <div class="fy-letter">
+            <span class="fy-seal">💌 SHARED WITH YOU ONLY</span>
+            <div style="font-size:12.5px; color:var(--ink-soft); margin-bottom:8px;">${it.title} · ${it.meta}</div>
+            ${it.letterTitle ? '<div style="font-family:\'Fraunces\',serif; font-size:19px; margin:0 0 8px; font-weight:500;">' + it.letterTitle + '</div>' : ''}
+            <div class="fy-letter-body">${it.preview}</div>
+          </div>`;
+        }
         let action = '';
         if (it.kind==='signature') action = '<button class="btn-small" onclick="showScreen(\'dashboard\')">Open in my book</button>';
         if (it.kind==='invite') action = '<button class="btn-small" style="background:var(--moss); color:#fff; border-color:var(--moss);" onclick="acceptInviteFromList(\'' + it.guestRowId + '\',\'' + it.eventId + '\')">Join</button> <button class="btn-small" onclick="openEventById(\'' + it.eventId + '\', false)">View first</button>';
@@ -5561,23 +5776,66 @@
       shared_with_user_id: visibility === 'shared_person' ? diarySharedWithUserId : null,
       shared_with_name: visibility === 'shared_person' ? diarySharedWithName : null
     };
+
+    let diaryId = diaryEditingId;
     if (diaryEditingId){
       const { error } = await db.from('diary_entries').update(payload).eq('id', diaryEditingId);
       if (error){ showToast('Could not save: ' + error.message); return; }
-      showToast('Entry updated ✓');
     } else {
-      const { error } = await db.from('diary_entries').insert(payload);
+      const { data, error } = await db.from('diary_entries').insert(payload).select().single();
       if (error){ showToast('Could not save: ' + error.message); return; }
-      showToast('Saved to your diary ✓');
+      diaryId = data.id;
     }
+
+    // "Share on my book": mirror this entry onto my own book as a signature from me
+    await syncDiaryToBook(diaryId, visibility, title, body);
+
+    showToast(visibility === 'on_book' ? 'Saved and added to your book ✓'
+            : visibility === 'shared_person' ? 'Saved and sent to ' + (diarySharedWithName || 'them') + ' 💌'
+            : (diaryEditingId ? 'Entry updated ✓' : 'Saved to your diary ✓'));
     renderDiary();
     showScreen('diary');
   }
 
+  async function syncDiaryToBook(diaryId, visibility, title, body){
+    if (!db || !currentUser || !profile || !profile.dbId) return;
+    // Is there already a book entry mirroring this diary entry?
+    const { data: existing } = await db.from('entries').select('id')
+      .eq('diary_entry_id', diaryId).maybeSingle();
+
+    if (visibility === 'on_book'){
+      const row = {
+        profile_id: profile.dbId,
+        signer_user_id: currentUser.id,
+        name: profile.name || 'Me',
+        word: title || null,
+        message: body || '',
+        color: (profile && profile.ink) || null,
+        status: 'approved',      // it's your own entry — no approval needed
+        diary_entry_id: diaryId,
+        answers: []
+      };
+      if (existing){
+        await db.from('entries').update({ word: row.word, message: row.message }).eq('id', existing.id);
+      } else {
+        const { error } = await db.from('entries').insert(row);
+        if (error){ showToast('Saved, but could not add to book: ' + error.message); return; }
+      }
+      await loadEntriesFromDb();
+    } else if (existing){
+      // No longer shared on the book — remove the mirrored entry (the diary entry stays)
+      await db.from('entries').delete().eq('id', existing.id);
+      await loadEntriesFromDb();
+    }
+  }
+
   async function deleteDiaryEntry(){
     if (!diaryEditingId || !confirm('Delete this diary entry? This cannot be undone.')) return;
+    // remove any mirrored book entry too
+    await db.from('entries').delete().eq('diary_entry_id', diaryEditingId);
     const { error } = await db.from('diary_entries').delete().eq('id', diaryEditingId);
     if (error){ showToast('Could not delete: ' + error.message); return; }
+    await loadEntriesFromDb();
     showToast('Deleted');
     renderDiary();
     showScreen('diary');
@@ -5849,6 +6107,8 @@
     document.getElementById('evAboutFeed').innerHTML = '';
     document.getElementById('evLeaveBtn').style.display = (curRole==='member') ? 'inline' : 'none';
     document.getElementById('evDeleteBtn').style.display = (curRole==='owner') ? 'inline' : 'none';
+    document.getElementById('evEditBtn').style.display = (curRole==='owner') ? 'inline-block' : 'none';
+    document.getElementById('evEditBox').style.display = 'none';
 
     if (curRole === 'owner'){
       document.getElementById('evLink').value = eventUrl(ev.slug);
@@ -6632,6 +6892,47 @@
       else evMapInstance.fitBounds(bounds, {padding:[30,30]});
       setTimeout(()=>evMapInstance.invalidateSize(), 120);
     }, 80);
+  }
+
+  /* ── Edit event details (host only) ── */
+  function toggleEventEdit(){
+    const box = document.getElementById('evEditBox');
+    const btn = document.getElementById('evEditBtn');
+    const open = box.style.display !== 'none';
+    if (open){
+      box.style.display = 'none';
+      btn.textContent = '✎ Edit details';
+    } else {
+      // prefill with current values
+      document.getElementById('evEditName').value = curEvent.name || '';
+      document.getElementById('evEditDate').value = curEvent.event_date || '';
+      document.getElementById('evEditLocation').value = curEvent.location || '';
+      document.getElementById('evEditDesc').value = curEvent.description || '';
+      box.style.display = 'block';
+      btn.textContent = '✕ Close';
+    }
+  }
+  async function saveEventEdit(){
+    const name = document.getElementById('evEditName').value.trim();
+    if (!name){ showToast('Event name cannot be empty'); return; }
+    const patch = {
+      name,
+      event_date: document.getElementById('evEditDate').value || null,
+      location: document.getElementById('evEditLocation').value.trim() || null,
+      description: document.getElementById('evEditDesc').value.trim() || null
+    };
+    if (curEvent.local){
+      const evts = getLocalEvents().map(e=> e.id === curEvent.id ? { ...e, ...patch } : e);
+      try{ localStorage.setItem('earthlive_events', JSON.stringify(evts)); }catch(e){}
+      Object.assign(curEvent, patch);
+    } else {
+      const { error } = await db.from('events').update(patch).eq('id', curEvent.id);
+      if (error){ showToast('Could not save: ' + error.message); return; }
+      Object.assign(curEvent, patch);
+    }
+    renderEventHeader();
+    toggleEventEdit();
+    showToast('Event updated ✓');
   }
 
   /* ── Cover photo change (host only) ── */
