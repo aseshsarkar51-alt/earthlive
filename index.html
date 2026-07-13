@@ -1062,6 +1062,13 @@
 
   /* ---------- DIARY & FOR YOU ---------- */
   .diary-page{background:#FCFBF7; border:1px solid var(--line); border-radius:14px; padding:26px; box-shadow:var(--shadow); background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 27px, #E8E6E1 27px, #E8E6E1 28px); background-size:100% 28px; background-position:0 62px;}
+  .diary-thumbs{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;}
+  .diary-thumbs .dt{position:relative; width:82px; height:82px; border-radius:10px; overflow:hidden; border:1px solid var(--line);}
+  .diary-thumbs .dt img{width:100%; height:100%; object-fit:cover; display:block;}
+  .diary-thumbs .dt button{position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%; border:none; background:rgba(46,42,34,.75); color:#fff; font-size:11px; cursor:pointer; line-height:1; padding:0;}
+  .diary-item-photo{width:52px; height:52px; border-radius:8px; object-fit:cover; margin-left:10px; flex:none; border:1px solid var(--line);}
+  .diary-entry-photos{display:grid; grid-template-columns:1fr; gap:10px; margin-top:16px;}
+  .diary-entry-photos img{width:100%; border-radius:12px; display:block;}
   .diary-list-item{display:flex; gap:14px; align-items:flex-start; padding:16px; background:var(--card); border:1px solid var(--line); border-radius:12px; margin-bottom:10px; cursor:pointer; box-shadow:var(--shadow); transition:background .15s;}
   .diary-list-item:hover{background:var(--oat);}
   .diary-date-tab{font-family:'Caveat',cursive; font-size:19px; color:var(--camel); min-width:64px; text-align:center; line-height:1.1; border-right:1.5px solid var(--oat-deep); padding-right:14px;}
@@ -1086,8 +1093,7 @@
   .fy-letter-body{font-family:'Caveat',cursive; font-size:19px; line-height:27px; color:var(--ink); white-space:pre-wrap;}
   .entry-from-diary{display:inline-block; background:var(--oat); border:1px solid var(--line); color:var(--moss); font-size:10.5px; font-weight:700; letter-spacing:.05em; padding:2px 9px; border-radius:999px; margin-left:6px;}
    */
-  .ev-cover{position:relative; border-radius:16px 16px 0 0; overflow:hidden; background:linear-gradient(135deg, var(--moss) 0%, var(--camel) 60%, var(--blush) 100%); height:160px;}
-  .ev-caveat{position:absolute; bottom:14px; left:20px; font-family:'Caveat',cursive; font-size:29px; color:#fff; text-shadow:0 1px 8px rgba(46,42,34,.35);}
+  .ev-cover{position:relative; isolation:isolate; contain:layout paint; border-radius:16px 16px 0 0; overflow:hidden; background:linear-gradient(135deg, var(--moss) 0%, var(--camel) 60%, var(--blush) 100%); background-size:cover; background-position:center; height:160px; width:100%;}
   .ev-badge{position:absolute; top:14px; right:14px; background:rgba(255,255,255,.92); border-radius:999px; padding:6px 13px; font-size:12px; font-weight:700; color:var(--moss);}
   .ev-head{background:var(--card); border:1px solid var(--line); border-top:none; border-radius:0 0 16px 16px; padding:22px; box-shadow:var(--shadow); margin-bottom:14px;}
   .ev-sub{font-size:13.5px; color:var(--ink-soft); line-height:1.7;}
@@ -1122,7 +1128,10 @@
   .ev-post-body{font-size:14px; line-height:1.65; margin:11px 0 0; word-wrap:break-word;}
   .ev-tagged{color:var(--moss); font-weight:700;}
   .ev-photos{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:11px;}
-  .ev-photos img{width:100%; height:130px; object-fit:cover; border-radius:10px; cursor:pointer;}
+  .ev-photos.count-1{grid-template-columns:1fr;}
+  .ev-photos.count-3{grid-template-columns:1fr 1fr 1fr;}
+  .ev-photos img{width:100%; height:150px; object-fit:cover; border-radius:10px; cursor:pointer; display:block;}
+  .ev-photos.count-1 img{height:auto; max-height:440px; object-fit:contain; background:var(--oat);}
   .ev-foot{display:flex; gap:15px; margin-top:12px; font-size:12.5px; color:var(--ink-soft); align-items:center; flex-wrap:wrap;}
   .ev-fbtn{background:none; border:none; cursor:pointer; font-family:inherit; font-size:12.5px; color:var(--ink-soft); padding:0;}
   .ev-fbtn:hover{color:var(--ink);}
@@ -1584,7 +1593,10 @@
 
       <div class="diary-page">
         <input type="text" id="diaryTitle" placeholder="Give this entry a title…" maxlength="120" style="width:100%; border:none; background:transparent; font-family:'Fraunces',serif; font-size:22px; font-weight:500; color:var(--ink); padding:0 0 10px; outline:none;">
-        <textarea id="diaryBody" placeholder="Write what you want to remember…" style="width:100%; border:none; background:transparent; font-family:'Caveat',cursive; font-size:20px; line-height:28px; color:var(--ink); min-height:280px; padding:0; outline:none; resize:vertical;"></textarea>
+        <textarea id="diaryBody" placeholder="Write what you want to remember…" style="width:100%; border:none; background:transparent; font-family:'Caveat',cursive; font-size:20px; line-height:28px; color:var(--ink); min-height:250px; padding:0; outline:none; resize:vertical;"></textarea>
+        <div id="diaryPhotoThumbs" class="diary-thumbs"></div>
+        <input type="file" accept="image/*" id="diaryPhotoInput" multiple style="display:none;" onchange="diaryHandlePhotos(event)">
+        <button type="button" class="ev-chip" style="margin-top:12px;" onclick="document.getElementById('diaryPhotoInput').click()">📷 Add photos</button>
       </div>
 
       <div style="margin-top:20px; padding:18px 20px; background:var(--card); border:1px solid var(--line); border-radius:12px;">
@@ -1847,8 +1859,6 @@
       <div class="ev-cover" id="evCover">
         <div class="ev-badge">🔒 Members only</div>
         <input type="file" accept="image/*" id="evCoverInput" style="display:none;" onchange="evChangeCover(event)">
-        <button type="button" id="evCoverBtn" style="display:none; position:absolute; top:14px; left:14px; background:rgba(255,255,255,.92); border:none; border-radius:999px; padding:6px 13px; font-size:12px; font-weight:700; color:var(--ink); cursor:pointer; font-family:inherit;" onclick="document.getElementById('evCoverInput').click()">📷 Change cover</button>
-        <div class="ev-caveat" id="evCoverName"></div>
       </div>
       <div class="ev-head">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
@@ -1875,6 +1885,10 @@
           <div class="field" style="margin-bottom:14px;">
             <label style="font-size:13px;">Description</label>
             <textarea id="evEditDesc" maxlength="500" style="width:100%; min-height:70px; padding:10px 12px; border:1px solid var(--line); border-radius:9px; font-size:14px; resize:vertical;"></textarea>
+          </div>
+          <div class="field" style="margin-bottom:14px;">
+            <label style="font-size:13px;">Cover photo</label>
+            <button type="button" class="ev-chip" onclick="document.getElementById('evCoverInput').click()">📷 Change cover</button>
           </div>
           <div style="display:flex; gap:8px;">
             <button type="button" class="btn-small" onclick="saveEventEdit()">Save changes</button>
@@ -2171,7 +2185,6 @@
   </div>
 </section>
 
-<div class="theme-switcher" id="themeSwitcher" aria-label="Choose theme"></div>
 
 <!-- ============ MESSAGES ============ -->
 <section class="screen" id="screen-messages">
@@ -3722,7 +3735,11 @@
       photos: row.photos || [],
       color: row.color || '#3C4A5E',
       unlockAt: row.unlock_at || null,
-      fromDiary: !!row.diary_entry_id,
+      // Marked FROM MY DIARY when it's linked to a diary entry, or (fallback, if the
+      // link column isn't there yet) when it's an entry on my own book signed by me.
+      fromDiary: !!row.diary_entry_id ||
+                 !!(currentUser && row.signer_user_id === currentUser.id &&
+                    profile && row.profile_id === profile.dbId),
       diaryEntryId: row.diary_entry_id || null,
       likes: 0,
       likedByMe: false,
@@ -4360,9 +4377,10 @@
         }).join('');
         photosHtml = `<div class="entry-photos count-${shown.length}">${tiles}</div>`;
       }
-      const nickHtml = entry.nickname
+      const nickHtml = (entry.nickname
         ? ` <span class="entry-nick">"${escapeHtml(entry.nickname)}"</span>`
-        : (entry.fromDiary ? ` <span class="entry-from-diary">FROM MY DIARY</span>` : '');
+        : '')
+        + (entry.fromDiary ? ` <span class="entry-from-diary">FROM MY DIARY</span>` : '');
       const wordHtml = entry.word
         ? `<span class="word-chip">${escapeHtml(entry.word)}</span>`
         : '';
@@ -4412,7 +4430,8 @@
           </div>`).join('') + `</div>`
       : '';
 
-    const nickHtml = entry.nickname ? ` <span class="entry-nick">"${escapeHtml(entry.nickname)}"</span>` : '';
+    const nickHtml = (entry.nickname ? ` <span class="entry-nick">"${escapeHtml(entry.nickname)}"</span>` : '')
+      + (entry.fromDiary ? ` <span class="entry-from-diary">FROM MY DIARY</span>` : '');
 
     const comments = entry.comments || [];
     const commentsHtml = `
@@ -5318,7 +5337,10 @@
   }
 
   function renderThemeSwitcher(){
-    document.getElementById('themeSwitcher').innerHTML = THEMES.map(t=>`
+    // The floating switcher was removed \u2014 themes now live in the avatar menu.
+    const el = document.getElementById('themeSwitcher');
+    if (!el) { if (typeof renderNavThemeSwatches === 'function') renderNavThemeSwatches(); return; }
+    el.innerHTML = THEMES.map(t=>`
       <button class="theme-box ${t.id===activeThemeId?'active':''}"
               style="background:${t.swatch}"
               title="${t.name}" aria-label="${t.name} theme"
@@ -5623,6 +5645,7 @@
           title: escapeHtml(who) + ' shared a diary entry with you',
           letterTitle: l.title ? escapeHtml(l.title) : '',
           preview: l.body ? escapeHtml(l.body.length > 280 ? l.body.slice(0,280)+'…' : l.body) : '',
+          photos: Array.isArray(l.photos) ? l.photos : [],
           meta: evTimeAgo(l.created_at)
         });
       });
@@ -5646,6 +5669,7 @@
             <div style="font-size:12.5px; color:var(--ink-soft); margin-bottom:8px;">${it.title} · ${it.meta}</div>
             ${it.letterTitle ? '<div style="font-family:\'Fraunces\',serif; font-size:19px; margin:0 0 8px; font-weight:500;">' + it.letterTitle + '</div>' : ''}
             <div class="fy-letter-body">${it.preview}</div>
+            ${(it.photos && it.photos.length) ? '<div class="diary-entry-photos">' + it.photos.map(u=>'<img src="'+u+'" alt="" loading="lazy">').join('') + '</div>' : ''}
           </div>`;
         }
         let action = '';
@@ -5676,6 +5700,30 @@
   let diaryEditingId = null;
   let diarySharedWithUserId = null;
   let diarySharedWithName = null;
+  let diaryPhotos = [];   // data-URLs (new) or https URLs (already uploaded)
+
+  function diaryHandlePhotos(e){
+    const files = Array.from(e.target.files || []);
+    const room = 4 - diaryPhotos.length;
+    if (room <= 0){ showToast('Up to 4 photos per entry'); e.target.value=''; return; }
+    files.slice(0, room).forEach(f=>{
+      const r = new FileReader();
+      r.onload = ()=>{ diaryPhotos.push(r.result); renderDiaryThumbs(); };
+      r.readAsDataURL(f);
+    });
+    e.target.value = '';
+  }
+  function removeDiaryPhoto(i){
+    diaryPhotos.splice(i,1);
+    renderDiaryThumbs();
+  }
+  function renderDiaryThumbs(){
+    const box = document.getElementById('diaryPhotoThumbs');
+    if (!box) return;
+    box.innerHTML = diaryPhotos.map((u,i)=>
+      '<div class="dt"><img src="' + u + '" alt=""><button type="button" onclick="removeDiaryPhoto(' + i + ')" aria-label="Remove photo">\u2715</button></div>'
+    ).join('');
+  }
 
   async function renderDiary(){
     const list = document.getElementById('diaryList');
@@ -5709,14 +5757,19 @@
       let badge = '<span class="diary-lock-badge private">🔒 Private</span>';
       if (e.visibility === 'shared_person') badge = '<span class="diary-lock-badge shared">💌 Shared with ' + escapeHtml(e.shared_with_name || 'someone') + '</span>';
       else if (e.visibility === 'on_book') badge = '<span class="diary-lock-badge book">📖 On my book · <u style="cursor:pointer;" onclick="event.stopPropagation(); removeDiaryFromBook(\'' + e.id + '\')">remove</u></span>';
+      const thumb = (Array.isArray(e.photos) && e.photos[0])
+        ? `<img class="diary-item-photo" src="${e.photos[0]}" alt="">` : '';
+      const more = (Array.isArray(e.photos) && e.photos.length > 1)
+        ? ` <span style="font-size:11px; color:var(--ink-soft);">+${e.photos.length - 1} more</span>` : '';
       return `
         <div class="diary-list-item" onclick="openDiaryEditor('${e.id}')">
           <div class="diary-date-tab">${day}<small>${mon}</small></div>
           <div class="diary-item-body">
             <b>${escapeHtml(e.title || '(untitled)')}</b>
             <p>${preview}</p>
-            ${badge}
+            ${badge}${more}
           </div>
+          ${thumb}
         </div>`;
     }).join('');
   }
@@ -5725,6 +5778,8 @@
     diaryEditingId = entryId;
     diarySharedWithUserId = null;
     diarySharedWithName = null;
+    diaryPhotos = [];
+    renderDiaryThumbs();
     document.getElementById('diaryTitle').value = '';
     document.getElementById('diaryBody').value = '';
     document.querySelector('input[name="diaryVisibility"][value="private"]').checked = true;
@@ -5742,6 +5797,8 @@
       if (!error && data){
         document.getElementById('diaryTitle').value = data.title || '';
         document.getElementById('diaryBody').value = data.body || '';
+        diaryPhotos = Array.isArray(data.photos) ? data.photos.slice() : [];
+        renderDiaryThumbs();
         const radio = document.querySelector('input[name="diaryVisibility"][value="' + (data.visibility || 'private') + '"]');
         if (radio) radio.checked = true;
         if (data.visibility === 'shared_person'){
@@ -5823,10 +5880,21 @@
       if (!ok) return;
     }
 
+    // Upload any new photos (data-URLs) to storage; keep already-uploaded https URLs as-is
+    let photoUrls = [];
+    if (diaryPhotos.length){
+      showToast('Saving photos\u2026');
+      for (let i=0; i<diaryPhotos.length; i++){
+        const url = await uploadImage(diaryPhotos[i], 'entry-photos', 'diary_' + currentUser.id + '_' + Date.now() + '_' + i);
+        if (url) photoUrls.push(url);
+      }
+    }
+
     const payload = {
       author_user_id: currentUser.id,
       title: title || null,
       body: body || '',
+      photos: photoUrls,
       visibility,
       shared_with_user_id: visibility === 'shared_person' ? diarySharedWithUserId : null,
       shared_with_name: visibility === 'shared_person' ? diarySharedWithName : null
@@ -5843,7 +5911,7 @@
     }
 
     // "Share on my book": mirror this entry onto my own book as a signature from me
-    const ok = await syncDiaryToBook(diaryId, visibility, title, body);
+    const ok = await syncDiaryToBook(diaryId, visibility, title, body, photoUrls);
     if (ok === false) return;   // sync failed and told the user why; stay on the editor
 
     showToast(visibility === 'on_book' ? 'Saved and added to your book ✓'
@@ -5860,17 +5928,30 @@
     }
   }
 
-  async function syncDiaryToBook(diaryId, visibility, title, body){
+  // Does the entries table have the diary_entry_id column? (set by SQL_DIARY_SHARING.sql)
+  let diaryLinkColumnOk = null;   // null = unknown, true/false once checked
+  async function checkDiaryLinkColumn(){
+    if (diaryLinkColumnOk !== null) return diaryLinkColumnOk;
+    if (!db){ diaryLinkColumnOk = false; return false; }
+    const { error } = await db.from('entries').select('diary_entry_id').limit(1);
+    diaryLinkColumnOk = !error;
+    if (error){
+      console.error('[EarthLive] entries.diary_entry_id is missing \u2014 run SQL_DIARY_SHARING.sql in Supabase.', error.message);
+    }
+    return diaryLinkColumnOk;
+  }
+
+  async function syncDiaryToBook(diaryId, visibility, title, body, photoUrls){
     if (!db || !currentUser || !profile || !profile.dbId) return true;
 
-    // Is there already a book entry mirroring this diary entry?
-    const { data: existing, error: findErr } = await db.from('entries').select('id')
-      .eq('diary_entry_id', diaryId).maybeSingle();
-    if (findErr){
-      // Almost always means the diary_entry_id column doesn't exist yet.
-      showToast('Could not reach your book: ' + findErr.message);
-      console.error('[EarthLive] diary\u2192book link failed. Did you run SQL_DIARY_SHARING.sql?', findErr);
-      return false;
+    const hasLink = await checkDiaryLinkColumn();
+
+    // Find an existing mirrored entry (only possible if the link column exists)
+    let existing = null;
+    if (hasLink){
+      const { data } = await db.from('entries').select('id')
+        .eq('diary_entry_id', diaryId).maybeSingle();
+      existing = data || null;
     }
 
     if (visibility === 'on_book'){
@@ -5882,11 +5963,13 @@
         message: body || '',
         color: (profile && profile.ink) || null,
         status: 'approved',      // it's your own entry \u2014 no approval needed
-        diary_entry_id: diaryId,
+        photos: photoUrls || [],
         answers: []
       };
+      if (hasLink) row.diary_entry_id = diaryId;
+
       if (existing){
-        const { error } = await db.from('entries').update({ word: row.word, message: row.message }).eq('id', existing.id);
+        const { error } = await db.from('entries').update({ word: row.word, message: row.message, photos: row.photos }).eq('id', existing.id);
         if (error){ showToast('Could not update it on your book: ' + error.message); return false; }
       } else {
         const { error } = await db.from('entries').insert(row);
@@ -5897,6 +5980,9 @@
         }
       }
       await loadEntriesFromDb();
+      if (!hasLink){
+        showToast('Added to your book \u2014 but run SQL_DIARY_SHARING.sql so it can be removed later');
+      }
     } else if (existing){
       // No longer shared on the book \u2014 remove the mirrored entry (the diary entry stays)
       await db.from('entries').delete().eq('id', existing.id);
@@ -5908,6 +5994,11 @@
 
   async function removeDiaryFromBook(diaryId){
     if (!confirm('Remove this from your book?\n\nThe entry stays in your diary \u2014 it just won\u2019t be on your book anymore.')) return;
+    const hasLink = await checkDiaryLinkColumn();
+    if (!hasLink){
+      showToast('Run SQL_DIARY_SHARING.sql in Supabase first \u2014 without it, book copies can\u2019t be tracked');
+      return;
+    }
     const { error: e1 } = await db.from('entries').delete().eq('diary_entry_id', diaryId);
     if (e1){ showToast('Could not remove: ' + e1.message); return; }
     const { error: e2 } = await db.from('diary_entries').update({ visibility: 'private' }).eq('id', diaryId);
@@ -6226,7 +6317,6 @@
 
   function renderEventHeader(){
     const ev = curEvent;
-    document.getElementById('evCoverName').textContent = ev.name;
     document.getElementById('evName').textContent = ev.name;
     // Cover photo: host's uploaded image, or the default gradient
     const cover = document.getElementById('evCover');
@@ -6235,7 +6325,6 @@
     } else {
       cover.style.background = 'linear-gradient(135deg, var(--moss) 0%, var(--camel) 60%, var(--blush) 100%)';
     }
-    document.getElementById('evCoverBtn').style.display = (curRole==='owner' && !ev.local) ? 'block' : 'none';
     const dateTxt2 = ev.event_date ? new Date(ev.event_date) : null;
     const dateTxt = (dateTxt2 && !isNaN(dateTxt2)) ? dateTxt2.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'TBD';
     const hostName = (curRole==='owner') ? 'You' : escapeHtml(curHostName);
@@ -6672,7 +6761,9 @@
   function evRenderPhotos(photos, entryId){
     if (!photos || !photos.length) return '';
     const open = entryId ? `onclick="event.stopPropagation(); openEvEntryModal('${entryId}')"` : '';
-    return '<div class="ev-photos">' + photos.map(u=>'<img src="' + u + '" alt="" loading="lazy" ' + open + '>').join('') + '</div>';
+    const n = Math.min(photos.length, 4);
+    return '<div class="ev-photos count-' + n + '">' +
+      photos.map(u=>'<img src="' + u + '" alt="" loading="lazy" ' + open + '>').join('') + '</div>';
   }
 
   /* ── Write-about form: collapsed tab ── */
@@ -6964,20 +7055,24 @@
       [...new Set(pinned.map(p=>p.city))].join(', ');
     setTimeout(()=>{
       if (evMapInstance){ evMapInstance.remove(); evMapInstance = null; }
-      evMapInstance = L.map('evMemMap', {scrollWheelZoom:false, minZoom:2, maxZoom:18, attributionControl:false});
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19, subdomains:['a','b','c']}).addTo(evMapInstance);
-      const dotIcon = L.divIcon({className:'', html:'<div style="width:13px;height:13px;border-radius:50%;background:#57614A;border:2.5px solid #fff;box-shadow:0 1px 6px rgba(46,42,34,.4);"></div>', iconSize:[13,13], iconAnchor:[7,7]});
-      const bounds = [];
-      pinned.forEach(p=>{
-        const jLat = p.lat + (Math.random()-0.5)*0.08, jLng = p.lng + (Math.random()-0.5)*0.08;
-        bounds.push([jLat, jLng]);
-        L.marker([jLat, jLng], {icon:dotIcon}).addTo(evMapInstance)
-          .bindPopup('<b>' + escapeHtml(p.author_name||'') + (p.subject_member ? ' → ' + escapeHtml(p.subject_member) : '') + '</b><br>' +
-            '<span style="font-size:12px;">"' + escapeHtml(p.message.length>70 ? p.message.slice(0,70)+'…' : p.message) + '"</span><br>' +
-            '<span style="font-size:11px; color:#6E6A60;">📍 ' + escapeHtml(p.city||'') + '</span>');
+      evMapInstance = L.map('evMemMap', {
+        scrollWheelZoom:false, worldCopyJump:true, minZoom:2, maxZoom:18,
+        zoomControl:true, attributionControl:false
       });
-      if (bounds.length === 1) evMapInstance.setView(bounds[0], 6);
-      else evMapInstance.fitBounds(bounds, {padding:[30,30]});
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19, subdomains:['a','b','c']}).addTo(evMapInstance);
+      L.control.attribution({prefix:false})
+        .addAttribution('&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>')
+        .addTo(evMapInstance);
+      const dotIcon = L.divIcon({className:'', html:'<div style="width:13px;height:13px;border-radius:50%;background:#57614A;border:2.5px solid #fff;box-shadow:0 1px 6px rgba(46,42,34,.4);"></div>', iconSize:[13,13], iconAnchor:[7,7]});
+      pinned.forEach(p=>{
+        const jLat = p.lat + (Math.random()-0.5)*0.12, jLng = p.lng + (Math.random()-0.5)*0.12;
+        L.marker([jLat, jLng], {icon:dotIcon}).addTo(evMapInstance)
+          .bindPopup('<b>' + escapeHtml(p.author_name||'') + (p.subject_member ? ' \u2192 ' + escapeHtml(p.subject_member) : '') + '</b><br>' +
+            '<span style="font-size:12px;">"' + escapeHtml(p.message.length>70 ? p.message.slice(0,70)+'\u2026' : p.message) + '"</span><br>' +
+            '<span style="font-size:11px; color:#6E6A60;">\ud83d\udccd ' + escapeHtml(p.city||'') + '</span>');
+      });
+      // Whole-world view, same as the personal memory map
+      evMapInstance.setView([20, 10], 2);
       setTimeout(()=>evMapInstance.invalidateSize(), 120);
     }, 80);
   }
