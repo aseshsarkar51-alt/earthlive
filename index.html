@@ -1171,7 +1171,31 @@
   .filter-bar b{color:var(--camel);}
   .filter-bar > button{margin-left:auto; background:none; border:none; color:var(--ink-soft); cursor:pointer; font-family:inherit; font-size:12px; text-decoration:underline;}
   .d-entry.hide{display:none;}
-  .d-entry{padding:17px 0; border-bottom:1px solid var(--line);}
+  /* the read pane scrolls inside itself — the page never grows */
+  .d-pane{display:flex; flex-direction:column;}
+  .d-scroll{max-height:520px; overflow-y:auto; padding:4px 18px 18px; scrollbar-width:thin; scrollbar-color:var(--oat-deep) transparent;}
+  .d-scroll::-webkit-scrollbar{width:8px;}
+  .d-scroll::-webkit-scrollbar-track{background:transparent;}
+  .d-scroll::-webkit-scrollbar-thumb{background:var(--oat-deep); border-radius:99px;}
+  .d-scroll::-webkit-scrollbar-thumb:hover{background:var(--ink-soft);}
+  .d-e-preview{font-size:13.5px; line-height:1.6; color:var(--ink-soft); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .d-e-more{font-size:11.5px; color:var(--camel); margin-top:6px; font-weight:600;}
+  /* diary entry popup */
+  .d-modal-ov{position:fixed; inset:0; background:rgba(46,42,34,.55); backdrop-filter:blur(3px); display:none; align-items:center; justify-content:center; z-index:1200; padding:24px;}
+  .d-modal-ov.open{display:flex;}
+  .d-modal{background:var(--card); border-radius:16px; max-width:560px; width:100%; max-height:85vh; display:flex; flex-direction:column; box-shadow:0 24px 60px -18px rgba(46,42,34,.5); overflow:hidden;}
+  .d-m-head{padding:18px 22px 14px; border-bottom:1px solid var(--line); display:flex; align-items:flex-start; justify-content:space-between; gap:12px;}
+  .d-m-close{background:none; border:none; font-size:17px; color:var(--ink-soft); cursor:pointer; padding:0 3px; line-height:1;}
+  .d-m-close:hover{color:var(--ink);}
+  .d-m-body{padding:20px 22px; overflow-y:auto;}
+  .d-m-title{font-size:19px; font-weight:600; margin:8px 0 10px;}
+  .d-m-text{font-size:14.5px; line-height:1.8; white-space:pre-wrap;}
+  .d-m-photos{display:flex; gap:9px; margin-top:14px; flex-wrap:wrap;}
+  .d-m-photos img{width:100px; height:100px; object-fit:cover; border-radius:9px; cursor:pointer;}
+  .d-m-foot{padding:14px 22px; border-top:1px solid var(--line); display:flex; gap:14px; align-items:center; background:var(--oat); flex-wrap:wrap;}
+  .d-m-foot button{background:none; border:none; padding:0; cursor:pointer; font-family:inherit; font-size:12.5px;}
+  .d-entry{padding:15px 0; border-bottom:1px solid var(--line); cursor:pointer; transition:background .12s; margin:0 -8px; padding-left:8px; padding-right:8px; border-radius:8px;}
+  .d-entry:hover{background:#FCFBF7;}
   .d-entry:last-child{border-bottom:none;}
   .d-e-head{display:flex; align-items:center; gap:9px; margin-bottom:6px; flex-wrap:wrap;}
   .d-e-date{font-size:13px; font-weight:700; color:var(--camel);}
@@ -1703,7 +1727,7 @@
             <button onclick="clearDiaryFilter()">Show all entries</button>
           </div>
 
-          <div class="d-pane-body" id="diaryList" style="padding-top:2px;"></div>
+          <div class="d-scroll" id="diaryList"></div>
         </div>
 
       </div>
@@ -1712,6 +1736,34 @@
     </div>
   </div>
 </section>
+
+<!-- ============ DIARY ENTRY POPUP ============ -->
+<div class="d-modal-ov" id="diaryModalOv" onclick="if(event.target===this) closeDiaryModal()">
+  <div class="d-modal" role="dialog" aria-modal="true" aria-label="Diary entry">
+    <div class="d-m-head">
+      <div class="d-e-head" style="margin:0;">
+        <span class="d-e-date" id="dmDate"></span>
+        <span class="d-e-seal" id="dmSeal"></span>
+        <span class="d-e-vis" id="dmVis" style="display:none;"></span>
+      </div>
+      <button class="d-m-close" onclick="closeDiaryModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="d-m-body">
+      <div class="d-m-title" id="dmTitle"></div>
+      <div class="d-m-text" id="dmText"></div>
+      <div class="d-m-photos" id="dmPhotos"></div>
+      <div id="dmNotes"></div>
+      <div class="d-note-box" id="dmNoteBox" style="display:none;">
+        <textarea id="dmNoteText" placeholder="Looking back on this…"></textarea>
+        <div class="d-note-actions">
+          <button class="btn-small" onclick="saveDiaryNoteFromModal()">Add note</button>
+          <button class="ev-chip" onclick="document.getElementById('dmNoteBox').style.display='none'">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div class="d-m-foot" id="dmFoot"></div>
+  </div>
+</div>
 
 <!-- ============ MY ACCOUNT ============ -->
 <section class="screen" id="screen-account">
@@ -6508,7 +6560,19 @@
   function pickDiaryDate(k){
     calSelected = k;
     renderDiaryCal();
-    // filter the read pane
+
+    // Open that day's entry straight away — one tap from a date to the memory.
+    const onThatDay = diaryEntriesCache.filter(e => calKey(e.created_at) === k);
+    if (onThatDay.length === 1){
+      openDiaryModal(onThatDay[0].id);
+    } else if (onThatDay.length > 1){
+      // More than one entry that day: filter the list instead of guessing.
+      document.querySelectorAll('#diaryList .d-entry').forEach(el=>{
+        el.classList.toggle('hide', el.getAttribute('data-date') !== k);
+      });
+    }
+
+    // Always show the filter bar so it's clear what's on screen
     document.querySelectorAll('#diaryList .d-entry').forEach(el=>{
       el.classList.toggle('hide', el.getAttribute('data-date') !== k);
     });
@@ -6576,69 +6640,106 @@
 
     list.innerHTML = entries.map(e=>{
       const sealed = isSealed(e);
-      const notes = Array.isArray(e.notes) ? e.notes : [];
+      const preview = (e.body || '').trim() || '(no text)';
       let visTag = '';
       if (e.visibility === 'shared_person'){
         visTag = '<span class="d-e-vis">Sent to ' + escapeHtml(e.shared_with_name || 'someone') + '</span>';
       }
-      const photos = (Array.isArray(e.photos) && e.photos.length)
-        ? '<div class="d-e-photos">' + e.photos.map(u=>'<img src="' + u + '" alt="" loading="lazy" onclick="window.open(\'' + u + '\',\'_blank\')">').join('') + '</div>'
-        : '';
-      const addenda = notes.map(n=>
-        '<div class="d-addendum"><div class="d-a-date">Added ' + escapeHtml(diaryDateLabel(n.at)) + '</div>' +
-        '<div class="d-a-text">' + escapeHtml(n.text || '') + '</div></div>'
-      ).join('');
+      const noteCount = (Array.isArray(e.notes) ? e.notes.length : 0);
+      const photoCount = (Array.isArray(e.photos) ? e.photos.length : 0);
+      const extras = [];
+      if (photoCount) extras.push(photoCount + (photoCount === 1 ? ' photo' : ' photos'));
+      if (noteCount)  extras.push(noteCount + (noteCount === 1 ? ' note' : ' notes'));
 
-      const actions = sealed
-        ? '<button class="d-e-note" onclick="openNoteBox(\'' + e.id + '\')">+ Add a note</button>' +
-          '<button class="d-e-del" onclick="deleteDiaryEntry(\'' + e.id + '\')">Delete</button>' +
-          '<span class="d-e-dim">Sealed — the day has passed</span>'
-        : '<button class="d-e-edit" onclick="openDiaryEditor(\'' + e.id + '\')">Edit</button>' +
-          '<button class="d-e-del" onclick="deleteDiaryEntry(\'' + e.id + '\')">Delete</button>';
-
-      return '<div class="d-entry" id="de-' + e.id + '" data-date="' + calKey(e.created_at) + '">' +
+      return '<div class="d-entry" data-date="' + calKey(e.created_at) + '" ' +
+             'onclick="openDiaryModal(\'' + e.id + '\')" role="button" tabindex="0" ' +
+             'onkeydown="if(event.key===\'Enter\') openDiaryModal(\'' + e.id + '\')">' +
         '<div class="d-e-head">' +
           '<span class="d-e-date">' + escapeHtml(diaryDateLabel(e.created_at)) + '</span>' +
           '<span class="d-e-seal' + (sealed ? '' : ' open') + '">' +
-            (sealed ? ICON_LOCK_SHUT + ' Sealed' : ICON_LOCK_OPEN + ' Today — editable') +
+            (sealed ? ICON_LOCK_SHUT + ' Sealed' : ICON_LOCK_OPEN + ' Today \u2014 editable') +
           '</span>' + visTag +
         '</div>' +
         (e.title ? '<div class="d-e-title">' + escapeHtml(e.title) + '</div>' : '') +
-        '<div class="d-e-body">' + escapeHtml(e.body || '') + '</div>' +
-        photos + addenda +
-        '<div class="d-note-box" id="nb-' + e.id + '" style="display:none;">' +
-          '<textarea id="nt-' + e.id + '" placeholder="Looking back on this…"></textarea>' +
-          '<div class="d-note-actions">' +
-            '<button class="btn-small" onclick="saveDiaryNote(\'' + e.id + '\')">Add note</button>' +
-            '<button class="ev-chip" onclick="closeNoteBox(\'' + e.id + '\')">Cancel</button>' +
-          '</div>' +
+        '<div class="d-e-preview">' + escapeHtml(preview) + '</div>' +
+        '<div class="d-e-more">Read full entry \u2192' +
+          (extras.length ? ' <span style="color:var(--ink-soft); font-weight:400;">\u00b7 ' + extras.join(' \u00b7 ') + '</span>' : '') +
         '</div>' +
-        '<div class="d-e-actions">' + actions + '</div>' +
       '</div>';
     }).join('');
   }
 
-  /* ── Notes on sealed entries (the original text never changes) ── */
-  function openNoteBox(id){
-    const b = document.getElementById('nb-' + id);
-    if (!b) return;
-    b.style.display = 'block';
-    const t = document.getElementById('nt-' + id);
-    if (t) t.focus();
+  /* ── Diary entry popup ── */
+  let dmEntryId = null;
+
+  function openDiaryModal(id){
+    const e = diaryEntriesCache.find(x=>x.id === id);
+    if (!e) return;
+    dmEntryId = id;
+    const sealed = isSealed(e);
+
+    document.getElementById('dmDate').textContent = diaryDateLabel(e.created_at);
+    const sealEl = document.getElementById('dmSeal');
+    sealEl.className = 'd-e-seal' + (sealed ? '' : ' open');
+    sealEl.innerHTML = sealed ? ICON_LOCK_SHUT + ' Sealed' : ICON_LOCK_OPEN + ' Today \u2014 editable';
+
+    const visEl = document.getElementById('dmVis');
+    if (e.visibility === 'shared_person'){
+      visEl.style.display = 'inline';
+      visEl.textContent = 'Sent to ' + (e.shared_with_name || 'someone');
+    } else {
+      visEl.style.display = 'none';
+    }
+
+    const titleEl = document.getElementById('dmTitle');
+    titleEl.textContent = e.title || '';
+    titleEl.style.display = e.title ? 'block' : 'none';
+
+    document.getElementById('dmText').textContent = e.body || '';
+
+    document.getElementById('dmPhotos').innerHTML =
+      (Array.isArray(e.photos) ? e.photos : []).map(u=>
+        '<img src="' + u + '" alt="" loading="lazy" onclick="window.open(\'' + u + '\',\'_blank\')">'
+      ).join('');
+
+    const notes = Array.isArray(e.notes) ? e.notes : [];
+    document.getElementById('dmNotes').innerHTML = notes.map(n=>
+      '<div class="d-addendum"><div class="d-a-date">Added ' + escapeHtml(diaryDateLabel(n.at)) + '</div>' +
+      '<div class="d-a-text">' + escapeHtml(n.text || '') + '</div></div>'
+    ).join('');
+
+    document.getElementById('dmNoteBox').style.display = 'none';
+    const nt = document.getElementById('dmNoteText'); if (nt) nt.value = '';
+
+    document.getElementById('dmFoot').innerHTML = sealed
+      ? '<button class="d-e-note" onclick="document.getElementById(\'dmNoteBox\').style.display=\'block\'; document.getElementById(\'dmNoteText\').focus();">+ Add a note</button>' +
+        '<button class="d-e-del" onclick="deleteDiaryEntry(\'' + e.id + '\'); closeDiaryModal();">Delete</button>' +
+        '<span class="d-e-dim" style="margin-left:auto;">Sealed \u2014 the day has passed</span>'
+      : '<button class="d-e-edit" onclick="closeDiaryModal(); openDiaryEditor(\'' + e.id + '\');">Edit</button>' +
+        '<button class="d-e-del" onclick="deleteDiaryEntry(\'' + e.id + '\'); closeDiaryModal();">Delete</button>';
+
+    document.getElementById('diaryModalOv').classList.add('open');
   }
-  function closeNoteBox(id){
-    const b = document.getElementById('nb-' + id);
-    if (b) b.style.display = 'none';
+
+  function closeDiaryModal(){
+    document.getElementById('diaryModalOv').classList.remove('open');
+    dmEntryId = null;
   }
-  async function saveDiaryNote(id){
-    const t = document.getElementById('nt-' + id);
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && document.getElementById('diaryModalOv') &&
+        document.getElementById('diaryModalOv').classList.contains('open')) closeDiaryModal();
+  });
+
+  async function saveDiaryNoteFromModal(){
+    if (!dmEntryId) return;
+    const t = document.getElementById('dmNoteText');
     const text = t ? t.value.trim() : '';
     if (!text){ showToast('Write your note first'); return; }
-    const { data, error: readErr } = await db.from('diary_entries').select('notes').eq('id', id).single();
+    const { data, error: readErr } = await db.from('diary_entries').select('notes').eq('id', dmEntryId).single();
     if (readErr){ showToast('Could not add note: ' + readErr.message); return; }
     const notes = Array.isArray(data.notes) ? data.notes : [];
     notes.push({ at: new Date().toISOString(), text });
-    const { error } = await db.from('diary_entries').update({ notes }).eq('id', id);
+    const { error } = await db.from('diary_entries').update({ notes }).eq('id', dmEntryId);
     if (error){
       showToast(/notes/i.test(error.message || '')
         ? 'Run SQL_DIARY_NOTES.sql in Supabase to enable notes'
@@ -6646,8 +6747,12 @@
       return;
     }
     showToast('Note added');
-    renderDiary();
+    const id = dmEntryId;
+    await renderDiary();        // refresh the cache
+    openDiaryModal(id);         // reopen with the new note showing
   }
+
+  /* ── Notes on sealed entries (the original text never changes) ── */
 
   /* ── Editor (left pane) ── */
   async function openDiaryEditor(entryId){
