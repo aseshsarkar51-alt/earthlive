@@ -1036,6 +1036,49 @@
   .btn-share-hdr{background:var(--ink); color:var(--oat); border:none; border-radius:999px; padding:9px 20px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; transition:opacity .15s;}
   .btn-share-hdr:hover{opacity:.85;}
 
+  /* ---------- MY WALL ---------- */
+  .mem-marker.mine{background:#57614A !important;}
+  .book-jump{position:sticky; top:0; z-index:50; background:rgba(245,244,241,.93); backdrop-filter:blur(8px); border-bottom:1px solid var(--line); display:flex; gap:6px; padding:11px 0; margin:22px 0 4px;}
+  .book-jump a{flex:1; text-align:center; padding:8px 6px; border-radius:999px; font-size:12.5px; font-weight:600; color:var(--ink-soft); cursor:pointer; border:1px solid transparent; transition:all .15s;}
+  .book-jump a:hover{background:var(--card); border-color:var(--line); color:var(--ink);}
+  .book-jump a .n{opacity:.6; font-weight:500;}
+  .shead{display:flex; align-items:baseline; justify-content:space-between; margin:30px 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
+  .shead h3{margin:0; font-family:'Fraunces',serif; font-size:20px; font-weight:500;}
+  .shead .cnt{font-size:12.5px; color:var(--ink-soft);}
+  .wall-composer{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; box-shadow:var(--shadow); margin-bottom:14px;}
+  .wc-row{display:flex; gap:12px; align-items:flex-start;}
+  .wc-ava{width:44px; height:44px; border-radius:50%; border:2px solid var(--moss); color:var(--moss); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; background:var(--page);}
+  .wc-row textarea{flex:1; padding:13px 16px; border:1px solid var(--line); border-radius:10px; font-size:14.5px; font-family:inherit; color:var(--ink); background:var(--page); resize:vertical; min-height:52px; outline:none;}
+  .wc-row textarea:focus{border-color:var(--moss);}
+  .wc-city{margin-top:12px;}
+  .wc-city input{width:100%; padding:11px 14px; border:1px solid var(--line); border-radius:10px; font-size:14px; font-family:inherit;}
+  .wc-actions{display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap;}
+  .wall-thumbs{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;}
+  .wall-thumbs .wt{position:relative; width:84px; height:84px; border-radius:10px; overflow:hidden; border:1px solid var(--line);}
+  .wall-thumbs .wt img{width:100%; height:100%; object-fit:cover; display:block;}
+  .wall-thumbs .wt button{position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%; border:none; background:rgba(46,42,34,.75); color:#fff; font-size:11px; cursor:pointer; line-height:1; padding:0;}
+  .wall-post{background:#FCFBF7; border:1px solid var(--line); border-left:3px solid var(--moss); border-radius:14px; padding:18px; box-shadow:var(--shadow); margin-bottom:12px;}
+  .wp-top{display:flex; gap:12px; align-items:center;}
+  .wp-ava{width:44px; height:44px; border-radius:50%; border:2px solid var(--moss); color:var(--moss); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; background:var(--page);}
+  .wp-name{font-weight:700; font-size:15px;}
+  .wp-meta{font-size:12.5px; color:var(--ink-soft); margin-top:1px;}
+  .wp-body{font-size:14.5px; line-height:1.7; margin:12px 0 0; white-space:pre-wrap; color:var(--ink);}
+  .wp-photos{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;}
+  .wp-photos.count-1{grid-template-columns:1fr;}
+  .wp-photos.count-3{grid-template-columns:1fr 1fr 1fr;}
+  .wp-photos img{width:100%; height:150px; object-fit:cover; border-radius:10px; display:block; cursor:pointer;}
+  .wp-photos.count-1 img{height:auto; max-height:440px; object-fit:contain; background:var(--oat);}
+  .wp-foot{display:flex; gap:16px; margin-top:14px; font-size:13px; color:var(--ink-soft); align-items:center; flex-wrap:wrap;}
+  .wp-btn{background:none; border:none; cursor:pointer; font-family:inherit; font-size:13px; color:var(--ink-soft); padding:0;}
+  .wp-btn:hover{color:var(--ink);}
+  .wp-btn.liked{color:var(--blush); font-weight:700;}
+  .wp-btn.edit{color:var(--camel); font-weight:600;}
+  .wp-btn.del{color:#A65A3C;}
+  .wp-owner{margin-left:auto; display:flex; gap:14px;}
+  .wall-empty{text-align:center; padding:34px 20px; background:var(--card); border:1.5px dashed var(--oat-deep); border-radius:14px; color:var(--ink-soft); font-size:13.5px;}
+  .wp-comments{margin-top:12px; border-top:1px solid var(--line); padding-top:11px; display:none;}
+  .wp-comments.open{display:block;}
+
   /* ---------- AVATAR MENU & ACCOUNT ---------- */
   .nav-avatar-wrap{position:relative; display:inline-block; margin-left:4px;}
   .nav-avatar{width:32px; height:32px; border-radius:50%; background:var(--moss); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11.5px; cursor:pointer; border:2px solid var(--oat-deep); font-family:inherit; padding:0;}
@@ -1406,6 +1449,39 @@
 
     <div class="details-card" id="ownerDetailsCard" style="display:none;"></div>
 
+    <!-- ===== STICKY JUMP BAR ===== -->
+    <nav class="book-jump" id="bookJump">
+      <a onclick="jumpTo('wallAnchor')">My wall <span class="n" id="jumpWallCount"></span></a>
+      <a onclick="jumpTo('mapAnchor')">Map</a>
+      <a onclick="jumpTo('sigsAnchor')">Signatures <span class="n" id="jumpSigCount"></span></a>
+    </nav>
+
+    <!-- ===== MY WALL ===== -->
+    <div class="shead" id="wallAnchor">
+      <h3>My wall</h3>
+      <span class="cnt" id="wallCount">your own words</span>
+    </div>
+
+    <div class="wall-composer" id="wallComposer">
+      <div class="wc-row">
+        <div class="wc-ava" id="wcAvatar">ME</div>
+        <textarea id="wallText" placeholder="Write something for your wall…" rows="2"></textarea>
+      </div>
+      <div id="wallThumbs" class="wall-thumbs"></div>
+      <div class="wc-city" id="wcCityWrap" style="display:none; position:relative;">
+        <input type="text" id="wallCity" placeholder="Add a city — pins it on your map…" autocomplete="off" oninput="wallCityTyped()">
+        <div class="ev-ta" id="wallCitySuggest"></div>
+      </div>
+      <div class="wc-actions">
+        <input type="file" accept="image/*" id="wallPhotoInput" multiple style="display:none;" onchange="wallHandlePhotos(event)">
+        <button type="button" class="ev-chip" onclick="document.getElementById('wallPhotoInput').click()">📷 Photos</button>
+        <button type="button" class="ev-chip" onclick="toggleWallCity()">📍 Add a city</button>
+        <button type="button" class="btn-small" style="margin-left:auto;" onclick="postToWall()">Post to my wall</button>
+      </div>
+    </div>
+
+    <div id="wallList"></div>
+
     <div class="panel" id="pendingPanel" style="display:none;">
       <p class="panel-title">Waiting for your approval <span id="pendingCount"></span></p>
       <p style="font-size:13px; color:var(--ink-soft); margin:0 0 14px;">
@@ -1415,7 +1491,7 @@
     </div>
 
     <div class="map-panel" id="ownerMapPanel" style="display:none;">
-      <div class="entries-head">
+      <div class="entries-head" id="mapAnchor">
         <h3>Memory map</h3>
         <span id="ownerMapCount"></span>
       </div>
@@ -1440,8 +1516,8 @@
       <div class="memory-map" id="ownerMap"></div>
     </div>
 
-    <div class="entries-head">
-      <h3>Signed by</h3>
+    <div class="entries-head" id="sigsAnchor">
+      <h3>Signatures</h3>
       <span id="entryCount">0 people</span>
     </div>
     <div id="ownerEntries"></div>
@@ -1472,7 +1548,7 @@
         </div>
         <button class="btn-small" onclick="openDiaryEditor(null)">＋ Write today's entry</button>
       </div>
-      <p style="color:var(--ink-soft); font-size:13.5px; margin:6px 0 22px;">Only you can see this. On each entry you choose: keep private, share with one person, or share on your book.</p>
+      <p style="color:var(--ink-soft); font-size:13.5px; margin:6px 0 22px;">Only you can see this. Keep an entry private, or send it to one person like a letter. To post publicly, use <b>My wall</b> on your book.</p>
       <div id="diaryList"></div>
       <button class="link-quiet" style="margin-top:24px;" onclick="showScreen('landing')">Back to home</button>
     </div>
@@ -1615,10 +1691,7 @@
             <div class="ev-ta" id="diaryPersonResults"></div>
             <div id="diaryPersonPicked" style="margin-top:6px; font-size:12.5px; color:var(--moss); font-weight:600;"></div>
           </div>
-          <label class="diary-visibility-opt">
-            <input type="radio" name="diaryVisibility" value="on_book" onchange="onDiaryVisibilityChange()">
-            <span><b>📖 Share on my book</b> — as an entry from you to yourself</span>
-          </label>
+
         </div>
       </div>
 
@@ -3735,11 +3808,9 @@
       photos: row.photos || [],
       color: row.color || '#3C4A5E',
       unlockAt: row.unlock_at || null,
-      // Marked FROM MY DIARY when it's linked to a diary entry, or (fallback, if the
-      // link column isn't there yet) when it's an entry on my own book signed by me.
-      fromDiary: !!row.diary_entry_id ||
-                 !!(currentUser && row.signer_user_id === currentUser.id &&
-                    profile && row.profile_id === profile.dbId),
+      signerUserId: row.signer_user_id || null,
+      profileId: row.profile_id || null,
+      fromDiary: !!row.diary_entry_id,
       diaryEntryId: row.diary_entry_id || null,
       likes: 0,
       likedByMe: false,
@@ -4210,7 +4281,12 @@
     const qCount = (profile.questions || tpl.questions).length;
     const tplEl = document.getElementById('acctTemplateText');
     if (tplEl) tplEl.textContent = tpl.name + ' \u00b7 ' + qCount + ' question' + (qCount===1?'':'s');
-    renderEntries('ownerEntries', entries.filter(isApproved), 'entryCount', true);
+    renderWall();
+    // Signatures = approved entries from OTHER people (your own posts live on your wall)
+    const signatures = entries.filter(e=>isApproved(e) && !isWallPost(e));
+    renderEntries('ownerEntries', signatures, 'entryCount', true);
+    const js = document.getElementById('jumpSigCount');
+    if (js) js.textContent = signatures.length || '';
     renderMemoryMap('ownerMapPanel', 'ownerMap', 'ownerMapCount', entries.filter(isApproved));
     renderPendingPanel(entries.filter(e => e.status === 'pending'));
   }
@@ -5434,6 +5510,8 @@
         .addTo(map);
 
       const dotIcon = L.divIcon({ className:'', html:'<div class="mem-marker"></div>', iconSize:[11,11], iconAnchor:[6,6] });
+      // Your own wall posts pin in moss; other people's signatures pin in camel.
+      const mineIcon = L.divIcon({ className:'', html:'<div class="mem-marker mine"></div>', iconSize:[11,11], iconAnchor:[6,6] });
 
       const bounds = [];
       tagged.forEach(({entry, index})=>{
@@ -5453,7 +5531,7 @@
             <p>"${escapeHtml(entry.message.length > 70 ? entry.message.slice(0,70) + '\u2026' : entry.message)}"</p>
             <button onclick="openEntryModal(${index})">Read full entry \u2192</button>
           </div>`;
-        L.marker([jLat, jLng], {icon: dotIcon}).addTo(map)
+        L.marker([jLat, jLng], {icon: isWallPost(entry) ? mineIcon : dotIcon}).addTo(map)
           .bindPopup(popupHtml, { maxWidth:230, className:'mem-popup-wrap' });
       });
 
@@ -5535,6 +5613,236 @@
       updateTimeline(this.dataset.map);
     });
   });
+
+
+/* ═══════════════ MY WALL (posts you write on your own book) ═══════════════ */
+
+  let wallPhotos = [];
+  let wallSelectedCity = null;
+  let wallEditingId = null;
+
+  // A wall post = an entry on MY book, signed by ME.
+  function isWallPost(e){
+    return !!(currentUser && profile && e.signerUserId === currentUser.id);
+  }
+
+  function jumpTo(id){
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function toggleWallCity(){
+    const w = document.getElementById('wcCityWrap');
+    w.style.display = (w.style.display === 'none' || !w.style.display) ? 'block' : 'none';
+    if (w.style.display === 'block') document.getElementById('wallCity').focus();
+  }
+
+  function wallHandlePhotos(e){
+    const files = Array.from(e.target.files || []);
+    const room = 4 - wallPhotos.length;
+    if (room <= 0){ showToast('Up to 4 photos per post'); e.target.value=''; return; }
+    files.slice(0, room).forEach(f=>{
+      const r = new FileReader();
+      r.onload = ()=>{ wallPhotos.push(r.result); renderWallThumbs(); };
+      r.readAsDataURL(f);
+    });
+    e.target.value = '';
+  }
+  function removeWallPhoto(i){ wallPhotos.splice(i,1); renderWallThumbs(); }
+  function renderWallThumbs(){
+    const box = document.getElementById('wallThumbs');
+    if (!box) return;
+    box.innerHTML = wallPhotos.map((u,i)=>
+      '<div class="wt"><img src="' + u + '" alt=""><button type="button" onclick="removeWallPhoto(' + i + ')" aria-label="Remove">\u2715</button></div>'
+    ).join('');
+  }
+
+  let wallCityTimer = null;
+  function wallCityTyped(){
+    clearTimeout(wallCityTimer);
+    wallSelectedCity = null;
+    wallCityTimer = setTimeout(()=>{
+      const q = document.getElementById('wallCity').value.trim().toLowerCase();
+      const box = document.getElementById('wallCitySuggest');
+      if (q.length < 2){ box.classList.remove('open'); return; }
+      const starts = CITIES.filter(c=>c.name.toLowerCase().startsWith(q));
+      const has = CITIES.filter(c=>!c.name.toLowerCase().startsWith(q) && c.name.toLowerCase().includes(q));
+      const hits = [...starts, ...has].slice(0,6);
+      if (!hits.length){ box.classList.remove('open'); return; }
+      box.innerHTML = hits.map(c=>'<div class="ev-ta-item" onclick="wallPickCity(' + CITIES.indexOf(c) + ')">\ud83d\udccd ' + escapeHtml(c.name) + '</div>').join('');
+      box.classList.add('open');
+    }, 200);
+  }
+  function wallPickCity(i){
+    wallSelectedCity = CITIES[i];
+    document.getElementById('wallCity').value = wallSelectedCity.name;
+    document.getElementById('wallCitySuggest').classList.remove('open');
+  }
+
+  async function postToWall(){
+    if (!db || !currentUser){ showToast('Sign in to post'); return; }
+    if (!profile || !profile.dbId){ showToast('Save your book first'); return; }
+    const text = document.getElementById('wallText').value.trim();
+    if (!text){ showToast('Write something first'); return; }
+    if (!enforceWordLimit(text, 'Your post')) return;
+
+    showToast(wallEditingId ? 'Saving\u2026' : 'Posting\u2026');
+
+    // upload any new photos
+    const photoUrls = [];
+    for (let i=0; i<wallPhotos.length; i++){
+      const url = await uploadImage(wallPhotos[i], 'entry-photos', 'wall_' + currentUser.id + '_' + Date.now() + '_' + i);
+      if (url) photoUrls.push(url);
+    }
+
+    const cityText = document.getElementById('wallCity').value.trim();
+    const cityObj = wallSelectedCity || (cityText ? CITIES.find(c=>c.name.toLowerCase() === cityText.toLowerCase()) : null);
+
+    if (wallEditingId){
+      const { error } = await db.from('entries').update({
+        message: text,
+        photos: photoUrls,
+        city: cityObj ? cityObj.name : (cityText || null)
+      }).eq('id', wallEditingId);
+      if (error){ showToast('Could not save: ' + error.message); return; }
+      showToast('Post updated \u2713');
+    } else {
+      const row = {
+        profile_id: profile.dbId,
+        signer_user_id: currentUser.id,
+        name: profile.name || 'Me',
+        word: '',            // entries.word is NOT NULL
+        nickname: '',
+        relation: '',
+        message: text,
+        photos: photoUrls,
+        city: cityObj ? cityObj.name : (cityText || null),
+        color: (profile && profile.ink) || null,
+        status: 'approved',  // your own post \u2014 no approval needed
+        answers: []
+      };
+      const { error } = await db.from('entries').insert(row);
+      if (error){
+        showToast('Could not post: ' + error.message);
+        console.error('[EarthLive] wall post failed:', error);
+        return;
+      }
+      showToast('Posted to your wall \u2713');
+    }
+
+    clearWallComposer();
+    await loadEntriesFromDb();
+    renderDashboard();
+  }
+
+  function clearWallComposer(){
+    wallEditingId = null;
+    wallPhotos = [];
+    wallSelectedCity = null;
+    const t = document.getElementById('wallText'); if (t) t.value = '';
+    const c = document.getElementById('wallCity'); if (c) c.value = '';
+    const cw = document.getElementById('wcCityWrap'); if (cw) cw.style.display = 'none';
+    const pi = document.getElementById('wallPhotoInput'); if (pi) pi.value = '';
+    renderWallThumbs();
+    const btn = document.querySelector('#wallComposer .btn-small');
+    if (btn) btn.textContent = 'Post to my wall';
+  }
+
+  function editWallPost(id){
+    const e = entries.find(x=>x.id === id);
+    if (!e) return;
+    wallEditingId = id;
+    document.getElementById('wallText').value = e.message || '';
+    wallPhotos = Array.isArray(e.photos) ? e.photos.slice() : [];
+    renderWallThumbs();
+    if (e.city){
+      document.getElementById('wcCityWrap').style.display = 'block';
+      document.getElementById('wallCity').value = e.city;
+      wallSelectedCity = CITIES.find(c=>c.name === e.city) || null;
+    }
+    const btn = document.querySelector('#wallComposer .btn-small');
+    if (btn) btn.textContent = 'Save changes';
+    document.getElementById('wallComposer').scrollIntoView({behavior:'smooth', block:'center'});
+    document.getElementById('wallText').focus();
+  }
+
+  async function deleteWallPost(id){
+    if (!confirm('Delete this post from your wall?')) return;
+    const { error } = await db.from('entries').delete().eq('id', id);
+    if (error){ showToast('Could not delete: ' + error.message); return; }
+    await loadEntriesFromDb();
+    renderDashboard();
+    showToast('Post deleted');
+  }
+
+  function renderWall(){
+    const list = document.getElementById('wallList');
+    if (!list) return;
+    const mine = entries.filter(e=>isWallPost(e) && isApproved(e));
+
+    // counts
+    const wc = document.getElementById('wallCount');
+    if (wc) wc.textContent = mine.length ? (mine.length + (mine.length===1?' post':' posts') + ' \u00b7 your own words') : 'your own words';
+    const jw = document.getElementById('jumpWallCount'); if (jw) jw.textContent = mine.length || '';
+
+    const initials = (profile && profile.name)
+      ? profile.name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase() : 'ME';
+    const av = document.getElementById('wcAvatar');
+    if (av){
+      av.textContent = initials;
+      if (profile && profile.ink){ av.style.borderColor = profile.ink; av.style.color = profile.ink; }
+    }
+
+    if (!mine.length){
+      list.innerHTML = '<div class="wall-empty"><div style="font-size:24px; margin-bottom:8px;">\u270d\ufe0f</div>' +
+        '<b style="color:var(--ink);">Your wall is empty.</b><br>Write something above \u2014 it appears here on your book.</div>';
+      return;
+    }
+
+    list.innerHTML = mine.map(e=>{
+      const ink = e.color || 'var(--moss)';
+      const n = Math.min((e.photos||[]).length, 4);
+      const photos = (e.photos && e.photos.length)
+        ? '<div class="wp-photos count-' + n + '">' + e.photos.map(u=>'<img src="' + u + '" alt="" loading="lazy" onclick="window.open(\'' + u + '\',\'_blank\')">').join('') + '</div>'
+        : '';
+      const cmts = (e.comments || []).length;
+      return `
+      <div class="wall-post" id="wp-${e.id}" style="border-left-color:${ink};">
+        <div class="wp-top">
+          <div class="wp-ava" style="border-color:${ink}; color:${ink};">${escapeHtml(initials)}</div>
+          <div>
+            <div class="wp-name">${escapeHtml(e.name || 'Me')}</div>
+            <div class="wp-meta">${e.city ? escapeHtml(e.city) + ' \u00b7 ' : ''}${escapeHtml(e.date || '')}</div>
+          </div>
+        </div>
+        <div class="wp-body">${escapeHtml(e.message || '')}</div>
+        ${photos}
+        <div class="wp-foot">
+          <button class="wp-btn ${e.likedByMe ? 'liked' : ''}" onclick="toggleLike('${e.id}')">${e.likedByMe ? '\u2665' : '\u2661'} ${e.likes || 0}</button>
+          <button class="wp-btn" onclick="toggleWallComments('${e.id}')">\ud83d\udcac ${cmts}</button>
+          <button class="wp-btn" onclick="shareInvite()">\u2197 Share</button>
+          <div class="wp-owner">
+            <button class="wp-btn edit" onclick="editWallPost('${e.id}')">\u270e Edit</button>
+            <button class="wp-btn del" onclick="deleteWallPost('${e.id}')">Delete</button>
+          </div>
+        </div>
+        <div class="wp-comments" id="wpc-${e.id}">
+          ${(e.comments || []).map(c=>
+            '<div class="ev-comment"><div class="ev-avatar" style="background:var(--oat-deep); color:var(--ink);">' +
+            escapeHtml((c.name||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()) +
+            '</div><div class="ev-comment-body"><b>' + escapeHtml(c.name||'') + '</b> ' + escapeHtml(c.text||'') + '</div></div>'
+          ).join('') || '<p style="font-size:12px; color:var(--ink-soft);">No comments yet.</p>'}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function toggleWallComments(id){
+    const box = document.getElementById('wpc-' + id);
+    if (box) box.classList.toggle('open');
+  }
+
+/* ═══════════════ END MY WALL ═══════════════ */
 
 /* ═══════════════ FOR YOU + MY DIARY ═══════════════ */
 
@@ -5756,7 +6064,7 @@
       const preview = e.body ? escapeHtml(e.body.slice(0, 200)) : '';
       let badge = '<span class="diary-lock-badge private">🔒 Private</span>';
       if (e.visibility === 'shared_person') badge = '<span class="diary-lock-badge shared">💌 Shared with ' + escapeHtml(e.shared_with_name || 'someone') + '</span>';
-      else if (e.visibility === 'on_book') badge = '<span class="diary-lock-badge book">📖 On my book · <u style="cursor:pointer;" onclick="event.stopPropagation(); removeDiaryFromBook(\'' + e.id + '\')">remove</u></span>';
+
       const thumb = (Array.isArray(e.photos) && e.photos[0])
         ? `<img class="diary-item-photo" src="${e.photos[0]}" alt="">` : '';
       const more = (Array.isArray(e.photos) && e.photos.length > 1)
@@ -5866,19 +6174,6 @@
       showToast('Pick who you want to share this with'); return;
     }
 
-    // Publishing something you wrote privately is a big step \u2014 confirm it, and show exactly what others will read.
-    if (visibility === 'on_book'){
-      const visNote = (profile && profile.visibility === 'private')
-        ? 'Your book is Private, so only you can see it for now.'
-        : 'Your book is Public \u2014 anyone who can see your book will read this.';
-      const ok = confirm(
-        'Add this to your book?\n\n' +
-        (title ? '\u201c' + title + '\u201d\n' : '') +
-        (body.length > 160 ? body.slice(0,160) + '\u2026' : body) + '\n\n' +
-        visNote + '\n\nYou can remove it from your book anytime \u2014 the diary entry stays yours either way.'
-      );
-      if (!ok) return;
-    }
 
     // Upload any new photos (data-URLs) to storage; keep already-uploaded https URLs as-is
     let photoUrls = [];
@@ -5924,106 +6219,16 @@
       diaryId = data.id;
     }
 
-    // "Share on my book": mirror this entry onto my own book as a signature from me
-    const ok = await syncDiaryToBook(diaryId, visibility, title, body, photoUrls);
-    if (ok === false) return;   // sync failed and told the user why; stay on the editor
+    showToast(visibility === 'shared_person'
+      ? 'Saved and sent to ' + (diarySharedWithName || 'them') + ' 💌'
+      : (diaryEditingId ? 'Entry updated ✓' : 'Saved to your diary ✓'));
 
-    showToast(visibility === 'on_book' ? 'Saved and added to your book ✓'
-            : visibility === 'shared_person' ? 'Saved and sent to ' + (diarySharedWithName || 'them') + ' 💌'
-            : (diaryEditingId ? 'Entry updated ✓' : 'Saved to your diary ✓'));
-
-    if (visibility === 'on_book'){
-      // Take them straight to the book so they can SEE it landed
-      renderDashboard();
-      showScreen('dashboard');
-    } else {
-      renderDiary();
-      showScreen('diary');
-    }
-  }
-
-  // Does the entries table have the diary_entry_id column? (set by SQL_DIARY_SHARING.sql)
-  let diaryLinkColumnOk = null;   // null = unknown, true/false once checked
-  async function checkDiaryLinkColumn(){
-    if (diaryLinkColumnOk !== null) return diaryLinkColumnOk;
-    if (!db){ diaryLinkColumnOk = false; return false; }
-    const { error } = await db.from('entries').select('diary_entry_id').limit(1);
-    diaryLinkColumnOk = !error;
-    if (error){
-      console.error('[EarthLive] entries.diary_entry_id is missing \u2014 run SQL_DIARY_SHARING.sql in Supabase.', error.message);
-    }
-    return diaryLinkColumnOk;
-  }
-
-  async function syncDiaryToBook(diaryId, visibility, title, body, photoUrls){
-    if (!db || !currentUser || !profile || !profile.dbId) return true;
-
-    const hasLink = await checkDiaryLinkColumn();
-
-    // Find an existing mirrored entry (only possible if the link column exists)
-    let existing = null;
-    if (hasLink){
-      const { data } = await db.from('entries').select('id')
-        .eq('diary_entry_id', diaryId).maybeSingle();
-      existing = data || null;
-    }
-
-    if (visibility === 'on_book'){
-      const row = {
-        profile_id: profile.dbId,
-        signer_user_id: currentUser.id,
-        name: profile.name || 'Me',
-        // entries.word is NOT NULL \u2014 never send null. Untitled diary entries get ''.
-        word: (title || '').slice(0, 60),
-        nickname: '',
-        relation: '',
-        message: body || '',
-        color: (profile && profile.ink) || null,
-        status: 'approved',      // it's your own entry \u2014 no approval needed
-        photos: photoUrls || [],
-        answers: []
-      };
-      if (hasLink) row.diary_entry_id = diaryId;
-
-      if (existing){
-        const { error } = await db.from('entries').update({ word: row.word || '', message: row.message || '', photos: row.photos || [] }).eq('id', existing.id);
-        if (error){ showToast('Could not update it on your book: ' + error.message); return false; }
-      } else {
-        const { error } = await db.from('entries').insert(row);
-        if (error){
-          showToast('Saved to your diary, but could not add to your book: ' + error.message);
-          console.error('[EarthLive] book mirror insert failed:', error);
-          return false;
-        }
-      }
-      await loadEntriesFromDb();
-      if (!hasLink){
-        showToast('Added to your book \u2014 but run SQL_DIARY_SHARING.sql so it can be removed later');
-      }
-    } else if (existing){
-      // No longer shared on the book \u2014 remove the mirrored entry (the diary entry stays)
-      await db.from('entries').delete().eq('id', existing.id);
-      await loadEntriesFromDb();
-      showToast('Removed from your book \u2014 it\u2019s still in your diary');
-    }
-    return true;
-  }
-
-  async function removeDiaryFromBook(diaryId){
-    if (!confirm('Remove this from your book?\n\nThe entry stays in your diary \u2014 it just won\u2019t be on your book anymore.')) return;
-    const hasLink = await checkDiaryLinkColumn();
-    if (!hasLink){
-      showToast('Run SQL_DIARY_SHARING.sql in Supabase first \u2014 without it, book copies can\u2019t be tracked');
-      return;
-    }
-    const { error: e1 } = await db.from('entries').delete().eq('diary_entry_id', diaryId);
-    if (e1){ showToast('Could not remove: ' + e1.message); return; }
-    const { error: e2 } = await db.from('diary_entries').update({ visibility: 'private' }).eq('id', diaryId);
-    if (e2){ showToast('Could not update: ' + e2.message); return; }
-    await loadEntriesFromDb();
-    showToast('Removed from your book \u2014 it\u2019s private again');
     renderDiary();
+    showScreen('diary');
   }
+
+
+
 
   async function deleteDiaryEntry(){
     if (!diaryEditingId || !confirm('Delete this diary entry? This cannot be undone.')) return;
