@@ -1036,6 +1036,23 @@
   .btn-share-hdr{background:var(--ink); color:var(--oat); border:none; border-radius:999px; padding:9px 20px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; transition:opacity .15s;}
   .btn-share-hdr:hover{opacity:.85;}
 
+  /* ---------- LINE ICONS (replace colour emoji) ---------- */
+  .ic{display:inline-flex; align-items:center; justify-content:center; width:1.15em; height:1.15em; vertical-align:-0.19em; flex-shrink:0;}
+  .ic svg{width:100%; height:100%; stroke:currentColor; fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;}
+  .ic.fill svg{fill:currentColor; stroke:none;}
+
+  /* ---------- SIGNATURE SEARCH ---------- */
+  .sig-search{display:flex; align-items:center; gap:9px; background:var(--card); border:1px solid var(--line); border-radius:11px; padding:10px 14px; margin-bottom:12px; box-shadow:var(--shadow); transition:border-color .15s;}
+  .sig-search:focus-within{border-color:var(--moss);}
+  .sig-search .ic{color:var(--ink-soft); width:1.05em; height:1.05em;}
+  .sig-search input{flex:1; border:none; outline:none; background:transparent; font-family:inherit; font-size:14px; color:var(--ink);}
+  .sig-search button{background:none; border:none; cursor:pointer; color:var(--ink-soft); font-size:13px; padding:2px 4px; line-height:1;}
+  .sig-search button:hover{color:var(--ink);}
+  .sig-search-meta{font-size:12.5px; color:var(--ink-soft); margin:-4px 0 12px 2px;}
+  .sig-search-meta b{color:var(--camel);}
+  .signer-link{color:inherit; text-decoration:none; border-bottom:1px solid var(--oat-deep); transition:border-color .15s, color .15s;}
+  .signer-link:hover{color:var(--camel); border-bottom-color:var(--camel);}
+
   /* ---------- MY WALL ---------- */
   .mem-marker.mine{background:#57614A !important;}
   .book-jump{position:sticky; top:0; z-index:50; background:rgba(245,244,241,.93); backdrop-filter:blur(8px); border-bottom:1px solid var(--line); display:flex; gap:6px; padding:11px 0; margin:22px 0 4px;}
@@ -1048,7 +1065,7 @@
   .wall-composer{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; box-shadow:var(--shadow); margin-bottom:14px;}
   .wc-row{display:flex; gap:12px; align-items:flex-start;}
   .wc-ava{width:44px; height:44px; border-radius:50%; border:2px solid var(--moss); color:var(--moss); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; background:var(--page);}
-  .wc-row textarea{flex:1; padding:13px 16px; border:1px solid var(--line); border-radius:10px; font-size:14.5px; font-family:inherit; color:var(--ink); background:var(--page); resize:vertical; min-height:52px; outline:none;}
+  .wc-row textarea{flex:1; padding:14px 16px; border:1px solid var(--line); border-radius:10px; font-size:14.5px; line-height:1.6; font-family:inherit; color:var(--ink); background:var(--page); resize:vertical; min-height:104px; outline:none;}
   .wc-row textarea:focus{border-color:var(--moss);}
   .wc-city{margin-top:12px;}
   .wc-city input{width:100%; padding:11px 14px; border:1px solid var(--line); border-radius:10px; font-size:14px; font-family:inherit;}
@@ -1103,37 +1120,90 @@
   .acct-label{font-weight:600; font-size:14px;}
   .acct-sub{font-size:12.5px; color:var(--ink-soft); margin-top:2px; line-height:1.5;}
 
-  /* ---------- DIARY & FOR YOU ---------- */
-  .diary-page{background:#FCFBF7; border:1px solid var(--line); border-radius:14px; padding:26px; box-shadow:var(--shadow); background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 27px, #E8E6E1 27px, #E8E6E1 28px); background-size:100% 28px; background-position:0 62px;}
-  .diary-thumbs{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;}
-  .diary-thumbs .dt{position:relative; width:82px; height:82px; border-radius:10px; overflow:hidden; border:1px solid var(--line);}
-  .diary-thumbs .dt img{width:100%; height:100%; object-fit:cover; display:block;}
-  .diary-thumbs .dt button{position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%; border:none; background:rgba(46,42,34,.75); color:#fff; font-size:11px; cursor:pointer; line-height:1; padding:0;}
-  .diary-item-photo{width:52px; height:52px; border-radius:8px; object-fit:cover; margin-left:10px; flex:none; border:1px solid var(--line);}
-  .diary-entry-photos{display:grid; grid-template-columns:1fr; gap:10px; margin-top:16px;}
-  .diary-entry-photos img{width:100%; border-radius:12px; display:block;}
-  .diary-list-item{display:flex; gap:14px; align-items:flex-start; padding:16px; background:var(--card); border:1px solid var(--line); border-radius:12px; margin-bottom:10px; cursor:pointer; box-shadow:var(--shadow); transition:background .15s;}
-  .diary-list-item:hover{background:var(--oat);}
-  .diary-date-tab{font-family:'Caveat',cursive; font-size:19px; color:var(--camel); min-width:64px; text-align:center; line-height:1.1; border-right:1.5px solid var(--oat-deep); padding-right:14px;}
-  .diary-date-tab small{display:block; font-family:'Inter Tight',sans-serif; font-size:11px; color:var(--ink-soft); font-weight:600;}
-  .diary-item-body{flex:1; min-width:0;}
-  .diary-item-body b{font-family:'Fraunces',serif; font-size:15.5px; font-weight:500;}
-  .diary-item-body p{margin:4px 0 0; font-size:13px; color:var(--ink-soft); line-height:1.55; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
-  .diary-lock-badge{background:var(--oat); border:1px solid var(--line); border-radius:999px; padding:4px 12px; font-size:11.5px; font-weight:600; display:inline-block; margin-top:8px;}
-  .diary-lock-badge.private{color:var(--moss);}
-  .diary-lock-badge.shared{color:var(--camel);}
-  .diary-lock-badge.book{color:var(--blush);}
-  .diary-visibility-opt{display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:9px; cursor:pointer; font-size:13.5px; line-height:1.5; transition:background .1s;}
+  /* ---------- DIARY (split: write | read) ---------- */
+  .diary-split{display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;}
+  @media(max-width:900px){.diary-split{grid-template-columns:1fr;}}
+  .d-pane{background:var(--card); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); overflow:hidden;}
+  .d-pane-head{padding:13px 18px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; background:var(--oat);}
+  .d-pane-head b{font-size:13.5px;}
+  .d-tag{font-size:11.5px; color:var(--ink-soft);}
+  .d-pane-body{padding:18px;}
+  .d-datestamp{font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--camel); font-weight:700; margin-bottom:12px;}
+  .d-title-input{width:100%; border:none; font-family:inherit; font-size:19px; font-weight:600; outline:none; padding:0 0 10px; background:transparent; color:var(--ink);}
+  .d-body-input{width:100%; border:none; font-family:inherit; font-size:14.5px; line-height:1.75; outline:none; resize:vertical; min-height:200px; background:transparent; color:var(--ink); padding:0;}
+  .d-visibility{margin-top:16px; padding-top:14px; border-top:1px solid var(--line);}
+  .d-vis-label{font-weight:600; font-size:13px; margin-bottom:8px;}
+  .diary-visibility-opt{display:flex; align-items:center; gap:9px; padding:7px 9px; border-radius:8px; cursor:pointer; font-size:13.5px; line-height:1.5;}
   .diary-visibility-opt:hover{background:var(--oat);}
   .diary-visibility-opt input{margin:0;}
+  .d-tools{display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; align-items:center;}
+  .diary-thumbs{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;}
+  .diary-thumbs .dt{position:relative; width:78px; height:78px; border-radius:10px; overflow:hidden; border:1px solid var(--line);}
+  .diary-thumbs .dt img{width:100%; height:100%; object-fit:cover; display:block;}
+  .diary-thumbs .dt button{position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%; border:none; background:rgba(46,42,34,.75); color:#fff; font-size:11px; cursor:pointer; line-height:1; padding:0;}
+  /* diary calendar */
+  .cal-toggle{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; padding:6px 11px; border-radius:999px; border:1px solid var(--line); background:var(--page); cursor:pointer; font-family:inherit; color:var(--ink-soft);}
+  .cal-toggle:hover{border-color:var(--ink); color:var(--ink);}
+  .cal-toggle.on{background:var(--ink); color:var(--oat); border-color:var(--ink);}
+  .cal{border-bottom:1px solid var(--line); padding:16px 18px; background:#FCFBF7;}
+  .cal.hidden{display:none;}
+  .cal-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+  .cal-month{font-size:13.5px; font-weight:700;}
+  .cal-nav{display:flex; gap:4px;}
+  .cal-nav button{width:26px; height:26px; border-radius:7px; border:1px solid var(--line); background:var(--page); cursor:pointer; color:var(--ink-soft); font-size:13px; line-height:1; display:flex; align-items:center; justify-content:center; padding:0; font-family:inherit;}
+  .cal-nav button:hover{border-color:var(--ink); color:var(--ink);}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:3px;}
+  .cal-dow{font-size:10px; font-weight:700; color:var(--ink-soft); text-align:center; padding:4px 0; letter-spacing:.04em;}
+  .cal-day{aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:12px; border-radius:8px; color:var(--ink-soft); position:relative; border:1px solid transparent;}
+  .cal-day.empty{visibility:hidden;}
+  .cal-day.has{color:var(--ink); font-weight:600; cursor:pointer;}
+  .cal-day.has:hover{background:var(--oat-deep);}
+  .cal-day .dot{width:4px; height:4px; border-radius:50%; background:var(--camel); position:absolute; bottom:5px;}
+  .cal-day.today{border-color:var(--moss); color:var(--moss); font-weight:700;}
+  .cal-day.sel{background:var(--ink); color:var(--oat);}
+  .cal-day.sel .dot{background:var(--oat);}
+  .cal-legend{display:flex; gap:14px; margin-top:12px; font-size:11px; color:var(--ink-soft); align-items:center; flex-wrap:wrap;}
+  .cal-legend i{display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--camel); margin-right:5px;}
+  .cal-legend .box{display:inline-block; width:11px; height:11px; border-radius:4px; border:1.5px solid var(--moss); margin-right:5px; vertical-align:-2px;}
+  .cal-clear{margin-left:auto; font-size:11.5px; color:var(--camel); background:none; border:none; cursor:pointer; font-family:inherit; font-weight:600;}
+  .filter-bar{display:none; align-items:center; gap:8px; padding:10px 18px; background:#FBF6F0; border-bottom:1px solid var(--line); font-size:12.5px;}
+  .filter-bar.on{display:flex;}
+  .filter-bar b{color:var(--camel);}
+  .filter-bar > button{margin-left:auto; background:none; border:none; color:var(--ink-soft); cursor:pointer; font-family:inherit; font-size:12px; text-decoration:underline;}
+  .d-entry.hide{display:none;}
+  .d-entry{padding:17px 0; border-bottom:1px solid var(--line);}
+  .d-entry:last-child{border-bottom:none;}
+  .d-e-head{display:flex; align-items:center; gap:9px; margin-bottom:6px; flex-wrap:wrap;}
+  .d-e-date{font-size:13px; font-weight:700; color:var(--camel);}
+  .d-e-seal{font-size:10.5px; color:var(--ink-soft); border:1px solid var(--line); border-radius:999px; padding:2px 9px; background:var(--oat); display:inline-flex; align-items:center; gap:4px;}
+  .d-e-seal.open{color:var(--moss); border-color:#D0D8C7; background:#F1F3EE;}
+  .d-e-vis{font-size:10.5px; color:var(--camel); border:1px solid var(--line); border-radius:999px; padding:2px 9px; background:var(--oat);}
+  .d-e-title{font-size:15.5px; font-weight:600; margin:0 0 5px;}
+  .d-e-body{font-size:14px; line-height:1.7; color:var(--ink-soft); white-space:pre-wrap;}
+  .d-e-photos{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;}
+  .d-e-photos img{width:76px; height:76px; object-fit:cover; border-radius:8px; cursor:pointer;}
+  .d-e-actions{margin-top:11px; display:flex; gap:14px; align-items:center; flex-wrap:wrap;}
+  .d-e-actions button{background:none; border:none; padding:0; cursor:pointer; font-family:inherit; font-size:12.5px;}
+  .d-e-edit{color:var(--camel); font-weight:600;}
+  .d-e-del{color:#A65A3C;}
+  .d-e-note{color:var(--moss); font-weight:600;}
+  .d-e-dim{color:var(--ink-soft); font-size:12px;}
+  .d-addendum{margin-top:11px; padding:11px 13px; background:var(--oat); border-left:3px solid var(--moss); border-radius:0 8px 8px 0;}
+  .d-a-date{font-size:10.5px; color:var(--ink-soft); font-weight:700; letter-spacing:.05em; text-transform:uppercase; margin-bottom:3px;}
+  .d-a-text{font-size:13.5px; line-height:1.65; white-space:pre-wrap;}
+  .d-note-box{margin-top:11px;}
+  .d-note-box textarea{width:100%; padding:10px 12px; border:1px solid var(--camel); border-radius:9px; font-family:inherit; font-size:13.5px; line-height:1.6; resize:vertical; min-height:64px; outline:none;}
+  .d-note-actions{display:flex; gap:8px; margin-top:8px;}
+  .d-empty{text-align:center; padding:38px 16px; color:var(--ink-soft); font-size:13.5px;}
+  /* FOR YOU */
   .fy-item{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; box-shadow:var(--shadow); margin-bottom:12px;}
   .fy-row{display:flex; gap:12px; align-items:flex-start;}
-  .fy-preview{font-family:'Caveat',cursive; font-size:17px; line-height:1.55; color:var(--ink); background:var(--oat); border-left:3px solid var(--camel); border-radius:0 8px 8px 0; padding:9px 12px; margin-top:9px;}
-  .fy-preview.plain{font-family:'Inter Tight',sans-serif; font-size:13.5px;}
+  .fy-preview{font-size:13.5px; line-height:1.65; color:var(--ink); background:var(--oat); border-left:3px solid var(--camel); border-radius:0 8px 8px 0; padding:10px 13px; margin-top:9px; white-space:pre-wrap;}
+  .fy-preview.plain{font-size:13.5px;}
   .fy-quiet{text-align:center; padding:44px 20px; background:var(--card); border:1.5px dashed var(--oat-deep); border-radius:14px; color:var(--ink-soft); margin-top:20px;}
   .fy-letter{background:#FCFBF7; border:1px solid var(--line); border-left:4px solid var(--blush); border-radius:0 14px 14px 0; padding:20px; box-shadow:var(--shadow); margin-bottom:12px;}
-  .fy-seal{display:inline-block; background:#FBF6F0; border:1px solid var(--blush); color:var(--blush); font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; margin-bottom:10px;}
-  .fy-letter-body{font-family:'Caveat',cursive; font-size:19px; line-height:27px; color:var(--ink); white-space:pre-wrap;}
+  .fy-seal{display:inline-flex; align-items:center; gap:5px; background:#FBF6F0; border:1px solid var(--blush); color:var(--blush); font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; margin-bottom:10px;}
+  .fy-letter-body{font-size:14px; line-height:1.75; color:var(--ink); white-space:pre-wrap;}
   .entry-from-diary{display:inline-block; background:var(--oat); border:1px solid var(--line); color:var(--moss); font-size:10.5px; font-weight:700; letter-spacing:.05em; padding:2px 9px; border-radius:999px; margin-left:6px;}
    */
   .ev-cover{position:relative; isolation:isolate; contain:layout paint; border-radius:16px 16px 0 0; overflow:hidden; background:linear-gradient(135deg, var(--moss) 0%, var(--camel) 60%, var(--blush) 100%); background-size:cover; background-position:center; height:160px; width:100%;}
@@ -1465,7 +1535,7 @@
     <div class="wall-composer" id="wallComposer">
       <div class="wc-row">
         <div class="wc-ava" id="wcAvatar">ME</div>
-        <textarea id="wallText" placeholder="Write something for your wall…" rows="2"></textarea>
+        <textarea id="wallText" placeholder="Write something for your wall…" rows="4"></textarea>
       </div>
       <div id="wallThumbs" class="wall-thumbs"></div>
       <div class="wc-city" id="wcCityWrap" style="display:none; position:relative;">
@@ -1474,8 +1544,8 @@
       </div>
       <div class="wc-actions">
         <input type="file" accept="image/*" id="wallPhotoInput" multiple style="display:none;" onchange="wallHandlePhotos(event)">
-        <button type="button" class="ev-chip" onclick="document.getElementById('wallPhotoInput').click()">📷 Photos</button>
-        <button type="button" class="ev-chip" onclick="toggleWallCity()">📍 Add a city</button>
+        <button type="button" class="ev-chip" onclick="document.getElementById('wallPhotoInput').click()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span> Photos</button>
+        <button type="button" class="ev-chip" onclick="toggleWallCity()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span> Add a city</button>
         <button type="button" class="btn-small" style="margin-left:auto;" onclick="postToWall()">Post to my wall</button>
       </div>
     </div>
@@ -1520,6 +1590,14 @@
       <h3>Signatures</h3>
       <span id="entryCount">0 people</span>
     </div>
+
+    <div class="sig-search">
+      <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
+      <input type="text" id="sigSearch" placeholder="Search by name, word, city or message…" autocomplete="off" oninput="filterSignatures()">
+      <button type="button" id="sigSearchClear" style="display:none;" onclick="clearSignatureSearch()" aria-label="Clear search">✕</button>
+    </div>
+    <div id="sigSearchMeta" class="sig-search-meta" style="display:none;"></div>
+
     <div id="ownerEntries"></div>
   </div>
 </section>
@@ -1537,19 +1615,99 @@
   </div>
 </section>
 
-<!-- ============ MY DIARY ============ -->
+<!-- ============ MY DIARY (write | read) ============ -->
 <section class="screen" id="screen-diary">
   <div class="wrap">
-    <div style="max-width:640px; margin:0 auto; padding:40px 24px;">
-      <div style="display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:8px;">
-        <div>
-          <div class="form-eyebrow">Your private space</div>
-          <h2 style="font-family:'Fraunces',serif; font-size:34px; margin:0; font-weight:500; letter-spacing:-0.01em;">My diary</h2>
+    <div style="max-width:1040px; margin:0 auto; padding:36px 24px 60px;">
+      <div class="form-eyebrow">Your private space</div>
+      <h2 style="font-size:30px; margin:0 0 4px; font-weight:700;">My diary</h2>
+      <p style="color:var(--ink-soft); font-size:13.5px; margin:6px 0 22px;">
+        Only you can see this. Today's page stays editable — at midnight it seals, and becomes a record of what you felt then. You can always add a note underneath, or delete it.
+      </p>
+
+      <div class="diary-split">
+
+        <!-- ── LEFT: WRITE ── -->
+        <div class="d-pane">
+          <div class="d-pane-head">
+            <b id="dWriteTitle">Write</b>
+            <span class="d-tag" id="dWriteTag">today · editable</span>
+          </div>
+          <div class="d-pane-body">
+            <div class="d-datestamp" id="diaryEditorDate">Today</div>
+            <input type="text" id="diaryTitle" class="d-title-input" placeholder="Give this entry a title…" maxlength="120">
+            <textarea id="diaryBody" class="d-body-input" placeholder="Write what you want to remember…"></textarea>
+
+            <div id="diaryPhotoThumbs" class="diary-thumbs"></div>
+            <input type="file" accept="image/*" id="diaryPhotoInput" multiple style="display:none;" onchange="diaryHandlePhotos(event)">
+
+            <div class="d-visibility">
+              <div class="d-vis-label">Who can see this?</div>
+              <label class="diary-visibility-opt">
+                <input type="radio" name="diaryVisibility" value="private" checked onchange="onDiaryVisibilityChange()">
+                <span><b>Private</b> — only you</span>
+              </label>
+              <label class="diary-visibility-opt">
+                <input type="radio" name="diaryVisibility" value="shared_person" onchange="onDiaryVisibilityChange()">
+                <span><b>Send to one person</b> — like a letter</span>
+              </label>
+              <div id="diarySharePersonBox" style="display:none; margin:6px 0 2px 26px; position:relative;">
+                <input type="text" id="diaryPersonSearch" placeholder="Type a name…" oninput="diaryPersonTyped()" style="width:100%; padding:9px 12px; border:1px solid var(--line); border-radius:8px; font-size:13.5px; font-family:inherit;">
+                <div class="ev-ta" id="diaryPersonResults"></div>
+                <div id="diaryPersonPicked" style="margin-top:6px; font-size:12.5px; color:var(--moss); font-weight:600;"></div>
+              </div>
+            </div>
+
+            <div class="d-tools">
+              <button type="button" class="ev-chip" onclick="document.getElementById('diaryPhotoInput').click()">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span> Photos
+              </button>
+              <button type="button" class="ev-chip" id="diaryCancelBtn" style="display:none;" onclick="openDiaryEditor(null)">Cancel edit</button>
+              <button type="button" class="btn-small" style="margin-left:auto;" onclick="saveDiaryEntry()">Save entry</button>
+            </div>
+          </div>
         </div>
-        <button class="btn-small" onclick="openDiaryEditor(null)">＋ Write today's entry</button>
+
+        <!-- ── RIGHT: READ ── -->
+        <div class="d-pane">
+          <div class="d-pane-head">
+            <b>Your diary</b>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="d-tag" id="diaryCountTag">read only</span>
+              <button class="cal-toggle" id="calBtn" onclick="toggleDiaryCal()" aria-label="Show calendar">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></span>
+                Calendar
+              </button>
+            </div>
+          </div>
+
+          <div class="cal hidden" id="diaryCal">
+            <div class="cal-top">
+              <span class="cal-month" id="calMonth"></span>
+              <div class="cal-nav">
+                <button type="button" onclick="moveDiaryMonth(-1)" aria-label="Previous month">‹</button>
+                <button type="button" onclick="moveDiaryMonth(1)" aria-label="Next month">›</button>
+              </div>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+            <div class="cal-legend">
+              <span><i></i> wrote that day</span>
+              <span><span class="box"></span> today</span>
+              <button class="cal-clear" id="calClear" style="display:none;" onclick="clearDiaryFilter()">Show all</button>
+            </div>
+          </div>
+
+          <div class="filter-bar" id="diaryFilterBar">
+            <span class="ic" style="color:var(--camel);" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></span>
+            Showing <b id="filterDateLabel"></b>
+            <button onclick="clearDiaryFilter()">Show all entries</button>
+          </div>
+
+          <div class="d-pane-body" id="diaryList" style="padding-top:2px;"></div>
+        </div>
+
       </div>
-      <p style="color:var(--ink-soft); font-size:13.5px; margin:6px 0 22px;">Only you can see this. Keep an entry private, or send it to one person like a letter. To post publicly, use <b>My wall</b> on your book.</p>
-      <div id="diaryList"></div>
+
       <button class="link-quiet" style="margin-top:24px;" onclick="showScreen('landing')">Back to home</button>
     </div>
   </div>
@@ -1666,50 +1824,7 @@
   </div>
 </section>
 
-<!-- ============ DIARY EDITOR ============ -->
-<section class="screen" id="screen-diary-editor">
-  <div class="wrap">
-    <div style="max-width:640px; margin:0 auto; padding:40px 24px 60px;">
-      <div class="form-eyebrow" id="diaryEditorDate">Today</div>
-      <h2 style="font-family:'Fraunces',serif; font-size:30px; margin:0 0 4px; font-weight:500;" id="diaryEditorHeadline">Write</h2>
-      <p style="color:var(--ink-soft); font-size:13.5px; margin:0 0 22px;">Yours alone until you decide otherwise.</p>
 
-      <div class="diary-page">
-        <input type="text" id="diaryTitle" placeholder="Give this entry a title…" maxlength="120" style="width:100%; border:none; background:transparent; font-family:'Fraunces',serif; font-size:22px; font-weight:500; color:var(--ink); padding:0 0 10px; outline:none;">
-        <textarea id="diaryBody" placeholder="Write what you want to remember…" style="width:100%; border:none; background:transparent; font-family:'Caveat',cursive; font-size:20px; line-height:28px; color:var(--ink); min-height:250px; padding:0; outline:none; resize:vertical;"></textarea>
-        <div id="diaryPhotoThumbs" class="diary-thumbs"></div>
-        <input type="file" accept="image/*" id="diaryPhotoInput" multiple style="display:none;" onchange="diaryHandlePhotos(event)">
-        <button type="button" class="ev-chip" style="margin-top:12px;" onclick="document.getElementById('diaryPhotoInput').click()">📷 Add photos</button>
-      </div>
-
-      <div style="margin-top:20px; padding:18px 20px; background:var(--card); border:1px solid var(--line); border-radius:12px;">
-        <div style="font-weight:600; font-size:13.5px; margin-bottom:10px;">Who can see this entry?</div>
-        <div style="display:flex; flex-direction:column; gap:8px;">
-          <label class="diary-visibility-opt">
-            <input type="radio" name="diaryVisibility" value="private" checked onchange="onDiaryVisibilityChange()">
-            <span><b>🔒 Private</b> — only you</span>
-          </label>
-          <label class="diary-visibility-opt">
-            <input type="radio" name="diaryVisibility" value="shared_person" onchange="onDiaryVisibilityChange()">
-            <span><b>💌 Share with one person</b> — like a letter</span>
-          </label>
-          <div id="diarySharePersonBox" style="display:none; margin:8px 0 4px 26px; position:relative;">
-            <input type="text" id="diaryPersonSearch" placeholder="Type a name…" oninput="diaryPersonTyped()" style="width:100%; padding:9px 12px; border:1px solid var(--line); border-radius:8px; font-size:13.5px; font-family:inherit;">
-            <div class="ev-ta" id="diaryPersonResults"></div>
-            <div id="diaryPersonPicked" style="margin-top:6px; font-size:12.5px; color:var(--moss); font-weight:600;"></div>
-          </div>
-
-        </div>
-      </div>
-
-      <div style="display:flex; gap:10px; margin-top:22px;">
-        <button class="btn btn-primary" style="flex:1;" onclick="saveDiaryEntry()">Save entry</button>
-        <button class="link-quiet" onclick="renderDiary(); showScreen('diary')">Cancel</button>
-      </div>
-      <button id="diaryDeleteBtn" class="link-quiet" style="color:#A65A3C; margin-top:14px; display:none;" onclick="deleteDiaryEntry()">Delete this entry</button>
-    </div>
-  </div>
-</section>
 
 <!-- ============ FILL / SIGN ============ -->
 <section class="screen" id="screen-fill">
@@ -1937,7 +2052,7 @@
 
       <!-- 1. HEADER -->
       <div class="ev-cover" id="evCover">
-        <div class="ev-badge">🔒 Members only</div>
+        <div class="ev-badge"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span> Members only</div>
         <input type="file" accept="image/*" id="evCoverInput" style="display:none;" onchange="evChangeCover(event)">
       </div>
       <div class="ev-head">
@@ -1968,7 +2083,7 @@
           </div>
           <div class="field" style="margin-bottom:14px;">
             <label style="font-size:13px;">Cover photo</label>
-            <button type="button" class="ev-chip" onclick="document.getElementById('evCoverInput').click()">📷 Change cover</button>
+            <button type="button" class="ev-chip" onclick="document.getElementById('evCoverInput').click()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span> Change cover</button>
           </div>
           <div style="display:flex; gap:8px;">
             <button type="button" class="btn-small" onclick="saveEventEdit()">Save changes</button>
@@ -1980,7 +2095,7 @@
           <div id="evAvatars" style="display:flex; align-items:center;"></div>
           <button class="link-quiet" id="evMembersCount" style="margin-left:12px; font-size:13px;" onclick="openMembersModal()"></button>
         </div>
-        <div class="ev-lock-note" id="evLockNote">🔒 <span><b>Only members can see this page.</b> Members can post, add photos, tag each other, and edit their own posts. The host approves every join.</span></div>
+        <div class="ev-lock-note" id="evLockNote"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span> <span><b>Only members can see this page.</b> Members can post, add photos, tag each other, and edit their own posts. The host approves every join.</span></div>
       </div>
 
       <!-- 2. INVITE (host only) -->
@@ -2018,7 +2133,7 @@
         <div class="ev-tagtray" id="evTagTray"></div>
         <div style="display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap;">
           <input type="file" accept="image/*" id="evPhotoInput" multiple style="display:none;" onchange="evHandlePhotos(event)">
-          <button type="button" class="ev-chip" id="evPhotoBtn" onclick="document.getElementById('evPhotoInput').click()">📷 Add photos</button>
+          <button type="button" class="ev-chip" id="evPhotoBtn" onclick="document.getElementById('evPhotoInput').click()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span> Add photos</button>
           <button type="button" class="ev-chip" onclick="document.getElementById('evTagTray').classList.toggle('open')">@ Tag members</button>
           <button type="button" class="btn-small" style="margin-left:auto;" onclick="evAddPost()">Post to the page</button>
         </div>
@@ -2027,7 +2142,7 @@
 
       <!-- 5. MEMORY MAP -->
       <div class="card-ev" id="evMapCard" style="display:none;">
-        <label class="ev-label">🗺️ Event memory map</label>
+        <label class="ev-label">Event memory map</label>
         <div id="evMemMap" style="height:290px; border-radius:12px; border:1px solid var(--line); z-index:1;"></div>
         <div style="font-size:12.5px; color:var(--ink-soft); margin-top:10px;" id="evMapCount"></div>
       </div>
@@ -2038,7 +2153,7 @@
       <!-- 7. WRITE ABOUT SOMEONE — collapsed tab at the end -->
       <div class="card-ev" id="evAboutCard" style="display:none; padding:0; overflow:hidden;">
         <button type="button" id="evAboutToggle" onclick="toggleAboutForm()" style="width:100%; display:flex; align-items:center; justify-content:space-between; background:none; border:none; padding:17px 18px; font-family:inherit; font-size:15px; font-weight:700; color:var(--ink); cursor:pointer;">
-          <span>✍️ Write about someone</span>
+          <span><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 10-4-4L4 16z"/></svg></span> Write about someone</span>
           <span id="evAboutArrow" style="color:var(--camel); transition:transform .2s;">▾</span>
         </button>
         <div id="evAboutForm" style="display:none; padding:0 18px 18px;">
@@ -2065,7 +2180,7 @@
             <textarea id="evAboutMsg" placeholder="Remember when…" style="width:100%; min-height:90px; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px; resize:vertical;"></textarea>
           </div>
           <div class="field" style="margin-bottom:13px;">
-            <label style="font-size:13px;">📷 Photos <span style="font-weight:400; color:var(--ink-soft); font-size:12px;">optional</span></label>
+            <label style="font-size:13px;"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span> Photos <span style="font-weight:400; color:var(--ink-soft); font-size:12px;">optional</span></label>
             <input type="file" accept="image/*" id="evAboutPhotoInput" multiple style="display:none;" onchange="evHandleAboutPhotos(event)">
             <button type="button" class="ev-chip" id="evAboutPhotoBtn" onclick="document.getElementById('evAboutPhotoInput').click()">Attach photos</button>
           </div>
@@ -2080,7 +2195,7 @@
 
       <!-- 7. NON-MEMBER LOCK -->
       <div id="evLockScreen" style="display:none; background:var(--card); border:1.5px dashed var(--camel); border-radius:14px; padding:32px 22px; text-align:center; font-size:14px; line-height:1.8; margin-top:14px;">
-        <span style="font-size:26px;">🔒</span><br>
+        <span class="ic" style="font-size:26px; color:var(--camel);" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span><br>
         <b id="evLockName" style="font-size:17px;"></b><br>
         <span id="evLockMeta" style="color:var(--ink-soft);"></span><br>
         <span style="color:var(--ink-soft);">This is a private event page.</span><br><br>
@@ -3938,10 +4053,26 @@
     if (!ids.length) return;
     const me = myLikerKey();
 
-    const [likesRes, commentsRes] = await Promise.all([
+    // Signers who have a public book — so we can link their name to it
+    const signerIds = [...new Set(
+      entriesArr.map(e=>e.signerUserId).filter(Boolean)
+    )];
+
+    const [likesRes, commentsRes, signersRes] = await Promise.all([
       db.from('likes').select('entry_id, liker_key').in('entry_id', ids),
-      db.from('comments').select('*').in('entry_id', ids).order('created_at', { ascending:true })
+      db.from('comments').select('*').in('entry_id', ids).order('created_at', { ascending:true }),
+      signerIds.length
+        ? db.from('profiles').select('user_id, username, name, ink').eq('visibility','public').in('user_id', signerIds)
+        : Promise.resolve({ data: [] })
     ]);
+
+    const signerByUser = {};
+    ((signersRes && signersRes.data) || []).forEach(p=>{ signerByUser[p.user_id] = p; });
+    entriesArr.forEach(e=>{
+      const p = e.signerUserId ? signerByUser[e.signerUserId] : null;
+      // Only public books are linkable — a private signer stays plain text.
+      e.signerUsername = (p && p.username) ? p.username : null;
+    });
 
     const likeCounts = {}, likedByMe = {};
     (likesRes.data || []).forEach(l=>{
@@ -4360,7 +4491,15 @@
     try { renderWall(); } catch(err){ console.error('[EarthLive] renderWall failed:', err); }
     // Signatures = approved entries from OTHER people (your own posts live on your wall)
     const signatures = entries.filter(e=>isApproved(e) && !isWallPost(e));
-    renderEntries('ownerEntries', signatures, 'entryCount', true);
+    allSignatures = signatures;                       // master list for the search box
+    const searchBox = document.querySelector('.sig-search');
+    if (searchBox) searchBox.style.display = signatures.length > 3 ? 'flex' : 'none';
+    const sq = document.getElementById('sigSearch');
+    if (sq && sq.value.trim()){
+      filterSignatures();                             // keep an active search alive across refreshes
+    } else {
+      renderEntries('ownerEntries', signatures, 'entryCount', true);
+    }
     const js = document.getElementById('jumpSigCount');
     if (js) js.textContent = signatures.length || '';
     renderMemoryMap('ownerMapPanel', 'ownerMap', 'ownerMapCount', entries.filter(isApproved));
@@ -4491,6 +4630,60 @@
       </div>`;
   }
 
+  /* ── Signature search ── */
+  let allSignatures = [];    // the unfiltered list, so we can restore it
+
+  function filterSignatures(){
+    const input = document.getElementById('sigSearch');
+    const meta  = document.getElementById('sigSearchMeta');
+    const clear = document.getElementById('sigSearchClear');
+    if (!input) return;
+    const q = input.value.trim().toLowerCase();
+
+    if (clear) clear.style.display = q ? 'inline' : 'none';
+
+    if (!q){
+      renderEntries('ownerEntries', allSignatures, 'entryCount', true);
+      if (meta) meta.style.display = 'none';
+      return;
+    }
+
+    const hits = allSignatures.filter(e=>{
+      const hay = [
+        e.name, e.nickname, e.relation, e.word, e.message,
+        (e.city && e.city.name) ? e.city.name : '',
+        Array.isArray(e.answers) ? e.answers.map(a=>a && a.a).join(' ') : ''
+      ].join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+
+    renderEntries('ownerEntries', hits, 'entryCount', true);
+
+    if (meta){
+      meta.style.display = 'block';
+      meta.innerHTML = hits.length
+        ? '<b>' + hits.length + '</b> of ' + allSignatures.length + ' signature' +
+          (allSignatures.length === 1 ? '' : 's') + ' match \u201c' + escapeHtml(input.value.trim()) + '\u201d'
+        : 'Nobody matches \u201c' + escapeHtml(input.value.trim()) + '\u201d \u2014 try a different word.';
+    }
+  }
+
+  function clearSignatureSearch(){
+    const input = document.getElementById('sigSearch');
+    if (input) input.value = '';
+    filterSignatures();
+    if (input) input.focus();
+  }
+
+  /* A signer's name links to their own book \u2014 but only if they have a public one. */
+  function nameLinkHtml(entry){
+    const nm = escapeHtml(entry.name || 'Someone');
+    if (!entry.signerUsername) return nm;
+    return '<a class="signer-link" href="#" onclick="event.stopPropagation(); openProfileByUsername(\'' +
+      entry.signerUsername.replace(/'/g, "\\'") + '\'); return false;" title="Open ' + nm + '\u2019s book">' +
+      nm + '</a>';
+  }
+
   function renderEntries(containerId, entriesArr, countElId, isOwner){
     const el = document.getElementById(containerId);
     const countEl = countElId ? document.getElementById(countElId) : null;
@@ -4544,7 +4737,7 @@
           ${photosHtml}
           <div class="entry-top">
             <span class="pen-dot" style="background:${entry.color}"></span>
-            <span class="entry-name">${escapeHtml(entry.name)}${nickHtml}</span>
+            <span class="entry-name">${nameLinkHtml(entry)}${nickHtml}</span>
           </div>
           ${wordHtml}<br>
           <p class="entry-msg" style="color:${entry.color || 'var(--ink)'}">"${linkify(entry.message)}"</p>
@@ -4796,6 +4989,30 @@
     const d = document.createElement('div');
     d.textContent = str;
     return d.innerHTML;
+  }
+
+  /* ---------- LINE ICONS ----------
+     Emoji are drawn by the operating system (that pin is pink on iPhone, red on
+     Android). These SVGs take our own ink colours and look the same everywhere. */
+  const ICON_PATHS = {
+    pin:      '<path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+    camera:   '<path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/>',
+    comment:  '<path d="M21 12a8 8 0 01-8 8H7l-4 3v-6a8 8 0 018-8h2a8 8 0 018 3z"/>',
+    lock:     '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',
+    calendar: '<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+    envelope: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 8l9 6 9-6"/>',
+    book:     '<path d="M4 5a2 2 0 012-2h13v18H6a2 2 0 01-2-2z"/><path d="M9 3v18"/>',
+    bell:     '<path d="M18 9a6 6 0 10-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M10.5 20a2 2 0 003 0"/>',
+    pencil:   '<path d="M4 20h4L19 9a2.8 2.8 0 10-4-4L4 16z"/>',
+    mic:      '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/>',
+    people:   '<circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0112 0M16 5.5a3.2 3.2 0 010 6M17.5 20a6 6 0 00-2-4.4"/>',
+    eye:      '<path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.6"/>'
+  };
+  function icon(name, cls){
+    const p = ICON_PATHS[name];
+    if (!p) return '';
+    return '<span class="ic' + (cls ? ' ' + cls : '') + '" aria-hidden="true">' +
+           '<svg viewBox="0 0 24 24">' + p + '</svg></span>';
   }
 
   // Renders text with clickable @mentions and styled #hashtags (escapes HTML first).
@@ -5359,7 +5576,7 @@
       const diary = document.createElement('button');
       diary.className = 'nav-link';
       diary.textContent = 'My diary';
-      diary.onclick = ()=>{ renderDiary(); showScreen('diary'); };
+      diary.onclick = ()=>{ openDiaryEditor(null); renderDiary(); showScreen('diary'); };
       navRight.appendChild(diary);
     }
 
@@ -5746,7 +5963,7 @@
       const has = CITIES.filter(c=>!c.name.toLowerCase().startsWith(q) && c.name.toLowerCase().includes(q));
       const hits = [...starts, ...has].slice(0,6);
       if (!hits.length){ box.classList.remove('open'); return; }
-      box.innerHTML = hits.map(c=>'<div class="ev-ta-item" onclick="wallPickCity(' + CITIES.indexOf(c) + ')">\ud83d\udccd ' + escapeHtml(c.name) + '</div>').join('');
+      box.innerHTML = hits.map(c=>'<div class="ev-ta-item" onclick="wallPickCity(' + CITIES.indexOf(c) + ')">' + icon('pin') + ' ' + escapeHtml(c.name) + '</div>').join('');
       box.classList.add('open');
     }, 200);
   }
@@ -5899,7 +6116,7 @@
         ${photos}
         <div class="wp-foot">
           <button class="wp-btn ${e.likedByMe ? 'liked' : ''}" onclick="toggleWallLike('${e.id}')">${e.likedByMe ? '\u2665' : '\u2661'} ${e.likes || 0}</button>
-          <button class="wp-btn" onclick="toggleWallComments('${e.id}')">\ud83d\udcac ${cmts}</button>
+          <button class="wp-btn" onclick="toggleWallComments('${e.id}')">${icon('comment')} ${cmts}</button>
           <button class="wp-btn" onclick="shareInvite()">\u2197 Share</button>
           <div class="wp-owner">
             <button class="wp-btn edit" onclick="editWallPost('${e.id}')">\u270e Edit</button>
@@ -5957,7 +6174,9 @@
     let count = 0;
     // new signatures on MY book since last check
     if (profile && profile.dbId){
-      const q = db.from('entries').select('id', {count:'exact', head:true}).eq('profile_id', profile.dbId);
+      const q = db.from('entries').select('id', {count:'exact', head:true})
+        .eq('profile_id', profile.dbId)
+        .neq('signer_user_id', currentUser.id);   // your own wall posts aren't news to you
       if (lastForYouCheck) q.gt('created_at', lastForYouCheck);
       const { count: c1 } = await q;
       count += (c1 || 0);
@@ -5980,10 +6199,13 @@
       return;
     }
     const items = [];
-    // 1) New signatures on my book
+    // 1) New signatures on my book — from OTHER people only.
+    //    (Your own wall posts are entries on your book too; they're not news to you.)
     if (profile && profile.dbId){
       const { data: sigs } = await db.from('entries').select('*')
-        .eq('profile_id', profile.dbId).order('created_at', {ascending:false}).limit(6);
+        .eq('profile_id', profile.dbId)
+        .neq('signer_user_id', currentUser.id)
+        .order('created_at', {ascending:false}).limit(6);
       (sigs || []).forEach(s=>{
         items.push({
           kind:'signature',
@@ -5991,8 +6213,49 @@
           avatar: (s.name||'?').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase(),
           color: s.color || 'var(--blush)',
           title: escapeHtml(s.name || 'Someone') + ' signed your book',
-          preview: s.body ? escapeHtml(s.body.length > 160 ? s.body.slice(0,160)+'…' : s.body) : '',
+          preview: s.message ? escapeHtml(s.message.length > 160 ? s.message.slice(0,160)+'…' : s.message) : '',
           meta: evTimeAgo(s.created_at)
+        });
+      });
+    }
+
+    // 1b) Wall posts from people I FOLLOW (like LinkedIn — their posts, not mine)
+    const { data: myFollows } = await db.from('follows')
+      .select('followed_profile_id')
+      .eq('follower_user_id', currentUser.id);
+    const followedIds = (myFollows || [])
+      .map(f=>f.followed_profile_id)
+      .filter(id => !profile || id !== profile.dbId);   // never my own book
+    if (followedIds.length){
+      const { data: theirProfiles } = await db.from('profiles')
+        .select('id, user_id, name, ink, username')
+        .in('id', followedIds);
+      const byId = {};
+      (theirProfiles || []).forEach(p=>{ byId[p.id] = p; });
+
+      const { data: theirPosts } = await db.from('entries')
+        .select('*')
+        .in('profile_id', followedIds)
+        .eq('status', 'approved')
+        .order('created_at', {ascending:false})
+        .limit(15);
+
+      (theirPosts || []).forEach(p=>{
+        const owner = byId[p.profile_id];
+        if (!owner) return;
+        // A wall post = written by the book's own owner. Signatures from third
+        // parties on their book aren't ours to show.
+        if (p.signer_user_id !== owner.user_id) return;
+        items.push({
+          kind:'wallpost',
+          at: p.created_at,
+          avatar: (owner.name||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase(),
+          color: owner.ink || 'var(--moss)',
+          title: escapeHtml(owner.name || 'Someone') + ' posted on their wall',
+          preview: p.message ? escapeHtml(p.message.length > 200 ? p.message.slice(0,200)+'…' : p.message) : '',
+          photo: (Array.isArray(p.photos) && p.photos[0]) ? p.photos[0] : null,
+          username: owner.username || null,
+          meta: evTimeAgo(p.created_at)
         });
       });
     }
@@ -6006,7 +6269,7 @@
         items.push({
           kind:'invite',
           at: iv.created_at,
-          avatar: '✉️', color: 'var(--camel)',
+          avatar: icon('envelope'), color: 'var(--camel)',
           title: 'You\'re invited to <b>' + escapeHtml(nameOf[iv.event_id] || 'an event') + '</b>',
           meta: evTimeAgo(iv.created_at),
           eventId: iv.event_id, guestRowId: iv.id
@@ -6073,11 +6336,26 @@
         if (it.kind === 'letter'){
           return `
           <div class="fy-letter">
-            <span class="fy-seal">💌 SHARED WITH YOU ONLY</span>
+            <span class="fy-seal">${icon('envelope')} SHARED WITH YOU ONLY</span>
             <div style="font-size:12.5px; color:var(--ink-soft); margin-bottom:8px;">${it.title} · ${it.meta}</div>
             ${it.letterTitle ? '<div style="font-family:\'Fraunces\',serif; font-size:19px; margin:0 0 8px; font-weight:500;">' + it.letterTitle + '</div>' : ''}
             <div class="fy-letter-body">${it.preview}</div>
             ${(it.photos && it.photos.length) ? '<div class="diary-entry-photos">' + it.photos.map(u=>'<img src="'+u+'" alt="" loading="lazy">').join('') + '</div>' : ''}
+          </div>`;
+        }
+        if (it.kind === 'wallpost'){
+          return `
+          <div class="fy-item">
+            <div class="fy-row">
+              <div class="ev-avatar" style="background:${it.color};">${it.avatar}</div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-weight:600; font-size:14.5px;">${it.title}</div>
+                <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">${it.meta}</div>
+                ${it.preview ? '<div class="fy-preview plain">' + it.preview + '</div>' : ''}
+                ${it.photo ? '<img src="' + it.photo + '" alt="" loading="lazy" style="width:100%; border-radius:10px; margin-top:10px; max-height:280px; object-fit:cover;">' : ''}
+                ${it.username ? '<div style="display:flex; gap:8px; margin-top:12px;"><button class="btn-small" onclick="openProfileByUsername(\'' + it.username + '\')">Open their book</button></div>' : ''}
+              </div>
+            </div>
           </div>`;
         }
         let action = '';
@@ -6133,101 +6411,6 @@
     ).join('');
   }
 
-  async function renderDiary(){
-    const list = document.getElementById('diaryList');
-    list.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Loading…</p>';
-    if (!db || !currentUser){
-      list.innerHTML = '<div class="fy-quiet"><b style="color:var(--ink);">Sign in to open your diary.</b></div>';
-      return;
-    }
-    const { data, error } = await db.from('diary_entries').select('*')
-      .eq('author_user_id', currentUser.id).order('created_at', {ascending:false});
-    if (error){
-      list.innerHTML = '<div class="fy-quiet" style="color:#A65A3C;">Could not load diary: ' + escapeHtml(error.message) + '</div>';
-      return;
-    }
-    const entries = data || [];
-    if (!entries.length){
-      list.innerHTML = `
-        <div class="fy-quiet">
-          <div style="font-size:26px; margin-bottom:8px;">📖</div>
-          <b style="color:var(--ink); font-size:14.5px;">Nothing here yet.</b><br>
-          <span style="font-size:13px;">Write your first entry — nobody else will see it.</span><br><br>
-          <button class="btn-small" onclick="openDiaryEditor(null)">＋ Write today's entry</button>
-        </div>`;
-      return;
-    }
-    list.innerHTML = entries.map(e=>{
-      const d = new Date(e.created_at);
-      const day = d.getDate();
-      const mon = d.toLocaleDateString('en-IN',{month:'short'}).toUpperCase();
-      const preview = e.body ? escapeHtml(e.body.slice(0, 200)) : '';
-      let badge = '<span class="diary-lock-badge private">🔒 Private</span>';
-      if (e.visibility === 'shared_person') badge = '<span class="diary-lock-badge shared">💌 Shared with ' + escapeHtml(e.shared_with_name || 'someone') + '</span>';
-
-      const thumb = (Array.isArray(e.photos) && e.photos[0])
-        ? `<img class="diary-item-photo" src="${e.photos[0]}" alt="">` : '';
-      const more = (Array.isArray(e.photos) && e.photos.length > 1)
-        ? ` <span style="font-size:11px; color:var(--ink-soft);">+${e.photos.length - 1} more</span>` : '';
-      return `
-        <div class="diary-list-item" onclick="openDiaryEditor('${e.id}')">
-          <div class="diary-date-tab">${day}<small>${mon}</small></div>
-          <div class="diary-item-body">
-            <b>${escapeHtml(e.title || '(untitled)')}</b>
-            <p>${preview}</p>
-            ${badge}${more}
-          </div>
-          ${thumb}
-        </div>`;
-    }).join('');
-  }
-
-  async function openDiaryEditor(entryId){
-    diaryEditingId = entryId;
-    diarySharedWithUserId = null;
-    diarySharedWithName = null;
-    diaryPhotos = [];
-    renderDiaryThumbs();
-    document.getElementById('diaryTitle').value = '';
-    document.getElementById('diaryBody').value = '';
-    document.querySelector('input[name="diaryVisibility"][value="private"]').checked = true;
-    document.getElementById('diarySharePersonBox').style.display = 'none';
-    document.getElementById('diaryPersonPicked').textContent = '';
-    document.getElementById('diaryPersonSearch').value = '';
-    document.getElementById('diaryDeleteBtn').style.display = 'none';
-
-    const today = new Date().toLocaleDateString('en-IN',{weekday:'long', day:'numeric', month:'long', year:'numeric'});
-    document.getElementById('diaryEditorHeadline').textContent = today;
-    document.getElementById('diaryEditorDate').textContent = entryId ? 'Editing' : 'New entry';
-
-    if (entryId && db){
-      const { data, error } = await db.from('diary_entries').select('*').eq('id', entryId).single();
-      if (!error && data){
-        document.getElementById('diaryTitle').value = data.title || '';
-        document.getElementById('diaryBody').value = data.body || '';
-        diaryPhotos = Array.isArray(data.photos) ? data.photos.slice() : [];
-        renderDiaryThumbs();
-        const radio = document.querySelector('input[name="diaryVisibility"][value="' + (data.visibility || 'private') + '"]');
-        if (radio) radio.checked = true;
-        if (data.visibility === 'shared_person'){
-          diarySharedWithUserId = data.shared_with_user_id;
-          diarySharedWithName = data.shared_with_name;
-          document.getElementById('diarySharePersonBox').style.display = 'block';
-          document.getElementById('diaryPersonPicked').textContent = '✓ Sharing with ' + (data.shared_with_name || 'someone');
-        }
-        const d = new Date(data.created_at);
-        document.getElementById('diaryEditorHeadline').textContent = d.toLocaleDateString('en-IN',{weekday:'long', day:'numeric', month:'long', year:'numeric'});
-        document.getElementById('diaryDeleteBtn').style.display = 'inline';
-      }
-    }
-    showScreen('diary-editor');
-  }
-
-  function onDiaryVisibilityChange(){
-    const v = document.querySelector('input[name="diaryVisibility"]:checked').value;
-    document.getElementById('diarySharePersonBox').style.display = (v === 'shared_person') ? 'block' : 'none';
-  }
-
   let diaryPersonTimer = null;
   function diaryPersonTyped(){
     clearTimeout(diaryPersonTimer);
@@ -6259,9 +6442,264 @@
   function diaryPickPerson(userId, name){
     diarySharedWithUserId = userId;
     diarySharedWithName = name;
-    document.getElementById('diaryPersonPicked').textContent = '✓ Sharing with ' + name;
+    document.getElementById('diaryPersonPicked').textContent = 'Sending to ' + name;
     document.getElementById('diaryPersonSearch').value = '';
     document.getElementById('diaryPersonResults').classList.remove('open');
+  }
+
+  /* ── DIARY CALENDAR ── */
+  let diaryEntriesCache = [];        // every entry, so the calendar knows which days have one
+  let calView = new Date();          // month currently shown
+  let calSelected = null;            // 'YYYY-MM-DD' or null
+
+  function calKey(d){
+    const dt = (d instanceof Date) ? d : new Date(d);
+    const pad = n => (n < 10 ? '0' + n : '' + n);
+    return dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate());
+  }
+
+  function toggleDiaryCal(){
+    const c = document.getElementById('diaryCal');
+    const b = document.getElementById('calBtn');
+    if (!c) return;
+    c.classList.toggle('hidden');
+    b.classList.toggle('on', !c.classList.contains('hidden'));
+    if (!c.classList.contains('hidden')) renderDiaryCal();
+  }
+
+  function moveDiaryMonth(n){
+    calView = new Date(calView.getFullYear(), calView.getMonth() + n, 1);
+    renderDiaryCal();
+  }
+
+  function renderDiaryCal(){
+    const grid = document.getElementById('calGrid');
+    const label = document.getElementById('calMonth');
+    if (!grid || !label) return;
+
+    const written = new Set(diaryEntriesCache.map(e => calKey(e.created_at)));
+    const today = calKey(new Date());
+    const y = calView.getFullYear(), m = calView.getMonth();
+
+    label.textContent = calView.toLocaleDateString('en-IN', { month:'long', year:'numeric' });
+
+    const firstDow = new Date(y, m, 1).getDay();      // 0 = Sunday
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+
+    let html = ['S','M','T','W','T','F','S']
+      .map(d => '<div class="cal-dow">' + d + '</div>').join('');
+
+    for (let i = 0; i < firstDow; i++) html += '<div class="cal-day empty"></div>';
+
+    for (let d = 1; d <= daysInMonth; d++){
+      const k = calKey(new Date(y, m, d));
+      const has = written.has(k);
+      let cls = 'cal-day';
+      if (has) cls += ' has';
+      if (k === today) cls += ' today';
+      if (k === calSelected) cls += ' sel';
+      const click = has ? ' onclick="pickDiaryDate(\'' + k + '\')"' : '';
+      html += '<div class="' + cls + '"' + click + '>' + d +
+              (has ? '<span class="dot"></span>' : '') + '</div>';
+    }
+    grid.innerHTML = html;
+  }
+
+  function pickDiaryDate(k){
+    calSelected = k;
+    renderDiaryCal();
+    // filter the read pane
+    document.querySelectorAll('#diaryList .d-entry').forEach(el=>{
+      el.classList.toggle('hide', el.getAttribute('data-date') !== k);
+    });
+    const d = new Date(k);
+    const lbl = document.getElementById('filterDateLabel');
+    if (lbl) lbl.textContent = d.toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+    document.getElementById('diaryFilterBar').classList.add('on');
+    document.getElementById('calClear').style.display = 'inline';
+  }
+
+  function clearDiaryFilter(){
+    calSelected = null;
+    renderDiaryCal();
+    document.querySelectorAll('#diaryList .d-entry').forEach(el=>el.classList.remove('hide'));
+    const fb = document.getElementById('diaryFilterBar');
+    if (fb) fb.classList.remove('on');
+    const cc = document.getElementById('calClear');
+    if (cc) cc.style.display = 'none';
+  }
+
+  /* ── Sealing: an entry is editable only on the day it was written ── */
+  function isSealed(entry){
+    if (!entry || !entry.created_at) return false;
+    const made = new Date(entry.created_at);
+    const now = new Date();
+    return !(made.getFullYear() === now.getFullYear() &&
+             made.getMonth()    === now.getMonth() &&
+             made.getDate()     === now.getDate());
+  }
+  function diaryDateLabel(iso){
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+  }
+
+  const ICON_LOCK_OPEN = '<span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 016.5-2.3"/></svg></span>';
+  const ICON_LOCK_SHUT = '<span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span>';
+
+  async function renderDiary(){
+    const list = document.getElementById('diaryList');
+    if (!list) return;
+    list.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Loading…</p>';
+    if (!db || !currentUser){
+      list.innerHTML = '<div class="d-empty"><b style="color:var(--ink);">Sign in to open your diary.</b></div>';
+      return;
+    }
+    const { data, error } = await db.from('diary_entries').select('*')
+      .eq('author_user_id', currentUser.id).order('created_at', {ascending:false});
+    if (error){
+      list.innerHTML = '<div class="d-empty" style="color:#A65A3C;">Could not load diary: ' + escapeHtml(error.message) + '</div>';
+      return;
+    }
+    const entries = data || [];
+    diaryEntriesCache = entries;          // the calendar reads its dots from this
+    renderDiaryCal();                     // refresh dots whenever the diary reloads
+    const tag = document.getElementById('diaryCountTag');
+    if (tag) tag.textContent = entries.length
+      ? entries.length + (entries.length === 1 ? ' entry' : ' entries')
+      : 'nothing yet';
+
+    if (!entries.length){
+      list.innerHTML = '<div class="d-empty"><b style="color:var(--ink);">Nothing here yet.</b><br>' +
+        'Write on the left — nobody else will ever see it.</div>';
+      return;
+    }
+
+    list.innerHTML = entries.map(e=>{
+      const sealed = isSealed(e);
+      const notes = Array.isArray(e.notes) ? e.notes : [];
+      let visTag = '';
+      if (e.visibility === 'shared_person'){
+        visTag = '<span class="d-e-vis">Sent to ' + escapeHtml(e.shared_with_name || 'someone') + '</span>';
+      }
+      const photos = (Array.isArray(e.photos) && e.photos.length)
+        ? '<div class="d-e-photos">' + e.photos.map(u=>'<img src="' + u + '" alt="" loading="lazy" onclick="window.open(\'' + u + '\',\'_blank\')">').join('') + '</div>'
+        : '';
+      const addenda = notes.map(n=>
+        '<div class="d-addendum"><div class="d-a-date">Added ' + escapeHtml(diaryDateLabel(n.at)) + '</div>' +
+        '<div class="d-a-text">' + escapeHtml(n.text || '') + '</div></div>'
+      ).join('');
+
+      const actions = sealed
+        ? '<button class="d-e-note" onclick="openNoteBox(\'' + e.id + '\')">+ Add a note</button>' +
+          '<button class="d-e-del" onclick="deleteDiaryEntry(\'' + e.id + '\')">Delete</button>' +
+          '<span class="d-e-dim">Sealed — the day has passed</span>'
+        : '<button class="d-e-edit" onclick="openDiaryEditor(\'' + e.id + '\')">Edit</button>' +
+          '<button class="d-e-del" onclick="deleteDiaryEntry(\'' + e.id + '\')">Delete</button>';
+
+      return '<div class="d-entry" id="de-' + e.id + '" data-date="' + calKey(e.created_at) + '">' +
+        '<div class="d-e-head">' +
+          '<span class="d-e-date">' + escapeHtml(diaryDateLabel(e.created_at)) + '</span>' +
+          '<span class="d-e-seal' + (sealed ? '' : ' open') + '">' +
+            (sealed ? ICON_LOCK_SHUT + ' Sealed' : ICON_LOCK_OPEN + ' Today — editable') +
+          '</span>' + visTag +
+        '</div>' +
+        (e.title ? '<div class="d-e-title">' + escapeHtml(e.title) + '</div>' : '') +
+        '<div class="d-e-body">' + escapeHtml(e.body || '') + '</div>' +
+        photos + addenda +
+        '<div class="d-note-box" id="nb-' + e.id + '" style="display:none;">' +
+          '<textarea id="nt-' + e.id + '" placeholder="Looking back on this…"></textarea>' +
+          '<div class="d-note-actions">' +
+            '<button class="btn-small" onclick="saveDiaryNote(\'' + e.id + '\')">Add note</button>' +
+            '<button class="ev-chip" onclick="closeNoteBox(\'' + e.id + '\')">Cancel</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="d-e-actions">' + actions + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  /* ── Notes on sealed entries (the original text never changes) ── */
+  function openNoteBox(id){
+    const b = document.getElementById('nb-' + id);
+    if (!b) return;
+    b.style.display = 'block';
+    const t = document.getElementById('nt-' + id);
+    if (t) t.focus();
+  }
+  function closeNoteBox(id){
+    const b = document.getElementById('nb-' + id);
+    if (b) b.style.display = 'none';
+  }
+  async function saveDiaryNote(id){
+    const t = document.getElementById('nt-' + id);
+    const text = t ? t.value.trim() : '';
+    if (!text){ showToast('Write your note first'); return; }
+    const { data, error: readErr } = await db.from('diary_entries').select('notes').eq('id', id).single();
+    if (readErr){ showToast('Could not add note: ' + readErr.message); return; }
+    const notes = Array.isArray(data.notes) ? data.notes : [];
+    notes.push({ at: new Date().toISOString(), text });
+    const { error } = await db.from('diary_entries').update({ notes }).eq('id', id);
+    if (error){
+      showToast(/notes/i.test(error.message || '')
+        ? 'Run SQL_DIARY_NOTES.sql in Supabase to enable notes'
+        : 'Could not add note: ' + error.message);
+      return;
+    }
+    showToast('Note added');
+    renderDiary();
+  }
+
+  /* ── Editor (left pane) ── */
+  async function openDiaryEditor(entryId){
+    diaryEditingId = entryId;
+    diarySharedWithUserId = null;
+    diarySharedWithName = null;
+    diaryPhotos = [];
+    renderDiaryThumbs();
+    document.getElementById('diaryTitle').value = '';
+    document.getElementById('diaryBody').value = '';
+    document.querySelector('input[name="diaryVisibility"][value="private"]').checked = true;
+    document.getElementById('diarySharePersonBox').style.display = 'none';
+    document.getElementById('diaryPersonPicked').textContent = '';
+    document.getElementById('diaryPersonSearch').value = '';
+    document.getElementById('diaryCancelBtn').style.display = entryId ? 'inline-flex' : 'none';
+
+    const today = new Date().toLocaleDateString('en-IN',{weekday:'long', day:'numeric', month:'long', year:'numeric'});
+    document.getElementById('diaryEditorDate').textContent = today;
+    document.getElementById('dWriteTitle').textContent = entryId ? 'Editing' : 'Write';
+    document.getElementById('dWriteTag').textContent = entryId ? 'today\u2019s entry' : 'today · editable';
+
+    if (entryId && db){
+      const { data, error } = await db.from('diary_entries').select('*').eq('id', entryId).single();
+      if (!error && data){
+        if (isSealed(data)){
+          showToast('That entry is sealed \u2014 you can add a note to it instead');
+          diaryEditingId = null;
+          document.getElementById('diaryCancelBtn').style.display = 'none';
+          document.getElementById('dWriteTitle').textContent = 'Write';
+          return;
+        }
+        document.getElementById('diaryTitle').value = data.title || '';
+        document.getElementById('diaryBody').value = data.body || '';
+        diaryPhotos = Array.isArray(data.photos) ? data.photos.slice() : [];
+        renderDiaryThumbs();
+        const radio = document.querySelector('input[name="diaryVisibility"][value="' + (data.visibility || 'private') + '"]');
+        if (radio) radio.checked = true;
+        if (data.visibility === 'shared_person'){
+          diarySharedWithUserId = data.shared_with_user_id;
+          diarySharedWithName = data.shared_with_name;
+          document.getElementById('diarySharePersonBox').style.display = 'block';
+          document.getElementById('diaryPersonPicked').textContent = 'Sharing with ' + (data.shared_with_name || 'someone');
+        }
+        document.getElementById('diaryEditorDate').textContent = diaryDateLabel(data.created_at);
+        document.getElementById('diaryBody').focus();
+      }
+    }
+  }
+
+  function onDiaryVisibilityChange(){
+    const v = document.querySelector('input[name="diaryVisibility"]:checked').value;
+    document.getElementById('diarySharePersonBox').style.display = (v === 'shared_person') ? 'block' : 'none';
   }
 
   async function saveDiaryEntry(){
@@ -6271,11 +6709,9 @@
     if (!title && !body){ showToast('Write something first'); return; }
     const visibility = document.querySelector('input[name="diaryVisibility"]:checked').value;
     if (visibility === 'shared_person' && !diarySharedWithUserId){
-      showToast('Pick who you want to share this with'); return;
+      showToast('Pick who you want to send this to'); return;
     }
 
-
-    // Upload any new photos (data-URLs) to storage; keep already-uploaded https URLs as-is
     let photoUrls = [];
     if (diaryPhotos.length){
       showToast('Saving photos\u2026');
@@ -6294,52 +6730,41 @@
       shared_with_user_id: visibility === 'shared_person' ? diarySharedWithUserId : null,
       shared_with_name: visibility === 'shared_person' ? diarySharedWithName : null
     };
-
-    // If the diary_entries.photos column hasn't been added yet (SQL_DIARY_PHOTOS.sql),
-    // save the entry anyway without photos rather than failing the whole save.
     const isMissingPhotosCol = (err)=>
       err && /photos/i.test(err.message || '') && /column|schema cache/i.test(err.message || '');
     const withoutPhotos = ()=>{ const p = {...payload}; delete p.photos; return p; };
 
-    let diaryId = diaryEditingId;
     if (diaryEditingId){
       let { error } = await db.from('diary_entries').update(payload).eq('id', diaryEditingId);
       if (error && isMissingPhotosCol(error)){
         ({ error } = await db.from('diary_entries').update(withoutPhotos()).eq('id', diaryEditingId));
-        if (!error && photoUrls.length) showToast('Saved \u2014 but run SQL_DIARY_PHOTOS.sql to keep photos');
       }
       if (error){ showToast('Could not save: ' + error.message); return; }
     } else {
-      let { data, error } = await db.from('diary_entries').insert(payload).select().single();
+      let { error } = await db.from('diary_entries').insert(payload);
       if (error && isMissingPhotosCol(error)){
-        ({ data, error } = await db.from('diary_entries').insert(withoutPhotos()).select().single());
-        if (!error && photoUrls.length) showToast('Saved \u2014 but run SQL_DIARY_PHOTOS.sql to keep photos');
+        ({ error } = await db.from('diary_entries').insert(withoutPhotos()));
       }
       if (error){ showToast('Could not save: ' + error.message); return; }
-      diaryId = data.id;
     }
 
     showToast(visibility === 'shared_person'
-      ? 'Saved and sent to ' + (diarySharedWithName || 'them') + ' 💌'
-      : (diaryEditingId ? 'Entry updated ✓' : 'Saved to your diary ✓'));
+      ? 'Saved and sent to ' + (diarySharedWithName || 'them')
+      : (diaryEditingId ? 'Entry updated' : 'Saved to your diary'));
 
-    renderDiary();
-    showScreen('diary');
+    openDiaryEditor(null);   // reset the writing pane
+    renderDiary();           // refresh the reading pane
   }
 
-
-
-
-  async function deleteDiaryEntry(){
-    if (!diaryEditingId || !confirm('Delete this diary entry? This cannot be undone.')) return;
-    // remove any mirrored book entry too
-    await db.from('entries').delete().eq('diary_entry_id', diaryEditingId);
-    const { error } = await db.from('diary_entries').delete().eq('id', diaryEditingId);
+  async function deleteDiaryEntry(id){
+    const entryId = id || diaryEditingId;
+    if (!entryId) return;
+    if (!confirm('Delete this diary entry?\n\nThis cannot be undone.')) return;
+    const { error } = await db.from('diary_entries').delete().eq('id', entryId);
     if (error){ showToast('Could not delete: ' + error.message); return; }
-    await loadEntriesFromDb();
     showToast('Deleted');
+    if (entryId === diaryEditingId) openDiaryEditor(null);
     renderDiary();
-    showScreen('diary');
   }
 
 /* ═══════════════ END FOR YOU + DIARY ═══════════════ */
@@ -6462,14 +6887,14 @@
       const dateTxt = ev.event_date ? new Date(ev.event_date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'TBD';
       return `
       <div class="ev-event-card" style="grid-column:1/-1; border:1.5px solid var(--camel); background:#FBF6F0;">
-        <div style="display:flex; align-items:center; gap:8px; color:var(--camel); font-weight:700; font-size:12.5px; letter-spacing:.05em; margin-bottom:10px;">✉️ YOU'RE INVITED</div>
+        <div style="display:flex; align-items:center; gap:8px; color:var(--camel); font-weight:700; font-size:12.5px; letter-spacing:.05em; margin-bottom:10px;">${icon('envelope')} YOU'RE INVITED</div>
         <h3 style="margin:0 0 4px; font-size:16.5px;">${escapeHtml(ev.name)}</h3>
         <div style="font-size:13px; color:var(--ink-soft); line-height:1.7;">
-          📅 ${escapeHtml(dateTxt)} · 📍 ${escapeHtml(ev.location || 'TBD')}
+          ${icon('calendar')} ${escapeHtml(dateTxt)} · ${icon('pin')} ${escapeHtml(ev.location || 'TBD')}
           ${ev.description ? '<br>"' + escapeHtml(ev.description.length>90 ? ev.description.slice(0,90)+'…' : ev.description) + '"' : ''}
         </div>
         <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
-          <button class="btn-small" style="background:var(--moss); color:#fff; border-color:var(--moss);" onclick="acceptInviteFromList('${x.guestRowId}', '${ev.id}')">Join this event 🎉</button>
+          <button class="btn-small" style="background:var(--moss); color:#fff; border-color:var(--moss);" onclick="acceptInviteFromList('${x.guestRowId}', '${ev.id}')">Join this event</button>
           <button class="btn-small" onclick='openEventById(${JSON.stringify(ev.id)}, false)'>View first</button>
           <button class="btn-small" style="color:#A65A3C;" onclick="declineInviteFromList('${x.guestRowId}')">Decline</button>
         </div>
@@ -6484,7 +6909,7 @@
     if (!all.length && !invitations.length){
       list.innerHTML = `
         <div style="grid-column:1/-1; background:var(--card); border:1.5px dashed var(--oat-deep); border-radius:14px; padding:38px 20px; text-align:center; color:var(--ink-soft); font-size:14px;">
-          <div style="font-size:26px; margin-bottom:8px;">📖</div>
+          <div style="margin-bottom:8px; color:var(--camel);"><span class="ic" style="font-size:26px;"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h13v18H6a2 2 0 01-2-2z"/><path d="M9 3v18"/></svg></span></div>
           <b style="color:var(--ink);">No events yet.</b><br>
           Create an event page and it will show up here.
         </div>`;
@@ -6500,10 +6925,10 @@
         <div style="width:46px; height:46px; border-radius:10px; background:linear-gradient(135deg,var(--camel),var(--moss)); display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:12px;">${emojis[i % emojis.length]}</div>
         <h3 style="margin:0 0 4px; font-size:16.5px;">${escapeHtml(ev.name)}</h3>
         <div style="font-size:13px; color:var(--ink-soft); line-height:1.7;">
-          📅 ${escapeHtml(dateTxt)} · 📍 ${escapeHtml(ev.location || 'TBD')}<br>
+          ${icon('calendar')} ${escapeHtml(dateTxt)} · ${icon('pin')} ${escapeHtml(ev.location || 'TBD')}<br>
           <span style="font-size:11.5px;">${x.role}</span>
         </div>
-        ${x.pend ? `<div class="ev-req-alert">🔔 ${x.pend} request${x.pend>1?'s':''} waiting for your approval</div>` : ''}
+        ${x.pend ? `<div class="ev-req-alert">${icon('bell')} ${x.pend} request${x.pend>1?'s':''} waiting for your approval</div>` : ''}
         <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
           <button class="btn-small" onclick='openEventById(${JSON.stringify(ev.id)}, ${ev.local?'true':'false'})'>Open event page</button>
           ${canDelete ? `<button class="btn-small" style="color:#A65A3C;" onclick='deleteEventFromList(${JSON.stringify(ev.id)}, ${ev.local?'true':'false'})'>Delete</button>` : ''}
@@ -6532,7 +6957,7 @@
     if (!db) return;
     const { error } = await db.from('event_guests').update({ status:'joined' }).eq('id', guestRowId);
     if (error){ showToast('Could not join: ' + error.message); return; }
-    showToast('Welcome — you\'re in! 🎉');
+    showToast('Welcome — you\'re in!');
     refreshEventsBadge();
     openEventById(eventId, false);
   }
@@ -6618,7 +7043,7 @@
       renderInvitedNow();
       if (ev.local){
         document.getElementById('evInviteCard').insertAdjacentHTML('afterbegin',
-          '<p style="font-size:12.5px; color:#A65A3C; margin:0 0 12px;">⚠️ This event lives only in this browser. Sign in and re-create it to make the link and QR actually work for others.</p>');
+          '<p style="font-size:12.5px; color:#A65A3C; margin:0 0 12px;"><b>Heads up:</b> this event lives only in this browser. Sign in and re-create it to make the link and QR actually work for others.</p>');
       }
     }
     if (!isIn) renderEventLock();
@@ -6651,7 +7076,7 @@
     const dateTxt = (dateTxt2 && !isNaN(dateTxt2)) ? dateTxt2.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'TBD';
     const hostName = (curRole==='owner') ? 'You' : escapeHtml(curHostName);
     document.getElementById('evMeta').innerHTML =
-      '📅 ' + escapeHtml(dateTxt) + ' · 📍 ' + escapeHtml(ev.location || 'TBD') + ' · Hosted by <b>' + hostName + '</b>' +
+      icon('calendar') + ' ' + escapeHtml(dateTxt) + ' · ' + icon('pin') + ' ' + escapeHtml(ev.location || 'TBD') + ' · Hosted by <b>' + hostName + '</b>' +
       (ev.description ? '<br>"' + escapeHtml(ev.description) + '"' : '');
     // avatars
     const joined = curGuests.filter(g=>g.status==='joined');
@@ -6704,7 +7129,7 @@
     if (!mine) return;
     const { error } = await db.from('event_guests').update({ status:'joined' }).eq('id', mine.id);
     if (error){ showToast('Could not join: ' + error.message); return; }
-    showToast('Welcome to ' + curEvent.name + ' 🎉');
+    showToast('Welcome to ' + curEvent.name);
     openEventPage(curEvent);
   }
 
@@ -6734,7 +7159,7 @@
       ? await db.from('event_guests').update({ status:'joined' }).eq('id', guestId)
       : await db.from('event_guests').update({ status:'declined' }).eq('id', guestId);
     if (error){ showToast('Could not update: ' + error.message); return; }
-    showToast(approved ? 'Approved — they\'re a member now 🎉' : 'Declined');
+    showToast(approved ? 'Approved — they\'re a member now' : 'Declined');
     const { data: g } = await db.from('event_guests').select('*').eq('event_id', curEvent.id);
     curGuests = g || [];
     renderEventHeader(); renderEventQueue(); renderEvTagTray(); renderEvAboutWho();
@@ -6795,12 +7220,12 @@
     document.getElementById('evSearchInput').value = '';
     document.getElementById('evTaResults').classList.remove('open');
     renderInvitedNow();
-    showToast('Invited ' + name + ' ✉️ — they can join from the event link');
+    showToast('Invited ' + name + ' — they can join from the event link');
   }
   function renderInvitedNow(){
     const invitedGuests = curGuests.filter(g=>g.status==='invited');
     document.getElementById('evInvitedList').innerHTML = invitedGuests.map(g=>
-      '<div class="ev-pill">✉️ ' + escapeHtml(g.guest_name||'') + ' <span style="font-size:11px; color:var(--ink-soft);">invited</span></div>'
+      '<div class="ev-pill">' + icon('envelope') + ' ' + escapeHtml(g.guest_name||'') + ' <span style="font-size:11px; color:var(--ink-soft);">invited</span></div>'
     ).join('');
   }
   document.addEventListener('click', function(e){
@@ -6903,7 +7328,7 @@
     if (!files.length) return;
     files.forEach(f=>{
       const r = new FileReader();
-      r.onload = ()=>{ evPostPhotos.push(r.result); done++; if (done===files.length) document.getElementById('evPhotoBtn').textContent = '📷 ' + files.length + ' photo' + (files.length>1?'s':'') + ' ✓'; };
+      r.onload = ()=>{ evPostPhotos.push(r.result); done++; if (done===files.length) document.getElementById('evPhotoBtn').innerHTML = icon('camera') + ' ' + files.length + ' photo' + (files.length>1?'s':'') + ' \u2713'; };
       r.readAsDataURL(f);
     });
   }
@@ -6938,7 +7363,7 @@
     if (error){ showToast('Could not post: ' + error.message); console.error(error); return; }
     document.getElementById('evComposerText').value = '';
     evPostPhotos = []; evPendingTags = [];
-    document.getElementById('evPhotoBtn').textContent = '📷 Add photos';
+    document.getElementById('evPhotoBtn').innerHTML = icon('camera') + ' Add photos';
     document.getElementById('evPhotoInput').value = '';
     document.getElementById('evTagTray').classList.remove('open');
     document.querySelectorAll('.ev-tagpick').forEach(b=>b.classList.remove('on'));
@@ -6960,7 +7385,7 @@
       if (!hits.length){ box.classList.remove('open'); return; }
       box.innerHTML = hits.map(c=>{
         const idx = CITIES.indexOf(c);
-        return '<div class="ev-ta-item" onclick="evPickCity(' + idx + ')">📍 ' + escapeHtml(c.name) + '</div>';
+        return '<div class="ev-ta-item" onclick="evPickCity(' + idx + ')">' + icon('pin') + ' ' + escapeHtml(c.name) + '</div>';
       }).join('');
       box.classList.add('open');
     }, 200);
@@ -7064,7 +7489,7 @@
     if (navigator.share){ navigator.share(shareData).catch(()=>{}); }
     else {
       try{ navigator.clipboard.writeText(url); }catch(e){}
-      showToast('Event link copied — share it anywhere 📋');
+      showToast('Event link copied — share it anywhere');
     }
   }
 
@@ -7130,7 +7555,7 @@
       ${isAbout && p.one_word ? '<div class="ev-about-word" style="color:' + (p.color||'var(--moss)') + '; font-size:24px; margin-top:8px;">"' + escapeHtml(p.one_word) + '"</div>' : ''}
       <div style="font-size:14.5px; line-height:1.7; margin-top:10px; white-space:pre-wrap; color:${p.color || 'var(--ink)'};">${escapeHtml(p.message)}${evRenderTags(p.tagged)}</div>
       ${photosHtml}
-      ${p.city ? '<div style="font-size:12px; color:var(--ink-soft); margin-top:10px;">📍 ' + escapeHtml(p.city) + '</div>' : ''}
+      ${p.city ? '<div style="font-size:12px; color:var(--ink-soft); margin-top:10px;">' + icon('pin') + ' ' + escapeHtml(p.city) + '</div>' : ''}
       <div style="display:flex; gap:14px; margin-top:14px; border-top:1px solid var(--line); padding-top:12px;">
         <button class="ev-fbtn" onclick="evToggleLike('${p.id}'); openEvEntryModal('${p.id}')" style="${p._liked ? 'color:var(--blush); font-weight:700;' : ''}">\u2665 ${p._likes||0}</button>
         <button class="ev-fbtn" onclick="evShareEvent()">\u2197 Share</button>
@@ -7138,7 +7563,7 @@
         ${canDelete ? `<button class="ev-fbtn" style="color:#A65A3C;" onclick="closeEvEntryModal(); evDeleteEntry('${p.id}')">Delete</button>` : ''}
       </div>
       <div style="margin-top:6px;">
-        <div style="font-weight:700; font-size:13.5px; margin:10px 0 8px;">💬 Comments</div>
+        <div style="font-weight:700; font-size:13.5px; margin:10px 0 8px;">${icon('comment')} Comments</div>
         <div id="evMcl-${p.id}"><p style="font-size:12px; color:var(--ink-soft);">Loading…</p></div>
         <div class="ev-comment-row">
           <input type="text" id="evMci-${p.id}" placeholder="Write a comment…" onkeydown="if(event.key==='Enter'){evModalAddComment('${p.id}');}">
@@ -7178,7 +7603,7 @@
     const posts = curEntries.filter(e=>(e.entry_type||'post')==='post');
     const feed = document.getElementById('evFeed');
     if (!posts.length){
-      feed.innerHTML = '<div style="background:var(--card); border:1.5px dashed var(--oat-deep); border-radius:14px; padding:26px 18px; text-align:center; color:var(--ink-soft); font-size:13.5px; margin-bottom:14px;">No posts yet — be the first to share a memory ✍️</div>';
+      feed.innerHTML = '<div style="background:var(--card); border:1.5px dashed var(--oat-deep); border-radius:14px; padding:26px 18px; text-align:center; color:var(--ink-soft); font-size:13.5px; margin-bottom:14px;">No posts yet — be the first to share a memory</div>';
       return;
     }
     feed.innerHTML = posts.map(p=>{
@@ -7197,7 +7622,7 @@
         ${evRenderPhotos(p.photos, p.id)}
         <div class="ev-foot">
           <button class="ev-fbtn" onclick="evToggleLike('${p.id}')" style="${p._liked ? 'color:var(--blush); font-weight:700;' : ''}">♥ ${p._likes||0}</button>
-          <button class="ev-fbtn" onclick="evToggleComments('${p.id}')">💬 ${p._commentCount||0} comment${(p._commentCount||0)===1?'':'s'}</button>
+          <button class="ev-fbtn" onclick="evToggleComments('${p.id}')">${icon('comment')} ${p._commentCount||0} comment${(p._commentCount||0)===1?'':'s'}</button>
           <button class="ev-fbtn" onclick="evShareEvent()">↗ Share</button>
           ${own ? `<button class="ev-fbtn edit" onclick="evEditPost('${p.id}')">✎ Edit</button>` : ''}
           ${canDelete ? `<button class="ev-fbtn" style="color:#A65A3C;" onclick="evDeleteEntry('${p.id}')">Delete</button>` : ''}
@@ -7227,8 +7652,8 @@
         ${evRenderPhotos(a.photos, a.id)}
         <div style="display:flex; gap:14px; align-items:center; margin-top:9px;">
           <button class="ev-fbtn" onclick="event.stopPropagation(); evToggleLike('${a.id}')" style="${a._liked ? 'color:var(--blush); font-weight:700;' : ''}">♥ ${a._likes||0}</button>
-          <span style="font-size:12px; color:var(--ink-soft);">💬 ${a._commentCount||0} comment${(a._commentCount||0)===1?'':'s'} · tap to open</span>
-          ${a.city ? '<span style="font-size:11.5px; color:var(--ink-soft);">📍 ' + escapeHtml(a.city) + '</span>' : ''}
+          <span style="font-size:12px; color:var(--ink-soft);">${icon('comment')} ${a._commentCount||0} comment${(a._commentCount||0)===1?'':'s'} · tap to open</span>
+          ${a.city ? '<span style="font-size:11.5px; color:var(--ink-soft);">' + icon('pin') + ' ' + escapeHtml(a.city) + '</span>' : ''}
           ${canDelete ? `<button class="ev-fbtn" style="color:#A65A3C; font-size:11.5px; margin-left:auto;" onclick="event.stopPropagation(); evDeleteEntry('${a.id}')">delete</button>` : ''}
         </div>
       </div>`;
@@ -7464,7 +7889,7 @@
     const inp = document.getElementById('evLink');
     inp.select();
     try{ navigator.clipboard.writeText(inp.value); }catch(e){ document.execCommand('copy'); }
-    showToast('Event link copied 📋');
+    showToast('Event link copied');
   }
 
   /* ── Nav badge: pending join requests (as host) + invitations (as invitee) ── */
