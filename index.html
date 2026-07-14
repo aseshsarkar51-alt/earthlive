@@ -1998,6 +1998,16 @@
 
     <div id="visitorPublicView">
       <div class="details-card" id="visitorDetailsCard" style="display:none;"></div>
+
+      <!-- THEIR WALL — their own words, before the map -->
+      <div id="visitorWallSection" style="display:none;">
+        <div class="shead">
+          <h3 id="visitorWallTitle">Their wall</h3>
+          <span class="cnt" id="visitorWallCount"></span>
+        </div>
+        <div id="visitorWall"></div>
+      </div>
+
       <div class="map-panel" id="visitorMapPanel" style="display:none;">
         <div class="entries-head">
           <h3>Memory map</h3>
@@ -2024,7 +2034,7 @@
         <div class="memory-map" id="visitorMap"></div>
       </div>
       <div class="entries-head">
-        <h3>Signed by</h3>
+        <h3>Signatures</h3>
         <span id="visitorEntryCount">0 people</span>
       </div>
       <div id="visitorEntries"></div>
@@ -4017,11 +4027,8 @@
     }
     if (!pendingLinkUsername) return false;
     const u = pendingLinkUsername;
-    if (!currentUser){
-      showToast('Sign in to open ' + '@' + u + '\u2019s page');
-      showScreen('auth');
-      return true; // keep pendingLinkUsername; resumes after sign-in
-    }
+    // Guests can READ a public book without an account \u2014 this is the whole point of
+    // sharing a link. Signing in is only required to actually sign the book.
     pendingLinkUsername = null;
     openProfileByUsername(u);
     return true;
@@ -5498,6 +5505,14 @@
 
   function signCurrentVisitorProfile(){
     if (!currentVisitorProfile) return;
+    // Reading a book is open to everyone. Signing it needs an account \u2014 ask here,
+    // at the moment it actually matters, and come straight back afterwards.
+    if (db && !currentUser){
+      pendingLinkUsername = currentVisitorProfile.username || null;
+      showToast('Sign in to add your signature \u2014 we\u2019ll bring you right back');
+      showScreen('auth');
+      return;
+    }
     openFillForm(currentVisitorProfile, currentVisitorEntries, currentVisitorIsOwn, visitorReturnScreen);
   }
 
@@ -5524,10 +5539,115 @@
       `Only ${profileObj.name} can see who's signed.`;
 
     if (!isPrivate){
-      renderEntries('visitorEntries', entriesArr.filter(isApproved), 'visitorEntryCount', false);
-      renderMemoryMap('visitorMapPanel', 'visitorMap', 'visitorMapCount', entriesArr.filter(isApproved));
+      const approved   = entriesArr.filter(isApproved);
+      const theirWall  = approved.filter(e=> isWallPostOf(e, profileObj));   // their own words
+      const signatures = approved.filter(e=>!isWallPostOf(e, profileObj));   // what others wrote
+
+      renderVisitorWall(theirWall, profileObj);
+      renderEntries('visitorEntries', signatures, 'visitorEntryCount', false);
+      renderMemoryMap('visitorMapPanel', 'visitorMap', 'visitorMapCount', approved);
     }
     showScreen('visitor');
+  }
+
+  /* Their wall, as a visitor sees it: read + like + comment, but no editing. */
+  function renderVisitorWall(posts, profileObj){
+    const section = document.getElementById('visitorWallSection');
+    const list    = document.getElementById('visitorWall');
+    if (!section || !list) return;
+
+    if (!posts.length){
+      section.style.display = 'none';
+      list.innerHTML = '';
+      return;
+    }
+    section.style.display = 'block';
+
+    const own = currentVisitorIsOwn;
+    const firstName = (profileObj.name || 'Their').split(' ')[0];
+    document.getElementById('visitorWallTitle').textContent =
+      own ? 'My wall' : firstName + '\u2019s wall';
+    document.getElementById('visitorWallCount').textContent =
+      posts.length + (posts.length === 1 ? ' post' : ' posts');
+
+    // Scroll inside its own box once there are more than 3
+    list.classList.toggle('wall-scroll', posts.length > 3);
+
+    const initials = (profileObj.name || '?')
+      .split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+
+    list.innerHTML = posts.map(e=>{
+      const ink = e.color || 'var(--moss)';
+      const n = Math.min((e.photos || []).length, 4);
+      const photos = (e.photos && e.photos.length)
+        ? '<div class="wp-photos count-' + n + '">' + e.photos.map(u=>
+            '<img src="' + u + '" alt="" loading="lazy" onclick="window.open(\'' + u + '\',\'_blank\')">'
+          ).join('') + '</div>'
+        : '';
+      const cmts = (e.comments || []).length;
+      return `
+      <div class="wall-post" style="border-left-color:${ink};">
+        <div class="wp-top">
+          <div class="wp-ava" style="border-color:${ink}; color:${ink};">${escapeHtml(initials)}</div>
+          <div>
+            <div class="wp-name">${escapeHtml(e.name || profileObj.name || '')}</div>
+            <div class="wp-meta">${(e.city && e.city.name) ? escapeHtml(e.city.name) + ' \u00b7 ' : ''}${escapeHtml(e.date || '')}</div>
+          </div>
+        </div>
+        <div class="wp-body">${escapeHtml(e.message || '')}</div>
+        ${photos}
+        <div class="wp-foot">
+          <button class="wp-btn ${e.likedByMe ? 'liked' : ''}" onclick="toggleVisitorWallLike('${e.id}')">${e.likedByMe ? '\u2665' : '\u2661'} ${e.likes || 0}</button>
+          <button class="wp-btn" onclick="toggleWallComments('${e.id}')">\ud83d\udcac ${cmts}</button>
+          <button class="wp-btn" onclick="shareVisitorBook()">\u2197 Share</button>
+        </div>
+        <div class="wp-comments" id="wpc-${e.id}">
+          ${(e.comments || []).map(c=>
+            '<div class="ev-comment"><div class="ev-avatar" style="background:var(--oat-deep); color:var(--ink);">' +
+            escapeHtml((c.name||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()) +
+            '</div><div class="ev-comment-body"><b>' + escapeHtml(c.name||'') + '</b> ' + escapeHtml(c.text||'') + '</div></div>'
+          ).join('') || '<p style="font-size:12px; color:var(--ink-soft);">No comments yet.</p>'}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  async function toggleVisitorWallLike(id){
+    const e = (currentVisitorEntries || []).find(x=>x.id === id);
+    if (!e || !db) return;
+    const was = !!e.likedByMe;
+    e.likedByMe = !was;
+    e.likes = Math.max(0, (e.likes || 0) + (was ? -1 : 1));
+    renderVisitorWall(
+      (currentVisitorEntries || []).filter(x=>isApproved(x) && isWallPostOf(x, currentVisitorProfile)),
+      currentVisitorProfile
+    );
+    const key = myLikerKey();
+    const op = was
+      ? db.from('likes').delete().eq('entry_id', id).eq('liker_key', key)
+      : db.from('likes').insert({ entry_id: id, liker_key: key });
+    const { error } = await op;
+    if (error){
+      e.likedByMe = was;
+      e.likes = Math.max(0, (e.likes || 0) + (was ? 1 : -1));
+      renderVisitorWall(
+        (currentVisitorEntries || []).filter(x=>isApproved(x) && isWallPostOf(x, currentVisitorProfile)),
+        currentVisitorProfile
+      );
+      showToast('Could not update like');
+    }
+  }
+
+  function shareVisitorBook(){
+    if (!currentVisitorProfile) return;
+    const link = 'earthlive.in/?u=' + (currentVisitorProfile.username || currentVisitorProfile.code);
+    const url = 'https://' + link;
+    if (navigator.share){
+      navigator.share({ title: currentVisitorProfile.name + '\u2019s memory book', url }).catch(()=>{});
+    } else {
+      try { navigator.clipboard.writeText(url); } catch(e){}
+      showToast('Link copied');
+    }
   }
 
   function exitVisitorPreview(){
@@ -6138,7 +6258,12 @@
   let wallSelectedCity = null;
   let wallEditingId = null;
 
-  // A wall post = an entry on MY book, signed by ME.
+  // A wall post = an entry on a book, written by that book's OWNER.
+  // (Signatures are what other people wrote.)
+  function isWallPostOf(e, profileObj){
+    return !!(profileObj && profileObj.userId && e.signerUserId === profileObj.userId);
+  }
+  // Shorthand for my own book
   function isWallPost(e){
     return !!(currentUser && profile && e.signerUserId === currentUser.id);
   }
