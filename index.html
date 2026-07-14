@@ -1647,8 +1647,15 @@
         </div>
         <div class="acct-row">
           <div>
+            <div class="acct-label">Deactivate my account</div>
+            <div class="acct-sub">Hides your book, wall and signatures from everyone, and signs you out. <b>Nothing is deleted</b> — sign back in anytime to reactivate.</div>
+          </div>
+          <button class="btn-small" onclick="deactivateAccount()">Deactivate</button>
+        </div>
+        <div class="acct-row">
+          <div>
             <div class="acct-label" style="color:#A65A3C;">Delete my book &amp; data</div>
-            <div class="acct-sub">Removes your book, signatures, diary, events, and messages permanently.</div>
+            <div class="acct-sub">Permanently removes your book, signatures, wall posts, diary, events, and messages. <b>This cannot be undone.</b></div>
           </div>
           <button class="btn-small btn-decline" onclick="deleteAccount()">Delete</button>
         </div>
@@ -2894,7 +2901,7 @@
     db.auth.onAuthStateChange((event, session)=>{
       currentUser = session ? session.user : null;
       refreshNav();
-      if (event === 'SIGNED_OUT'){ lastAuthUserId = null; }
+      if (event === 'SIGNED_OUT'){ lastAuthUserId = null; hideReactivateBanner(); }
       if (event === 'SIGNED_IN' && currentUser){
         if (lastAuthUserId === currentUser.id){
           // Same user, tab refocus / token refresh — do NOT navigate anywhere.
@@ -3367,6 +3374,72 @@
     }
   }
 
+  /* ---------- DEACTIVATE / REACTIVATE ACCOUNT ---------- */
+  async function deactivateAccount(){
+    if (!profile || !db || !currentUser){ showToast('Sign in first'); return; }
+    const sure = confirm(
+      'Deactivate your account?\n\n' +
+      '\u2022 Your book, wall and signatures are hidden from everyone\n' +
+      '\u2022 You will be signed out\n' +
+      '\u2022 Nothing is deleted \u2014 your diary, events and memories stay safe\n\n' +
+      'Sign back in anytime to reactivate.'
+    );
+    if (!sure) return;
+
+    showToast('Deactivating\u2026');
+    // Try the proper flag first; fall back to visibility-only if the column isn't there.
+    let { error } = await db.from('profiles')
+      .update({ deactivated: true, visibility: 'private' })
+      .eq('id', profile.dbId);
+    if (error && /deactivated/i.test(error.message || '')){
+      ({ error } = await db.from('profiles')
+        .update({ visibility: 'private' })
+        .eq('id', profile.dbId));
+      console.warn('[EarthLive] profiles.deactivated missing \u2014 run SQL_DEACTIVATE.sql. Fell back to private.');
+    }
+    if (error){ showToast('Could not deactivate: ' + error.message); return; }
+
+    profile.visibility = 'private';
+    profile.deactivated = true;
+    showToast('Account deactivated \u2014 sign back in to reactivate');
+    setTimeout(()=>{ db.auth.signOut(); }, 1200);
+  }
+
+  async function reactivateAccount(){
+    if (!profile || !db || !currentUser) return;
+    let { error } = await db.from('profiles')
+      .update({ deactivated: false, visibility: 'public' })
+      .eq('id', profile.dbId);
+    if (error && /deactivated/i.test(error.message || '')){
+      ({ error } = await db.from('profiles')
+        .update({ visibility: 'public' })
+        .eq('id', profile.dbId));
+    }
+    if (error){ showToast('Could not reactivate: ' + error.message); return; }
+    profile.deactivated = false;
+    profile.visibility = 'public';
+    hideReactivateBanner();
+    updateVisibilityPill();
+    renderDashboard();
+    showToast('Welcome back \u2014 your book is live again \u2713');
+  }
+
+  function showReactivateBanner(){
+    if (document.getElementById('reactivateBanner')) return;
+    const b = document.createElement('div');
+    b.id = 'reactivateBanner';
+    b.style.cssText = 'position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:900; background:var(--ink); color:var(--oat); border-radius:14px; padding:14px 18px; box-shadow:0 16px 40px -12px rgba(46,42,34,.5); display:flex; align-items:center; gap:14px; max-width:92vw; font-size:13.5px;';
+    b.innerHTML =
+      '<span>Your account is <b>deactivated</b> \u2014 nobody can see your book.</span>' +
+      '<button onclick="reactivateAccount()" style="background:var(--oat); color:var(--ink); border:none; border-radius:8px; padding:8px 14px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap;">Reactivate</button>' +
+      '<button onclick="hideReactivateBanner()" style="background:none; border:none; color:rgba(245,244,241,.6); font-size:16px; cursor:pointer; padding:0 2px;" aria-label="Dismiss">\u2715</button>';
+    document.body.appendChild(b);
+  }
+  function hideReactivateBanner(){
+    const b = document.getElementById('reactivateBanner');
+    if (b) b.remove();
+  }
+
   async function deleteAccount(){
     const first = confirm('Delete your page and ALL its data?\n\nThis removes your page, every signature on it, your comments, likes, follows, and messages. This cannot be undone.');
     if (!first) return;
@@ -3777,6 +3850,7 @@
   function dbRowToProfile(row){
     return {
       dbId: row.id,
+      deactivated: !!row.deactivated,
       userId: row.user_id,
       name: row.name,
       username: row.username,
@@ -3826,6 +3900,8 @@
     if (!data) return false;
     profile = dbRowToProfile(data);
     await loadEntriesFromDb();
+    // Deactivated? Offer a one-tap way back.
+    if (profile.deactivated) showReactivateBanner(); else hideReactivateBanner();
     return true;
   }
 
@@ -4281,7 +4357,7 @@
     const qCount = (profile.questions || tpl.questions).length;
     const tplEl = document.getElementById('acctTemplateText');
     if (tplEl) tplEl.textContent = tpl.name + ' \u00b7 ' + qCount + ' question' + (qCount===1?'':'s');
-    renderWall();
+    try { renderWall(); } catch(err){ console.error('[EarthLive] renderWall failed:', err); }
     // Signatures = approved entries from OTHER people (your own posts live on your wall)
     const signatures = entries.filter(e=>isApproved(e) && !isWallPost(e));
     renderEntries('ownerEntries', signatures, 'entryCount', true);
@@ -5479,7 +5555,8 @@
     
     const tagged = entriesArr
       .map((e,i)=>({entry:e, index:i}))
-      .filter(x => x.entry.city);
+      // a pin needs real coordinates \u2014 skip anything malformed rather than breaking the map
+      .filter(x => x.entry.city && typeof x.entry.city.lat === 'number' && typeof x.entry.city.lng === 'number');
     const panel = document.getElementById(panelId);
 
     if (!tagged.length || typeof L === 'undefined'){
@@ -5696,13 +5773,16 @@
     }
 
     const cityText = document.getElementById('wallCity').value.trim();
-    const cityObj = wallSelectedCity || (cityText ? CITIES.find(c=>c.name.toLowerCase() === cityText.toLowerCase()) : null);
+    const match = wallSelectedCity || (cityText ? CITIES.find(c=>c.name.toLowerCase() === cityText.toLowerCase()) : null);
+    // IMPORTANT: the memory map reads city.lat / city.lng \u2014 store the whole object, not a string.
+    const cityObj = match ? { ...match } : null;
+    if (cityText && !cityObj) showToast('City not recognised \u2014 posting without a map pin');
 
     if (wallEditingId){
       const { error } = await db.from('entries').update({
         message: text,
         photos: photoUrls,
-        city: cityObj ? cityObj.name : (cityText || null)
+        city: cityObj
       }).eq('id', wallEditingId);
       if (error){ showToast('Could not save: ' + error.message); return; }
       showToast('Post updated \u2713');
@@ -5716,7 +5796,7 @@
         relation: '',
         message: text,
         photos: photoUrls,
-        city: cityObj ? cityObj.name : (cityText || null),
+        city: cityObj,
         color: (profile && profile.ink) || null,
         status: 'approved',  // your own post \u2014 no approval needed
         answers: []
@@ -5755,10 +5835,10 @@
     document.getElementById('wallText').value = e.message || '';
     wallPhotos = Array.isArray(e.photos) ? e.photos.slice() : [];
     renderWallThumbs();
-    if (e.city){
+    if (e.city && e.city.name){
       document.getElementById('wcCityWrap').style.display = 'block';
-      document.getElementById('wallCity').value = e.city;
-      wallSelectedCity = CITIES.find(c=>c.name === e.city) || null;
+      document.getElementById('wallCity').value = e.city.name;
+      wallSelectedCity = CITIES.find(c=>c.name === e.city.name) || null;
     }
     const btn = document.querySelector('#wallComposer .btn-small');
     if (btn) btn.textContent = 'Save changes';
@@ -5812,13 +5892,13 @@
           <div class="wp-ava" style="border-color:${ink}; color:${ink};">${escapeHtml(initials)}</div>
           <div>
             <div class="wp-name">${escapeHtml(e.name || 'Me')}</div>
-            <div class="wp-meta">${e.city ? escapeHtml(e.city) + ' \u00b7 ' : ''}${escapeHtml(e.date || '')}</div>
+            <div class="wp-meta">${(e.city && e.city.name) ? escapeHtml(e.city.name) + ' \u00b7 ' : ''}${escapeHtml(e.date || '')}</div>
           </div>
         </div>
         <div class="wp-body">${escapeHtml(e.message || '')}</div>
         ${photos}
         <div class="wp-foot">
-          <button class="wp-btn ${e.likedByMe ? 'liked' : ''}" onclick="toggleLike('${e.id}')">${e.likedByMe ? '\u2665' : '\u2661'} ${e.likes || 0}</button>
+          <button class="wp-btn ${e.likedByMe ? 'liked' : ''}" onclick="toggleWallLike('${e.id}')">${e.likedByMe ? '\u2665' : '\u2661'} ${e.likes || 0}</button>
           <button class="wp-btn" onclick="toggleWallComments('${e.id}')">\ud83d\udcac ${cmts}</button>
           <button class="wp-btn" onclick="shareInvite()">\u2197 Share</button>
           <div class="wp-owner">
@@ -5835,6 +5915,26 @@
         </div>
       </div>`;
     }).join('');
+  }
+
+  async function toggleWallLike(id){
+    const e = entries.find(x=>x.id === id);
+    if (!e || !db) return;
+    const was = !!e.likedByMe;
+    e.likedByMe = !was;
+    e.likes = Math.max(0, (e.likes || 0) + (was ? -1 : 1));
+    renderWall();
+    const key = myLikerKey();
+    const op = was
+      ? db.from('likes').delete().eq('entry_id', id).eq('liker_key', key)
+      : db.from('likes').insert({ entry_id: id, liker_key: key });
+    const { error } = await op;
+    if (error){
+      e.likedByMe = was;
+      e.likes = Math.max(0, (e.likes || 0) + (was ? 1 : -1));
+      renderWall();
+      showToast('Could not update like');
+    }
   }
 
   function toggleWallComments(id){
