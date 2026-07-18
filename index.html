@@ -1053,10 +1053,10 @@
   .ic.fill svg{fill:currentColor; stroke:none;}
 
   /* ---------- SIGNATURE SEARCH ---------- */
-  .sig-search{display:flex; align-items:center; gap:9px; background:var(--oat); border:1.5px solid transparent; border-radius:999px; padding:11px 16px; margin-bottom:12px; transition:border-color .18s, background .18s;}
-  .sig-search:focus-within{border-color:color-mix(in srgb, var(--camel) 45%, transparent); background:var(--card);}
-  .sig-search .ic{color:var(--ink-soft); width:1.05em; height:1.05em; flex-shrink:0;}
-  .sig-search input{flex:1; border:none; outline:none; background:transparent; font-family:inherit; font-size:14px; color:var(--ink);}
+  .sig-search{display:flex; align-items:center; gap:9px; background:var(--card); border:1.5px solid var(--line); border-radius:16px; padding:13px 18px; margin-bottom:12px; transition:border-color .18s;}
+  .sig-search:focus-within{border-color:color-mix(in srgb, var(--ink-soft) 55%, transparent);}
+  .sig-search .ic{display:none;}
+  .sig-search input{flex:1; border:none; outline:none; background:transparent; font-family:inherit; font-size:15px; color:var(--ink);}
   .sig-search button{background:none; border:none; cursor:pointer; color:var(--ink-soft); font-size:13px; padding:4px 6px; line-height:1; border-radius:50%; transition:background .15s, color .15s;}
   .sig-search button:hover{color:var(--ink); background:color-mix(in srgb, var(--ink) 8%, transparent);}
   .sig-search-meta{font-size:12.5px; color:var(--ink-soft); margin:-4px 0 12px 2px;}
@@ -1715,7 +1715,7 @@
       <h3 style="flex:none;">Signatures</h3>
       <div class="sig-search" style="flex:1; min-width:220px; margin-bottom:0;">
         <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
-        <input type="text" id="sigSearch" placeholder="Find someone…" autocomplete="off" oninput="filterSignatures()">
+        <input type="text" id="sigSearch" placeholder="Type a name, e.g. Priya…" autocomplete="off" oninput="filterSignatures()">
         <button type="button" id="sigSearchClear" style="display:none;" onclick="clearSignatureSearch()" aria-label="Clear search">✕</button>
       </div>
       <span id="entryCount" style="flex:none;">0 people</span>
@@ -2158,7 +2158,7 @@
         <h3 style="flex:none;">Signatures</h3>
         <div class="sig-search" id="visitorSigSearchBox" style="flex:1; min-width:220px; margin-bottom:0;">
           <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
-          <input type="text" id="visitorSigSearch" placeholder="Find someone…" autocomplete="off" oninput="filterVisitorSignatures()">
+          <input type="text" id="visitorSigSearch" placeholder="Type a name, e.g. Priya…" autocomplete="off" oninput="filterVisitorSignatures()">
           <button type="button" id="visitorSigSearchClear" style="display:none;" onclick="clearVisitorSignatureSearch()" aria-label="Clear search">✕</button>
         </div>
         <span id="visitorEntryCount" style="flex:none;">0 people</span>
@@ -2265,6 +2265,8 @@
           <button type="button" class="btn-small" id="evEditBtn" style="display:none; flex:none;" onclick="toggleEventEdit()">✎ Edit details</button>
         </div>
 
+        <div id="evCoverDisplay" style="display:none; margin-top:14px; border-radius:12px; overflow:hidden; height:180px; background:var(--oat-deep) center/cover no-repeat;"></div>
+
         <div id="evEditBox" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--line);">
           <div class="field" style="margin-bottom:11px;">
             <label style="font-size:13px;">Event name</label>
@@ -2285,7 +2287,6 @@
           <div class="field" style="margin-bottom:14px;">
             <label style="font-size:13px;">Cover photo</label>
             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-              <div id="evEditCoverPreview" style="display:none; width:44px; height:44px; border-radius:8px; background:var(--oat-deep) center/cover no-repeat; border:1px solid var(--line); flex:none;"></div>
               <button type="button" class="ev-chip" onclick="document.getElementById('evCoverInput').click()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span> Change cover</button>
               <button type="button" class="ev-chip" id="evEditRemoveCoverBtn" style="display:none;" onclick="evRemoveCover()">✕ Remove cover</button>
             </div>
@@ -8842,10 +8843,10 @@
       descEl.textContent = ev.description ? '\u201c' + ev.description + '\u201d' : '';
       descEl.style.display = ev.description ? 'block' : 'none';
     }
-    const coverPreview = document.getElementById('evEditCoverPreview');
-    if (coverPreview){
-      if (ev.cover_url){ coverPreview.style.display = 'block'; coverPreview.style.background = 'url(' + ev.cover_url + ') center/cover no-repeat'; }
-      else { coverPreview.style.display = 'none'; }
+    const coverDisplay = document.getElementById('evCoverDisplay');
+    if (coverDisplay){
+      if (ev.cover_url){ coverDisplay.style.display = 'block'; coverDisplay.style.background = 'url(' + ev.cover_url + ') center/cover no-repeat'; }
+      else { coverDisplay.style.display = 'none'; }
     }
     const removeCoverBtn = document.getElementById('evEditRemoveCoverBtn');
     if (removeCoverBtn) removeCoverBtn.style.display = ev.cover_url ? 'inline-flex' : 'none';
