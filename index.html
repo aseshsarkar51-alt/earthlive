@@ -1053,12 +1053,12 @@
   .ic.fill svg{fill:currentColor; stroke:none;}
 
   /* ---------- SIGNATURE SEARCH ---------- */
-  .sig-search{display:flex; align-items:center; gap:9px; background:var(--card); border:1px solid var(--line); border-radius:11px; padding:10px 14px; margin-bottom:12px; box-shadow:var(--shadow); transition:border-color .15s;}
-  .sig-search:focus-within{border-color:var(--moss);}
-  .sig-search .ic{color:var(--ink-soft); width:1.05em; height:1.05em;}
+  .sig-search{display:flex; align-items:center; gap:10px; background:var(--oat); border:1.5px solid transparent; border-radius:999px; padding:9px 16px 9px 9px; margin-bottom:12px; box-shadow:inset 0 1px 2px rgba(46,42,34,0.06); transition:border-color .18s, background .18s, box-shadow .18s;}
+  .sig-search:focus-within{border-color:color-mix(in srgb, var(--camel) 55%, transparent); background:var(--card); box-shadow:0 0 0 4px color-mix(in srgb, var(--camel) 13%, transparent), var(--shadow);}
+  .sig-search .ic{color:var(--camel); width:1.05em; height:1.05em; background:color-mix(in srgb, var(--camel) 15%, transparent); border-radius:50%; padding:7px; box-sizing:content-box; flex-shrink:0;}
   .sig-search input{flex:1; border:none; outline:none; background:transparent; font-family:inherit; font-size:14px; color:var(--ink);}
-  .sig-search button{background:none; border:none; cursor:pointer; color:var(--ink-soft); font-size:13px; padding:2px 4px; line-height:1;}
-  .sig-search button:hover{color:var(--ink);}
+  .sig-search button{background:none; border:none; cursor:pointer; color:var(--ink-soft); font-size:13px; padding:4px 6px; line-height:1; border-radius:50%; transition:background .15s, color .15s;}
+  .sig-search button:hover{color:var(--ink); background:color-mix(in srgb, var(--ink) 8%, transparent);}
   .sig-search-meta{font-size:12.5px; color:var(--ink-soft); margin:-4px 0 12px 2px;}
   .sig-search-meta b{color:var(--camel);}
   .signer-link{color:inherit; text-decoration:none; border-bottom:1px solid var(--oat-deep); transition:border-color .15s, color .15s;}
@@ -1631,7 +1631,6 @@
         </div>
       </div>
         <div class="dash-actions">
-        <button class="btn-share-hdr" onclick="setMilestone()" id="milestoneBtn">🎉 Set a milestone</button>
         <button class="btn-share-hdr" onclick="shareInvite()">↗ Share</button>
       </div>
     </div>
@@ -1714,7 +1713,7 @@
 
     <div class="entries-head" id="sigsAnchor" style="gap:14px; flex-wrap:wrap; align-items:center;">
       <h3 style="flex:none;">Signatures</h3>
-      <div class="sig-search" style="flex:1; min-width:220px; margin-bottom:0; padding:8px 13px;">
+      <div class="sig-search" style="flex:1; min-width:220px; margin-bottom:0;">
         <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
         <input type="text" id="sigSearch" placeholder="Search by name, word, city or message…" autocomplete="off" oninput="filterSignatures()">
         <button type="button" id="sigSearchClear" style="display:none;" onclick="clearSignatureSearch()" aria-label="Clear search">✕</button>
@@ -2118,11 +2117,6 @@
       </div>
     </div>
 
-    <div id="visitorMilestoneBanner" style="display:none; background:var(--oat); border:1px solid var(--camel); border-radius:12px; padding:14px 16px; margin:0 0 18px; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
-      <p id="visitorMilestoneText" style="margin:0; font-size:14px; color:var(--ink);"></p>
-      <button class="btn btn-primary" onclick="signCurrentVisitorProfile()">Add your memory</button>
-    </div>
-
     <div id="visitorPublicView">
       <div class="details-card" id="visitorDetailsCard" style="display:none;"></div>
 
@@ -2162,7 +2156,7 @@
       </div>
       <div class="entries-head" style="gap:14px; flex-wrap:wrap; align-items:center;">
         <h3 style="flex:none;">Signatures</h3>
-        <div class="sig-search" id="visitorSigSearchBox" style="flex:1; min-width:220px; margin-bottom:0; padding:8px 13px;">
+        <div class="sig-search" id="visitorSigSearchBox" style="flex:1; min-width:220px; margin-bottom:0;">
           <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
           <input type="text" id="visitorSigSearch" placeholder="Search by name, word, city or message…" autocomplete="off" oninput="filterVisitorSignatures()">
           <button type="button" id="visitorSigSearchClear" style="display:none;" onclick="clearVisitorSignatureSearch()" aria-label="Clear search">✕</button>
@@ -2261,7 +2255,7 @@
         <div class="ev-badge"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span> Members only</div>
         <input type="file" accept="image/*" id="evCoverInput" style="display:none;" onchange="evChangeCover(event)">
         <button type="button" class="ev-cover-changebtn" id="evCoverChangeBtn" style="display:none;" onclick="toggleEvCoverMenu(event)">✎ Cover</button>
-        <div class="cover-edit-menu" id="evCoverMenu" style="display:none; position:absolute; right:12px; bottom:52px; z-index:5;">
+        <div class="cover-edit-menu" id="evCoverMenu" style="display:none; position:absolute; top:auto; right:12px; bottom:52px; z-index:5;">
           <button type="button" onclick="closeEvCoverMenu(); document.getElementById('evCoverInput').click();">Change cover</button>
           <button type="button" class="danger" onclick="closeEvCoverMenu(); evRemoveCover();">Remove cover</button>
         </div>
@@ -5282,7 +5276,6 @@
     renderMemoryMap('ownerMapPanel', 'ownerMap', 'ownerMapCount', entries.filter(isApproved));
     renderPendingPanel(entries.filter(e => e.status === 'pending'));
     renderOnThisDay();
-    renderMilestoneButton();
   }
 
   /* On this day: resurface approved memories written in a previous year, on today's month/day. */
@@ -5310,56 +5303,6 @@
         <span class="entry-name">\u2014 ${escapeHtml(e.name)}</span>
       </div>`;
     }).join('');
-  }
-
-  /* Milestone button label reflects whether one is already set */
-  function renderMilestoneButton(){
-    const btn = document.getElementById('milestoneBtn');
-    if (!btn) return;
-    const m = profile.extras && profile.extras.milestone;
-    btn.textContent = (m && m.date) ? '🎉 Edit milestone' : '🎉 Set a milestone';
-  }
-
-  /* Life moments: owner sets a label + future date; visitors see a countdown banner urging them to contribute. */
-  async function setMilestone(){
-    const existing = (profile.extras && profile.extras.milestone) || {};
-    const label = prompt('What\u2019s the moment? (e.g. "Farewell to Mumbai", "Priya\u2019s wedding")', existing.label || '');
-    if (label === null) return;
-    if (!label.trim()){
-      profile.extras = { ...(profile.extras||{}) };
-      delete profile.extras.milestone;
-    } else {
-      const dateStr = prompt('Date (YYYY-MM-DD)', existing.date || '');
-      if (dateStr === null) return;
-      const d = new Date(dateStr + 'T00:00:00');
-      if (isNaN(d)){
-        showToast('Enter a valid date like 2026-09-04');
-        return;
-      }
-      profile.extras = { ...(profile.extras||{}), milestone: { label: label.trim(), date: d.toISOString() } };
-    }
-    renderMilestoneButton();
-    if (db && currentUser && profile.dbId){
-      const { error } = await db.from('profiles').update({ extras: profile.extras }).eq('id', profile.dbId);
-      if (error){
-        showToast(error.message.includes('extras') ? 'Run supabase-extras.sql in Supabase first, then try again' : 'Could not save: ' + error.message);
-        return;
-      }
-    }
-    showToast(label.trim() ? 'Milestone set' : 'Milestone cleared');
-  }
-
-  /* Render the visitor-facing milestone countdown banner, if the owner set one and it's upcoming */
-  function renderMilestoneBanner(profileObj){
-    const banner = document.getElementById('visitorMilestoneBanner');
-    if (!banner) return;
-    const m = profileObj.extras && profileObj.extras.milestone;
-    if (!m || !m.date){ banner.style.display = 'none'; return; }
-    const days = Math.ceil((new Date(m.date) - new Date()) / 86400000);
-    if (days < 0 || days > 60){ banner.style.display = 'none'; return; }
-    banner.style.display = 'flex';
-    const when = days === 0 ? 'today' : (days === 1 ? 'tomorrow' : days + ' days from now');
-    document.getElementById('visitorMilestoneText').textContent = m.label + ' \u2014 ' + when + '. Add your memory before it arrives.';
   }
 
   function renderPendingPanel(pending){
@@ -6530,7 +6473,6 @@
     renderDetails('visitorDetailsCard', profileObj, false);
     updateFollowUi(profileObj);
     updateMutualBadge(profileObj);
-    renderMilestoneBanner(profileObj);
 
     const isPrivate = profileObj.visibility === 'private';
     document.getElementById('visitorPublicView').style.display = isPrivate ? 'none' : 'block';
