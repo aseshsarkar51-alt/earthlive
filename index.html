@@ -872,6 +872,17 @@
   .entries-grid{
     display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:22px;
   }
+  /* Signatures: about two rows tall, then the panel scrolls inside itself
+     (same rule as event posts and the diary list) */
+  #ownerEntries, #visitorEntries{
+    max-height:660px; overflow-y:auto; overscroll-behavior:contain; padding:4px 6px 4px 2px;
+    scrollbar-width:thin; scrollbar-color:var(--oat-deep) transparent;
+  }
+  #ownerEntries::-webkit-scrollbar, #visitorEntries::-webkit-scrollbar{width:8px;}
+  #ownerEntries::-webkit-scrollbar-track, #visitorEntries::-webkit-scrollbar-track{background:transparent;}
+  #ownerEntries::-webkit-scrollbar-thumb, #visitorEntries::-webkit-scrollbar-thumb{background:var(--oat-deep); border-radius:99px;}
+  #ownerEntries::-webkit-scrollbar-thumb:hover, #visitorEntries::-webkit-scrollbar-thumb:hover{background:var(--ink-soft);}
+  @media(max-width:640px){ #ownerEntries, #visitorEntries{max-height:560px;} }
 
   .entry-card{
     background:var(--card); border:1px solid var(--line); border-radius:4px 4px 10px 10px;
@@ -1234,14 +1245,15 @@
   .filter-bar b{color:var(--camel);}
   .filter-bar > button{margin-left:auto; background:none; border:none; color:var(--ink-soft); cursor:pointer; font-family:inherit; font-size:12px; text-decoration:underline;}
   .d-entry.hide{display:none;}
-  /* Both panes are the same height and their bottoms line up.
-     The read pane scrolls inside itself, so the page never grows. */
-  .diary-split{align-items:stretch;}
-  .d-pane{display:flex; flex-direction:column; height:640px;}
-  @media(max-width:900px){.d-pane{height:auto;} .d-scroll{max-height:460px;}}
-  .d-pane-body{flex:1; display:flex; flex-direction:column; min-height:0; overflow-y:auto;}
-  .d-body-input{flex:1;}
-  .d-scroll{flex:1; min-height:0; overflow-y:auto; padding:4px 18px 18px; scrollbar-width:thin; scrollbar-color:var(--oat-deep) transparent;}
+  /* Each pane takes its natural height — the Write pane stays compact and the
+     calendar + mood summary are always fully visible. Only the entries LIST
+     scrolls inside itself, so the page still never grows out of control. */
+  .diary-split{align-items:start;}
+  .d-pane{display:flex; flex-direction:column;}
+  .d-pane-body{display:flex; flex-direction:column;}
+  .d-body-input{min-height:150px;}
+  .d-scroll{max-height:440px; overflow-y:auto; padding:4px 18px 18px; scrollbar-width:thin; scrollbar-color:var(--oat-deep) transparent;}
+  @media(max-width:900px){.d-scroll{max-height:460px;}}
   .d-scroll::-webkit-scrollbar{width:8px;}
   .d-scroll::-webkit-scrollbar-track{background:transparent;}
   .d-scroll::-webkit-scrollbar-thumb{background:var(--oat-deep); border-radius:99px;}
@@ -1300,9 +1312,6 @@
    */
   .ev-cover{position:relative; isolation:isolate; contain:layout paint; border-radius:16px 16px 0 0; overflow:hidden; background:linear-gradient(135deg, var(--moss) 0%, var(--camel) 60%, var(--blush) 100%); background-size:cover; background-position:center; height:280px; width:100%;}
   @media (max-width:600px){.ev-cover{height:220px;}}
-  .ev-cover-text{position:absolute; left:0; right:0; bottom:0; padding:44px 22px 18px; background:linear-gradient(to top, rgba(20,18,14,.72), rgba(20,18,14,.28) 60%, transparent); color:#fff;}
-  .ev-cover-text h1{margin:0 0 4px; font-size:26px; line-height:1.2; color:#fff; text-shadow:0 1px 6px rgba(0,0,0,.35);}
-  .ev-cover-text .ev-cover-desc{font-size:13.5px; line-height:1.55; color:rgba(255,255,255,.92); max-width:560px; text-shadow:0 1px 4px rgba(0,0,0,.35);}
   .ev-cover .ev-cover-changebtn{position:absolute; right:12px; bottom:12px; z-index:2; background:rgba(30,28,24,.65); color:#fff; border:none; border-radius:999px; padding:7px 14px; font-size:12.5px; cursor:pointer;}
   .ev-cover .ev-cover-changebtn:hover{background:rgba(30,28,24,.85);}
   .ev-badge{position:absolute; top:14px; right:14px; background:rgba(255,255,255,.92); border-radius:999px; padding:6px 13px; font-size:12px; font-weight:700; color:var(--moss);}
@@ -1334,6 +1343,12 @@
   .ev-tagpick{font-size:12px; padding:5px 11px; border-radius:999px; border:1px solid var(--line); background:var(--oat); cursor:pointer; font-family:inherit;}
   .ev-tagpick.on{background:var(--moss); color:#fff; border-color:var(--moss);}
   .ev-post{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:12px; box-shadow:var(--shadow);}
+  /* Posts panel: about three posts tall, then it scrolls inside itself (like My book) */
+  #evFeed{max-height:580px; overflow-y:auto; overscroll-behavior:contain; padding-right:4px; scrollbar-width:thin; scrollbar-color:var(--oat-deep) transparent;}
+  #evFeed::-webkit-scrollbar{width:8px;}
+  #evFeed::-webkit-scrollbar-track{background:transparent;}
+  #evFeed::-webkit-scrollbar-thumb{background:var(--oat-deep); border-radius:99px;}
+  #evFeed::-webkit-scrollbar-thumb:hover{background:var(--ink-soft);}
   .ev-post-meta{font-size:11.5px; color:var(--ink-soft);}
   .ev-post-own{font-size:10px; background:var(--oat); border:1px solid var(--line); padding:2px 8px; border-radius:999px; color:var(--ink-soft); font-weight:700;}
   .ev-post-body{font-size:14px; line-height:1.65; margin:11px 0 0; word-wrap:break-word;}
@@ -1380,8 +1395,8 @@
 <nav class="nav">
   <div class="brand"><span class="dot"></span>EarthLive</div>
   <div class="nav-right" id="navRight">
+    <button class="nav-link" onclick="showScreen('about')">Our story</button>
     <button class="nav-link" onclick="showScreen('how')">How it works</button>
-    <button class="nav-link" onclick="showScreen('about')">About</button>
     <button class="nav-link" onclick="showScreen('landing')">Home</button>
     <button class="nav-link" onclick="showScreen('auth')">Sign in</button>
   </div>
@@ -1486,14 +1501,16 @@
     </div>
 
     <div class="footer">
-      Made for people who miss passing notes.
       <div class="footer-links">
-        <button onclick="showScreen('about')">About us</button>
+        <button onclick="showScreen('about')">Our story</button>
+        <button onclick="showScreen('how')">How it works</button>
+        <button onclick="showScreen('contact')">Contact us</button>
         <button onclick="showScreen('search')">Find someone</button>
         <button onclick="showScreen('auth')">Sign in</button>
         <button onclick="showScreen('privacy')">Privacy Policy</button>
         <button onclick="showScreen('terms')">Terms of Use</button>
       </div>
+      <div style="font-size:12px; margin-top:12px;">© 2026 <b style="color:var(--ink);">EarthLive</b> · Made for people who miss passing notes.</div>
       <p style="margin:18px 0 0; font-size:12px; color:var(--ink-soft);">© 2026 EarthLive · earthlive.in · All rights reserved. "EarthLive" and the EarthLive seal are trademarks of their owner.</p>
     </div>
   </div>
@@ -1689,15 +1706,14 @@
       <div class="memory-map" id="ownerMap"></div>
     </div>
 
-    <div class="entries-head" id="sigsAnchor">
-      <h3>Signatures</h3>
-      <span id="entryCount">0 people</span>
-    </div>
-
-    <div class="sig-search">
-      <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
-      <input type="text" id="sigSearch" placeholder="Search by name, word, city or message…" autocomplete="off" oninput="filterSignatures()">
-      <button type="button" id="sigSearchClear" style="display:none;" onclick="clearSignatureSearch()" aria-label="Clear search">✕</button>
+    <div class="entries-head" id="sigsAnchor" style="gap:14px; flex-wrap:wrap; align-items:center;">
+      <h3 style="flex:none;">Signatures</h3>
+      <div class="sig-search" style="flex:1; min-width:220px; margin-bottom:0; padding:8px 13px;">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
+        <input type="text" id="sigSearch" placeholder="Search by name, word, city or message…" autocomplete="off" oninput="filterSignatures()">
+        <button type="button" id="sigSearchClear" style="display:none;" onclick="clearSignatureSearch()" aria-label="Clear search">✕</button>
+      </div>
+      <span id="entryCount" style="flex:none;">0 people</span>
     </div>
     <div id="sigSearchMeta" class="sig-search-meta" style="display:none;"></div>
 
@@ -1937,6 +1953,23 @@
           <button class="btn-small" onclick="toggleBlockedList()">View</button>
         </div>
         <div id="blockedList" style="display:none; margin-top:14px;"></div>
+      </div>
+
+      <!-- Language -->
+      <div class="panel">
+        <p class="panel-title">Language</p>
+        <div class="acct-row">
+          <div>
+            <div class="acct-label">Your language</div>
+            <div class="acct-sub" id="acctLangText">English</div>
+          </div>
+        </div>
+        <div style="position:relative; margin-top:10px;">
+          <input type="text" id="langSearch" placeholder="Search a language — e.g. বাংলা, हिन्दी, Español…" autocomplete="off"
+                 oninput="langSearchTyped()" onfocus="langSearchTyped()"
+                 style="width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px; font-family:inherit; background:var(--page); color:var(--ink);">
+          <div class="ev-ta" id="langSuggestions"></div>
+        </div>
       </div>
 
       <!-- Account -->
@@ -2210,16 +2243,18 @@
       <div class="ev-cover" id="evCover">
         <div class="ev-badge"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span> Members only</div>
         <input type="file" accept="image/*" id="evCoverInput" style="display:none;" onchange="evChangeCover(event)">
-        <div class="ev-cover-text">
-          <h1 id="evName"></h1>
-          <div class="ev-cover-desc" id="evCoverDesc"></div>
+        <button type="button" class="ev-cover-changebtn" id="evCoverChangeBtn" style="display:none;" onclick="toggleEvCoverMenu(event)">✎ Cover</button>
+        <div class="cover-edit-menu" id="evCoverMenu" style="display:none; position:absolute; right:12px; bottom:52px; z-index:5;">
+          <button type="button" onclick="closeEvCoverMenu(); document.getElementById('evCoverInput').click();">Change cover</button>
+          <button type="button" class="danger" onclick="closeEvCoverMenu(); evRemoveCover();">Remove cover</button>
         </div>
-        <button type="button" class="ev-cover-changebtn" id="evCoverChangeBtn" style="display:none;" onclick="document.getElementById('evCoverInput').click()">✎ Change cover</button>
       </div>
       <div class="ev-head">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
           <div style="flex:1; min-width:0;">
+            <h1 id="evName" style="margin:0 0 4px; font-size:23px;"></h1>
             <div class="ev-sub" id="evMeta"></div>
+            <div class="ev-sub" id="evDesc" style="margin-top:6px; display:none;"></div>
           </div>
           <button type="button" class="btn-small" id="evEditBtn" style="display:none; flex:none;" onclick="toggleEventEdit()">✎ Edit details</button>
         </div>
@@ -2307,10 +2342,7 @@
         <div style="font-size:12.5px; color:var(--ink-soft); margin-top:10px;" id="evMapCount"></div>
       </div>
 
-      <!-- 6. ABOUT ENTRIES FEED (after the map) -->
-      <div id="evAboutFeed"></div>
-
-      <!-- 7. WRITE ABOUT SOMEONE — collapsed tab at the end -->
+      <!-- 6. WRITE ABOUT SOMEONE — collapsed tab after the map -->
       <div class="card-ev" id="evAboutCard" style="display:none; padding:0; overflow:hidden;">
         <button type="button" id="evAboutToggle" onclick="toggleAboutForm()" style="width:100%; display:flex; align-items:center; justify-content:space-between; background:none; border:none; padding:17px 18px; font-family:inherit; font-size:15px; font-weight:700; color:var(--ink); cursor:pointer;">
           <span><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 10-4-4L4 16z"/></svg></span> Write about someone</span>
@@ -2353,7 +2385,10 @@
         </div>
       </div>
 
-      <!-- 7. NON-MEMBER LOCK -->
+      <!-- 7. ABOUT ENTRIES FEED (what people wrote about each other) -->
+      <div id="evAboutFeed"></div>
+
+      <!-- 8. NON-MEMBER LOCK -->
       <div id="evLockScreen" style="display:none; background:var(--card); border:1.5px dashed var(--camel); border-radius:14px; padding:32px 22px; text-align:center; font-size:14px; line-height:1.8; margin-top:14px;">
         <span class="ic" style="font-size:26px; color:var(--camel);" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span><br>
         <b id="evLockName" style="font-size:17px;"></b><br>
@@ -2467,12 +2502,7 @@
   <div class="wrap">
     <div style="max-width:560px; margin:0 auto; padding:36px 0 60px;">
       <div style="text-align:center; margin-bottom:26px;">
-        <div class="form-eyebrow">A gentle guide</div>
-        <h2 style="font-size:28px; margin:0 0 6px; font-weight:700;">How EarthLive works</h2>
-        <p style="color:var(--ink-soft); font-size:13.5px; line-height:1.65; margin:0;">
-          Everyone's got something to say about you. EarthLive is where those words get kept.<br>
-          <b style="color:var(--ink);">Tap any step to see exactly what that screen looks like.</b>
-        </p>
+        <h2 style="font-size:28px; margin:0; font-weight:700;">How EarthLive works</h2>
       </div>
 
       <div style="position:relative;">
@@ -2694,6 +2724,15 @@
         <button class="btn btn-primary" onclick="beginFlow()">Start your book →</button><br>
         <button class="link-quiet" style="margin-top:14px;" onclick="showScreen(currentUser ? 'dashboard' : 'landing')">← Back</button>
       </div>
+      <div style="border-top:1px solid var(--line); margin-top:40px; padding-top:16px;">
+        <div class="footer-links" style="margin-top:0;">
+          <button onclick="showScreen('contact')">Contact us</button>
+          <button onclick="showScreen('privacy')">Privacy Policy</button>
+          <button onclick="showScreen('terms')">Terms of Use</button>
+        </div>
+        <div style="font-size:12px; color:var(--ink-soft); margin-top:10px;">© 2026 <b style="color:var(--ink);">EarthLive</b></div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -2701,7 +2740,7 @@
 <section class="screen" id="screen-about">
   <div class="wrap">
     <div class="about-body">
-      <div class="eyebrow">About us</div>
+      <div class="eyebrow">Our story</div>
       <h2>Some things deserve to be written down.</h2>
       <p>EarthLive brings back the memory book — a digital space where your people can add their thoughts, memories, and heartfelt messages. No feed to scroll, no strangers, no noise. Just words worth keeping.</p>
       <p>Here, your page is your book. You choose the questions, send one link, and your people fill it with words you'll actually want to keep. You approve every entry before it appears, and you decide whether your book is open to the world or just for you.</p>
@@ -2723,6 +2762,52 @@
       <div class="cta-row" style="margin-top:34px;">
         <button class="btn btn-primary" onclick="beginFlow()">Start your book →</button>
         <button class="link-quiet" onclick="showScreen('landing')">Back to home</button>
+      </div>
+      <div style="border-top:1px solid var(--line); margin-top:40px; padding-top:16px;">
+        <div class="footer-links" style="margin-top:0;">
+          <button onclick="showScreen('contact')">Contact us</button>
+          <button onclick="showScreen('privacy')">Privacy Policy</button>
+          <button onclick="showScreen('terms')">Terms of Use</button>
+        </div>
+        <div style="font-size:12px; color:var(--ink-soft); margin-top:10px;">© 2026 <b style="color:var(--ink);">EarthLive</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section class="screen" id="screen-contact">
+  <div class="wrap">
+    <div style="max-width:560px; margin:0 auto; padding:36px 0 60px;">
+      <div class="form-eyebrow">We're listening</div>
+      <h2 style="font-size:26px; margin:0 0 8px; font-weight:700;">Contact us</h2>
+      <p style="color:var(--ink-soft); font-size:13.5px; line-height:1.7; margin:0 0 20px;">Something broken? A question? An idea that would make EarthLive better? Write to us — a real person reads every message.</p>
+
+      <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:10px;">
+        <b style="font-size:13.5px; display:block; margin-bottom:2px;">Support &amp; help</b>
+        <span style="font-size:12.5px; color:var(--ink-soft);">Trouble signing in, missing entries, anything not working —</span><br>
+        <a href="mailto:hello@earthlive.in" style="color:var(--camel); font-weight:600; text-decoration:none; font-size:13px;">hello@earthlive.in</a>
+      </div>
+      <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:10px;">
+        <b style="font-size:13.5px; display:block; margin-bottom:2px;">Feedback &amp; ideas</b>
+        <span style="font-size:12.5px; color:var(--ink-soft);">Tell us what to build next. Early voices shape this place —</span><br>
+        <a href="mailto:hello@earthlive.in" style="color:var(--camel); font-weight:600; text-decoration:none; font-size:13px;">hello@earthlive.in</a>
+      </div>
+      <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:16px;">
+        <b style="font-size:13.5px; display:block; margin-bottom:2px;">Privacy questions</b>
+        <span style="font-size:12.5px; color:var(--ink-soft);">Your data, deleting your account, anything from the Privacy Policy —</span><br>
+        <a href="mailto:hello@earthlive.in" style="color:var(--camel); font-weight:600; text-decoration:none; font-size:13px;">hello@earthlive.in</a>
+      </div>
+
+      <p style="font-size:12px; color:var(--ink-soft); margin:0 0 18px;">We usually reply within a day or two.</p>
+      <button class="link-quiet" onclick="showScreen(currentUser ? 'dashboard' : 'landing')">← Back</button>
+      <div style="border-top:1px solid var(--line); margin-top:40px; padding-top:16px;">
+        <div class="footer-links" style="margin-top:0;">
+          <button onclick="showScreen('contact')">Contact us</button>
+          <button onclick="showScreen('privacy')">Privacy Policy</button>
+          <button onclick="showScreen('terms')">Terms of Use</button>
+        </div>
+        <div style="font-size:12px; color:var(--ink-soft); margin-top:10px;">© 2026 <b style="color:var(--ink);">EarthLive</b></div>
       </div>
     </div>
   </div>
@@ -2750,6 +2835,14 @@
       <h3>Contact</h3>
       <p>Privacy questions: hello@earthlive.in</p>
       <button class="link-quiet" onclick="showScreen('landing')">Back to home</button>
+      <div style="border-top:1px solid var(--line); margin-top:40px; padding-top:16px;">
+        <div class="footer-links" style="margin-top:0;">
+          <button onclick="showScreen('contact')">Contact us</button>
+          <button onclick="showScreen('privacy')">Privacy Policy</button>
+          <button onclick="showScreen('terms')">Terms of Use</button>
+        </div>
+        <div style="font-size:12px; color:var(--ink-soft); margin-top:10px;">© 2026 <b style="color:var(--ink);">EarthLive</b></div>
+      </div>
     </div>
   </div>
 </section>
@@ -2772,6 +2865,14 @@
       <h3>Contact</h3>
       <p>Questions about these terms: hello@earthlive.in</p>
       <button class="link-quiet" onclick="showScreen('landing')">Back to home</button>
+      <div style="border-top:1px solid var(--line); margin-top:40px; padding-top:16px;">
+        <div class="footer-links" style="margin-top:0;">
+          <button onclick="showScreen('contact')">Contact us</button>
+          <button onclick="showScreen('privacy')">Privacy Policy</button>
+          <button onclick="showScreen('terms')">Terms of Use</button>
+        </div>
+        <div style="font-size:12px; color:var(--ink-soft); margin-top:10px;">© 2026 <b style="color:var(--ink);">EarthLive</b></div>
+      </div>
     </div>
   </div>
 </section>
@@ -3182,6 +3283,39 @@
     {name:'Washington DC', lat:38.91, lng:-77.04},
     {name:'Zurich', lat:47.38, lng:8.54}
   ];
+
+  /* ── EVERY town, any size: when the built-in list has no match, look the
+     name up live (Open-Meteo geocoding, free, no key) and add it to CITIES
+     with real coordinates so it pins on the map like any other city. ── */
+  const cityWebCache = {};
+  async function augmentCitiesFromWeb(q, rerender){
+    if (!q || q.length < 3) return;
+    const key = q.toLowerCase();
+    if (cityWebCache[key]) return;
+    cityWebCache[key] = true;
+    try{
+      const res = await fetch('https://geocoding-api.open-meteo.com/v1/search?name=' +
+        encodeURIComponent(q) + '&count=8&language=en&format=json');
+      const data = await res.json();
+      let added = false;
+      (data.results || []).forEach(r=>{
+        if (!r.name || typeof r.latitude !== 'number' || typeof r.longitude !== 'number') return;
+        const nm = r.name.trim();
+        if (CITIES.some(c=>c.name.toLowerCase() === nm.toLowerCase())) return;
+        CITIES.push({ name: nm, lat: r.latitude, lng: r.longitude, region: (r.admin1 || r.country || '') });
+        added = true;
+      });
+      if (added && typeof rerender === 'function') rerender();
+    }catch(e){ /* offline — the built-in list keeps working */ }
+  }
+  function cityLabel(c, q){
+    const nm = c.name;
+    const i = q ? nm.toLowerCase().indexOf(q) : -1;
+    const hl = i > -1
+      ? escapeHtml(nm.slice(0,i)) + '<b>' + escapeHtml(nm.slice(i, i+q.length)) + '</b>' + escapeHtml(nm.slice(i+q.length))
+      : escapeHtml(nm);
+    return hl + (c.region ? ' <span style="font-size:11px; color:var(--ink-soft);">· ' + escapeHtml(c.region) + '</span>' : '');
+  }
 
   const TEMPLATES = [
     {
@@ -4182,15 +4316,16 @@
     toggleBlockedList();
   }
 
-  // 60-word cap for all free-text descriptions
+  // Word caps for free-text fields (default 60; wall posts allow 1000)
   function wordCount(text){
     const t = (text || '').trim();
     return t ? t.split(/\s+/).length : 0;
   }
-  function enforceWordLimit(text, fieldLabel){
+  function enforceWordLimit(text, fieldLabel, max){
+    max = max || 60;
     const n = wordCount(text);
-    if (n > 60){
-      showToast(fieldLabel + ' is too long \u2014 keep it under 60 words (currently ' + n + ')');
+    if (n > max){
+      showToast(fieldLabel + ' is too long \u2014 keep it under ' + max + ' words (currently ' + n + ')');
       return false;
     }
     return true;
@@ -5251,7 +5386,7 @@
       const hay = [
         e.name, e.nickname, e.relation, e.word, e.message,
         (e.city && e.city.name) ? e.city.name : '',
-        Array.isArray(e.answers) ? e.answers.map(a=>a && a.a).join(' ') : ''
+        Array.isArray(e.answers) ? e.answers.map(a=>a ? [(a.label||a.question||a.q||''),(a.value||a.answer||a.a||'')].join(' ') : '').join(' ') : ''
       ].join(' ').toLowerCase();
       return hay.includes(q);
     });
@@ -5444,6 +5579,7 @@
         </div>
       </div>`;
 
+    window.__modalEntryForSave = entry;
     document.getElementById('entryModalBody').innerHTML = `
       <div class="entry-top">
         <span class="pen-dot" style="background:${entry.color}"></span>
@@ -5455,9 +5591,15 @@
       ${entryActionsHtml(entry, index)}
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <div class="entry-date">${entry.date}</div>
-        <span style="display:flex; gap:14px;">
+        <span style="display:flex; gap:14px; align-items:center; position:relative;">
           ${modalIsOwner ? `<button onclick="deleteOwnEntry()" style="background:none; border:none; font-size:11.5px; color:var(--blush); text-decoration:underline; padding:0;">Remove from page</button>` : ''}
+          <button onclick="toggleEntrySaveMenu(event)" style="background:none; border:none; font-size:11.5px; color:var(--ink-soft); text-decoration:underline; padding:0;">Save / Print</button>
           <button onclick="reportEntry()" style="background:none; border:none; font-size:11.5px; color:var(--ink-soft); text-decoration:underline; padding:0;">Report</button>
+          <div class="cover-edit-menu" id="entrySaveMenu" style="display:none; position:absolute; right:0; bottom:22px; z-index:10;">
+            <button type="button" onclick="closeEntrySaveMenu(); saveEntryAsImage('png');">Save as PNG</button>
+            <button type="button" onclick="closeEntrySaveMenu(); saveEntryAsImage('jpeg');">Save as JPEG</button>
+            <button type="button" onclick="closeEntrySaveMenu(); printEntryCard();">Print / Save as PDF</button>
+          </div>
         </span>
       </div>
       ${commentsHtml}`;
@@ -5581,6 +5723,107 @@
     openEntryModal(currentModalIndex);
     rerenderCurrentEntries();
     showToast('Comment removed');
+  }
+
+  /* ── SAVE / PRINT a signature as a postcard (PNG · JPEG · PDF via print) ── */
+  function toggleEntrySaveMenu(event){
+    if (event) event.stopPropagation();
+    const menu = document.getElementById('entrySaveMenu');
+    if (!menu) return;
+    const opening = menu.style.display === 'none';
+    menu.style.display = opening ? 'block' : 'none';
+    if (opening){
+      setTimeout(()=>document.addEventListener('click', closeEntrySaveMenu, { once:true }), 0);
+    }
+  }
+  function closeEntrySaveMenu(){
+    const menu = document.getElementById('entrySaveMenu');
+    if (menu) menu.style.display = 'none';
+  }
+
+  function entryCardHtml(entry){
+    const answers = [];
+    if (entry.relation) answers.push({ q:'Knows them as', a:entry.relation });
+    if (entry.word) answers.push({ q:'One word', a:entry.word });
+    (entry.answers || []).forEach(a=>{
+      if (!a) return;
+      const val = a.value || a.answer || a.a;
+      if (val) answers.push({ q:(a.label || a.question || a.q || ''), a:val });
+    });
+    const photos = (entry.photos || []).slice(0, 4);
+    return '' +
+      '<div style="font-family:\'Inter Tight\',Arial,sans-serif; background:#FFFDF8; border:1px solid #E0D8C3; border-radius:16px; padding:30px 32px; width:520px; color:#2E2A22; box-sizing:border-box;">' +
+        '<div style="display:flex; align-items:center; gap:9px; margin-bottom:14px;">' +
+          '<span style="width:12px; height:12px; border-radius:50%; background:' + (entry.color || '#57614A') + '; display:inline-block;"></span>' +
+          '<span style="font-size:19px; font-weight:700;">' + escapeHtml(entry.name || '') + '</span>' +
+
+        '</div>' +
+        (photos.length ? '<div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">' +
+          photos.map(p=>'<img src="' + p + '" crossorigin="anonymous" style="width:116px; height:116px; object-fit:cover; border-radius:10px; border:1px solid #E0D8C3;">').join('') +
+        '</div>' : '') +
+        '<p style="font-size:15.5px; line-height:1.75; margin:0 0 14px; color:' + (entry.color || '#2E2A22') + '; font-style:italic;">&ldquo;' + escapeHtml(entry.message || '') + '&rdquo;</p>' +
+        answers.map(a=>
+          '<div style="margin-bottom:10px;">' +
+            '<div style="font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#A9764F; font-weight:700; margin-bottom:2px;">' + escapeHtml(a.q || '') + '</div>' +
+            '<div style="font-size:13.5px; line-height:1.6;">' + escapeHtml(a.a) + '</div>' +
+          '</div>').join('') +
+        '<div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #E0D8C3; margin-top:16px; padding-top:12px;">' +
+          '<span style="font-size:12px; color:#726A59;">' + escapeHtml(entry.date || '') + '</span>' +
+          '<span style="font-size:12px; color:#726A59;">Kept on <b style="color:#2E2A22;">EarthLive</b>' + (profile && profile.username ? ' · earthlive.in/?u=' + escapeHtml(profile.username) : '') + '</span>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function ensureHtml2canvas(){
+    return new Promise((resolve, reject)=>{
+      if (window.html2canvas) return resolve(window.html2canvas);
+      const sc = document.createElement('script');
+      sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      sc.onload = ()=>resolve(window.html2canvas);
+      sc.onerror = ()=>reject(new Error('load failed'));
+      document.head.appendChild(sc);
+    });
+  }
+
+  async function saveEntryAsImage(fmt){
+    const entry = window.__modalEntryForSave;
+    if (!entry) return;
+    showToast('Preparing your postcard\u2026');
+    let h2c;
+    try{ h2c = await ensureHtml2canvas(); }
+    catch(e){ showToast('Could not load the image tool \u2014 check your connection and try again'); return; }
+    const holder = document.createElement('div');
+    holder.style.cssText = 'position:fixed; left:-9999px; top:0; z-index:-1;';
+    holder.innerHTML = entryCardHtml(entry);
+    document.body.appendChild(holder);
+    try{
+      const canvas = await h2c(holder.firstChild, { scale:2, useCORS:true, backgroundColor:'#FFFDF8' });
+      const mime = fmt === 'jpeg' ? 'image/jpeg' : 'image/png';
+      const ext = fmt === 'jpeg' ? 'jpg' : 'png';
+      const url = canvas.toDataURL(mime, 0.92);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'earthlive-signature-' + (entry.name || 'entry').toLowerCase().replace(/[^a-z0-9]+/g,'-') + '.' + ext;
+      document.body.appendChild(a); a.click(); a.remove();
+      showToast('Saved \u2713');
+    }catch(e){
+      showToast('Could not create the image \u2014 try Print / Save as PDF instead');
+    }finally{
+      holder.remove();
+    }
+  }
+
+  function printEntryCard(){
+    const entry = window.__modalEntryForSave;
+    if (!entry) return;
+    const w = window.open('', '_blank');
+    if (!w){ showToast('Allow pop-ups to print this signature'); return; }
+    w.document.write('<!DOCTYPE html><html><head><title>EarthLive \u2014 signature from ' + escapeHtml(entry.name || '') + '</title>' +
+      '<meta charset="UTF-8"><style>body{margin:0; padding:30px; background:#F5F4F1; display:flex; justify-content:center;} @media print{body{background:#fff; padding:0;}}</style>' +
+      '</head><body>' + entryCardHtml(entry) + '</body></html>');
+    w.document.close();
+    w.focus();
+    setTimeout(()=>{ try{ w.print(); }catch(e){} }, 400);
   }
 
   function reportEntry(){
@@ -6206,9 +6449,159 @@
   }
 
   /* \u2500\u2500 My account screen \u2500\u2500 */
+  /* ── LANGUAGE PREFERENCE: every major world language, searchable ── */
+  const LANGUAGES = [
+    {code:'en', name:'English', native:'English'},
+    {code:'hi', name:'Hindi', native:'हिन्दी'},
+    {code:'bn', name:'Bengali', native:'বাংলা'},
+    {code:'te', name:'Telugu', native:'తెలుగు'},
+    {code:'mr', name:'Marathi', native:'मराठी'},
+    {code:'ta', name:'Tamil', native:'தமிழ்'},
+    {code:'ur', name:'Urdu', native:'اردو'},
+    {code:'gu', name:'Gujarati', native:'ગુજરાતી'},
+    {code:'kn', name:'Kannada', native:'ಕನ್ನಡ'},
+    {code:'ml', name:'Malayalam', native:'മലയാളം'},
+    {code:'or', name:'Odia', native:'ଓଡ଼ିଆ'},
+    {code:'pa', name:'Punjabi', native:'ਪੰਜਾਬੀ'},
+    {code:'as', name:'Assamese', native:'অসমীয়া'},
+    {code:'mai', name:'Maithili', native:'मैथिली'},
+    {code:'sa', name:'Sanskrit', native:'संस्कृतम्'},
+    {code:'ks', name:'Kashmiri', native:'कॉशुर'},
+    {code:'ne', name:'Nepali', native:'नेपाली'},
+    {code:'sd', name:'Sindhi', native:'سنڌي'},
+    {code:'kok', name:'Konkani', native:'कोंकणी'},
+    {code:'mni', name:'Manipuri', native:'ꯃꯤꯇꯩꯂꯣꯟ'},
+    {code:'brx', name:'Bodo', native:'बड़ो'},
+    {code:'sat', name:'Santali', native:'ᱥᱟᱱᱛᱟᱲᱤ'},
+    {code:'doi', name:'Dogri', native:'डोगरी'},
+    {code:'zh', name:'Chinese (Mandarin)', native:'中文'},
+    {code:'es', name:'Spanish', native:'Español'},
+    {code:'fr', name:'French', native:'Français'},
+    {code:'ar', name:'Arabic', native:'العربية'},
+    {code:'pt', name:'Portuguese', native:'Português'},
+    {code:'ru', name:'Russian', native:'Русский'},
+    {code:'ja', name:'Japanese', native:'日本語'},
+    {code:'de', name:'German', native:'Deutsch'},
+    {code:'ko', name:'Korean', native:'한국어'},
+    {code:'it', name:'Italian', native:'Italiano'},
+    {code:'tr', name:'Turkish', native:'Türkçe'},
+    {code:'vi', name:'Vietnamese', native:'Tiếng Việt'},
+    {code:'th', name:'Thai', native:'ไทย'},
+    {code:'id', name:'Indonesian', native:'Bahasa Indonesia'},
+    {code:'ms', name:'Malay', native:'Bahasa Melayu'},
+    {code:'fil', name:'Filipino', native:'Filipino'},
+    {code:'nl', name:'Dutch', native:'Nederlands'},
+    {code:'pl', name:'Polish', native:'Polski'},
+    {code:'uk', name:'Ukrainian', native:'Українська'},
+    {code:'ro', name:'Romanian', native:'Română'},
+    {code:'el', name:'Greek', native:'Ελληνικά'},
+    {code:'cs', name:'Czech', native:'Čeština'},
+    {code:'hu', name:'Hungarian', native:'Magyar'},
+    {code:'sv', name:'Swedish', native:'Svenska'},
+    {code:'da', name:'Danish', native:'Dansk'},
+    {code:'fi', name:'Finnish', native:'Suomi'},
+    {code:'no', name:'Norwegian', native:'Norsk'},
+    {code:'he', name:'Hebrew', native:'עברית'},
+    {code:'fa', name:'Persian', native:'فارسی'},
+    {code:'ps', name:'Pashto', native:'پښتو'},
+    {code:'sw', name:'Swahili', native:'Kiswahili'},
+    {code:'am', name:'Amharic', native:'አማርኛ'},
+    {code:'ha', name:'Hausa', native:'Hausa'},
+    {code:'yo', name:'Yoruba', native:'Yorùbá'},
+    {code:'ig', name:'Igbo', native:'Igbo'},
+    {code:'zu', name:'Zulu', native:'isiZulu'},
+    {code:'af', name:'Afrikaans', native:'Afrikaans'},
+    {code:'my', name:'Burmese', native:'မြန်မာ'},
+    {code:'km', name:'Khmer', native:'ខ្មែរ'},
+    {code:'lo', name:'Lao', native:'ລາວ'},
+    {code:'si', name:'Sinhala', native:'සිංහල'},
+    {code:'dz', name:'Dzongkha', native:'རྫོང་ཁ'},
+    {code:'bo', name:'Tibetan', native:'བོད་སྐད'},
+    {code:'mn', name:'Mongolian', native:'Монгол'},
+    {code:'kk', name:'Kazakh', native:'Қазақша'},
+    {code:'uz', name:'Uzbek', native:'Oʻzbekcha'},
+    {code:'az', name:'Azerbaijani', native:'Azərbaycanca'},
+    {code:'hy', name:'Armenian', native:'Հայերեն'},
+    {code:'ka', name:'Georgian', native:'ქართული'},
+    {code:'sq', name:'Albanian', native:'Shqip'},
+    {code:'sr', name:'Serbian', native:'Српски'},
+    {code:'hr', name:'Croatian', native:'Hrvatski'},
+    {code:'bs', name:'Bosnian', native:'Bosanski'},
+    {code:'bg', name:'Bulgarian', native:'Български'},
+    {code:'sk', name:'Slovak', native:'Slovenčina'},
+    {code:'sl', name:'Slovenian', native:'Slovenščina'},
+    {code:'lt', name:'Lithuanian', native:'Lietuvių'},
+    {code:'lv', name:'Latvian', native:'Latviešu'},
+    {code:'et', name:'Estonian', native:'Eesti'},
+    {code:'is', name:'Icelandic', native:'Íslenska'},
+    {code:'ga', name:'Irish', native:'Gaeilge'},
+    {code:'cy', name:'Welsh', native:'Cymraeg'},
+    {code:'ca', name:'Catalan', native:'Català'},
+    {code:'eu', name:'Basque', native:'Euskara'},
+    {code:'gl', name:'Galician', native:'Galego'},
+    {code:'ht', name:'Haitian Creole', native:'Kreyòl'},
+    {code:'qu', name:'Quechua', native:'Runasimi'},
+    {code:'mi', name:'Maori', native:'Te Reo Māori'},
+    {code:'sm', name:'Samoan', native:'Gagana Samoa'},
+    {code:'to', name:'Tongan', native:'Lea faka-Tonga'}
+  ];
+
+  function myLangKey(){ return 'el_lang_' + (currentUser ? currentUser.id : 'guest'); }
+  function getMyLanguage(){
+    try{ return localStorage.getItem(myLangKey()) || (profile && profile.language) || 'en'; }
+    catch(e){ return 'en'; }
+  }
+  function langDisplay(code){
+    const l = LANGUAGES.find(x=>x.code === code);
+    return l ? (l.native + (l.native !== l.name ? ' \u00b7 ' + l.name : '')) : 'English';
+  }
+
+  function langSearchTyped(){
+    const input = document.getElementById('langSearch');
+    const box = document.getElementById('langSuggestions');
+    if (!input || !box) return;
+    const q = input.value.trim().toLowerCase();
+    const list = (q
+      ? LANGUAGES.filter(l=> l.name.toLowerCase().includes(q) || l.native.toLowerCase().includes(q) || l.code === q)
+      : LANGUAGES
+    ).slice(0, 8);
+    if (!list.length){ box.classList.remove('open'); box.style.display='none'; return; }
+    box.innerHTML = list.map(l=>
+      '<div class="ev-ta-item" onclick="pickLanguage(\'' + l.code + '\')"><b>' + escapeHtml(l.native) + '</b>' +
+      (l.native !== l.name ? ' <span style="color:var(--ink-soft); font-size:12px;">' + escapeHtml(l.name) + '</span>' : '') + '</div>'
+    ).join('');
+    box.classList.add('open'); box.style.display='block';
+  }
+
+  async function pickLanguage(code){
+    const l = LANGUAGES.find(x=>x.code === code);
+    if (!l) return;
+    try{ localStorage.setItem(myLangKey(), code); }catch(e){}
+    if (profile) profile.language = code;
+    const txt = document.getElementById('acctLangText');
+    if (txt) txt.textContent = langDisplay(code);
+    const input = document.getElementById('langSearch');
+    if (input) input.value = '';
+    const box = document.getElementById('langSuggestions');
+    if (box){ box.classList.remove('open'); box.style.display='none'; }
+    showToast('Language set to ' + l.native + ' \u2713');
+    if (db && currentUser && profile && profile.dbId){
+      // saved quietly if the column exists; harmless if it doesn't yet
+      await db.from('profiles').update({ language: code }).eq('id', profile.dbId).then(()=>{}, ()=>{});
+    }
+  }
+  document.addEventListener('click', function(e){
+    if (!e.target.closest('#langSearch') && !e.target.closest('#langSuggestions')){
+      const box = document.getElementById('langSuggestions');
+      if (box){ box.classList.remove('open'); box.style.display='none'; }
+    }
+  });
+
   async function renderAccount(){
     if (!profile) return;
     document.getElementById('acctInviteLink').textContent = myBookLink();
+    const langTxt = document.getElementById('acctLangText');
+    if (langTxt) langTxt.textContent = langDisplay(getMyLanguage());
     document.getElementById('acctEmail').textContent =
       (currentUser && currentUser.email) ? currentUser.email : 'Not signed in';
 
@@ -6421,17 +6814,17 @@
 
     if (!currentUser){
       // Signed OUT: About + Home + Sign in
+      const about = document.createElement('button');
+      about.className = 'nav-link';
+      about.textContent = 'Our story';
+      about.onclick = ()=>showScreen('about');
+      navRight.appendChild(about);
+
       const how = document.createElement('button');
       how.className = 'nav-link';
       how.textContent = 'How it works';
       how.onclick = ()=>showScreen('how');
       navRight.appendChild(how);
-
-      const about = document.createElement('button');
-      about.className = 'nav-link';
-      about.textContent = 'About';
-      about.onclick = ()=>showScreen('about');
-      navRight.appendChild(about);
 
       const home = document.createElement('button');
       home.className = 'nav-link';
@@ -6511,7 +6904,7 @@
       '<button class="nav-am-item" onclick="closeAvatarMenu(); renderAccount(); showScreen(\'account\');">My account</button>' +
       '<div class="nav-am-theme"><span>Theme</span><div id="navThemeSwatches"></div></div>' +
       '<button class="nav-am-item" onclick="closeAvatarMenu(); showScreen(\'how\');">How it works</button>' +
-      '<button class="nav-am-item" onclick="closeAvatarMenu(); showScreen(\'about\');">About</button>' +
+      '<button class="nav-am-item" onclick="closeAvatarMenu(); showScreen(\'about\');">Our story</button>' +
       '<button class="nav-am-item danger" onclick="closeAvatarMenu(); confirmSignOut();">Sign out</button>';
     wrap.appendChild(menu);
     navRight.appendChild(wrap);
@@ -6663,6 +7056,8 @@
     const exact = CITIES.find(c=>c.name.toLowerCase() === q);
     if (exact) selectedCity = exact;
 
+    if (matches.length < 6) augmentCitiesFromWeb(q, cityAutocomplete);
+
     if (!matches.length){
       box.style.display = 'none';
       box.innerHTML = '';
@@ -6670,11 +7065,7 @@
     }
     box.innerHTML = matches.map(c=>{
       const idx = CITIES.indexOf(c);
-      const i = c.name.toLowerCase().indexOf(q);
-      const hl = i > -1
-        ? escapeHtml(c.name.slice(0,i)) + '<b>' + escapeHtml(c.name.slice(i, i+q.length)) + '</b>' + escapeHtml(c.name.slice(i+q.length))
-        : escapeHtml(c.name);
-      return `<button type="button" class="city-suggestion" onclick="pickCity(${idx})">${hl}</button>`;
+      return `<button type="button" class="city-suggestion" onclick="pickCity(${idx})">${cityLabel(c, q)}</button>`;
     }).join('');
     box.style.display = 'block';
   }
@@ -6890,8 +7281,9 @@
       const starts = CITIES.filter(c=>c.name.toLowerCase().startsWith(q));
       const has = CITIES.filter(c=>!c.name.toLowerCase().startsWith(q) && c.name.toLowerCase().includes(q));
       const hits = [...starts, ...has].slice(0,6);
+      if (hits.length < 6) augmentCitiesFromWeb(q, wallCityTyped);
       if (!hits.length){ box.classList.remove('open'); return; }
-      box.innerHTML = hits.map(c=>'<div class="ev-ta-item" onclick="wallPickCity(' + CITIES.indexOf(c) + ')">' + icon('pin') + ' ' + escapeHtml(c.name) + '</div>').join('');
+      box.innerHTML = hits.map(c=>'<div class="ev-ta-item" onclick="wallPickCity(' + CITIES.indexOf(c) + ')">' + icon('pin') + ' ' + cityLabel(c, q) + '</div>').join('');
       box.classList.add('open');
     }, 200);
   }
@@ -6906,7 +7298,7 @@
     if (!profile || !profile.dbId){ showToast('Save your book first'); return; }
     const text = document.getElementById('wallText').value.trim();
     if (!text){ showToast('Write something first'); return; }
-    if (!enforceWordLimit(text, 'Your post')) return;
+    if (!enforceWordLimit(text, 'Your post', 1000)) return;
 
     showToast(wallEditingId ? 'Saving\u2026' : 'Posting\u2026');
 
@@ -8245,9 +8637,12 @@
     } else {
       cover.style.background = 'linear-gradient(135deg, var(--moss) 0%, var(--camel) 60%, var(--blush) 100%)';
     }
-    // Title + description live on the cover itself now
-    const descEl = document.getElementById('evCoverDesc');
-    if (descEl) descEl.textContent = ev.description || '';
+    // Title and description sit below the cover (never overlaying the photo)
+    const descEl = document.getElementById('evDesc');
+    if (descEl){
+      descEl.textContent = ev.description ? '\u201c' + ev.description + '\u201d' : '';
+      descEl.style.display = ev.description ? 'block' : 'none';
+    }
     const changeBtn = document.getElementById('evCoverChangeBtn');
     if (changeBtn) changeBtn.style.display = (curRole === 'owner') ? 'inline-block' : 'none';
     const dateTxt2 = ev.event_date ? new Date(ev.event_date) : null;
@@ -8559,10 +8954,11 @@
       const starts = CITIES.filter(c=>c.name.toLowerCase().startsWith(q));
       const contains = CITIES.filter(c=>!c.name.toLowerCase().startsWith(q) && c.name.toLowerCase().includes(q));
       const hits = [...starts, ...contains].slice(0,6);
+      if (hits.length < 6) augmentCitiesFromWeb(q, evCityTyped);
       if (!hits.length){ box.classList.remove('open'); return; }
       box.innerHTML = hits.map(c=>{
         const idx = CITIES.indexOf(c);
-        return '<div class="ev-ta-item" onclick="evPickCity(' + idx + ')">' + icon('pin') + ' ' + escapeHtml(c.name) + '</div>';
+        return '<div class="ev-ta-item" onclick="evPickCity(' + idx + ')">' + icon('pin') + ' ' + cityLabel(c, q) + '</div>';
       }).join('');
       box.classList.add('open');
     }, 200);
@@ -9043,6 +9439,40 @@
   }
 
   /* ── Cover photo change (host only) ── */
+  function toggleEvCoverMenu(event){
+    if (event) event.stopPropagation();
+    const menu = document.getElementById('evCoverMenu');
+    if (!menu) return;
+    const opening = menu.style.display === 'none';
+    menu.style.display = opening ? 'block' : 'none';
+    if (opening){
+      setTimeout(()=>document.addEventListener('click', closeEvCoverMenu, { once:true }), 0);
+    }
+  }
+  function closeEvCoverMenu(){
+    const menu = document.getElementById('evCoverMenu');
+    if (menu) menu.style.display = 'none';
+  }
+
+  async function evRemoveCover(){
+    if (!curEvent || curRole !== 'owner') return;
+    if (!curEvent.cover_url){ showToast('No cover photo to remove'); return; }
+    if (!db || curEvent.local){
+      curEvent.cover_url = null;
+      try{
+        const evts = JSON.parse(localStorage.getItem('earthlive_events') || '[]');
+        const i = evts.findIndex(x=>x.id === curEvent.id);
+        if (i > -1){ evts[i].cover_url = null; localStorage.setItem('earthlive_events', JSON.stringify(evts)); }
+      }catch(err){}
+    } else {
+      const { error } = await db.from('events').update({ cover_url: null }).eq('id', curEvent.id);
+      if (error){ showToast('Could not remove cover: ' + error.message); return; }
+      curEvent.cover_url = null;
+    }
+    renderEventHeader();
+    showToast('Cover removed');
+  }
+
   function evChangeCover(e){
     const file = (e.target.files || [])[0];
     if (!file || !curEvent || curRole !== 'owner') return;
