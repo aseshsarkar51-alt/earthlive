@@ -1631,6 +1631,7 @@
         </div>
       </div>
         <div class="dash-actions">
+        <button class="btn-share-hdr" onclick="setMilestone()" id="milestoneBtn">🎉 Set a milestone</button>
         <button class="btn-share-hdr" onclick="shareInvite()">↗ Share</button>
       </div>
     </div>
@@ -1671,6 +1672,11 @@
     </div>
 
     <div id="wallList"></div>
+
+    <div class="panel" id="onThisDayPanel" style="display:none;">
+      <p class="panel-title">On this day</p>
+      <div id="onThisDayList" class="pending-list"></div>
+    </div>
 
     <div class="panel" id="pendingPanel" style="display:none;">
       <p class="panel-title">Waiting for your approval <span id="pendingCount"></span></p>
@@ -2112,6 +2118,11 @@
       </div>
     </div>
 
+    <div id="visitorMilestoneBanner" style="display:none; background:var(--oat); border:1px solid var(--camel); border-radius:12px; padding:14px 16px; margin:0 0 18px; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <p id="visitorMilestoneText" style="margin:0; font-size:14px; color:var(--ink);"></p>
+      <button class="btn btn-primary" onclick="signCurrentVisitorProfile()">Add your memory</button>
+    </div>
+
     <div id="visitorPublicView">
       <div class="details-card" id="visitorDetailsCard" style="display:none;"></div>
 
@@ -2149,10 +2160,16 @@
         </div>
         <div class="memory-map" id="visitorMap"></div>
       </div>
-      <div class="entries-head">
-        <h3>Signatures</h3>
-        <span id="visitorEntryCount">0 people</span>
+      <div class="entries-head" style="gap:14px; flex-wrap:wrap; align-items:center;">
+        <h3 style="flex:none;">Signatures</h3>
+        <div class="sig-search" id="visitorSigSearchBox" style="flex:1; min-width:220px; margin-bottom:0; padding:8px 13px;">
+          <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
+          <input type="text" id="visitorSigSearch" placeholder="Search by name, word, city or message…" autocomplete="off" oninput="filterVisitorSignatures()">
+          <button type="button" id="visitorSigSearchClear" style="display:none;" onclick="clearVisitorSignatureSearch()" aria-label="Clear search">✕</button>
+        </div>
+        <span id="visitorEntryCount" style="flex:none;">0 people</span>
       </div>
+      <div id="visitorSigSearchMeta" class="sig-search-meta" style="display:none;"></div>
       <div id="visitorEntries"></div>
     </div>
 
@@ -2326,9 +2343,14 @@
           <textarea id="evComposerText" placeholder="Share a memory with the group…" style="flex:1; min-height:64px; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px; resize:vertical;"></textarea>
         </div>
         <div class="ev-tagtray" id="evTagTray"></div>
+        <div id="evPostCityWrap" style="display:none; position:relative; margin-top:10px;">
+          <input type="text" id="evPostCity" placeholder="Add a city — pins it on the map…" autocomplete="off" oninput="evPostCityTyped()" style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:9px; font-size:13.5px;">
+          <div class="ev-ta" id="evPostCitySuggestions"></div>
+        </div>
         <div style="display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap;">
           <input type="file" accept="image/*" id="evPhotoInput" multiple style="display:none;" onchange="evHandlePhotos(event)">
           <button type="button" class="ev-chip" id="evPhotoBtn" onclick="document.getElementById('evPhotoInput').click()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span> Add photos</button>
+          <button type="button" class="ev-chip" id="evPostCityBtn" onclick="toggleEvPostCity()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span> Add a city</button>
           <button type="button" class="ev-chip" onclick="document.getElementById('evTagTray').classList.toggle('open')">@ Tag members</button>
           <button type="button" class="btn-small" style="margin-left:auto;" onclick="evAddPost()">Post to the page</button>
         </div>
@@ -2934,6 +2956,26 @@
       <button class="btn btn-ghost" onclick="closeDetailsEditor()">Cancel</button>
       <button class="btn btn-primary" onclick="saveDetails()">Save details</button>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="reciprocalModalOverlay" onclick="if(event.target===this) closeReciprocalModal()">
+  <div class="entry-modal" style="max-width:380px; text-align:center; padding:34px 28px 28px;">
+    <button class="modal-close" onclick="closeReciprocalModal()" aria-label="Close">✕</button>
+    <p style="font-size:17px; font-weight:600; margin:6px 0 8px;">Now on your page.</p>
+    <p style="font-size:14px; color:var(--ink-soft); margin:0 0 20px;" id="reciprocalModalText"></p>
+    <button class="btn btn-primary" style="width:100%; margin-bottom:8px;" id="reciprocalModalBtn">Write something back</button>
+    <button class="btn btn-ghost" style="width:100%;" onclick="closeReciprocalModal()">Not now</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="creatorHandoffOverlay" onclick="if(event.target===this) closeCreatorHandoff()">
+  <div class="entry-modal" style="max-width:380px; text-align:center; padding:34px 28px 28px;">
+    <button class="modal-close" onclick="closeCreatorHandoff()" aria-label="Close">✕</button>
+    <p style="font-size:17px; font-weight:600; margin:6px 0 8px;">Loved writing that.</p>
+    <p style="font-size:14px; color:var(--ink-soft); margin:0 0 20px;">Want your own page, so people can write things like that for you?</p>
+    <button class="btn btn-primary" style="width:100%; margin-bottom:8px;" onclick="closeCreatorHandoff(); startNewBook();">Create my page ↗</button>
+    <button class="btn btn-ghost" style="width:100%;" onclick="closeCreatorHandoff()">Not now</button>
   </div>
 </div>
 
@@ -4099,10 +4141,10 @@
   }
 
   async function saveDetails(){
-    const extras = {};
+    const extras = { ...(profile.extras||{}) };
     DETAIL_FIELDS.forEach(f=>{
       const v = document.getElementById('d_' + f.key).value.trim();
-      if (v) extras[f.key] = v;
+      if (v) extras[f.key] = v; else delete extras[f.key];
     });
     profile.extras = extras;
     closeDetailsEditor();
@@ -4693,6 +4735,7 @@
       likes: 0,
       likedByMe: false,
       comments: [],
+      rawDate: row.created_at,
       date: new Date(row.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
     };
   }
@@ -5227,7 +5270,7 @@
     const signatures = entries.filter(e=>isApproved(e) && !isWallPost(e));
     allSignatures = signatures;                       // master list for the search box
     const searchBox = document.querySelector('.sig-search');
-    if (searchBox) searchBox.style.display = signatures.length > 3 ? 'flex' : 'none';
+    if (searchBox) searchBox.style.display = signatures.length > 1 ? 'flex' : 'none';
     const sq = document.getElementById('sigSearch');
     if (sq && sq.value.trim()){
       filterSignatures();                             // keep an active search alive across refreshes
@@ -5238,6 +5281,85 @@
     if (js) js.textContent = signatures.length || '';
     renderMemoryMap('ownerMapPanel', 'ownerMap', 'ownerMapCount', entries.filter(isApproved));
     renderPendingPanel(entries.filter(e => e.status === 'pending'));
+    renderOnThisDay();
+    renderMilestoneButton();
+  }
+
+  /* On this day: resurface approved memories written in a previous year, on today's month/day. */
+  function renderOnThisDay(){
+    const panel = document.getElementById('onThisDayPanel');
+    const list = document.getElementById('onThisDayList');
+    if (!panel || !list) return;
+    const today = new Date();
+    const matches = entries.filter(e=>{
+      if (!isApproved(e) || !e.rawDate) return false;
+      const d = new Date(e.rawDate);
+      if (isNaN(d)) return false;
+      return d.getMonth() === today.getMonth() && d.getDate() === today.getDate() && d.getFullYear() < today.getFullYear();
+    }).sort((a,b)=> new Date(b.rawDate) - new Date(a.rawDate));
+
+    if (!matches.length){ panel.style.display = 'none'; return; }
+    panel.style.display = 'block';
+    list.innerHTML = matches.map(e=>{
+      const years = today.getFullYear() - new Date(e.rawDate).getFullYear();
+      const yearsLabel = years === 1 ? '1 year ago' : years + ' years ago';
+      const idx = entries.indexOf(e);
+      return `<div class="pending-card" style="cursor:pointer;" onclick="openEntryModal(${idx})">
+        <p style="margin:0 0 6px; font-size:12.5px; color:var(--camel); font-weight:600;">${yearsLabel} today</p>
+        <p class="entry-msg" style="color:${e.color || 'var(--ink)'}">"${linkify((e.message||'').slice(0,120))}${(e.message||'').length>120?'\u2026':''}"</p>
+        <span class="entry-name">\u2014 ${escapeHtml(e.name)}</span>
+      </div>`;
+    }).join('');
+  }
+
+  /* Milestone button label reflects whether one is already set */
+  function renderMilestoneButton(){
+    const btn = document.getElementById('milestoneBtn');
+    if (!btn) return;
+    const m = profile.extras && profile.extras.milestone;
+    btn.textContent = (m && m.date) ? '🎉 Edit milestone' : '🎉 Set a milestone';
+  }
+
+  /* Life moments: owner sets a label + future date; visitors see a countdown banner urging them to contribute. */
+  async function setMilestone(){
+    const existing = (profile.extras && profile.extras.milestone) || {};
+    const label = prompt('What\u2019s the moment? (e.g. "Farewell to Mumbai", "Priya\u2019s wedding")', existing.label || '');
+    if (label === null) return;
+    if (!label.trim()){
+      profile.extras = { ...(profile.extras||{}) };
+      delete profile.extras.milestone;
+    } else {
+      const dateStr = prompt('Date (YYYY-MM-DD)', existing.date || '');
+      if (dateStr === null) return;
+      const d = new Date(dateStr + 'T00:00:00');
+      if (isNaN(d)){
+        showToast('Enter a valid date like 2026-09-04');
+        return;
+      }
+      profile.extras = { ...(profile.extras||{}), milestone: { label: label.trim(), date: d.toISOString() } };
+    }
+    renderMilestoneButton();
+    if (db && currentUser && profile.dbId){
+      const { error } = await db.from('profiles').update({ extras: profile.extras }).eq('id', profile.dbId);
+      if (error){
+        showToast(error.message.includes('extras') ? 'Run supabase-extras.sql in Supabase first, then try again' : 'Could not save: ' + error.message);
+        return;
+      }
+    }
+    showToast(label.trim() ? 'Milestone set' : 'Milestone cleared');
+  }
+
+  /* Render the visitor-facing milestone countdown banner, if the owner set one and it's upcoming */
+  function renderMilestoneBanner(profileObj){
+    const banner = document.getElementById('visitorMilestoneBanner');
+    if (!banner) return;
+    const m = profileObj.extras && profileObj.extras.milestone;
+    if (!m || !m.date){ banner.style.display = 'none'; return; }
+    const days = Math.ceil((new Date(m.date) - new Date()) / 86400000);
+    if (days < 0 || days > 60){ banner.style.display = 'none'; return; }
+    banner.style.display = 'flex';
+    const when = days === 0 ? 'today' : (days === 1 ? 'tomorrow' : days + ' days from now');
+    document.getElementById('visitorMilestoneText').textContent = m.label + ' \u2014 ' + when + '. Add your memory before it arrives.';
   }
 
   function renderPendingPanel(pending){
@@ -5296,6 +5418,26 @@
     entry.status = 'approved';
     renderDashboard();
     showToast(entry.name + '\u2019s signature is now on your page');
+
+    // Reciprocal memory loop: if the signer has their own account, offer to write back.
+    if (entry.signerUserId && currentUser && entry.signerUserId !== currentUser.id){
+      setTimeout(()=> openReciprocalModal(entry.name, entry.signerUserId), 500);
+    }
+  }
+
+  function openReciprocalModal(name, signerUserId){
+    const overlay = document.getElementById('reciprocalModalOverlay');
+    if (!overlay) return;
+    document.getElementById('reciprocalModalText').textContent =
+      'Want to write something back on ' + name + '\u2019s page too?';
+    const btn = document.getElementById('reciprocalModalBtn');
+    btn.onclick = ()=>{ closeReciprocalModal(); openProfileByUserId(signerUserId); };
+    overlay.classList.add('open');
+  }
+
+  function closeReciprocalModal(){
+    const overlay = document.getElementById('reciprocalModalOverlay');
+    if (overlay) overlay.classList.remove('open');
   }
 
   async function declineEntry(id){
@@ -5406,6 +5548,51 @@
     const input = document.getElementById('sigSearch');
     if (input) input.value = '';
     filterSignatures();
+    if (input) input.focus();
+  }
+
+  /* ── Visitor-side signature search (same logic, applied to whoever's page you're viewing) ── */
+  let allVisitorSignatures = [];
+
+  function filterVisitorSignatures(){
+    const input = document.getElementById('visitorSigSearch');
+    const meta  = document.getElementById('visitorSigSearchMeta');
+    const clear = document.getElementById('visitorSigSearchClear');
+    if (!input) return;
+    const q = input.value.trim().toLowerCase();
+
+    if (clear) clear.style.display = q ? 'inline' : 'none';
+
+    if (!q){
+      renderEntries('visitorEntries', allVisitorSignatures, 'visitorEntryCount', false);
+      if (meta) meta.style.display = 'none';
+      return;
+    }
+
+    const hits = allVisitorSignatures.filter(e=>{
+      const hay = [
+        e.name, e.nickname, e.relation, e.word, e.message,
+        (e.city && e.city.name) ? e.city.name : '',
+        Array.isArray(e.answers) ? e.answers.map(a=>a ? [(a.label||a.question||a.q||''),(a.value||a.answer||a.a||'')].join(' ') : '').join(' ') : ''
+      ].join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+
+    renderEntries('visitorEntries', hits, 'visitorEntryCount', false);
+
+    if (meta){
+      meta.style.display = 'block';
+      meta.innerHTML = hits.length
+        ? '<b>' + hits.length + '</b> of ' + allVisitorSignatures.length + ' signature' +
+          (allVisitorSignatures.length === 1 ? '' : 's') + ' match \u201c' + escapeHtml(input.value.trim()) + '\u201d'
+        : 'Nobody matches \u201c' + escapeHtml(input.value.trim()) + '\u201d \u2014 try a different word.';
+    }
+  }
+
+  function clearVisitorSignatureSearch(){
+    const input = document.getElementById('visitorSigSearch');
+    if (input) input.value = '';
+    filterVisitorSignatures();
     if (input) input.focus();
   }
 
@@ -5593,12 +5780,13 @@
         <div class="entry-date">${entry.date}</div>
         <span style="display:flex; gap:14px; align-items:center; position:relative;">
           ${modalIsOwner ? `<button onclick="deleteOwnEntry()" style="background:none; border:none; font-size:11.5px; color:var(--blush); text-decoration:underline; padding:0;">Remove from page</button>` : ''}
-          <button onclick="toggleEntrySaveMenu(event)" style="background:none; border:none; font-size:11.5px; color:var(--ink-soft); text-decoration:underline; padding:0;">Save / Print</button>
+          <button onclick="toggleEntrySaveMenu(event)" style="background:none; border:none; font-size:11.5px; color:var(--ink-soft); text-decoration:underline; padding:0;">Save</button>
+          <button onclick="printEntryCard()" style="background:none; border:none; font-size:11.5px; color:var(--ink-soft); text-decoration:underline; padding:0;">Print</button>
           <button onclick="reportEntry()" style="background:none; border:none; font-size:11.5px; color:var(--ink-soft); text-decoration:underline; padding:0;">Report</button>
-          <div class="cover-edit-menu" id="entrySaveMenu" style="display:none; position:absolute; right:0; bottom:22px; z-index:10;">
+          <div class="cover-edit-menu" id="entrySaveMenu" style="display:none; position:absolute; right:0; bottom:22px; top:auto; z-index:10;">
             <button type="button" onclick="closeEntrySaveMenu(); saveEntryAsImage('png');">Save as PNG</button>
             <button type="button" onclick="closeEntrySaveMenu(); saveEntryAsImage('jpeg');">Save as JPEG</button>
-            <button type="button" onclick="closeEntrySaveMenu(); printEntryCard();">Print / Save as PDF</button>
+            <button type="button" onclick="closeEntrySaveMenu(); saveEntryAsPdf();">Save as PDF</button>
           </div>
         </span>
       </div>
@@ -5808,6 +5996,47 @@
       showToast('Saved \u2713');
     }catch(e){
       showToast('Could not create the image \u2014 try Print / Save as PDF instead');
+    }finally{
+      holder.remove();
+    }
+  }
+
+  function ensureJsPdf(){
+    return new Promise((resolve, reject)=>{
+      if (window.jspdf && window.jspdf.jsPDF) return resolve(window.jspdf.jsPDF);
+      const sc = document.createElement('script');
+      sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      sc.onload = ()=>resolve(window.jspdf.jsPDF);
+      sc.onerror = ()=>reject(new Error('load failed'));
+      document.head.appendChild(sc);
+    });
+  }
+
+  async function saveEntryAsPdf(){
+    const entry = window.__modalEntryForSave;
+    if (!entry) return;
+    showToast('Preparing your PDF\u2026');
+    let h2c, JsPDF;
+    try{
+      h2c = await ensureHtml2canvas();
+      JsPDF = await ensureJsPdf();
+    }catch(e){ showToast('Could not load the PDF tool \u2014 check your connection and try again'); return; }
+    const holder = document.createElement('div');
+    holder.style.cssText = 'position:fixed; left:-9999px; top:0; z-index:-1;';
+    holder.innerHTML = entryCardHtml(entry);
+    document.body.appendChild(holder);
+    try{
+      const canvas = await h2c(holder.firstChild, { scale:2, useCORS:true, backgroundColor:'#FFFDF8' });
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      const pxToMm = 0.264583;
+      const wMm = canvas.width * pxToMm / 2;
+      const hMm = canvas.height * pxToMm / 2;
+      const pdf = new JsPDF({ orientation: wMm > hMm ? 'landscape' : 'portrait', unit:'mm', format:[wMm, hMm] });
+      pdf.addImage(imgData, 'PNG', 0, 0, wMm, hMm);
+      pdf.save('earthlive-signature-' + (entry.name || 'entry').toLowerCase().replace(/[^a-z0-9]+/g,'-') + '.pdf');
+      showToast('Saved \u2713');
+    }catch(e){
+      showToast('Could not create the PDF \u2014 try Print instead');
     }finally{
       holder.remove();
     }
@@ -6212,6 +6441,7 @@
         showToast(unlockAt
           ? 'Sealed! ' + target.profileObj.name + ' can open it on ' + new Date(unlockAt).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})
           : 'Signed! Your entry is waiting for ' + target.profileObj.name + '\u2019s approval');
+        maybeOfferCreatorHandoff();
       }
       return;
     }
@@ -6230,6 +6460,7 @@
       likes: 0,
       likedByMe: false,
       comments: [],
+      rawDate: new Date().toISOString(),
       date: 'Signed just now'
     });
     clearForm();
@@ -6241,7 +6472,25 @@
     } else {
       previewProfile(target.profileObj, target.entriesArr, target.returnScreen);
       showToast('Your signature is waiting for ' + target.profileObj.name + '\u2019s approval');
+      maybeOfferCreatorHandoff();
     }
+  }
+
+  /* Contributor \u2192 creator: someone just wrote on a friend's page but has no page of their own yet. */
+  let creatorHandoffShown = false;
+  function maybeOfferCreatorHandoff(){
+    if (creatorHandoffShown) return;      // once per session \u2014 don't nag
+    if (profile && profile.dbId) return;  // already has their own page
+    creatorHandoffShown = true;
+    setTimeout(()=>{
+      const overlay = document.getElementById('creatorHandoffOverlay');
+      if (overlay) overlay.classList.add('open');
+    }, 900);
+  }
+
+  function closeCreatorHandoff(){
+    const overlay = document.getElementById('creatorHandoffOverlay');
+    if (overlay) overlay.classList.remove('open');
   }
 
   let visitorReturnScreen = 'dashboard';
@@ -6281,6 +6530,7 @@
     renderDetails('visitorDetailsCard', profileObj, false);
     updateFollowUi(profileObj);
     updateMutualBadge(profileObj);
+    renderMilestoneBanner(profileObj);
 
     const isPrivate = profileObj.visibility === 'private';
     document.getElementById('visitorPublicView').style.display = isPrivate ? 'none' : 'block';
@@ -6294,7 +6544,15 @@
       const signatures = approved.filter(e=>!isWallPostOf(e, profileObj));   // what others wrote
 
       renderVisitorWall(theirWall, profileObj);
-      renderEntries('visitorEntries', signatures, 'visitorEntryCount', false);
+      allVisitorSignatures = signatures;
+      const vSearchBox = document.getElementById('visitorSigSearchBox');
+      if (vSearchBox) vSearchBox.style.display = signatures.length > 1 ? 'flex' : 'none';
+      const vsq = document.getElementById('visitorSigSearch');
+      if (vsq && vsq.value.trim()){
+        filterVisitorSignatures();
+      } else {
+        renderEntries('visitorEntries', signatures, 'visitorEntryCount', false);
+      }
       renderMemoryMap('visitorMapPanel', 'visitorMap', 'visitorMapCount', approved);
     }
     showScreen('visitor');
@@ -8916,6 +9174,40 @@
     });
   }
 
+  let evPostSelectedCity = null;
+  let evPostCityTimer = null;
+  function toggleEvPostCity(){
+    const wrap = document.getElementById('evPostCityWrap');
+    if (!wrap) return;
+    const showing = wrap.style.display !== 'none';
+    wrap.style.display = showing ? 'none' : 'block';
+    if (!showing) document.getElementById('evPostCity').focus();
+  }
+  function evPostCityTyped(){
+    clearTimeout(evPostCityTimer);
+    evPostSelectedCity = null;
+    evPostCityTimer = setTimeout(()=>{
+      const q = document.getElementById('evPostCity').value.trim().toLowerCase();
+      const box = document.getElementById('evPostCitySuggestions');
+      if (q.length < 2){ box.classList.remove('open'); return; }
+      const starts = CITIES.filter(c=>c.name.toLowerCase().startsWith(q));
+      const contains = CITIES.filter(c=>!c.name.toLowerCase().startsWith(q) && c.name.toLowerCase().includes(q));
+      const hits = [...starts, ...contains].slice(0,6);
+      if (hits.length < 6) augmentCitiesFromWeb(q, evPostCityTyped);
+      if (!hits.length){ box.classList.remove('open'); return; }
+      box.innerHTML = hits.map(c=>{
+        const idx = CITIES.indexOf(c);
+        return '<div class="ev-ta-item" onclick="evPostPickCity(' + idx + ')">' + icon('pin') + ' ' + cityLabel(c, q) + '</div>';
+      }).join('');
+      box.classList.add('open');
+    }, 200);
+  }
+  function evPostPickCity(idx){
+    evPostSelectedCity = CITIES[idx];
+    document.getElementById('evPostCity').value = evPostSelectedCity.name;
+    document.getElementById('evPostCitySuggestions').classList.remove('open');
+  }
+
   async function evAddPost(){
     const txt = document.getElementById('evComposerText').value.trim();
     if (!txt){ showToast('Write something first'); return; }
@@ -8926,18 +9218,24 @@
       const url = await uploadImage(evPostPhotos[i], 'event-photos', 'ev_' + curEvent.id + '_' + Date.now() + '_' + i);
       if (url) photoUrls.push(url);
     }
+    const cityText = document.getElementById('evPostCity').value.trim();
+    const cityObj = evPostSelectedCity || (cityText ? CITIES.find(c=>c.name.toLowerCase()===cityText.toLowerCase()) : null);
     const { error } = await db.from('event_entries').insert({
       event_id: curEvent.id, author_user_id: currentUser.id,
       author_name: myEventName(), message: txt,
       photos: photoUrls, entry_type: 'post',
+      city: cityObj ? cityObj.name : (cityText || null),
+      lat: cityObj ? cityObj.lat : null, lng: cityObj ? cityObj.lng : null,
       tagged: evPendingTags, color: myEventInk(), approved: true
     });
     if (error){ showToast(friendlyError(error)); console.error(error); return; }
     document.getElementById('evComposerText').value = '';
-    evPostPhotos = []; evPendingTags = [];
+    evPostPhotos = []; evPendingTags = []; evPostSelectedCity = null;
     document.getElementById('evPhotoBtn').innerHTML = icon('camera') + ' Add photos';
     document.getElementById('evPhotoInput').value = '';
     document.getElementById('evTagTray').classList.remove('open');
+    document.getElementById('evPostCity').value = '';
+    document.getElementById('evPostCityWrap').style.display = 'none';
     document.querySelectorAll('.ev-tagpick').forEach(b=>b.classList.remove('on'));
     await loadEventEntries();
     showToast('Posted to the page ✓');
@@ -9193,6 +9491,7 @@
         </div>
         <div class="ev-post-body" id="evpb-${p.id}" style="color:${p.color || 'var(--ink)'};">${escapeHtml(p.message)}${evRenderTags(p.tagged)}</div>
         ${evRenderPhotos(p.photos, p.id)}
+        ${p.city ? '<div style="font-size:11.5px; color:var(--ink-soft); margin-top:6px;">' + icon('pin') + ' ' + escapeHtml(p.city) + '</div>' : ''}
         <div class="ev-foot">
           <button class="ev-fbtn" onclick="evToggleLike('${p.id}')" style="${p._liked ? 'color:var(--blush); font-weight:700;' : ''}">♥ ${p._likes||0}</button>
           <button class="ev-fbtn" onclick="evToggleComments('${p.id}')">${icon('comment')} ${p._commentCount||0} comment${(p._commentCount||0)===1?'':'s'}</button>
@@ -9466,7 +9765,12 @@
       }catch(err){}
     } else {
       const { error } = await db.from('events').update({ cover_url: null }).eq('id', curEvent.id);
-      if (error){ showToast('Could not remove cover: ' + error.message); return; }
+      if (error){
+        showToast(error.message.includes('cover_url')
+          ? 'Add a cover_url column to the events table in Supabase, then try again'
+          : 'Could not remove cover: ' + error.message);
+        return;
+      }
       curEvent.cover_url = null;
     }
     renderEventHeader();
@@ -9496,7 +9800,12 @@
         }catch(err){}
       } else {
         const { error } = await db.from('events').update({ cover_url: url }).eq('id', curEvent.id);
-        if (error){ showToast('Could not save cover: ' + error.message); return; }
+        if (error){
+          showToast(error.message.includes('cover_url')
+            ? 'Add a cover_url column to the events table in Supabase, then try again'
+            : 'Could not save cover: ' + error.message);
+          return;
+        }
         curEvent.cover_url = url;
       }
       renderEventHeader();
