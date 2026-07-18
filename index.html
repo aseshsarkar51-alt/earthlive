@@ -1053,12 +1053,13 @@
   .ic.fill svg{fill:currentColor; stroke:none;}
 
   /* ---------- SIGNATURE SEARCH ---------- */
-  .sig-search{display:flex; align-items:center; gap:9px; background:var(--card); border:1px solid var(--line); border-radius:11px; padding:10px 14px; margin-bottom:12px; box-shadow:var(--shadow); transition:border-color .15s;}
-  .sig-search:focus-within{border-color:var(--moss);}
-  .sig-search .ic{color:var(--ink-soft); width:1.05em; height:1.05em;}
-  .sig-search input{flex:1; border:none; outline:none; background:transparent; font-family:inherit; font-size:14px; color:var(--ink);}
-  .sig-search button{background:none; border:none; cursor:pointer; color:var(--ink-soft); font-size:13px; padding:2px 4px; line-height:1;}
-  .sig-search button:hover{color:var(--ink);}
+  .sig-search{display:flex; align-items:center; gap:9px; background:var(--card); border:1.5px solid var(--line); border-radius:16px; padding:13px 18px; margin-bottom:12px; transition:border-color .18s;}
+  .sig-search:focus-within{border-color:color-mix(in srgb, var(--ink-soft) 55%, transparent);}
+  .sig-search .ic{display:none;}
+  .sig-search input{flex:1; border:none; outline:none; background:transparent; font-family:inherit; font-size:15px; color:var(--ink);}
+  .sig-search input:focus-visible{outline:none;}
+  .sig-search button{background:none; border:none; cursor:pointer; color:var(--ink-soft); font-size:13px; padding:4px 6px; line-height:1; border-radius:50%; transition:background .15s, color .15s;}
+  .sig-search button:hover{color:var(--ink); background:color-mix(in srgb, var(--ink) 8%, transparent);}
   .sig-search-meta{font-size:12.5px; color:var(--ink-soft); margin:-4px 0 12px 2px;}
   .sig-search-meta b{color:var(--camel);}
   .signer-link{color:inherit; text-decoration:none; border-bottom:1px solid var(--oat-deep); transition:border-color .15s, color .15s;}
@@ -1672,6 +1673,11 @@
 
     <div id="wallList"></div>
 
+    <div class="panel" id="onThisDayPanel" style="display:none;">
+      <p class="panel-title">On this day</p>
+      <div id="onThisDayList" class="pending-list"></div>
+    </div>
+
     <div class="panel" id="pendingPanel" style="display:none;">
       <p class="panel-title">Waiting for your approval <span id="pendingCount"></span></p>
       <p style="font-size:13px; color:var(--ink-soft); margin:0 0 14px;">
@@ -1708,9 +1714,9 @@
 
     <div class="entries-head" id="sigsAnchor" style="gap:14px; flex-wrap:wrap; align-items:center;">
       <h3 style="flex:none;">Signatures</h3>
-      <div class="sig-search" style="flex:1; min-width:220px; margin-bottom:0; padding:8px 13px;">
+      <div class="sig-search" style="flex:1; min-width:220px; margin-bottom:0;">
         <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
-        <input type="text" id="sigSearch" placeholder="Search by name, word, city or message…" autocomplete="off" oninput="filterSignatures()">
+        <input type="text" id="sigSearch" placeholder="Type a name, e.g. Priya…" autocomplete="off" oninput="filterSignatures()">
         <button type="button" id="sigSearchClear" style="display:none;" onclick="clearSignatureSearch()" aria-label="Clear search">✕</button>
       </div>
       <span id="entryCount" style="flex:none;">0 people</span>
@@ -2149,10 +2155,16 @@
         </div>
         <div class="memory-map" id="visitorMap"></div>
       </div>
-      <div class="entries-head">
-        <h3>Signatures</h3>
-        <span id="visitorEntryCount">0 people</span>
+      <div class="entries-head" style="gap:14px; flex-wrap:wrap; align-items:center;">
+        <h3 style="flex:none;">Signatures</h3>
+        <div class="sig-search" id="visitorSigSearchBox" style="flex:1; min-width:220px; margin-bottom:0;">
+          <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
+          <input type="text" id="visitorSigSearch" placeholder="Type a name, e.g. Priya…" autocomplete="off" oninput="filterVisitorSignatures()">
+          <button type="button" id="visitorSigSearchClear" style="display:none;" onclick="clearVisitorSignatureSearch()" aria-label="Clear search">✕</button>
+        </div>
+        <span id="visitorEntryCount" style="flex:none;">0 people</span>
       </div>
+      <div id="visitorSigSearchMeta" class="sig-search-meta" style="display:none;"></div>
       <div id="visitorEntries"></div>
     </div>
 
@@ -2243,11 +2255,6 @@
       <div class="ev-cover" id="evCover">
         <div class="ev-badge"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span> Members only</div>
         <input type="file" accept="image/*" id="evCoverInput" style="display:none;" onchange="evChangeCover(event)">
-        <button type="button" class="ev-cover-changebtn" id="evCoverChangeBtn" style="display:none;" onclick="toggleEvCoverMenu(event)">✎ Cover</button>
-        <div class="cover-edit-menu" id="evCoverMenu" style="display:none; position:absolute; right:12px; bottom:52px; z-index:5;">
-          <button type="button" onclick="closeEvCoverMenu(); document.getElementById('evCoverInput').click();">Change cover</button>
-          <button type="button" class="danger" onclick="closeEvCoverMenu(); evRemoveCover();">Remove cover</button>
-        </div>
       </div>
       <div class="ev-head">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
@@ -2258,6 +2265,8 @@
           </div>
           <button type="button" class="btn-small" id="evEditBtn" style="display:none; flex:none;" onclick="toggleEventEdit()">✎ Edit details</button>
         </div>
+
+        <div id="evCoverDisplay" style="display:none; margin-top:14px; border-radius:12px; overflow:hidden; height:180px; background:var(--oat-deep) center/cover no-repeat;"></div>
 
         <div id="evEditBox" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--line);">
           <div class="field" style="margin-bottom:11px;">
@@ -2278,7 +2287,10 @@
           </div>
           <div class="field" style="margin-bottom:14px;">
             <label style="font-size:13px;">Cover photo</label>
-            <button type="button" class="ev-chip" onclick="document.getElementById('evCoverInput').click()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span> Change cover</button>
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+              <button type="button" class="ev-chip" onclick="document.getElementById('evCoverInput').click()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span> Change cover</button>
+              <button type="button" class="ev-chip" id="evEditRemoveCoverBtn" style="display:none;" onclick="evRemoveCover()">✕ Remove cover</button>
+            </div>
           </div>
           <div style="display:flex; gap:8px;">
             <button type="button" class="btn-small" onclick="saveEventEdit()">Save changes</button>
@@ -2326,9 +2338,14 @@
           <textarea id="evComposerText" placeholder="Share a memory with the group…" style="flex:1; min-height:64px; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px; resize:vertical;"></textarea>
         </div>
         <div class="ev-tagtray" id="evTagTray"></div>
+        <div id="evPostCityWrap" style="display:none; position:relative; margin-top:10px;">
+          <input type="text" id="evPostCity" placeholder="Add a city — pins it on the map…" autocomplete="off" oninput="evPostCityTyped()" style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:9px; font-size:13.5px;">
+          <div class="ev-ta" id="evPostCitySuggestions"></div>
+        </div>
         <div style="display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap;">
           <input type="file" accept="image/*" id="evPhotoInput" multiple style="display:none;" onchange="evHandlePhotos(event)">
           <button type="button" class="ev-chip" id="evPhotoBtn" onclick="document.getElementById('evPhotoInput').click()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span> Add photos</button>
+          <button type="button" class="ev-chip" id="evPostCityBtn" onclick="toggleEvPostCity()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span> Add a city</button>
           <button type="button" class="ev-chip" onclick="document.getElementById('evTagTray').classList.toggle('open')">@ Tag members</button>
           <button type="button" class="btn-small" style="margin-left:auto;" onclick="evAddPost()">Post to the page</button>
         </div>
@@ -2934,6 +2951,26 @@
       <button class="btn btn-ghost" onclick="closeDetailsEditor()">Cancel</button>
       <button class="btn btn-primary" onclick="saveDetails()">Save details</button>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="reciprocalModalOverlay" onclick="if(event.target===this) closeReciprocalModal()">
+  <div class="entry-modal" style="max-width:380px; text-align:center; padding:34px 28px 28px;">
+    <button class="modal-close" onclick="closeReciprocalModal()" aria-label="Close">✕</button>
+    <p style="font-size:17px; font-weight:600; margin:6px 0 8px;">Now on your page.</p>
+    <p style="font-size:14px; color:var(--ink-soft); margin:0 0 20px;" id="reciprocalModalText"></p>
+    <button class="btn btn-primary" style="width:100%; margin-bottom:8px;" id="reciprocalModalBtn">Write something back</button>
+    <button class="btn btn-ghost" style="width:100%;" onclick="closeReciprocalModal()">Not now</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="creatorHandoffOverlay" onclick="if(event.target===this) closeCreatorHandoff()">
+  <div class="entry-modal" style="max-width:380px; text-align:center; padding:34px 28px 28px;">
+    <button class="modal-close" onclick="closeCreatorHandoff()" aria-label="Close">✕</button>
+    <p style="font-size:17px; font-weight:600; margin:6px 0 8px;">Loved writing that.</p>
+    <p style="font-size:14px; color:var(--ink-soft); margin:0 0 20px;">Want your own page, so people can write things like that for you?</p>
+    <button class="btn btn-primary" style="width:100%; margin-bottom:8px;" onclick="closeCreatorHandoff(); startNewBook();">Create my page ↗</button>
+    <button class="btn btn-ghost" style="width:100%;" onclick="closeCreatorHandoff()">Not now</button>
   </div>
 </div>
 
@@ -4099,10 +4136,10 @@
   }
 
   async function saveDetails(){
-    const extras = {};
+    const extras = { ...(profile.extras||{}) };
     DETAIL_FIELDS.forEach(f=>{
       const v = document.getElementById('d_' + f.key).value.trim();
-      if (v) extras[f.key] = v;
+      if (v) extras[f.key] = v; else delete extras[f.key];
     });
     profile.extras = extras;
     closeDetailsEditor();
@@ -4693,6 +4730,7 @@
       likes: 0,
       likedByMe: false,
       comments: [],
+      rawDate: row.created_at,
       date: new Date(row.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
     };
   }
@@ -5227,7 +5265,7 @@
     const signatures = entries.filter(e=>isApproved(e) && !isWallPost(e));
     allSignatures = signatures;                       // master list for the search box
     const searchBox = document.querySelector('.sig-search');
-    if (searchBox) searchBox.style.display = signatures.length > 3 ? 'flex' : 'none';
+    if (searchBox) searchBox.style.display = signatures.length > 1 ? 'flex' : 'none';
     const sq = document.getElementById('sigSearch');
     if (sq && sq.value.trim()){
       filterSignatures();                             // keep an active search alive across refreshes
@@ -5238,6 +5276,34 @@
     if (js) js.textContent = signatures.length || '';
     renderMemoryMap('ownerMapPanel', 'ownerMap', 'ownerMapCount', entries.filter(isApproved));
     renderPendingPanel(entries.filter(e => e.status === 'pending'));
+    renderOnThisDay();
+  }
+
+  /* On this day: resurface approved memories written in a previous year, on today's month/day. */
+  function renderOnThisDay(){
+    const panel = document.getElementById('onThisDayPanel');
+    const list = document.getElementById('onThisDayList');
+    if (!panel || !list) return;
+    const today = new Date();
+    const matches = entries.filter(e=>{
+      if (!isApproved(e) || !e.rawDate) return false;
+      const d = new Date(e.rawDate);
+      if (isNaN(d)) return false;
+      return d.getMonth() === today.getMonth() && d.getDate() === today.getDate() && d.getFullYear() < today.getFullYear();
+    }).sort((a,b)=> new Date(b.rawDate) - new Date(a.rawDate));
+
+    if (!matches.length){ panel.style.display = 'none'; return; }
+    panel.style.display = 'block';
+    list.innerHTML = matches.map(e=>{
+      const years = today.getFullYear() - new Date(e.rawDate).getFullYear();
+      const yearsLabel = years === 1 ? '1 year ago' : years + ' years ago';
+      const idx = entries.indexOf(e);
+      return `<div class="pending-card" style="cursor:pointer;" onclick="openEntryModal(${idx})">
+        <p style="margin:0 0 6px; font-size:12.5px; color:var(--camel); font-weight:600;">${yearsLabel} today</p>
+        <p class="entry-msg" style="color:${e.color || 'var(--ink)'}">"${linkify((e.message||'').slice(0,120))}${(e.message||'').length>120?'\u2026':''}"</p>
+        <span class="entry-name">\u2014 ${escapeHtml(e.name)}</span>
+      </div>`;
+    }).join('');
   }
 
   function renderPendingPanel(pending){
@@ -5296,6 +5362,26 @@
     entry.status = 'approved';
     renderDashboard();
     showToast(entry.name + '\u2019s signature is now on your page');
+
+    // Reciprocal memory loop: if the signer has their own account, offer to write back.
+    if (entry.signerUserId && currentUser && entry.signerUserId !== currentUser.id){
+      setTimeout(()=> openReciprocalModal(entry.name, entry.signerUserId), 500);
+    }
+  }
+
+  function openReciprocalModal(name, signerUserId){
+    const overlay = document.getElementById('reciprocalModalOverlay');
+    if (!overlay) return;
+    document.getElementById('reciprocalModalText').textContent =
+      'Want to write something back on ' + name + '\u2019s page too?';
+    const btn = document.getElementById('reciprocalModalBtn');
+    btn.onclick = ()=>{ closeReciprocalModal(); openProfileByUserId(signerUserId); };
+    overlay.classList.add('open');
+  }
+
+  function closeReciprocalModal(){
+    const overlay = document.getElementById('reciprocalModalOverlay');
+    if (overlay) overlay.classList.remove('open');
   }
 
   async function declineEntry(id){
@@ -5406,6 +5492,51 @@
     const input = document.getElementById('sigSearch');
     if (input) input.value = '';
     filterSignatures();
+    if (input) input.focus();
+  }
+
+  /* ── Visitor-side signature search (same logic, applied to whoever's page you're viewing) ── */
+  let allVisitorSignatures = [];
+
+  function filterVisitorSignatures(){
+    const input = document.getElementById('visitorSigSearch');
+    const meta  = document.getElementById('visitorSigSearchMeta');
+    const clear = document.getElementById('visitorSigSearchClear');
+    if (!input) return;
+    const q = input.value.trim().toLowerCase();
+
+    if (clear) clear.style.display = q ? 'inline' : 'none';
+
+    if (!q){
+      renderEntries('visitorEntries', allVisitorSignatures, 'visitorEntryCount', false);
+      if (meta) meta.style.display = 'none';
+      return;
+    }
+
+    const hits = allVisitorSignatures.filter(e=>{
+      const hay = [
+        e.name, e.nickname, e.relation, e.word, e.message,
+        (e.city && e.city.name) ? e.city.name : '',
+        Array.isArray(e.answers) ? e.answers.map(a=>a ? [(a.label||a.question||a.q||''),(a.value||a.answer||a.a||'')].join(' ') : '').join(' ') : ''
+      ].join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+
+    renderEntries('visitorEntries', hits, 'visitorEntryCount', false);
+
+    if (meta){
+      meta.style.display = 'block';
+      meta.innerHTML = hits.length
+        ? '<b>' + hits.length + '</b> of ' + allVisitorSignatures.length + ' signature' +
+          (allVisitorSignatures.length === 1 ? '' : 's') + ' match \u201c' + escapeHtml(input.value.trim()) + '\u201d'
+        : 'Nobody matches \u201c' + escapeHtml(input.value.trim()) + '\u201d \u2014 try a different word.';
+    }
+  }
+
+  function clearVisitorSignatureSearch(){
+    const input = document.getElementById('visitorSigSearch');
+    if (input) input.value = '';
+    filterVisitorSignatures();
     if (input) input.focus();
   }
 
@@ -5593,12 +5724,13 @@
         <div class="entry-date">${entry.date}</div>
         <span style="display:flex; gap:14px; align-items:center; position:relative;">
           ${modalIsOwner ? `<button onclick="deleteOwnEntry()" style="background:none; border:none; font-size:11.5px; color:var(--blush); text-decoration:underline; padding:0;">Remove from page</button>` : ''}
-          <button onclick="toggleEntrySaveMenu(event)" style="background:none; border:none; font-size:11.5px; color:var(--ink-soft); text-decoration:underline; padding:0;">Save / Print</button>
+          <button onclick="toggleEntrySaveMenu(event)" style="background:none; border:none; font-size:11.5px; color:var(--ink-soft); text-decoration:underline; padding:0;">Save</button>
+          <button onclick="printEntryCard()" style="background:none; border:none; font-size:11.5px; color:var(--ink-soft); text-decoration:underline; padding:0;">Print</button>
           <button onclick="reportEntry()" style="background:none; border:none; font-size:11.5px; color:var(--ink-soft); text-decoration:underline; padding:0;">Report</button>
-          <div class="cover-edit-menu" id="entrySaveMenu" style="display:none; position:absolute; right:0; bottom:22px; z-index:10;">
+          <div class="cover-edit-menu" id="entrySaveMenu" style="display:none; position:absolute; right:0; bottom:22px; top:auto; z-index:10;">
             <button type="button" onclick="closeEntrySaveMenu(); saveEntryAsImage('png');">Save as PNG</button>
             <button type="button" onclick="closeEntrySaveMenu(); saveEntryAsImage('jpeg');">Save as JPEG</button>
-            <button type="button" onclick="closeEntrySaveMenu(); printEntryCard();">Print / Save as PDF</button>
+            <button type="button" onclick="closeEntrySaveMenu(); saveEntryAsPdf();">Save as PDF</button>
           </div>
         </span>
       </div>
@@ -5808,6 +5940,47 @@
       showToast('Saved \u2713');
     }catch(e){
       showToast('Could not create the image \u2014 try Print / Save as PDF instead');
+    }finally{
+      holder.remove();
+    }
+  }
+
+  function ensureJsPdf(){
+    return new Promise((resolve, reject)=>{
+      if (window.jspdf && window.jspdf.jsPDF) return resolve(window.jspdf.jsPDF);
+      const sc = document.createElement('script');
+      sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      sc.onload = ()=>resolve(window.jspdf.jsPDF);
+      sc.onerror = ()=>reject(new Error('load failed'));
+      document.head.appendChild(sc);
+    });
+  }
+
+  async function saveEntryAsPdf(){
+    const entry = window.__modalEntryForSave;
+    if (!entry) return;
+    showToast('Preparing your PDF\u2026');
+    let h2c, JsPDF;
+    try{
+      h2c = await ensureHtml2canvas();
+      JsPDF = await ensureJsPdf();
+    }catch(e){ showToast('Could not load the PDF tool \u2014 check your connection and try again'); return; }
+    const holder = document.createElement('div');
+    holder.style.cssText = 'position:fixed; left:-9999px; top:0; z-index:-1;';
+    holder.innerHTML = entryCardHtml(entry);
+    document.body.appendChild(holder);
+    try{
+      const canvas = await h2c(holder.firstChild, { scale:2, useCORS:true, backgroundColor:'#FFFDF8' });
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      const pxToMm = 0.264583;
+      const wMm = canvas.width * pxToMm / 2;
+      const hMm = canvas.height * pxToMm / 2;
+      const pdf = new JsPDF({ orientation: wMm > hMm ? 'landscape' : 'portrait', unit:'mm', format:[wMm, hMm] });
+      pdf.addImage(imgData, 'PNG', 0, 0, wMm, hMm);
+      pdf.save('earthlive-signature-' + (entry.name || 'entry').toLowerCase().replace(/[^a-z0-9]+/g,'-') + '.pdf');
+      showToast('Saved \u2713');
+    }catch(e){
+      showToast('Could not create the PDF \u2014 try Print instead');
     }finally{
       holder.remove();
     }
@@ -6212,6 +6385,7 @@
         showToast(unlockAt
           ? 'Sealed! ' + target.profileObj.name + ' can open it on ' + new Date(unlockAt).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})
           : 'Signed! Your entry is waiting for ' + target.profileObj.name + '\u2019s approval');
+        maybeOfferCreatorHandoff();
       }
       return;
     }
@@ -6230,6 +6404,7 @@
       likes: 0,
       likedByMe: false,
       comments: [],
+      rawDate: new Date().toISOString(),
       date: 'Signed just now'
     });
     clearForm();
@@ -6241,7 +6416,25 @@
     } else {
       previewProfile(target.profileObj, target.entriesArr, target.returnScreen);
       showToast('Your signature is waiting for ' + target.profileObj.name + '\u2019s approval');
+      maybeOfferCreatorHandoff();
     }
+  }
+
+  /* Contributor \u2192 creator: someone just wrote on a friend's page but has no page of their own yet. */
+  let creatorHandoffShown = false;
+  function maybeOfferCreatorHandoff(){
+    if (creatorHandoffShown) return;      // once per session \u2014 don't nag
+    if (profile && profile.dbId) return;  // already has their own page
+    creatorHandoffShown = true;
+    setTimeout(()=>{
+      const overlay = document.getElementById('creatorHandoffOverlay');
+      if (overlay) overlay.classList.add('open');
+    }, 900);
+  }
+
+  function closeCreatorHandoff(){
+    const overlay = document.getElementById('creatorHandoffOverlay');
+    if (overlay) overlay.classList.remove('open');
   }
 
   let visitorReturnScreen = 'dashboard';
@@ -6294,7 +6487,15 @@
       const signatures = approved.filter(e=>!isWallPostOf(e, profileObj));   // what others wrote
 
       renderVisitorWall(theirWall, profileObj);
-      renderEntries('visitorEntries', signatures, 'visitorEntryCount', false);
+      allVisitorSignatures = signatures;
+      const vSearchBox = document.getElementById('visitorSigSearchBox');
+      if (vSearchBox) vSearchBox.style.display = signatures.length > 1 ? 'flex' : 'none';
+      const vsq = document.getElementById('visitorSigSearch');
+      if (vsq && vsq.value.trim()){
+        filterVisitorSignatures();
+      } else {
+        renderEntries('visitorEntries', signatures, 'visitorEntryCount', false);
+      }
       renderMemoryMap('visitorMapPanel', 'visitorMap', 'visitorMapCount', approved);
     }
     showScreen('visitor');
@@ -8643,8 +8844,13 @@
       descEl.textContent = ev.description ? '\u201c' + ev.description + '\u201d' : '';
       descEl.style.display = ev.description ? 'block' : 'none';
     }
-    const changeBtn = document.getElementById('evCoverChangeBtn');
-    if (changeBtn) changeBtn.style.display = (curRole === 'owner') ? 'inline-block' : 'none';
+    const coverDisplay = document.getElementById('evCoverDisplay');
+    if (coverDisplay){
+      if (ev.cover_url){ coverDisplay.style.display = 'block'; coverDisplay.style.background = 'url(' + ev.cover_url + ') center/cover no-repeat'; }
+      else { coverDisplay.style.display = 'none'; }
+    }
+    const removeCoverBtn = document.getElementById('evEditRemoveCoverBtn');
+    if (removeCoverBtn) removeCoverBtn.style.display = ev.cover_url ? 'inline-flex' : 'none';
     const dateTxt2 = ev.event_date ? new Date(ev.event_date) : null;
     const dateTxt = (dateTxt2 && !isNaN(dateTxt2)) ? dateTxt2.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'TBD';
     const hostName = (curRole==='owner') ? 'You' : escapeHtml(curHostName);
@@ -8916,6 +9122,40 @@
     });
   }
 
+  let evPostSelectedCity = null;
+  let evPostCityTimer = null;
+  function toggleEvPostCity(){
+    const wrap = document.getElementById('evPostCityWrap');
+    if (!wrap) return;
+    const showing = wrap.style.display !== 'none';
+    wrap.style.display = showing ? 'none' : 'block';
+    if (!showing) document.getElementById('evPostCity').focus();
+  }
+  function evPostCityTyped(){
+    clearTimeout(evPostCityTimer);
+    evPostSelectedCity = null;
+    evPostCityTimer = setTimeout(()=>{
+      const q = document.getElementById('evPostCity').value.trim().toLowerCase();
+      const box = document.getElementById('evPostCitySuggestions');
+      if (q.length < 2){ box.classList.remove('open'); return; }
+      const starts = CITIES.filter(c=>c.name.toLowerCase().startsWith(q));
+      const contains = CITIES.filter(c=>!c.name.toLowerCase().startsWith(q) && c.name.toLowerCase().includes(q));
+      const hits = [...starts, ...contains].slice(0,6);
+      if (hits.length < 6) augmentCitiesFromWeb(q, evPostCityTyped);
+      if (!hits.length){ box.classList.remove('open'); return; }
+      box.innerHTML = hits.map(c=>{
+        const idx = CITIES.indexOf(c);
+        return '<div class="ev-ta-item" onclick="evPostPickCity(' + idx + ')">' + icon('pin') + ' ' + cityLabel(c, q) + '</div>';
+      }).join('');
+      box.classList.add('open');
+    }, 200);
+  }
+  function evPostPickCity(idx){
+    evPostSelectedCity = CITIES[idx];
+    document.getElementById('evPostCity').value = evPostSelectedCity.name;
+    document.getElementById('evPostCitySuggestions').classList.remove('open');
+  }
+
   async function evAddPost(){
     const txt = document.getElementById('evComposerText').value.trim();
     if (!txt){ showToast('Write something first'); return; }
@@ -8926,18 +9166,24 @@
       const url = await uploadImage(evPostPhotos[i], 'event-photos', 'ev_' + curEvent.id + '_' + Date.now() + '_' + i);
       if (url) photoUrls.push(url);
     }
+    const cityText = document.getElementById('evPostCity').value.trim();
+    const cityObj = evPostSelectedCity || (cityText ? CITIES.find(c=>c.name.toLowerCase()===cityText.toLowerCase()) : null);
     const { error } = await db.from('event_entries').insert({
       event_id: curEvent.id, author_user_id: currentUser.id,
       author_name: myEventName(), message: txt,
       photos: photoUrls, entry_type: 'post',
+      city: cityObj ? cityObj.name : (cityText || null),
+      lat: cityObj ? cityObj.lat : null, lng: cityObj ? cityObj.lng : null,
       tagged: evPendingTags, color: myEventInk(), approved: true
     });
     if (error){ showToast(friendlyError(error)); console.error(error); return; }
     document.getElementById('evComposerText').value = '';
-    evPostPhotos = []; evPendingTags = [];
+    evPostPhotos = []; evPendingTags = []; evPostSelectedCity = null;
     document.getElementById('evPhotoBtn').innerHTML = icon('camera') + ' Add photos';
     document.getElementById('evPhotoInput').value = '';
     document.getElementById('evTagTray').classList.remove('open');
+    document.getElementById('evPostCity').value = '';
+    document.getElementById('evPostCityWrap').style.display = 'none';
     document.querySelectorAll('.ev-tagpick').forEach(b=>b.classList.remove('on'));
     await loadEventEntries();
     showToast('Posted to the page ✓');
@@ -9193,6 +9439,7 @@
         </div>
         <div class="ev-post-body" id="evpb-${p.id}" style="color:${p.color || 'var(--ink)'};">${escapeHtml(p.message)}${evRenderTags(p.tagged)}</div>
         ${evRenderPhotos(p.photos, p.id)}
+        ${p.city ? '<div style="font-size:11.5px; color:var(--ink-soft); margin-top:6px;">' + icon('pin') + ' ' + escapeHtml(p.city) + '</div>' : ''}
         <div class="ev-foot">
           <button class="ev-fbtn" onclick="evToggleLike('${p.id}')" style="${p._liked ? 'color:var(--blush); font-weight:700;' : ''}">♥ ${p._likes||0}</button>
           <button class="ev-fbtn" onclick="evToggleComments('${p.id}')">${icon('comment')} ${p._commentCount||0} comment${(p._commentCount||0)===1?'':'s'}</button>
@@ -9439,21 +9686,6 @@
   }
 
   /* ── Cover photo change (host only) ── */
-  function toggleEvCoverMenu(event){
-    if (event) event.stopPropagation();
-    const menu = document.getElementById('evCoverMenu');
-    if (!menu) return;
-    const opening = menu.style.display === 'none';
-    menu.style.display = opening ? 'block' : 'none';
-    if (opening){
-      setTimeout(()=>document.addEventListener('click', closeEvCoverMenu, { once:true }), 0);
-    }
-  }
-  function closeEvCoverMenu(){
-    const menu = document.getElementById('evCoverMenu');
-    if (menu) menu.style.display = 'none';
-  }
-
   async function evRemoveCover(){
     if (!curEvent || curRole !== 'owner') return;
     if (!curEvent.cover_url){ showToast('No cover photo to remove'); return; }
@@ -9466,7 +9698,12 @@
       }catch(err){}
     } else {
       const { error } = await db.from('events').update({ cover_url: null }).eq('id', curEvent.id);
-      if (error){ showToast('Could not remove cover: ' + error.message); return; }
+      if (error){
+        showToast(error.message.includes('cover_url')
+          ? 'Add a cover_url column to the events table in Supabase, then try again'
+          : 'Could not remove cover: ' + error.message);
+        return;
+      }
       curEvent.cover_url = null;
     }
     renderEventHeader();
@@ -9479,29 +9716,40 @@
     const r = new FileReader();
     r.onload = async ()=>{
       showToast('Uploading cover…');
-      let url = null;
-      if (db && !curEvent.local){
-        url = await uploadImage(r.result, 'event-photos', 'cover_' + curEvent.id + '_' + Date.now());
-      }
-      // Fallback: if storage upload isn't available, keep the (compressed) image itself
-      if (!url) url = await compressImage(r.result);
-      if (!url){ showToast('Could not read that photo — try another one'); return; }
+      try{
+        let url = null;
+        if (db && !curEvent.local){
+          url = await uploadImage(r.result, 'event-photos', 'cover_' + curEvent.id + '_' + Date.now());
+        }
+        // Fallback: if storage upload isn't available, keep the (compressed) image itself
+        if (!url) url = await compressImage(r.result);
+        if (!url){ showToast('Could not read that photo — try another one'); return; }
 
-      if (!db || curEvent.local){
-        curEvent.cover_url = url;
-        try{
-          const evts = JSON.parse(localStorage.getItem('earthlive_events') || '[]');
-          const i = evts.findIndex(x=>x.id === curEvent.id);
-          if (i > -1){ evts[i].cover_url = url; localStorage.setItem('earthlive_events', JSON.stringify(evts)); }
-        }catch(err){}
-      } else {
-        const { error } = await db.from('events').update({ cover_url: url }).eq('id', curEvent.id);
-        if (error){ showToast('Could not save cover: ' + error.message); return; }
-        curEvent.cover_url = url;
+        if (!db || curEvent.local){
+          curEvent.cover_url = url;
+          try{
+            const evts = JSON.parse(localStorage.getItem('earthlive_events') || '[]');
+            const i = evts.findIndex(x=>x.id === curEvent.id);
+            if (i > -1){ evts[i].cover_url = url; localStorage.setItem('earthlive_events', JSON.stringify(evts)); }
+          }catch(err){}
+        } else {
+          const { error } = await db.from('events').update({ cover_url: url }).eq('id', curEvent.id);
+          if (error){
+            showToast(error.message.includes('cover_url')
+              ? 'Add a cover_url column to the events table in Supabase, then try again'
+              : 'Could not save cover: ' + error.message);
+            return;
+          }
+          curEvent.cover_url = url;
+        }
+        renderEventHeader();
+        showToast('Cover updated ✓');
+      } catch(err){
+        console.error('[EarthLive] cover change failed:', err);
+        showToast('Something went wrong saving that cover — try again');
       }
-      renderEventHeader();
-      showToast('Cover updated ✓');
     };
+    r.onerror = ()=> showToast('Could not read that photo — try another one');
     r.readAsDataURL(file);
     e.target.value = '';
   }
