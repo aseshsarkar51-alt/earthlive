@@ -1147,7 +1147,64 @@
   .diary-thumbs .dt{position:relative; width:78px; height:78px; border-radius:10px; overflow:hidden; border:1px solid var(--line);}
   .diary-thumbs .dt img{width:100%; height:100%; object-fit:cover; display:block;}
   .diary-thumbs .dt button{position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%; border:none; background:rgba(46,42,34,.75); color:#fff; font-size:11px; cursor:pointer; line-height:1; padding:0;}
+  /* ---------- HOW IT WORKS (interactive guide) ---------- */
+  .hiw-line{position:absolute; left:19px; top:20px; bottom:20px; width:2px; background:var(--line);}
+  .hiw-step{display:flex; gap:16px; margin-bottom:14px; position:relative;}
+  .hiw-num{width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; flex:none; z-index:1;}
+  .hiw-card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 16px; flex:1; cursor:pointer; transition:border-color .15s;}
+  .hiw-card:hover{border-color:var(--ink-soft);}
+  .hiw-card.open{border-color:var(--ink);}
+  .hiw-t{font-size:14.5px; font-weight:700; display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .hiw-t .chev{font-size:12px; color:var(--ink-soft); transition:transform .18s; flex:none;}
+  .hiw-card.open .chev{transform:rotate(180deg);}
+  .hiw-s{font-size:12.5px; color:var(--ink-soft); line-height:1.6; margin-top:2px;}
+  .hiw-detail{display:none; margin-top:12px; border-top:1px dashed var(--line); padding-top:12px;}
+  .hiw-card.open .hiw-detail{display:block;}
+  .hiw-mini{background:var(--oat); border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:10px;}
+  .hiw-mini-label{font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--camel); font-weight:700; margin-bottom:9px;}
+  .hiw-go{font-size:12px; padding:7px 14px; border-radius:999px; border:1px solid var(--ink); background:var(--ink); color:var(--oat); cursor:pointer; font-family:inherit; font-weight:600;}
+  .hiw-rooms{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+  @media(max-width:560px){.hiw-rooms{grid-template-columns:1fr;}}
+  .hiw-room{border-radius:10px; padding:10px 12px; cursor:pointer; border:1.5px solid transparent; transition:border-color .15s; text-align:left; font-family:inherit;}
+  .hiw-room:hover, .hiw-room.on{border-color:var(--ink);}
+  .hiw-room b{font-size:13px; display:block;}
+  .hiw-room span{font-size:11.5px; line-height:1.5; display:block; margin-top:2px;}
+  .hiw-room-detail{display:none; grid-column:1 / -1;}
+  .hiw-room-detail.show{display:block;}
+  .hiw-fake-input{background:var(--page); border:1px solid var(--line); border-radius:8px; padding:8px 11px; font-size:12.5px; color:var(--ink-soft); margin-bottom:7px;}
+  .hiw-fake-btn{display:inline-block; font-size:11.5px; padding:6px 13px; border-radius:999px; background:var(--ink); color:var(--oat); font-weight:600;}
+  .hiw-fake-chip{display:inline-block; font-size:11px; padding:4px 10px; border-radius:999px; background:var(--page); border:1px solid var(--line); color:var(--ink-soft); margin:0 4px 4px 0;}
+  .hiw-msgb{max-width:75%; padding:7px 11px; border-radius:11px; font-size:12px; line-height:1.5; margin-bottom:6px; background:var(--page); border:1px solid var(--line);}
+  .hiw-msgb.mine{margin-left:auto; background:var(--moss); color:#F5F4F1; border-color:var(--moss);}
   /* diary calendar */
+  /* ── mood tracker ── */
+  .mood-card{border-bottom:1px solid var(--line); padding:14px 18px 16px; background:#FCFBF7;}
+  .mood-q{font-size:13.5px; font-weight:700; margin:0 0 2px;}
+  .mood-hint{font-size:11.5px; color:var(--ink-soft); margin:0 0 10px;}
+  .mood-row{display:flex; gap:14px; flex-wrap:wrap;}
+  .mood-opt{text-align:center; background:none; border:none; padding:0; cursor:pointer; font-family:inherit;}
+  .mood-opt .mo-dot{width:38px; height:38px; border-radius:50%; margin:0 auto 5px; border:2.5px solid transparent; transition:transform .12s;}
+  .mood-opt:hover .mo-dot{transform:scale(1.08);}
+  .mood-opt.sel .mo-dot{border-color:var(--ink); transform:scale(1.05);}
+  .mood-opt span{display:block; font-size:11.5px; color:var(--ink-soft);}
+  .mood-opt.sel span{color:var(--ink); font-weight:700;}
+  .cal-day.mooded{font-weight:600;}
+  .cal-day.dim{opacity:.18;}
+  .mood-tools{border-top:1px dashed var(--line); margin-top:14px; padding-top:12px;}
+  .mood-ranges{display:flex; gap:6px; margin-bottom:10px; align-items:center;}
+  .mood-ranges b{font-size:11.5px; margin-right:auto;}
+  .mood-range-btn{font-size:11px; padding:4px 12px; border-radius:999px; border:1px solid var(--line); background:var(--page); color:var(--ink-soft); cursor:pointer; font-family:inherit;}
+  .mood-range-btn.on{background:var(--ink); color:var(--oat); border-color:var(--ink);}
+  .mood-chips{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
+  .mood-chip{font-size:11px; padding:4px 10px; border-radius:999px; border:1px solid transparent; cursor:pointer; font-family:inherit; font-weight:600;}
+  .mood-chip.all{background:var(--page); border-color:var(--line); color:var(--ink-soft);}
+  .mood-chip.on{border-color:var(--ink);}
+  .mood-sum{display:grid; grid-template-columns:repeat(3,1fr); gap:7px;}
+  @media(max-width:600px){.mood-sum{grid-template-columns:repeat(2,1fr);}}
+  .mood-sum .ms{background:var(--page); border:1px solid var(--line); border-radius:10px; padding:8px 6px; text-align:center;}
+  .mood-sum .ms i{display:block; width:10px; height:10px; border-radius:50%; margin:0 auto 4px;}
+  .mood-sum .ms b{font-size:16px; display:block;}
+  .mood-sum .ms span{font-size:10.5px; color:var(--ink-soft);}
   .cal-toggle{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; padding:6px 11px; border-radius:999px; border:1px solid var(--line); background:var(--page); cursor:pointer; font-family:inherit; color:var(--ink-soft);}
   .cal-toggle:hover{border-color:var(--ink); color:var(--ink);}
   .cal-toggle.on{background:var(--ink); color:var(--oat); border-color:var(--ink);}
@@ -1241,7 +1298,13 @@
   .fy-letter-body{font-size:14px; line-height:1.75; color:var(--ink); white-space:pre-wrap;}
   .entry-from-diary{display:inline-block; background:var(--oat); border:1px solid var(--line); color:var(--moss); font-size:10.5px; font-weight:700; letter-spacing:.05em; padding:2px 9px; border-radius:999px; margin-left:6px;}
    */
-  .ev-cover{position:relative; isolation:isolate; contain:layout paint; border-radius:16px 16px 0 0; overflow:hidden; background:linear-gradient(135deg, var(--moss) 0%, var(--camel) 60%, var(--blush) 100%); background-size:cover; background-position:center; height:160px; width:100%;}
+  .ev-cover{position:relative; isolation:isolate; contain:layout paint; border-radius:16px 16px 0 0; overflow:hidden; background:linear-gradient(135deg, var(--moss) 0%, var(--camel) 60%, var(--blush) 100%); background-size:cover; background-position:center; height:280px; width:100%;}
+  @media (max-width:600px){.ev-cover{height:220px;}}
+  .ev-cover-text{position:absolute; left:0; right:0; bottom:0; padding:44px 22px 18px; background:linear-gradient(to top, rgba(20,18,14,.72), rgba(20,18,14,.28) 60%, transparent); color:#fff;}
+  .ev-cover-text h1{margin:0 0 4px; font-size:26px; line-height:1.2; color:#fff; text-shadow:0 1px 6px rgba(0,0,0,.35);}
+  .ev-cover-text .ev-cover-desc{font-size:13.5px; line-height:1.55; color:rgba(255,255,255,.92); max-width:560px; text-shadow:0 1px 4px rgba(0,0,0,.35);}
+  .ev-cover .ev-cover-changebtn{position:absolute; right:12px; bottom:12px; z-index:2; background:rgba(30,28,24,.65); color:#fff; border:none; border-radius:999px; padding:7px 14px; font-size:12.5px; cursor:pointer;}
+  .ev-cover .ev-cover-changebtn:hover{background:rgba(30,28,24,.85);}
   .ev-badge{position:absolute; top:14px; right:14px; background:rgba(255,255,255,.92); border-radius:999px; padding:6px 13px; font-size:12px; font-weight:700; color:var(--moss);}
   .ev-head{background:var(--card); border:1px solid var(--line); border-top:none; border-radius:0 0 16px 16px; padding:22px; box-shadow:var(--shadow); margin-bottom:14px;}
   .ev-sub{font-size:13.5px; color:var(--ink-soft); line-height:1.7;}
@@ -1317,6 +1380,7 @@
 <nav class="nav">
   <div class="brand"><span class="dot"></span>EarthLive</div>
   <div class="nav-right" id="navRight">
+    <button class="nav-link" onclick="showScreen('how')">How it works</button>
     <button class="nav-link" onclick="showScreen('about')">About</button>
     <button class="nav-link" onclick="showScreen('landing')">Home</button>
     <button class="nav-link" onclick="showScreen('auth')">Sign in</button>
@@ -1334,7 +1398,7 @@
           <p class="lede">Make a page, send it to your people, and watch it fill up with their handwriting, their words, their little stamps of you.</p>
           <div class="cta-row">
             <button class="btn btn-primary" onclick="beginFlow()">Start your book →</button>
-            <button class="link-quiet" onclick="document.getElementById('howSection').scrollIntoView()">See how it works</button>
+            <button class="link-quiet" onclick="showScreen('how')">See how it works</button>
           </div>
         </div>
         <div class="hero-visual">
@@ -1536,7 +1600,11 @@
         <div class="seal-wrap">
           <div class="seal seal-lg" id="ownerSeal"></div>
           <input type="file" accept="image/*" id="avatarUploadDash" style="display:none" onchange="handleQuickAvatarChange(event)">
-          <button type="button" class="seal-edit-btn" onclick="document.getElementById('avatarUploadDash').click()" aria-label="Change profile photo">✎</button>
+          <button type="button" class="seal-edit-btn" onclick="toggleAvatarMenu(event)" aria-label="Change profile photo">✎</button>
+          <div class="cover-edit-menu" id="avatarEditMenu" style="display:none; position:absolute; left:0; top:calc(100% + 6px); z-index:20;">
+            <button type="button" onclick="closeAvatarMenu(); document.getElementById('avatarUploadDash').click();">Upload photo</button>
+            <button type="button" class="danger" onclick="closeAvatarMenu(); removeAvatar();">Remove</button>
+          </div>
         </div>
         <div>
           <h2 id="ownerName"></h2>
@@ -1668,6 +1736,11 @@
             <b id="dWriteTitle">Write</b>
             <span class="d-tag" id="dWriteTag">today · editable</span>
           </div>
+          <div class="mood-card" id="moodCard">
+            <p class="mood-q">How are you feeling today?</p>
+            <p class="mood-hint">Tap a color — it becomes your mood for today. Tap again to clear it.</p>
+            <div class="mood-row" id="moodRow"></div>
+          </div>
           <div class="d-pane-body">
             <div class="d-datestamp" id="diaryEditorDate">Today</div>
             <input type="text" id="diaryTitle" class="d-title-input" placeholder="Give this entry a title…" maxlength="120">
@@ -1729,6 +1802,16 @@
               <span><i></i> wrote that day</span>
               <span><span class="box"></span> today</span>
               <button class="cal-clear" id="calClear" style="display:none;" onclick="clearDiaryFilter()">Show all</button>
+            </div>
+            <div class="mood-tools" id="moodTools">
+              <div class="mood-ranges">
+                <b>Mood summary</b>
+                <button type="button" class="mood-range-btn" data-range="week" onclick="setMoodRange('week')">Week</button>
+                <button type="button" class="mood-range-btn on" data-range="month" onclick="setMoodRange('month')">Month</button>
+                <button type="button" class="mood-range-btn" data-range="year" onclick="setMoodRange('year')">Year</button>
+              </div>
+              <div class="mood-chips" id="moodChips"></div>
+              <div class="mood-sum" id="moodSum"></div>
             </div>
           </div>
 
@@ -2127,11 +2210,15 @@
       <div class="ev-cover" id="evCover">
         <div class="ev-badge"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span> Members only</div>
         <input type="file" accept="image/*" id="evCoverInput" style="display:none;" onchange="evChangeCover(event)">
+        <div class="ev-cover-text">
+          <h1 id="evName"></h1>
+          <div class="ev-cover-desc" id="evCoverDesc"></div>
+        </div>
+        <button type="button" class="ev-cover-changebtn" id="evCoverChangeBtn" style="display:none;" onclick="document.getElementById('evCoverInput').click()">✎ Change cover</button>
       </div>
       <div class="ev-head">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
           <div style="flex:1; min-width:0;">
-            <h1 id="evName" style="margin:0 0 4px; font-size:23px;"></h1>
             <div class="ev-sub" id="evMeta"></div>
           </div>
           <button type="button" class="btn-small" id="evEditBtn" style="display:none; flex:none;" onclick="toggleEventEdit()">✎ Edit details</button>
@@ -2375,6 +2462,242 @@
 </section>
 
 <!-- ============ ABOUT US ============ -->
+<!-- ============ HOW IT WORKS (interactive guide) ============ -->
+<section class="screen" id="screen-how">
+  <div class="wrap">
+    <div style="max-width:560px; margin:0 auto; padding:36px 0 60px;">
+      <div style="text-align:center; margin-bottom:26px;">
+        <div class="form-eyebrow">A gentle guide</div>
+        <h2 style="font-size:28px; margin:0 0 6px; font-weight:700;">How EarthLive works</h2>
+        <p style="color:var(--ink-soft); font-size:13.5px; line-height:1.65; margin:0;">
+          Everyone's got something to say about you. EarthLive is where those words get kept.<br>
+          <b style="color:var(--ink);">Tap any step to see exactly what that screen looks like.</b>
+        </p>
+      </div>
+
+      <div style="position:relative;">
+        <div class="hiw-line"></div>
+
+        <!-- STEP 1: SIGN IN -->
+        <div class="hiw-step">
+          <div class="hiw-num" style="background:#57614A; color:#F5F4F1;">1</div>
+          <div class="hiw-card" id="hiw1" onclick="toggleHiw(1)">
+            <div class="hiw-t">Sign in <span class="chev">▾</span></div>
+            <div class="hiw-s">One tap with Google or your email. No passwords to remember.</div>
+            <div class="hiw-detail" onclick="event.stopPropagation()">
+              <div class="hiw-mini">
+                <div class="hiw-mini-label">What you'll see</div>
+                <div style="text-align:center; font-weight:700; font-size:14px; margin-bottom:10px;">Welcome to EarthLive</div>
+                <div class="hiw-fake-input" style="text-align:center; background:var(--card); font-weight:600; color:var(--ink);">Continue with Google</div>
+                <div style="text-align:center; font-size:10.5px; color:var(--ink-soft); margin:6px 0;">— or —</div>
+                <div class="hiw-fake-input">you@example.com</div>
+                <div style="text-align:center;"><span class="hiw-fake-btn">Send me a sign-in link</span></div>
+              </div>
+              <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">We email you a magic link — click it and you're in. That's the whole thing.</p>
+              <button class="hiw-go" onclick="hiwGo('auth')">Try it — Sign in →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: CREATE YOUR PAGE -->
+        <div class="hiw-step">
+          <div class="hiw-num" style="background:#A9764F; color:#F5F4F1;">2</div>
+          <div class="hiw-card" id="hiw2" onclick="toggleHiw(2)">
+            <div class="hiw-t">Create your page <span class="chev">▾</span></div>
+            <div class="hiw-s">Your name, a photo, a cover, and the questions you want people to answer about you.</div>
+            <div class="hiw-detail" onclick="event.stopPropagation()">
+              <div class="hiw-mini">
+                <div class="hiw-mini-label">The form you'll fill</div>
+                <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+                  <div style="width:44px; height:44px; border-radius:50%; background:var(--oat-deep); border:2px dashed var(--ink-soft); display:flex; align-items:center; justify-content:center; font-size:16px; flex:none;">+</div>
+                  <div style="flex:1;">
+                    <div class="hiw-fake-input" style="margin-bottom:5px;">Your name</div>
+                    <div class="hiw-fake-input" style="margin-bottom:0;">earthlive.in/?u=<b style="color:var(--ink);">yourname</b></div>
+                  </div>
+                </div>
+                <div style="font-size:11px; font-weight:700; margin-bottom:5px;">Pick your questions</div>
+                <span class="hiw-fake-chip">✓ Your favourite memory of me?</span><span class="hiw-fake-chip">✓ One word for me?</span><span class="hiw-fake-chip">Something you never told me?</span>
+              </div>
+              <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">Choose a ready-made set of questions or write your own. Add a bio, your ink color, and links. You can change everything later.</p>
+              <button class="hiw-go" onclick="hiwGo('create')">Try it — Create your page →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 3: SHARE YOUR LINK -->
+        <div class="hiw-step">
+          <div class="hiw-num" style="background:#9DC3B6; color:#2F4A40;">3</div>
+          <div class="hiw-card" id="hiw3" onclick="toggleHiw(3)">
+            <div class="hiw-t">Share your link <span class="chev">▾</span></div>
+            <div class="hiw-s">Send your personal link to your people — or let them scan your QR code.</div>
+            <div class="hiw-detail" onclick="event.stopPropagation()">
+              <div class="hiw-mini">
+                <div class="hiw-mini-label">Your link and QR</div>
+                <div style="display:flex; gap:8px; margin-bottom:10px;">
+                  <div class="hiw-fake-input" style="flex:1; margin:0; color:var(--ink); font-weight:600;">earthlive.in/?u=yourname</div>
+                  <span class="hiw-fake-btn" style="flex:none; align-self:center;">Copy</span>
+                </div>
+                <div style="display:flex; gap:12px; align-items:center;">
+                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=88x88&data=https%3A%2F%2Fearthlive.in" alt="Example QR code" style="width:72px; height:72px; border:1px solid var(--line); border-radius:8px; background:#fff;">
+                  <div style="font-size:11.5px; color:var(--ink-soft); line-height:1.55;">Anyone who scans this lands straight on your book — WhatsApp it, print it at your birthday, put it on a wedding card.</div>
+                </div>
+              </div>
+              <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">Your link and QR live on your book page — one tap on Share sends it anywhere.</p>
+              <button class="hiw-go" onclick="hiwGo('book')">See my link →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 4: THEY SIGN, YOU APPROVE -->
+        <div class="hiw-step">
+          <div class="hiw-num" style="background:#E4CBA0; color:#5C4A2C;">4</div>
+          <div class="hiw-card" id="hiw4" onclick="toggleHiw(4)">
+            <div class="hiw-t">They sign, you approve <span class="chev">▾</span></div>
+            <div class="hiw-s">Friends answer your questions and leave a note. Nothing appears until you say yes.</div>
+            <div class="hiw-detail" onclick="event.stopPropagation()">
+              <div class="hiw-mini">
+                <div class="hiw-mini-label">A signature waiting for you</div>
+                <div style="background:var(--card); border:1px solid var(--line); border-left:3px solid #C08078; border-radius:10px; padding:11px 13px;">
+                  <div style="font-size:13px;"><b>Priya</b> <span style="font-size:11px; color:var(--ink-soft);">· College friend · one word: <b style="color:#C08078;">"Sunshine"</b></span></div>
+                  <div style="font-size:12px; color:var(--ink-soft); line-height:1.55; margin:5px 0 9px;">"Remember the night train to Darjeeling? You sang the whole way and nobody minded…"</div>
+                  <span class="hiw-fake-btn" style="background:var(--moss);">✓ Approve</span>
+                  <span class="hiw-fake-chip" style="margin-left:6px;">Decline</span>
+                </div>
+              </div>
+              <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">You are the keeper of your book — every signature waits for your approval, and you can remove any of them later.</p>
+              <button class="hiw-go" onclick="hiwGo('book')">Open my book →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 5: THE ROOMS -->
+        <div class="hiw-step" style="margin-bottom:0;">
+          <div class="hiw-num" style="background:#A6B9CB; color:#33455A;">5</div>
+          <div style="flex:1;">
+            <div class="hiw-card" style="cursor:default; margin-bottom:10px;">
+              <div class="hiw-t" style="justify-content:flex-start;">Then the whole world opens up</div>
+              <div class="hiw-s">Your book is just the beginning — tap any room to peek inside it.</div>
+            </div>
+            <div class="hiw-rooms" id="hiwRooms">
+
+              <button type="button" class="hiw-room" style="background:#E7EDDF;" onclick="toggleRoom('book')">
+                <b style="color:#3B4530;">📖 My book</b>
+                <span style="color:#4A5540;">Every approved signature, kept forever</span>
+              </button>
+
+              <button type="button" class="hiw-room" style="background:#E2EEEA;" onclick="toggleRoom('wall')">
+                <b style="color:#2F4A40;">✍️ My wall</b>
+                <span style="color:#3C5A50;">Your own words, posts and photos</span>
+              </button>
+
+              <div class="hiw-room-detail" id="hiwRoom-book">
+                <div class="hiw-mini" style="margin-bottom:8px;">
+                  <div class="hiw-mini-label">Inside My book</div>
+                  <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:11px 13px; margin-bottom:7px;">
+                    <div style="font-size:12.5px;"><b>Arjun</b> <span style="font-size:11px; color:var(--ink-soft);">· Brother · "Rock"</span></div>
+                    <div style="font-size:12px; color:var(--ink-soft); margin-top:3px;">"You taught me to ride a cycle by lying that you were holding on…" <span style="color:#C08078;">♥ 12</span> 💬 3</div>
+                  </div>
+                  <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:11px 13px;">
+                    <div style="font-size:12.5px;"><b>Maa</b> <span style="font-size:11px; color:var(--ink-soft);">· locked until your birthday 🔒</span></div>
+                    <div style="font-size:12px; color:var(--ink-soft); margin-top:3px;">This signature unlocks on 12 October — a little time capsule.</div>
+                  </div>
+                </div>
+                <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">Signatures can carry photos, a one-word "stamp" of you, and can even be time-locked to open on a special day. Friends can like and comment on each one.</p>
+                <button class="hiw-go" onclick="hiwGo('book')">Open My book →</button>
+              </div>
+
+              <div class="hiw-room-detail" id="hiwRoom-wall">
+                <div class="hiw-mini" style="margin-bottom:8px;">
+                  <div class="hiw-mini-label">Inside My wall</div>
+                  <div style="background:var(--card); border:1px solid var(--line); border-left:3px solid var(--moss); border-radius:10px; padding:11px 13px;">
+                    <div style="font-size:12.5px;"><b>You</b> <span style="font-size:11px; color:var(--ink-soft);">· Balurghat · today</span></div>
+                    <div style="font-size:12px; color:var(--ink-soft); margin-top:3px;">"First mango of the season. Some things never stop being exciting." <span style="color:#C08078;">♥ 8</span> 💬 2</div>
+                  </div>
+                </div>
+                <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">The wall is where <b>you</b> speak — short posts, photos, and a city tag that pins the memory on your map. People who follow you see your posts in their For You feed.</p>
+                <button class="hiw-go" onclick="hiwGo('wall')">Open My wall →</button>
+              </div>
+
+              <button type="button" class="hiw-room" style="background:#F4EAD8;" onclick="toggleRoom('diary')">
+                <b style="color:#5C4A2C;">📔 My diary</b>
+                <span style="color:#6B5636;">Private pages that seal at midnight, with your daily mood colors</span>
+              </button>
+
+              <button type="button" class="hiw-room" style="background:#F2E3E0;" onclick="toggleRoom('events')">
+                <b style="color:#5C332C;">🎉 Events</b>
+                <span style="color:#6B4640;">Members-only pages for weddings, reunions, trips</span>
+              </button>
+
+              <div class="hiw-room-detail" id="hiwRoom-diary">
+                <div class="hiw-mini" style="margin-bottom:8px;">
+                  <div class="hiw-mini-label">Inside My diary</div>
+                  <div style="font-size:11.5px; font-weight:700; margin-bottom:6px;">How are you feeling today?</div>
+                  <div style="display:flex; gap:8px; margin-bottom:10px;">
+                    <span style="width:24px; height:24px; border-radius:50%; background:#A9BC97; border:2px solid var(--ink); display:inline-block;"></span>
+                    <span style="width:24px; height:24px; border-radius:50%; background:#9DC3B6; display:inline-block;"></span>
+                    <span style="width:24px; height:24px; border-radius:50%; background:#E4CBA0; display:inline-block;"></span>
+                    <span style="width:24px; height:24px; border-radius:50%; background:#C7C0B2; display:inline-block;"></span>
+                    <span style="width:24px; height:24px; border-radius:50%; background:#A6B9CB; display:inline-block;"></span>
+                    <span style="width:24px; height:24px; border-radius:50%; background:#D3A49C; display:inline-block;"></span>
+                  </div>
+                  <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 13px;">
+                    <div style="font-size:11px; color:var(--ink-soft);">Yesterday · 🔒 Sealed · <span style="background:#E7EDDF; color:#3B4530; padding:1px 8px; border-radius:999px; font-weight:700; font-size:10px;">● Great</span></div>
+                    <div style="font-size:12px; color:var(--ink-soft); margin-top:3px;">"A slow, good morning. Tea on the balcony, no phone for an hour…"</div>
+                  </div>
+                </div>
+                <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">Nobody sees your diary — ever. Pick a mood color each day and watch your month fill in on the calendar. Entries seal at midnight; you can also send one entry to one person, like a letter.</p>
+                <button class="hiw-go" onclick="hiwGo('diary')">Open My diary →</button>
+              </div>
+
+              <div class="hiw-room-detail" id="hiwRoom-events">
+                <div class="hiw-mini" style="margin-bottom:8px;">
+                  <div class="hiw-mini-label">Inside Events</div>
+                  <div style="border-radius:10px; overflow:hidden; border:1px solid var(--line);">
+                    <div style="height:64px; background:linear-gradient(135deg, var(--moss) 0%, var(--camel) 60%, var(--blush) 100%); position:relative;">
+                      <div style="position:absolute; left:0; right:0; bottom:0; padding:18px 12px 7px; background:linear-gradient(to top, rgba(20,18,14,.7), transparent); color:#fff; font-size:13px; font-weight:700;">Riya &amp; Dev's Wedding <span style="font-weight:400; font-size:10.5px; opacity:.85;">🔒 Members only</span></div>
+                    </div>
+                    <div style="background:var(--card); padding:9px 12px; font-size:11.5px; color:var(--ink-soft);">14 members · everyone posts photos and memories · the host approves who joins</div>
+                  </div>
+                </div>
+                <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">Make a page for a wedding, reunion, or trip. Share its link or QR — people request to join, the host approves, and everyone inside posts memories, tags each other, and writes about one another.</p>
+                <button class="hiw-go" onclick="hiwGo('events')">Open Events →</button>
+              </div>
+
+              <button type="button" class="hiw-room" style="background:#E4EBF1; grid-column:1 / -1;" onclick="toggleRoom('more')">
+                <b style="color:#33455A;">🗺️ Memory map &amp; messages</b>
+                <span style="color:#3E5165;">See your memories pinned across cities, and talk to your people directly</span>
+              </button>
+
+              <div class="hiw-room-detail" id="hiwRoom-more">
+                <div class="hiw-mini" style="margin-bottom:8px;">
+                  <div class="hiw-mini-label">The map, and a conversation</div>
+                  <div style="height:58px; border-radius:8px; background:var(--oat-deep); position:relative; margin-bottom:10px; overflow:hidden;">
+                    <span style="position:absolute; top:16px; left:22%; font-size:14px;">📍</span>
+                    <span style="position:absolute; top:30px; left:48%; font-size:14px;">📍</span>
+                    <span style="position:absolute; top:12px; left:74%; font-size:14px;">📍</span>
+                    <span style="position:absolute; bottom:4px; right:8px; font-size:10px; color:var(--ink-soft);">Balurghat · Kolkata · Delhi</span>
+                  </div>
+                  <div class="hiw-msgb">Just signed your book — check your approvals! 🌸</div>
+                  <div class="hiw-msgb mine">Saw it, made my whole day ❤️</div>
+                </div>
+                <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">Every city tagged in a signature or wall post becomes a pin on your memory map. And messages work on requests — nobody can flood you without your yes.</p>
+                <button class="hiw-go" onclick="hiwGo('messages')">Open Messages →</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:28px; padding-top:18px; border-top:1px solid var(--line);">
+        <p style="font-size:12.5px; color:var(--ink-soft); line-height:1.7; max-width:400px; margin:0 auto 16px;">The purpose is simple: the people who love you carry pieces of you they've never written down. EarthLive gives them a place to leave those pieces — before the moment passes.</p>
+        <button class="btn btn-primary" onclick="beginFlow()">Start your book →</button><br>
+        <button class="link-quiet" style="margin-top:14px;" onclick="showScreen(currentUser ? 'dashboard' : 'landing')">← Back</button>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="screen" id="screen-about">
   <div class="wrap">
     <div class="about-body">
@@ -2676,6 +2999,135 @@
     {name:'Yamunanagar', lat:29.14, lng:77.29},
     {name:'Yerwada', lat:18.56, lng:73.85},
     {name:' Zona', lat:27.52, lng:74.61},
+    /* ── smaller towns & district headquarters ── */
+    {name:'Adilabad', lat:19.67, lng:78.53},
+    {name:'Alipurduar', lat:26.49, lng:89.53},
+    {name:'Ambikapur', lat:23.12, lng:83.20},
+    {name:'Anantapur', lat:14.68, lng:77.60},
+    {name:'Arambagh', lat:22.88, lng:87.79},
+    {name:'Araria', lat:26.15, lng:87.52},
+    {name:'Azamgarh', lat:26.07, lng:83.18},
+    {name:'Bahraich', lat:27.57, lng:81.60},
+    {name:'Balaghat', lat:21.80, lng:80.18},
+    {name:'Balasore', lat:21.49, lng:86.93},
+    {name:'Ballia', lat:25.76, lng:84.15},
+    {name:'Balurghat', lat:25.22, lng:88.77},
+    {name:'Bankura', lat:23.23, lng:87.07},
+    {name:'Baramulla', lat:34.20, lng:74.34},
+    {name:'Barasat', lat:22.72, lng:88.48},
+    {name:'Bardhaman', lat:23.23, lng:87.86},
+    {name:'Bargarh', lat:21.33, lng:83.62},
+    {name:'Barpeta', lat:26.32, lng:91.00},
+    {name:'Basirhat', lat:22.66, lng:88.87},
+    {name:'Basti', lat:26.79, lng:82.73},
+    {name:'Begusarai', lat:25.42, lng:86.13},
+    {name:'Berhampore', lat:24.10, lng:88.25},
+    {name:'Berhampur', lat:19.31, lng:84.79},
+    {name:'Bettiah', lat:26.80, lng:84.50},
+    {name:'Bhadrak', lat:21.05, lng:86.51},
+    {name:'Bhagalpur', lat:25.25, lng:87.00},
+    {name:'Bhimavaram', lat:16.54, lng:81.52},
+    {name:'Bhiwani', lat:28.79, lng:76.13},
+    {name:'Bidar', lat:17.91, lng:77.52},
+    {name:'Bolpur', lat:23.67, lng:87.72},
+    {name:'Bongaigaon', lat:26.48, lng:90.56},
+    {name:'Buxar', lat:25.56, lng:83.98},
+    {name:'Chapra', lat:25.78, lng:84.75},
+    {name:'Chhindwara', lat:22.06, lng:78.94},
+    {name:'Chittoor', lat:13.22, lng:79.10},
+    {name:'Cooch Behar', lat:26.32, lng:89.45},
+    {name:'Dalkhola', lat:25.87, lng:87.84},
+    {name:'Daltonganj', lat:24.04, lng:84.07},
+    {name:'Darbhanga', lat:26.15, lng:85.90},
+    {name:'Deoghar', lat:24.48, lng:86.70},
+    {name:'Deoria', lat:26.50, lng:83.78},
+    {name:'Dhanbad', lat:23.80, lng:86.44},
+    {name:'Dharmanagar', lat:24.37, lng:92.17},
+    {name:'Dholpur', lat:26.70, lng:77.90},
+    {name:'Dhubri', lat:26.02, lng:89.98},
+    {name:'Dhule', lat:20.90, lng:74.78},
+    {name:'Dibrugarh', lat:27.47, lng:94.91},
+    {name:'Dimapur', lat:25.91, lng:93.73},
+    {name:'Dinhata', lat:26.13, lng:89.47},
+    {name:'Dumka', lat:24.27, lng:87.25},
+    {name:'Eluru', lat:16.71, lng:81.10},
+    {name:'Etawah', lat:26.78, lng:79.02},
+    {name:'Faizabad', lat:26.77, lng:82.15},
+    {name:'Falakata', lat:26.52, lng:89.20},
+    {name:'Farakka', lat:24.82, lng:87.90},
+    {name:'Firozabad', lat:27.15, lng:78.39},
+    {name:'Gadag', lat:15.43, lng:75.63},
+    {name:'Gangarampur', lat:25.40, lng:88.52},
+    {name:'Gangtok', lat:27.33, lng:88.61},
+    {name:'Giridih', lat:24.18, lng:86.30},
+    {name:'Godhra', lat:22.78, lng:73.61},
+    {name:'Gonda', lat:27.13, lng:81.96},
+    {name:'Gopalganj', lat:26.47, lng:84.44},
+    {name:'Gudivada', lat:16.44, lng:80.99},
+    {name:'Gulbarga', lat:17.33, lng:76.83},
+    {name:'Guntur', lat:16.31, lng:80.44},
+    {name:'Habra', lat:22.83, lng:88.66},
+    {name:'Haldia', lat:22.06, lng:88.11},
+    {name:'Haldwani', lat:29.22, lng:79.53},
+    {name:'Hajipur', lat:25.69, lng:85.21},
+    {name:'Hazaribagh', lat:23.99, lng:85.36},
+    {name:'Hili', lat:25.28, lng:88.98},
+    {name:'Hoshiarpur', lat:31.53, lng:75.92},
+    {name:'Islampur', lat:26.27, lng:88.20},
+    {name:'Itarsi', lat:22.61, lng:77.76},
+    {name:'Jalpaiguri', lat:26.52, lng:88.72},
+    {name:'Jangipur', lat:24.47, lng:88.07},
+    {name:'Jaunpur', lat:25.75, lng:82.68},
+    {name:'Jehanabad', lat:25.21, lng:84.99},
+    {name:'Jorhat', lat:26.75, lng:94.22},
+    {name:'Kadapa', lat:14.47, lng:78.82},
+    {name:'Kaithal', lat:29.80, lng:76.40},
+    {name:'Kakinada', lat:16.99, lng:82.25},
+    {name:'Kaliaganj', lat:25.63, lng:88.32},
+    {name:'Kalimpong', lat:27.06, lng:88.47},
+    {name:'Kalyani', lat:22.98, lng:88.43},
+    {name:'Karimganj', lat:24.87, lng:92.35},
+    {name:'Karimnagar', lat:18.44, lng:79.13},
+    {name:'Katihar', lat:25.54, lng:87.58},
+    {name:'Katwa', lat:23.65, lng:88.13},
+    {name:'Khammam', lat:17.25, lng:80.15},
+    {name:'Kishanganj', lat:26.11, lng:87.94},
+    {name:'Krishnanagar', lat:23.40, lng:88.50},
+    {name:'Kumarganj', lat:25.35, lng:88.55},
+    {name:'Kushmandi', lat:25.53, lng:88.42},
+    {name:'Machilipatnam', lat:16.19, lng:81.14},
+    {name:'Malda', lat:25.02, lng:88.14},
+    {name:'Mandi', lat:31.71, lng:76.93},
+    {name:'Mathabhanga', lat:26.34, lng:89.22},
+    {name:'Mirzapur', lat:25.15, lng:82.57},
+    {name:'Motihari', lat:26.65, lng:84.92},
+    {name:'Nabadwip', lat:23.41, lng:88.37},
+    {name:'Nalanda', lat:25.14, lng:85.44},
+    {name:'Nanded', lat:19.14, lng:77.32},
+    {name:'Nellore', lat:14.44, lng:79.99},
+    {name:'Nizamabad', lat:18.67, lng:78.10},
+    {name:'Ongole', lat:15.51, lng:80.05},
+    {name:'Palakkad', lat:10.79, lng:76.65},
+    {name:'Pathankot', lat:32.27, lng:75.65},
+    {name:'Purulia', lat:23.33, lng:86.37},
+    {name:'Raiganj', lat:25.62, lng:88.13},
+    {name:'Rampurhat', lat:24.18, lng:87.79},
+    {name:'Ratlam', lat:23.33, lng:75.04},
+    {name:'Raxaul', lat:26.98, lng:84.85},
+    {name:'Rewa', lat:24.53, lng:81.30},
+    {name:'Rohtak', lat:28.90, lng:76.57},
+    {name:'Sahibganj', lat:25.24, lng:87.65},
+    {name:'Samastipur', lat:25.86, lng:85.78},
+    {name:'Sasaram', lat:24.95, lng:84.03},
+    {name:'Silchar', lat:24.83, lng:92.79},
+    {name:'Sitamarhi', lat:26.59, lng:85.48},
+    {name:'Suri', lat:23.91, lng:87.53},
+    {name:'Tamluk', lat:22.30, lng:87.92},
+    {name:'Tapan', lat:25.10, lng:88.62},
+    {name:'Tezpur', lat:26.63, lng:92.80},
+    {name:'Tinsukia', lat:27.49, lng:95.36},
+    {name:'Tufanganj', lat:26.32, lng:89.67},
+    {name:'Vizianagaram', lat:18.11, lng:83.41},
     {name:'Amsterdam', lat:52.37, lng:4.89},
     {name:'Bangkok', lat:13.76, lng:100.50},
     {name:'Barcelona', lat:41.39, lng:2.17},
@@ -2950,6 +3402,34 @@
       await db.from('profiles').update({ cover_url: null }).eq('id', profile.dbId);
     }
     showToast('Cover photo removed');
+  }
+
+  /* ── Profile photo menu: Upload / Remove, just like the cover photo ── */
+  function toggleAvatarMenu(event){
+    if (event) event.stopPropagation();
+    const menu = document.getElementById('avatarEditMenu');
+    if (!menu) return;
+    const opening = menu.style.display === 'none';
+    menu.style.display = opening ? 'block' : 'none';
+    if (opening){
+      setTimeout(()=>document.addEventListener('click', closeAvatarMenu, { once:true }), 0);
+    }
+  }
+
+  function closeAvatarMenu(){
+    const menu = document.getElementById('avatarEditMenu');
+    if (menu) menu.style.display = 'none';
+  }
+
+  async function removeAvatar(){
+    if (!profile) return;
+    if (!profile.avatar){ showToast('No profile photo to remove'); return; }
+    profile.avatar = null;
+    renderSeal('ownerSeal');
+    if (db && currentUser && profile.dbId){
+      await db.from('profiles').update({ avatar_url: null }).eq('id', profile.dbId);
+    }
+    showToast('Profile photo removed');
   }
 
   function handleQuickAvatarChange(event){
@@ -3866,7 +4346,7 @@
         <div class="conv-item" onclick="openThread('${c.id}')">
           <div class="seal" id="convSeal${i}"></div>
           <div class="conv-info">
-            <strong>${escapeHtml(other.name)}</strong>
+            <strong>${personLink(other.name, { username: other.username })}</strong>
             <span>${other.username ? '@' + escapeHtml(other.username) : ''}</span>
           </div>
           ${chip}
@@ -3887,7 +4367,7 @@
     currentConversation = conv;
 
     const other = otherParty(conv) || { name:'A private page' };
-    document.getElementById('threadName').textContent = other.name;
+    document.getElementById('threadName').innerHTML = personLink(other.name, { username: other.username });
     document.getElementById('convListView').style.display = 'none';
     document.getElementById('threadView').style.display = 'block';
 
@@ -4158,10 +4638,10 @@
     // Threaded: top-level comments carry their replies (parent_id links a reply to its comment)
     const childMap = {};
     allComments.filter(c=>c.parent_id).forEach(c=>{
-      (childMap[c.parent_id] = childMap[c.parent_id] || []).push({ id: c.id, name: c.name, text: c.body });
+      (childMap[c.parent_id] = childMap[c.parent_id] || []).push({ id: c.id, name: c.name, text: c.body, userId: c.author_user_id || null });
     });
     allComments.filter(c=>!c.parent_id).forEach(c=>{
-      (commentMap[c.entry_id] = commentMap[c.entry_id] || []).push({ id: c.id, name: c.name, text: c.body, replies: childMap[c.id] || [] });
+      (commentMap[c.entry_id] = commentMap[c.entry_id] || []).push({ id: c.id, name: c.name, text: c.body, userId: c.author_user_id || null, replies: childMap[c.id] || [] });
     });
 
     entriesArr.forEach(e=>{
@@ -4803,6 +5283,33 @@
       nm + '</a>';
   }
 
+  /* Open someone's book knowing only their user id (used by comments, events, For You, messages) */
+  async function openProfileByUserId(userId){
+    if (!db || !userId){ return; }
+    const { data } = await db.from('profiles').select('username, visibility')
+      .eq('user_id', userId).maybeSingle();
+    if (data && data.username){
+      openProfileByUsername(data.username);
+    } else {
+      showToast('This person has no public page');
+    }
+  }
+
+  /* Render a clickable person name. Pass { userId } or { username }. Falls back to plain text. */
+  function personLink(name, opts){
+    const nm = escapeHtml(name || 'Someone');
+    opts = opts || {};
+    if (opts.username){
+      return '<a class="signer-link" href="#" style="cursor:pointer;" onclick="event.stopPropagation(); openProfileByUsername(\'' +
+        String(opts.username).replace(/'/g, "\\'") + '\'); return false;" title="Open ' + nm + '\u2019s book">' + nm + '</a>';
+    }
+    if (opts.userId){
+      return '<a class="signer-link" href="#" style="cursor:pointer;" onclick="event.stopPropagation(); openProfileByUserId(\'' +
+        String(opts.userId).replace(/'/g, "\\'") + '\'); return false;" title="Open ' + nm + '\u2019s book">' + nm + '</a>';
+    }
+    return nm;
+  }
+
   function renderEntries(containerId, entriesArr, countElId, isOwner){
     const el = document.getElementById(containerId);
     const countEl = countElId ? document.getElementById(countElId) : null;
@@ -4904,7 +5411,7 @@
         <div id="modalComments">${comments.map((c, idx)=>`
           <div class="comment" id="comment-${idx}">
             <div class="comment-meta">
-              <b>${escapeHtml(c.name)}</b>
+              <b>${personLink(c.name, { userId: c.userId })}</b>
               <div>
                 <button class="comment-reply-btn" onclick="toggleReplyForm(${idx})">reply</button>
                 ${modalIsOwner ? `<button class="comment-del" onclick="deleteComment('${c.id}')">remove</button>` : ''}
@@ -4915,7 +5422,7 @@
               ${(c.replies || []).map((r, ridx)=>`
                 <div class="reply">
                   <div class="reply-meta">
-                    <b>${escapeHtml(r.name)}</b>
+                    <b>${personLink(r.name, { userId: r.userId })}</b>
                     ${modalIsOwner ? `<button class="reply-del" onclick="deleteReply('${c.id}', '${r.id}')">remove</button>` : ''}
                   </div>
                   <div class="reply-text">${linkifyAndMention(r.text)}</div>
@@ -5590,7 +6097,7 @@
         <div class="wp-top">
           <div class="wp-ava" style="border-color:${ink}; color:${ink};">${escapeHtml(initials)}</div>
           <div>
-            <div class="wp-name">${escapeHtml(e.name || profileObj.name || '')}</div>
+            <div class="wp-name">${personLink(e.name || profileObj.name || '', { username: profileObj.username })}</div>
             <div class="wp-meta">${(e.city && e.city.name) ? escapeHtml(e.city.name) + ' \u00b7 ' : ''}${escapeHtml(e.date || '')}</div>
           </div>
         </div>
@@ -5605,8 +6112,9 @@
           ${(e.comments || []).map(c=>
             '<div class="ev-comment"><div class="ev-avatar" style="background:var(--oat-deep); color:var(--ink);">' +
             escapeHtml((c.name||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()) +
-            '</div><div class="ev-comment-body"><b>' + escapeHtml(c.name||'') + '</b> ' + escapeHtml(c.text||'') + '</div></div>'
+            '</div><div class="ev-comment-body"><b>' + personLink(c.name, { userId: c.userId }) + '</b> ' + escapeHtml(c.text||'') + '</div></div>'
           ).join('') || '<p style="font-size:12px; color:var(--ink-soft);">No comments yet.</p>'}
+          ${wallCommentFormHtml(e.id, 'visitor')}
         </div>
       </div>`;
     }).join('');
@@ -5864,12 +6372,61 @@
     showToast('Signed out');
   }
 
+  /* ── HOW IT WORKS: expandable steps + smart routing ── */
+  function toggleHiw(n){
+    for (let i = 1; i <= 4; i++){
+      const el = document.getElementById('hiw' + i);
+      if (el) el.classList.toggle('open', i === n && !el.classList.contains('open'));
+    }
+  }
+
+  function toggleRoom(id){
+    const wasOpen = (document.getElementById('hiwRoom-' + id) || {}).classList &&
+                    document.getElementById('hiwRoom-' + id).classList.contains('show');
+    document.querySelectorAll('.hiw-room-detail').forEach(d=>d.classList.remove('show'));
+    document.querySelectorAll('.hiw-room').forEach(r=>r.classList.remove('on'));
+    if (!wasOpen){
+      const d = document.getElementById('hiwRoom-' + id);
+      if (d) d.classList.add('show');
+      const btn = document.querySelector('.hiw-room[onclick*="\'' + id + '\'"]');
+      if (btn) btn.classList.add('on');
+    }
+  }
+
+  function hiwGo(target){
+    // Signed out: everything private leads to sign-in first — we bring them back naturally.
+    if (!currentUser){
+      showToast('Sign in first — it takes ten seconds');
+      showScreen('auth');
+      return;
+    }
+    if (target === 'auth'){ showToast('You\u2019re already signed in \u2713'); showScreen(profile ? 'dashboard' : 'auth'); return; }
+    if (target === 'create'){
+      if (profile && profile.dbId){ showToast('You already have a page \u2014 this is it'); showScreen('dashboard'); }
+      else startNewBook();
+      return;
+    }
+    if (!profile || !profile.dbId){ startNewBook(); return; }
+    if (target === 'book'){ renderDashboard(); showScreen('dashboard'); return; }
+    if (target === 'wall'){ renderDashboard(); showScreen('dashboard'); setTimeout(()=>{ const a = document.getElementById('wallAnchor'); if (a) a.scrollIntoView({behavior:'smooth'}); }, 250); return; }
+    if (target === 'diary'){ openDiaryEditor(null); renderDiary(); showScreen('diary'); return; }
+    if (target === 'events'){ renderMyEvents(); showScreen('events'); return; }
+    if (target === 'messages'){ openMessages(); return; }
+    showScreen('dashboard');
+  }
+
   function refreshNav(){
     const navRight = document.getElementById('navRight');
     navRight.innerHTML = '';
 
     if (!currentUser){
       // Signed OUT: About + Home + Sign in
+      const how = document.createElement('button');
+      how.className = 'nav-link';
+      how.textContent = 'How it works';
+      how.onclick = ()=>showScreen('how');
+      navRight.appendChild(how);
+
       const about = document.createElement('button');
       about.className = 'nav-link';
       about.textContent = 'About';
@@ -5953,6 +6510,7 @@
       ((profile && profile.username) ? '<small>@' + escapeHtml(profile.username) + '</small>' : '') + '</div>' +
       '<button class="nav-am-item" onclick="closeAvatarMenu(); renderAccount(); showScreen(\'account\');">My account</button>' +
       '<div class="nav-am-theme"><span>Theme</span><div id="navThemeSwatches"></div></div>' +
+      '<button class="nav-am-item" onclick="closeAvatarMenu(); showScreen(\'how\');">How it works</button>' +
       '<button class="nav-am-item" onclick="closeAvatarMenu(); showScreen(\'about\');">About</button>' +
       '<button class="nav-am-item danger" onclick="closeAvatarMenu(); confirmSignOut();">Sign out</button>';
     wrap.appendChild(menu);
@@ -5980,6 +6538,9 @@
     if (!e.target.closest('.nav-avatar-wrap')) closeAvatarMenu();
   });
 
+  let currentScreenName = 'landing';
+  let navFromPopstate = false;
+
   function showScreen(name){
     if (name === 'search' && !currentUser){
       showToast('Sign in to find and view pages');
@@ -5992,12 +6553,31 @@
     }
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
     document.getElementById('screen-'+name).classList.add('active');
+
+    // Real browser history: every screen change is one history step, so the
+    // Back button always returns to the previously viewed screen.
+    // We also push a CLEAN url (no ?u= / ?e=), so refreshing the page always
+    // reopens YOUR page instead of the last shared link you clicked.
+    if (!navFromPopstate && name !== currentScreenName){
+      try{ history.pushState({ elScreen: name }, '', location.pathname); }catch(err){}
+    }
+    currentScreenName = name;
+
     if (name === 'search'){
       setTimeout(()=>document.getElementById('searchInput').focus(), 50);
     }
     refreshNav();
     window.scrollTo({top:0, behavior:'smooth'});
   }
+
+  // Seed the first history entry, then honour Back/Forward.
+  try{ history.replaceState({ elScreen: currentScreenName }, '', location.pathname + location.search); }catch(err){}
+  window.addEventListener('popstate', (e)=>{
+    const target = (e.state && e.state.elScreen) ? e.state.elScreen : 'landing';
+    if (!document.getElementById('screen-' + target)) return;
+    navFromPopstate = true;
+    try{ showScreen(target); } finally { navFromPopstate = false; }
+  });
 
   renderTemplatePicker();
 
@@ -6478,11 +7058,59 @@
           ${(e.comments || []).map(c=>
             '<div class="ev-comment"><div class="ev-avatar" style="background:var(--oat-deep); color:var(--ink);">' +
             escapeHtml((c.name||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()) +
-            '</div><div class="ev-comment-body"><b>' + escapeHtml(c.name||'') + '</b> ' + escapeHtml(c.text||'') + '</div></div>'
+            '</div><div class="ev-comment-body"><b>' + personLink(c.name, { userId: c.userId }) + '</b> ' + escapeHtml(c.text||'') + '</div></div>'
           ).join('') || '<p style="font-size:12px; color:var(--ink-soft);">No comments yet.</p>'}
+          ${wallCommentFormHtml(e.id, 'own')}
         </div>
       </div>`;
     }).join('');
+  }
+
+  /* ── Wall comments: a comment box on every wall post (yours and theirs) ── */
+  function wallCommentFormHtml(entryId, scope){
+    return '<div class="ev-comment-row">' +
+      '<input type="text" id="wci-' + scope + '-' + entryId + '" placeholder="Write a comment\u2026" maxlength="500" ' +
+      'onkeydown="if(event.key===\'Enter\'){event.preventDefault(); addWallComment(\'' + entryId + '\',\'' + scope + '\');}">' +
+      '<button type="button" class="btn-small" style="flex:none;" onclick="addWallComment(\'' + entryId + '\',\'' + scope + '\')">Post</button>' +
+      '</div>';
+  }
+
+  async function addWallComment(entryId, scope){
+    if (db && !currentUser){ showToast('Sign in to comment'); return; }
+    const input = document.getElementById('wci-' + scope + '-' + entryId);
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text){ showToast('Write a comment first'); return; }
+    const arr = (scope === 'own') ? entries : (currentVisitorEntries || []);
+    const e = arr.find(x=>x.id === entryId);
+    if (!e) return;
+    const name = (profile && profile.name) ||
+      (currentUser && currentUser.email ? currentUser.email.split('@')[0] : 'Someone');
+    e.comments = e.comments || [];
+    if (db && isDbEntry(e)){
+      const { data, error } = await db.from('comments').insert({
+        entry_id: e.id,
+        author_user_id: currentUser ? currentUser.id : null,
+        name,
+        body: text
+      }).select().single();
+      if (error){ showToast(friendlyError(error)); return; }
+      e.comments.push({ id: data.id, name, text, userId: currentUser ? currentUser.id : null });
+    } else {
+      e.comments.push({ id: makeId(), name, text });
+    }
+    if (scope === 'own'){
+      renderWall();
+    } else {
+      renderVisitorWall(
+        (currentVisitorEntries || []).filter(x=>isApproved(x) && isWallPostOf(x, currentVisitorProfile)),
+        currentVisitorProfile
+      );
+    }
+    // keep the comment box open after re-render
+    const box = document.getElementById('wpc-' + entryId);
+    if (box) box.classList.add('open');
+    showToast('Comment posted');
   }
 
   async function toggleWallLike(id){
@@ -6563,7 +7191,7 @@
           at: s.created_at,
           avatar: (s.name||'?').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase(),
           color: s.color || 'var(--blush)',
-          title: escapeHtml(s.name || 'Someone') + ' signed your book',
+          title: personLink(s.name || 'Someone', { userId: s.signer_user_id }) + ' signed your book',
           preview: s.message ? escapeHtml(s.message.length > 160 ? s.message.slice(0,160)+'…' : s.message) : '',
           meta: evTimeAgo(s.created_at)
         });
@@ -6602,7 +7230,7 @@
           at: p.created_at,
           avatar: (owner.name||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase(),
           color: owner.ink || 'var(--moss)',
-          title: escapeHtml(owner.name || 'Someone') + ' posted on their wall',
+          title: personLink(owner.name || 'Someone', { username: owner.username, userId: owner.user_id }) + ' posted on their wall',
           preview: p.message ? escapeHtml(p.message.length > 200 ? p.message.slice(0,200)+'…' : p.message) : '',
           photo: (Array.isArray(p.photos) && p.photos[0]) ? p.photos[0] : null,
           username: owner.username || null,
@@ -6630,7 +7258,7 @@
     // 3) Pending approval requests on MY events (host action needed)
     const { data: own } = await db.from('events').select('id, name').eq('owner_user_id', currentUser.id);
     if (own && own.length){
-      const { data: reqs } = await db.from('event_guests').select('event_id, guest_name, created_at')
+      const { data: reqs } = await db.from('event_guests').select('event_id, guest_name, user_id, created_at')
         .in('event_id', own.map(o=>o.id)).eq('status','requested');
       const nameOf = {}; own.forEach(e=>{ nameOf[e.id] = e.name; });
       (reqs || []).forEach(r=>{
@@ -6639,7 +7267,7 @@
           at: r.created_at,
           avatar: (r.guest_name||'?').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase(),
           color: 'var(--moss)',
-          title: escapeHtml(r.guest_name||'Someone') + ' wants to join <b>' + escapeHtml(nameOf[r.event_id]) + '</b>',
+          title: personLink(r.guest_name||'Someone', { userId: r.user_id }) + ' wants to join <b>' + escapeHtml(nameOf[r.event_id]) + '</b>',
           meta: evTimeAgo(r.created_at),
           eventId: r.event_id
         });
@@ -6664,7 +7292,7 @@
           at: l.created_at,
           avatar: who.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase(),
           color: aInk[l.author_user_id] || 'var(--blush)',
-          title: escapeHtml(who) + ' shared a diary entry with you',
+          title: personLink(who, { userId: l.author_user_id }) + ' shared a diary entry with you',
           letterTitle: l.title ? escapeHtml(l.title) : '',
           preview: l.body ? escapeHtml(l.body.length > 280 ? l.body.slice(0,280)+'…' : l.body) : '',
           photos: Array.isArray(l.photos) ? l.photos : [],
@@ -6798,6 +7426,137 @@
     document.getElementById('diaryPersonResults').classList.remove('open');
   }
 
+  /* ── DIARY MOODS ──
+     One mood per day, in your soothing palette. Saved to the diary_moods
+     table when it exists; otherwise kept safely in this browser. */
+  const MOODS = [
+    { id:'great',   label:'Great',    bg:'#A9BC97', tx:'#3B4530', chip:'#E7EDDF' },
+    { id:'calm',    label:'Calm',     bg:'#9DC3B6', tx:'#2F4A40', chip:'#E2EEEA' },
+    { id:'okay',    label:'Okay',     bg:'#E4CBA0', tx:'#5C4A2C', chip:'#F4EAD8' },
+    { id:'tired',   label:'Tired',    bg:'#C7C0B2', tx:'#4A463A', chip:'#EDEAE2' },
+    { id:'sad',     label:'Sad',      bg:'#A6B9CB', tx:'#33455A', chip:'#E4EBF1' },
+    { id:'notgood', label:'Not good', bg:'#D3A49C', tx:'#5C332C', chip:'#F2E3E0' }
+  ];
+  let moodByDate = {};        // { 'YYYY-MM-DD': moodId }
+  let moodRange = 'month';    // 'week' | 'month' | 'year'
+  let moodFilter = null;      // moodId or null
+  let moodDbOk = true;        // false once the table is found missing — fall back to this browser
+
+  function moodOf(id){ return MOODS.find(m=>m.id===id) || null; }
+  function moodLocalKey(){ return 'el_moods_' + (currentUser ? currentUser.id : 'guest'); }
+  function moodLoadLocal(){
+    try{ return JSON.parse(localStorage.getItem(moodLocalKey()) || '{}'); }catch(e){ return {}; }
+  }
+  function moodSaveLocal(){
+    try{ localStorage.setItem(moodLocalKey(), JSON.stringify(moodByDate)); }catch(e){}
+  }
+
+  async function loadMoods(){
+    moodByDate = moodLoadLocal();
+    if (db && currentUser && moodDbOk){
+      const { data, error } = await db.from('diary_moods').select('mood_date, mood')
+        .eq('user_id', currentUser.id);
+      if (error){
+        moodDbOk = false;   // table not created yet — browser storage keeps working
+      } else {
+        (data || []).forEach(r=>{ moodByDate[r.mood_date] = r.mood; });
+        moodSaveLocal();
+      }
+    }
+    renderMoodPicker();
+    renderMoodTools();
+  }
+
+  async function setTodayMood(id){
+    const k = calKey(new Date());
+    const removing = moodByDate[k] === id;
+    if (removing) delete moodByDate[k];
+    else moodByDate[k] = id;
+    moodSaveLocal();
+    renderMoodPicker();
+    renderDiaryCal();
+    renderMoodTools();
+    showToast(removing ? 'Mood cleared for today'
+      : 'Today marked as \u201c' + (moodOf(id) ? moodOf(id).label : id) + '\u201d');
+
+    if (db && currentUser && moodDbOk){
+      const op = removing
+        ? db.from('diary_moods').delete().eq('user_id', currentUser.id).eq('mood_date', k)
+        : db.from('diary_moods').upsert(
+            { user_id: currentUser.id, mood_date: k, mood: id },
+            { onConflict: 'user_id,mood_date' });
+      const { error } = await op;
+      if (error) moodDbOk = false;   // saved in this browser either way
+    }
+  }
+
+  function renderMoodPicker(){
+    const row = document.getElementById('moodRow');
+    if (!row) return;
+    const today = moodByDate[calKey(new Date())] || null;
+    row.innerHTML = MOODS.map(m=>
+      '<button type="button" class="mood-opt' + (today===m.id ? ' sel' : '') + '" onclick="setTodayMood(\'' + m.id + '\')" aria-label="' + m.label + '">' +
+        '<div class="mo-dot" style="background:' + m.bg + ';"></div>' +
+        '<span>' + m.label + '</span>' +
+      '</button>'
+    ).join('');
+  }
+
+  function moodRangeStart(){
+    const now = new Date();
+    if (moodRange === 'week'){
+      const d = new Date(now); d.setDate(now.getDate() - 6); d.setHours(0,0,0,0); return d;
+    }
+    if (moodRange === 'year') return new Date(now.getFullYear(), 0, 1);
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+
+  function moodCounts(){
+    const start = moodRangeStart();
+    const now = new Date();
+    const counts = {};
+    MOODS.forEach(m=>{ counts[m.id] = 0; });
+    Object.keys(moodByDate).forEach(k=>{
+      const d = new Date(k + 'T12:00:00');
+      if (d >= start && d <= now && counts[moodByDate[k]] !== undefined) counts[moodByDate[k]]++;
+    });
+    return counts;
+  }
+
+  function setMoodRange(r){
+    moodRange = r;
+    document.querySelectorAll('.mood-range-btn').forEach(b=>
+      b.classList.toggle('on', b.getAttribute('data-range') === r));
+    renderMoodTools();
+  }
+
+  function setMoodFilter(id){
+    moodFilter = (moodFilter === id) ? null : id;
+    renderDiaryCal();
+    renderMoodTools();
+  }
+
+  function renderMoodTools(){
+    const chips = document.getElementById('moodChips');
+    const sum = document.getElementById('moodSum');
+    if (!chips || !sum) return;
+    const counts = moodCounts();
+
+    chips.innerHTML =
+      '<button type="button" class="mood-chip all' + (!moodFilter ? ' on' : '') + '" onclick="setMoodFilter(null)">All</button>' +
+      MOODS.map(m=>
+        '<button type="button" class="mood-chip' + (moodFilter===m.id ? ' on' : '') + '" ' +
+        'style="background:' + m.chip + '; color:' + m.tx + ';" onclick="setMoodFilter(\'' + m.id + '\')">\u25cf ' + m.label + '</button>'
+      ).join('');
+
+    const rangeWord = moodRange === 'week' ? 'this week' : (moodRange === 'year' ? 'this year' : 'this month');
+    sum.innerHTML = MOODS.map(m=>
+      '<div class="ms"><i style="background:' + m.bg + ';"></i>' +
+      '<b>' + counts[m.id] + '</b>' +
+      '<span>' + escapeHtml(m.label) + ' ' + (counts[m.id]===1 ? 'day' : 'days') + ' ' + rangeWord + '</span></div>'
+    ).join('');
+  }
+
   /* ── DIARY CALENDAR ── */
   let diaryEntriesCache = [];        // every entry, so the calendar knows which days have one
   let calView = new Date();          // month currently shown
@@ -6845,13 +7604,22 @@
     for (let d = 1; d <= daysInMonth; d++){
       const k = calKey(new Date(y, m, d));
       const has = written.has(k);
+      const moodId = moodByDate[k] || null;
+      const mood = moodId ? moodOf(moodId) : null;
       let cls = 'cal-day';
       if (has) cls += ' has';
+      if (mood) cls += ' mooded';
       if (k === today) cls += ' today';
       if (k === calSelected) cls += ' sel';
+      if (moodFilter && moodId !== moodFilter) cls += ' dim';
+      let styl = '';
+      if (mood && k !== calSelected){
+        styl = ' style="background:' + mood.bg + '; color:' + mood.tx + ';"';
+      }
       const click = has ? ' onclick="pickDiaryDate(\'' + k + '\')"' : '';
-      html += '<div class="' + cls + '"' + click + '>' + d +
-              (has ? '<span class="dot"></span>' : '') + '</div>';
+      const tip = mood ? ' title="' + mood.label + '"' : '';
+      html += '<div class="' + cls + '"' + styl + tip + click + '>' + d +
+              (has ? '<span class="dot"' + (mood ? ' style="background:' + mood.tx + ';"' : '') + '></span>' : '') + '</div>';
     }
     grid.innerHTML = html;
   }
@@ -6912,6 +7680,7 @@
   async function renderDiary(){
     const list = document.getElementById('diaryList');
     if (!list) return;
+    loadMoods();   // mood picker + calendar colors + summary
     list.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Loading…</p>';
     if (!db || !currentUser){
       list.innerHTML = '<div class="d-empty"><b style="color:var(--ink);">Sign in to open your diary.</b></div>';
@@ -7476,12 +8245,16 @@
     } else {
       cover.style.background = 'linear-gradient(135deg, var(--moss) 0%, var(--camel) 60%, var(--blush) 100%)';
     }
+    // Title + description live on the cover itself now
+    const descEl = document.getElementById('evCoverDesc');
+    if (descEl) descEl.textContent = ev.description || '';
+    const changeBtn = document.getElementById('evCoverChangeBtn');
+    if (changeBtn) changeBtn.style.display = (curRole === 'owner') ? 'inline-block' : 'none';
     const dateTxt2 = ev.event_date ? new Date(ev.event_date) : null;
     const dateTxt = (dateTxt2 && !isNaN(dateTxt2)) ? dateTxt2.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'TBD';
     const hostName = (curRole==='owner') ? 'You' : escapeHtml(curHostName);
     document.getElementById('evMeta').innerHTML =
-      icon('calendar') + ' ' + escapeHtml(dateTxt) + ' · ' + icon('pin') + ' ' + escapeHtml(ev.location || 'TBD') + ' · Hosted by <b>' + hostName + '</b>' +
-      (ev.description ? '<br>"' + escapeHtml(ev.description) + '"' : '');
+      icon('calendar') + ' ' + escapeHtml(dateTxt) + ' · ' + icon('pin') + ' ' + escapeHtml(ev.location || 'TBD') + ' · Hosted by <b>' + hostName + '</b>';
     // avatars
     const joined = curGuests.filter(g=>g.status==='joined');
     const colors = ['var(--moss)','var(--navy-ink)','var(--blush)','#6B4C6B','#4E7065','#A65A3C'];
@@ -7952,7 +8725,7 @@
       <div style="display:flex; gap:11px; align-items:center; margin-bottom:4px;">
         <div class="ev-avatar" style="background:${p.color || 'var(--camel)'};">${escapeHtml(initials)}</div>
         <div style="flex:1;">
-          <b style="font-size:15px;">${escapeHtml(p.author_name||'Member')}</b>${isAbout && p.subject_member ? ' <span style="color:var(--ink-soft); font-size:13px;">wrote about</span> <b style="font-size:14px;">' + escapeHtml(p.subject_member) + '</b>' : ''}
+          <b style="font-size:15px;">${personLink(p.author_name||'Member', { userId: p.author_user_id })}</b>${isAbout && p.subject_member ? ' <span style="color:var(--ink-soft); font-size:13px;">wrote about</span> <b style="font-size:14px;">' + escapeHtml(p.subject_member) + '</b>' : ''}
           <div class="ev-post-meta">${evTimeAgo(p.created_at)}${p.edited?' · edited':''}</div>
         </div>
       </div>
@@ -8018,7 +8791,7 @@
       <div class="ev-post" id="evp-${p.id}">
         <div style="display:flex; gap:11px; align-items:center;">
           <div class="ev-avatar" style="background:${p.color || 'var(--camel)'};">${escapeHtml(initials)}</div>
-          <div style="flex:1;"><b style="font-size:14px;">${escapeHtml(p.author_name||'Member')}</b> ${own?'<span class="ev-post-own">YOUR POST</span>':''}
+          <div style="flex:1;"><b style="font-size:14px;">${personLink(p.author_name||'Member', { userId: p.author_user_id })}</b> ${own?'<span class="ev-post-own">YOUR POST</span>':''}
             <div class="ev-post-meta">${evTimeAgo(p.created_at)}${p.edited?' · edited':''}</div>
           </div>
         </div>
@@ -8050,7 +8823,7 @@
       const canDelete = own || curRole==='owner';
       return `
       <div class="ev-about-card" style="border-left-color:${a.color || colors[i%colors.length]}; cursor:pointer;" onclick="openEvEntryModal('${a.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter') openEvEntryModal('${a.id}')">
-        <div class="ev-about-line"><b>${escapeHtml(a.author_name||'Member')}</b> wrote about <b>${escapeHtml(a.subject_member||'')}</b> · ${evTimeAgo(a.created_at)}</div>
+        <div class="ev-about-line"><b>${personLink(a.author_name||'Member', { userId: a.author_user_id })}</b> wrote about <b>${escapeHtml(a.subject_member||'')}</b> · ${evTimeAgo(a.created_at)}</div>
         ${a.one_word ? '<span class="ev-about-word" style="color:' + (a.color||'var(--moss)') + ';">"' + escapeHtml(a.one_word) + '"</span>' : ''}
         <div class="ev-about-msg">${escapeHtml(a.message.length > 180 ? a.message.slice(0,180) + '…' : a.message)}</div>
         ${evRenderPhotos(a.photos, a.id)}
@@ -8104,7 +8877,7 @@
         const ri = (r.author_name||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
         const rMineOrHost = (currentUser && r.author_user_id === currentUser.id) || curRole==='owner';
         return '<div class="ev-comment" style="margin-top:7px;"><div class="ev-avatar" style="width:22px; height:22px; font-size:9px; background:var(--oat-deep); color:var(--ink);">' + escapeHtml(ri) + '</div>' +
-          '<div class="ev-comment-body" style="font-size:12.5px;"><b>' + escapeHtml(r.author_name||'') + '</b> ' + escapeHtml(r.message) +
+          '<div class="ev-comment-body" style="font-size:12.5px;"><b>' + personLink(r.author_name||'', { userId: r.author_user_id }) + '</b> ' + escapeHtml(r.message) +
           ' <span style="font-size:10px; color:var(--ink-soft);">\u00b7 ' + evTimeAgo(r.created_at) + '</span>' +
           (rMineOrHost ? ' <button class="ev-fbtn" style="font-size:10.5px; color:#A65A3C;" onclick="evDeleteComment(\'' + r.id + '\', \'' + entryId + '\', \'' + ctx + '\')">remove</button>' : '') +
           '</div></div>';
@@ -8113,7 +8886,7 @@
       <div style="margin-bottom:10px;">
         <div class="ev-comment" style="margin-bottom:0;">
           <div class="ev-avatar" style="background:var(--oat-deep); color:var(--ink);">${escapeHtml(initials)}</div>
-          <div class="ev-comment-body"><b>${escapeHtml(c.author_name||'')}</b> ${escapeHtml(c.message)}
+          <div class="ev-comment-body"><b>${personLink(c.author_name||'', { userId: c.author_user_id })}</b> ${escapeHtml(c.message)}
             <span style="font-size:10.5px; color:var(--ink-soft);">\u00b7 ${evTimeAgo(c.created_at)}</span>
             <div style="display:flex; gap:12px; margin-top:4px;">
               ${canReply ? `<button class="ev-fbtn" style="font-size:11px; font-weight:700; color:var(--camel);" onclick="evToggleReply('${ctx}','${c.id}')">\u21a9 Reply</button>` : ''}
@@ -8276,11 +9049,26 @@
     const r = new FileReader();
     r.onload = async ()=>{
       showToast('Uploading cover…');
-      const url = await uploadImage(r.result, 'event-photos', 'cover_' + curEvent.id + '_' + Date.now());
-      if (!url) return;
-      const { error } = await db.from('events').update({ cover_url: url }).eq('id', curEvent.id);
-      if (error){ showToast('Could not save cover: ' + error.message); return; }
-      curEvent.cover_url = url;
+      let url = null;
+      if (db && !curEvent.local){
+        url = await uploadImage(r.result, 'event-photos', 'cover_' + curEvent.id + '_' + Date.now());
+      }
+      // Fallback: if storage upload isn't available, keep the (compressed) image itself
+      if (!url) url = await compressImage(r.result);
+      if (!url){ showToast('Could not read that photo — try another one'); return; }
+
+      if (!db || curEvent.local){
+        curEvent.cover_url = url;
+        try{
+          const evts = JSON.parse(localStorage.getItem('earthlive_events') || '[]');
+          const i = evts.findIndex(x=>x.id === curEvent.id);
+          if (i > -1){ evts[i].cover_url = url; localStorage.setItem('earthlive_events', JSON.stringify(evts)); }
+        }catch(err){}
+      } else {
+        const { error } = await db.from('events').update({ cover_url: url }).eq('id', curEvent.id);
+        if (error){ showToast('Could not save cover: ' + error.message); return; }
+        curEvent.cover_url = url;
+      }
       renderEventHeader();
       showToast('Cover updated ✓');
     };
