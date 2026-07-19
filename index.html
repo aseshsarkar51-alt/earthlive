@@ -1274,19 +1274,19 @@
   .mood-opt.sel span{color:var(--ink); font-weight:700;}
   .cal-day.mooded{font-weight:600;}
   .cal-day.dim{opacity:.18;}
-  .mood-tools{border-top:1px dashed var(--line); margin-top:14px; padding-top:14px;}
-  .mood-ranges{display:flex; gap:6px; margin-bottom:14px; align-items:center;}
+  .mood-tools{border-top:1px dashed var(--line); margin-top:14px; padding-top:12px;}
+  .mood-ranges{display:flex; gap:6px; margin-bottom:10px; align-items:center;}
   .mood-ranges b{font-size:11.5px; margin-right:auto;}
   .mood-range-btn{font-size:11px; padding:4px 12px; border-radius:999px; border:1px solid var(--line); background:var(--page); color:var(--ink-soft); cursor:pointer; font-family:inherit;}
   .mood-range-btn.on{background:var(--ink); color:var(--oat); border-color:var(--ink);}
-  .mood-chips{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; padding-bottom:2px;}
+  .mood-chips{display:flex; gap:6px; flex-wrap:nowrap; overflow-x:auto; margin-bottom:12px; padding-bottom:2px; scrollbar-width:none; -ms-overflow-style:none;}
   .mood-chips::-webkit-scrollbar{display:none;}
-  .mood-chip{font-size:12px; padding:6px 13px; border-radius:999px; border:1px solid transparent; cursor:pointer; font-family:inherit; font-weight:600; white-space:nowrap; flex:none;}
+  .mood-chip{font-size:11px; padding:4px 9px; border-radius:999px; border:1px solid transparent; cursor:pointer; font-family:inherit; font-weight:600; white-space:nowrap; flex:none;}
   .mood-chip.all{background:var(--page); border-color:var(--line); color:var(--ink-soft);}
   .mood-chip.on{border-color:var(--ink);}
-  .mood-sum{display:grid; grid-template-columns:repeat(6,1fr); gap:9px;}
-  .mood-sum .ms{background:var(--page); border:1px solid var(--line); border-radius:12px; padding:10px 4px 9px; text-align:center; min-width:0;}
-  .mood-sum .ms i{display:block; width:9px; height:9px; border-radius:50%; margin:0 auto 4px;}
+  .mood-sum{display:grid; grid-template-columns:repeat(6,1fr); gap:6px;}
+  .mood-sum .ms{background:var(--page); border:1px solid var(--line); border-radius:10px; padding:7px 2px 6px; text-align:center; min-width:0;}
+  .mood-sum .ms i{display:block; width:9px; height:9px; border-radius:50%; margin:0 auto 3px;}
   .mood-sum .ms b{font-size:15px; display:block; line-height:1.2;}
   .mood-sum .ms span{display:none;}
   @media(max-width:600px){
@@ -1841,8 +1841,8 @@
           </div>
           <div class="d-pane-body">
             <div class="d-datestamp" id="diaryEditorDate">Today</div>
-            <input type="text" id="diaryTitle" class="d-title-input" maxlength="120" style="display:none;">
-            <textarea id="diaryBody" class="d-body-input"></textarea>
+            <input type="text" id="diaryTitle" class="d-title-input" placeholder="Give this entry a title…" maxlength="120">
+            <textarea id="diaryBody" class="d-body-input" placeholder="Write what you want to remember…"></textarea>
 
             <div id="diaryPhotoThumbs" class="diary-thumbs"></div>
             <input type="file" accept="image/*" id="diaryPhotoInput" multiple style="display:none;" onchange="diaryHandlePhotos(event)">
@@ -3903,22 +3903,6 @@
     return entry.status !== 'pending';
   }
 
-  // On refresh, reopen whatever screen the person was actually on \u2014
-  // not always "My book". Falls back to dashboard for screens that depend
-  // on transient state (a specific event, a visited page, etc).
-  function elRestoreLastScreen(){
-    let name = 'dashboard';
-    try{ const s = sessionStorage.getItem('elLastScreen'); if (s) name = s; }catch(err){}
-    const RESTORABLE = ['dashboard','feed','diary','account','messages','events'];
-    if (!RESTORABLE.includes(name)) name = 'dashboard';
-    if (name === 'feed'){ renderForYou(); showScreen('feed'); return; }
-    if (name === 'events'){ renderMyEvents(); showScreen('events'); return; }
-    if (name === 'diary'){ renderDiary(); showScreen('diary'); return; }
-    if (name === 'messages'){ openMessages(); return; }
-    if (name === 'account'){ openMyAccount(); return; }
-    renderDashboard(); showScreen('dashboard');
-  }
-
   let editMode = false;
 
   /* ---------- REAL SIGN-IN (Stage 2, piece 2) ---------- */
@@ -3985,7 +3969,8 @@
               return;
             }
             if (found){
-              elRestoreLastScreen();
+              renderDashboard();
+              showScreen('dashboard');
             } else {
               // Signed in but no page yet (first visit, OAuth redirect, or
               // email-confirmation return): take them straight to Create my
@@ -7477,7 +7462,6 @@
       try{ history.pushState({ elScreen: name }, '', location.pathname); }catch(err){}
     }
     currentScreenName = name;
-    try{ sessionStorage.setItem('elLastScreen', name); }catch(err){}
 
     if (name === 'search'){
       setTimeout(()=>document.getElementById('searchInput').focus(), 50);
@@ -10129,13 +10113,7 @@
     { screen:'create',    el:'templateGrid', title:'Choose your question set',
       body:'These are what your friends answer when they sign \u2014 classic, deep, funny, or farewell. Untick any you don\u2019t want, then finish your page.', last:'create' },
     { screen:'account',   el:'acctLinkPanel', title:'Now, share it',
-      body:'Copy your link, share it, or show the QR code \u2014 anyone with it can open and sign your book. Send it now, or come back and do it later.' },
-    { screen:'dashboard', el:'ownerEntries', title:'One link is the invitation',
-      body:'Send your link to a friend \u2014 they open it and sign. Every signature waits for your yes before it appears here. You\u2019re the keeper.' },
-    { screen:'dashboard', el:'bookJump',     title:'Your book, in three views',
-      body:'Your wall, your memory map, and the signatures your people leave.' },
-    { screen:'dashboard', el:'wallComposer', title:'Your wall is yours to write on',
-      body:'Post your own words anytime \u2014 add photos, or pin a city to your map.' }
+      body:'Copy your link, share it, or show the QR code \u2014 anyone with it can open and sign your book. Send it now, or come back and do it later.' }
   ];
 
   // Flow B: signing in with an existing page. Runs right after sign-in \u2014
