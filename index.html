@@ -1053,6 +1053,24 @@
   .ic.fill svg{fill:currentColor; stroke:none;}
 
 
+
+  /* ---------- GUIDED TOUR ---------- */
+  .tour-scrim{position:fixed; inset:0; background:rgba(245,244,241,.5); z-index:400; opacity:0; pointer-events:none; transition:opacity .25s;}
+  .tour-scrim.on{opacity:1;}
+  .tour-lit{position:relative; z-index:401 !important; box-shadow:0 0 0 3px var(--card), 0 0 0 5px var(--camel) !important; border-radius:12px; background:var(--card);}
+  .tour-coach{position:fixed; z-index:402; width:258px; max-width:calc(100vw - 24px); background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px 12px; box-shadow:0 3px 0 rgba(46,42,34,.05), 0 16px 34px -14px rgba(46,42,34,.3); opacity:0; pointer-events:none; transform:translateY(6px); transition:opacity .25s, transform .25s;}
+  .tour-coach.on{opacity:1; pointer-events:auto; transform:translateY(0);}
+  .tour-coach .tc-step{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--camel); font-weight:700; margin:0 0 5px;}
+  .tour-coach h4{font-size:14px; font-weight:700; margin:0 0 4px;}
+  .tour-coach .tc-body{font-size:12.5px; color:var(--ink-soft); line-height:1.55; margin:0 0 12px;}
+  .tour-coach .tc-row{display:flex; align-items:center; justify-content:space-between;}
+  .tour-coach .tc-dots{display:flex; gap:4px;}
+  .tour-coach .tc-dots i{width:4.5px; height:4.5px; border-radius:50%; background:var(--line);}
+  .tour-coach .tc-dots i.on{background:var(--camel);}
+  .tour-coach .tc-btns{display:flex; align-items:center; gap:12px;}
+  .tour-coach .tc-skip{background:none; border:none; font-size:12px; color:var(--ink-soft); text-decoration:underline; text-underline-offset:3px; cursor:pointer; font-family:inherit; padding:0;}
+  .tour-coach .tc-next{background:var(--ink); color:var(--oat); border:none; border-radius:999px; padding:6px 15px; font-size:12.5px; font-weight:700; font-family:inherit; cursor:pointer;}
+
   /* ---------- RESEARCH NOTE ---------- */
   .rn-paper{max-width:640px; margin:36px auto 90px; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:54px 60px 52px; box-shadow:0 2px 0 rgba(46,42,34,.05), 0 14px 30px -16px rgba(46,42,34,.16);}
   @media(max-width:640px){ .rn-paper{padding:44px 24px 40px; margin:20px auto 60px;} }
@@ -1228,8 +1246,9 @@
   .mood-ranges b{font-size:11.5px; margin-right:auto;}
   .mood-range-btn{font-size:11px; padding:4px 12px; border-radius:999px; border:1px solid var(--line); background:var(--page); color:var(--ink-soft); cursor:pointer; font-family:inherit;}
   .mood-range-btn.on{background:var(--ink); color:var(--oat); border-color:var(--ink);}
-  .mood-chips{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
-  .mood-chip{font-size:11px; padding:4px 10px; border-radius:999px; border:1px solid transparent; cursor:pointer; font-family:inherit; font-weight:600;}
+  .mood-chips{display:flex; gap:6px; flex-wrap:nowrap; overflow-x:auto; margin-bottom:12px; padding-bottom:2px; scrollbar-width:none; -ms-overflow-style:none;}
+  .mood-chips::-webkit-scrollbar{display:none;}
+  .mood-chip{font-size:11px; padding:4px 9px; border-radius:999px; border:1px solid transparent; cursor:pointer; font-family:inherit; font-weight:600; white-space:nowrap; flex:none;}
   .mood-chip.all{background:var(--page); border-color:var(--line); color:var(--ink-soft);}
   .mood-chip.on{border-color:var(--ink);}
   .mood-sum{display:grid; grid-template-columns:repeat(6,1fr); gap:6px;}
@@ -7148,6 +7167,7 @@
 
       const diary = document.createElement('button');
       diary.className = 'nav-link';
+      diary.id = 'navDiaryBtn';
       diary.textContent = 'My diary';
       diary.onclick = ()=>{ openDiaryEditor(null); renderDiary(); showScreen('diary'); };
       navRight.appendChild(diary);
@@ -7184,6 +7204,7 @@
       '<button class="nav-am-item" onclick="closeAvatarMenu(); renderAccount(); showScreen(\'account\');">My account</button>' +
       '<div class="nav-am-theme"><span>Theme</span><div id="navThemeSwatches"></div></div>' +
       '<button class="nav-am-item" onclick="closeAvatarMenu(); showScreen(\'how\');">How it works</button>' +
+      '<button class="nav-am-item" onclick="closeAvatarMenu(); tourReplay();">↻ Guided tour</button>' +
       '<button class="nav-am-item" onclick="closeAvatarMenu(); showScreen(\'about\');">Our story</button>' +
       '<button class="nav-am-item danger" onclick="closeAvatarMenu(); confirmSignOut();">Sign out</button>';
     wrap.appendChild(menu);
@@ -9864,6 +9885,178 @@
 
 /* ═══════════════ END EVENTS SYSTEM ═══════════════ */
 
+
+  /* ==================== GUIDED TOUR ====================
+     A minimal coach-mark tour anchored to the app's real elements.
+     Runs once per browser per user (localStorage flag), replayable
+     from the avatar menu. Never blocks interaction: the page stays
+     usable underneath; steps advance on Next or when the user's own
+     actions move them to the next screen.
+  */
+  const TOUR_STEPS = [
+    { screen:'create',    el:'cName',        title:'Start with your name',
+      body:'This becomes the cover of your book \u2014 how your people will recognise it.' },
+    { screen:'create',    el:'cUsername',    title:'Your username is your address',
+      body:'It becomes your link \u2014 earthlive.in/you. Short, and yours.' },
+    { screen:'create',    el:'inkSwatches',  title:'Pick your ink',
+      body:'The colour of your seal \u2014 your handwritten mark on everything.' },
+    { screen:'create',    el:'templateGrid', title:'Choose your question set',
+      body:'These are what your friends answer when they sign \u2014 classic, deep, funny, or farewell. Untick any you don\u2019t want, then finish your page.', last:'create' },
+    { screen:'dashboard', el:'bookJump',     title:'Your book, in three views',
+      body:'Your wall, your memory map, and the signatures your people leave.' },
+    { screen:'dashboard', el:'wallComposer', title:'Your wall is yours to write on',
+      body:'Post your own words anytime \u2014 add photos, or pin a city to your map.' },
+    { screen:'dashboard', el:'ownerEntries', title:'One link is the invitation',
+      body:'Send your link to a friend \u2014 they open it and sign. Every signature waits for your yes before it appears here. You\u2019re the keeper.' },
+    { screen:'dashboard', el:'navDiaryBtn',  title:'And this part is only yours',
+      body:'My diary is private by default \u2014 write freely. Sharing is always a choice, never the default.' }
+  ];
+  let tourIdx = -1, tourActive = false, tourWaitingScreen = null;
+
+  function tourKey(){
+    return 'el_tour_done_' + (currentUser ? currentUser.id : 'anon');
+  }
+  function tourDone(){ try{ return localStorage.getItem(tourKey()) === '1'; }catch(e){ return true; } }
+  function tourMarkDone(){ try{ localStorage.setItem(tourKey(), '1'); }catch(e){} }
+
+  function tourVisible(el){
+    return el && el.offsetParent !== null && el.getBoundingClientRect().height > 0;
+  }
+
+  function tourPosition(el){
+    const coach = document.getElementById('tourCoach');
+    const r = el.getBoundingClientRect();
+    const ch = coach.offsetHeight || 150;
+    let top = r.bottom + 12;
+    if (top + ch > window.innerHeight - 10) top = Math.max(r.top - ch - 12, 10);
+    let left = Math.min(Math.max(r.left, 12), window.innerWidth - 272);
+    coach.style.top = top + 'px';
+    coach.style.left = left + 'px';
+  }
+
+  function tourShowStep(i){
+    const s = TOUR_STEPS[i];
+    const el = document.getElementById(s.el);
+    if (!tourVisible(el)){
+      // element missing or hidden -> skip forward gracefully
+      if (i + 1 < TOUR_STEPS.length && TOUR_STEPS[i+1].screen === s.screen){ tourIdx = i + 1; return tourShowStep(tourIdx); }
+      return tourPause(s.screen === 'create' ? 'dashboard' : null);
+    }
+    document.querySelectorAll('.tour-lit').forEach(x=>x.classList.remove('tour-lit'));
+    el.classList.add('tour-lit');
+    el.scrollIntoView({ block:'center', behavior:'smooth' });
+    document.getElementById('tourScrim').classList.add('on');
+    document.getElementById('tourStepLbl').textContent = 'Step ' + (i+1) + ' of ' + TOUR_STEPS.length;
+    document.getElementById('tourTitle').textContent = s.title;
+    document.getElementById('tourBody').textContent = s.body;
+    document.getElementById('tourNextBtn').textContent = (i === TOUR_STEPS.length - 1) ? 'Done \u2713' : 'Next';
+    document.getElementById('tourDots').innerHTML = TOUR_STEPS.map((_,j)=>'<i class="'+(j<=i?'on':'')+'"></i>').join('');
+    const coach = document.getElementById('tourCoach');
+    coach.classList.add('on');
+    setTimeout(()=>tourPosition(el), 320);
+  }
+
+  function tourNext(){
+    const cur = TOUR_STEPS[tourIdx];
+    // Last step of the create screen: the user must finish the form themselves.
+    if (cur && cur.last === 'create'){
+      tourPause('dashboard');
+      showToast('Finish your page \u2014 the guide continues on your book \u2713');
+      return;
+    }
+    tourIdx++;
+    if (tourIdx >= TOUR_STEPS.length){ tourEnd(false); return; }
+    tourShowStep(tourIdx);
+  }
+
+  function tourPause(untilScreen){
+    tourWaitingScreen = untilScreen;
+    document.querySelectorAll('.tour-lit').forEach(x=>x.classList.remove('tour-lit'));
+    document.getElementById('tourCoach').classList.remove('on');
+    document.getElementById('tourScrim').classList.remove('on');
+  }
+
+  function tourEnd(skipped){
+    tourActive = false; tourWaitingScreen = null;
+    document.querySelectorAll('.tour-lit').forEach(x=>x.classList.remove('tour-lit'));
+    document.getElementById('tourCoach').classList.remove('on');
+    document.getElementById('tourScrim').classList.remove('on');
+    tourMarkDone();
+    if (!skipped) showToast('You\u2019re all set \u2014 your book is ready \u2713');
+  }
+
+  function tourStartAt(i){
+    tourActive = true; tourWaitingScreen = null; tourIdx = i;
+    tourShowStep(i);
+  }
+
+  function tourOnScreen(name){
+    if (!tourActive){
+      if (tourDone()) return;
+      if (name === 'create'){ setTimeout(()=>tourStartAt(0), 500); }
+      else if (name === 'dashboard' && currentUser && profile && profile.dbId){
+        setTimeout(()=>tourStartAt(4), 600);
+      }
+      return;
+    }
+    // active tour: resume or pause depending on where the user went
+    if (tourWaitingScreen && name === tourWaitingScreen){
+      const idx = TOUR_STEPS.findIndex(s=>s.screen === name && TOUR_STEPS.indexOf(s) > tourIdx);
+      tourWaitingScreen = null;
+      tourIdx = idx !== -1 ? idx : tourIdx;
+      setTimeout(()=>tourShowStep(tourIdx), 600);
+      return;
+    }
+    const cur = TOUR_STEPS[tourIdx];
+    if (cur && name !== cur.screen){
+      // user wandered elsewhere mid-tour: pause quietly, resume if they come back
+      tourPause(cur.screen);
+    } else if (cur && name === cur.screen && tourWaitingScreen === null){
+      setTimeout(()=>tourShowStep(tourIdx), 500);
+    }
+  }
+
+  function tourReplay(){
+    try{ localStorage.removeItem(tourKey()); }catch(e){}
+    tourActive = false; tourWaitingScreen = null;
+    if (currentUser && profile && profile.dbId){
+      renderDashboard();
+      showScreen('dashboard');
+    } else {
+      beginFlow();
+    }
+  }
+
+  // keep the coach glued to its target while scrolling / resizing
+  ['scroll','resize'].forEach(ev=>window.addEventListener(ev, ()=>{
+    if (!tourActive || tourIdx < 0) return;
+    const s = TOUR_STEPS[tourIdx];
+    const el = s && document.getElementById(s.el);
+    if (el && document.getElementById('tourCoach').classList.contains('on')) tourPosition(el);
+  }, { passive:true }));
+
+  // wrap the app's own navigation so the tour rides along with it
+  const _tourOrigShowScreen = showScreen;
+  showScreen = function(name){
+    _tourOrigShowScreen(name);
+    try{ tourOnScreen(name); }catch(e){ console.warn('[tour]', e); }
+  };
+
+
 </script>
+<div class="tour-scrim" id="tourScrim"></div>
+<div class="tour-coach" id="tourCoach">
+  <p class="tc-step" id="tourStepLbl"></p>
+  <h4 id="tourTitle"></h4>
+  <p class="tc-body" id="tourBody"></p>
+  <div class="tc-row">
+    <span class="tc-dots" id="tourDots"></span>
+    <span class="tc-btns">
+      <button type="button" class="tc-skip" onclick="tourEnd(true)">Skip</button>
+      <button type="button" class="tc-next" id="tourNextBtn" onclick="tourNext()">Next</button>
+    </span>
+  </div>
+</div>
 </body>
 </html>
+
