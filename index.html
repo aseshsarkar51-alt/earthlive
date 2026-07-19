@@ -3535,13 +3535,15 @@
 
   function selectTemplate(id){
     selectedTemplateId = id;
-    const t = TEMPLATES.find(x=>x.id===id);
+    const t = TEMPLATES.find(x=>x.id===id) || TEMPLATES[0];
     enabledQuestionIds = new Set(t.questions.map(q=>q.id));
     renderTemplatePicker();
   }
 
   function renderQuestionList(){
-    const t = TEMPLATES.find(x=>x.id===selectedTemplateId);
+    // Fall back to the first template if a stored template_id no longer
+    // matches any current template \u2014 this used to throw and trigger the crash bar.
+    const t = TEMPLATES.find(x=>x.id===selectedTemplateId) || TEMPLATES[0];
     document.getElementById('questionList').innerHTML = t.questions.map(q=>`
       <label class="question-item ${enabledQuestionIds.has(q.id)?'':'off'}">
         <input type="checkbox" ${enabledQuestionIds.has(q.id)?'checked':''} onchange="toggleQuestion('${q.id}')">
@@ -3564,7 +3566,7 @@
   }
 
   function getChosenQuestions(){
-    const t = TEMPLATES.find(x=>x.id===selectedTemplateId);
+    const t = TEMPLATES.find(x=>x.id===selectedTemplateId) || TEMPLATES[0];
     return t.questions.filter(q=>enabledQuestionIds.has(q.id))
       .map(q=>({id:q.id, label:q.label, ph:q.ph, long:!!q.long}));
   }
@@ -5072,8 +5074,7 @@
     showScreen('create');
   }
 
-  function openEditProfile(){
-    editMode = true;
+  function populateEditForm(){
     document.getElementById('cName').value = profile.name;
     document.getElementById('cUsername').value = profile.username || '';
     document.getElementById('cBio').value = profile.bio;
@@ -5095,8 +5096,11 @@
     }
     createVisibilityPublic = profile.visibility === 'public';
     syncVisibilityToggleUI();
-    selectedTemplateId = profile.templateId || 'classic';
-    enabledQuestionIds = new Set((profile.questions || TEMPLATES[0].questions).map(q=>q.id));
+    // Guard against a stored template_id that no longer matches any current
+    // template (e.g. an older account) \u2014 this used to throw and crash the page.
+    selectedTemplateId = (TEMPLATES.find(t=>t.id === profile.templateId) ? profile.templateId : TEMPLATES[0].id);
+    const fallbackQuestions = TEMPLATES.find(t=>t.id === selectedTemplateId).questions;
+    enabledQuestionIds = new Set(((profile.questions && profile.questions.length) ? profile.questions : fallbackQuestions).map(q=>q.id));
     renderTemplatePicker();
     const links = profile.links || {};
     document.getElementById('cLinkInstagram').value = links.instagram || '';
@@ -5106,6 +5110,11 @@
     document.getElementById('createEyebrow').textContent = 'Editing';
     document.getElementById('createHeading').textContent = 'Update your page';
     document.getElementById('createSubmitBtn').textContent = 'Save changes';
+  }
+
+  function openEditProfile(){
+    editMode = true;
+    populateEditForm();
     showScreen('create');
   }
 
@@ -9849,7 +9858,9 @@
      usable underneath; steps advance on Next or when the user's own
      actions move them to the next screen.
   */
-  const TOUR_STEPS = [
+  // Flow A: brand-new sign-up \u2014 walks through the create-your-page form,
+  // then (once they've finished it themselves) into the dashboard.
+  const TOUR_STEPS_SIGNUP = [
     { screen:'create',    el:'cName',        title:'Start with your name',
       body:'This becomes the cover of your book \u2014 how your people will recognise it.' },
     { screen:'create',    el:'cUsername',    title:'Your username is your address',
@@ -9858,8 +9869,6 @@
       body:'The colour of your seal \u2014 your handwritten mark on everything.' },
     { screen:'create',    el:'templateGrid', title:'Choose your question set',
       body:'These are what your friends answer when they sign \u2014 classic, deep, funny, or farewell. Untick any you don\u2019t want, then finish your page.', last:'create' },
-    { screen:'account',   el:'acctLinkPanel', title:'This is your home base \u2014 My account',
-      body:'Edit your book, manage privacy, and grab your link here anytime \u2014 this is the one you\u2019ll share with your people.' },
     { screen:'dashboard', el:'bookJump',     title:'Your book, in three views',
       body:'Your wall, your memory map, and the signatures your people leave.' },
     { screen:'dashboard', el:'wallComposer', title:'Your wall is yours to write on',
@@ -9869,13 +9878,31 @@
     { screen:'dashboard', el:'navDiaryBtn',  title:'And this part is only yours',
       body:'My diary is private by default \u2014 write freely. Sharing is always a choice, never the default.' }
   ];
+
+  // Flow B: signing in with an existing page. Runs right after sign-in \u2014
+  // opens the avatar-menu destination (My account) first, walks through
+  // updating name + username, then finishes on the public/private status.
+  const TOUR_STEPS_RETURNING = [
+    { screen:'account', el:'acctLinkPanel',    title:'This is your home base \u2014 My account',
+      body:'You\u2019ll land here from the avatar menu any time \u2014 edit your book, manage privacy, and grab your link.' },
+    { screen:'create',  el:'cName',            title:'Your name, anytime you want to change it',
+      body:'This is the cover of your book \u2014 how your people will recognise it.' },
+    { screen:'create',  el:'cUsername',        title:'Your username is your address',
+      body:'It becomes your link \u2014 earthlive.in/you. Short, and yours.' },
+    { screen:'account', el:'acctVisibilityText', title:'Your profile\u2019s status',
+      body:'Public or private \u2014 this controls who can find and sign your book. Change it anytime.' }
+  ];
+
+  // Which flow is currently driving the tour.
+  let ACTIVE_TOUR_STEPS = TOUR_STEPS_SIGNUP;
   let tourIdx = -1, tourActive = false, tourWaitingScreen = null;
 
   // Screens the tour can carry the user to itself, rather than waiting for them
   // to navigate there manually (used when moving between tour steps).
   const TOUR_AUTO_NAV = {
     dashboard: ()=>{ renderDashboard(); },
-    account:   ()=>{ renderAccount(); }
+    account:   ()=>{ renderAccount(); },
+    create:    ()=>{ editMode = true; populateEditForm(); }
   };
 
   function tourKey(){
@@ -9900,29 +9927,29 @@
   }
 
   function tourShowStep(i){
-    const s = TOUR_STEPS[i];
+    const s = ACTIVE_TOUR_STEPS[i];
     const el = document.getElementById(s.el);
     if (!tourVisible(el)){
       // element missing or hidden -> skip forward gracefully
-      if (i + 1 < TOUR_STEPS.length && TOUR_STEPS[i+1].screen === s.screen){ tourIdx = i + 1; return tourShowStep(tourIdx); }
+      if (i + 1 < ACTIVE_TOUR_STEPS.length && ACTIVE_TOUR_STEPS[i+1].screen === s.screen){ tourIdx = i + 1; return tourShowStep(tourIdx); }
       return tourPause(s.screen === 'create' ? 'dashboard' : s.screen);
     }
     document.querySelectorAll('.tour-lit').forEach(x=>x.classList.remove('tour-lit'));
     el.classList.add('tour-lit');
     el.scrollIntoView({ block:'center', behavior:'smooth' });
     document.getElementById('tourScrim').classList.add('on');
-    document.getElementById('tourStepLbl').textContent = 'Step ' + (i+1) + ' of ' + TOUR_STEPS.length;
+    document.getElementById('tourStepLbl').textContent = 'Step ' + (i+1) + ' of ' + ACTIVE_TOUR_STEPS.length;
     document.getElementById('tourTitle').textContent = s.title;
     document.getElementById('tourBody').textContent = s.body;
-    document.getElementById('tourNextBtn').textContent = (i === TOUR_STEPS.length - 1) ? 'Done \u2713' : 'Next';
-    document.getElementById('tourDots').innerHTML = TOUR_STEPS.map((_,j)=>'<i class="'+(j<=i?'on':'')+'"></i>').join('');
+    document.getElementById('tourNextBtn').textContent = (i === ACTIVE_TOUR_STEPS.length - 1) ? 'Done \u2713' : 'Next';
+    document.getElementById('tourDots').innerHTML = ACTIVE_TOUR_STEPS.map((_,j)=>'<i class="'+(j<=i?'on':'')+'"></i>').join('');
     const coach = document.getElementById('tourCoach');
     coach.classList.add('on');
     setTimeout(()=>tourPosition(el), 320);
   }
 
   function tourNext(){
-    const cur = TOUR_STEPS[tourIdx];
+    const cur = ACTIVE_TOUR_STEPS[tourIdx];
     // Last step of the create screen: the user must finish the form themselves.
     if (cur && cur.last === 'create'){
       tourPause('dashboard');
@@ -9930,12 +9957,12 @@
       return;
     }
     tourIdx++;
-    if (tourIdx >= TOUR_STEPS.length){ tourEnd(false); return; }
-    const next = TOUR_STEPS[tourIdx];
+    if (tourIdx >= ACTIVE_TOUR_STEPS.length){ tourEnd(false); return; }
+    const next = ACTIVE_TOUR_STEPS[tourIdx];
     if (cur && next.screen !== cur.screen && TOUR_AUTO_NAV[next.screen]){
-      // The tour carries the user to the next screen itself (e.g. dashboard -> account)
-      // instead of waiting for them to find it. showScreen's wrapper picks the step
-      // back up via tourOnScreen once the new screen is active.
+      // The tour carries the user to the next screen itself (e.g. account -> create,
+      // or create -> account) instead of waiting for them to find it. showScreen's
+      // wrapper picks the step back up via tourOnScreen once the new screen is active.
       TOUR_AUTO_NAV[next.screen]();
       showScreen(next.screen);
       return;
@@ -9967,33 +9994,33 @@
   function tourOnScreen(name){
     if (!tourActive){
       if (tourDone()) return;
-      if (name === 'create'){ setTimeout(()=>tourStartAt(0), 500); }
+      if (name === 'create'){
+        ACTIVE_TOUR_STEPS = TOUR_STEPS_SIGNUP;
+        setTimeout(()=>tourStartAt(0), 500);
+      }
       else if (name === 'dashboard' && currentUser && profile && profile.dbId){
-        // Returning user: the tour opens on My account first, then flows into the dashboard steps.
-        const acctIdx = TOUR_STEPS.findIndex(s=>s.screen === 'account');
-        const startIdx = acctIdx !== -1 ? acctIdx : TOUR_STEPS.findIndex(s=>s.screen === 'dashboard');
+        // Returning user, straight after sign-in: open on My account first
+        // (as if they'd clicked the avatar \u2192 My account), then walk through
+        // updating name / username, then finish on the profile status step.
+        ACTIVE_TOUR_STEPS = TOUR_STEPS_RETURNING;
         setTimeout(()=>{
-          tourActive = true; tourWaitingScreen = null; tourIdx = startIdx;
-          const s = TOUR_STEPS[startIdx];
-          if (s.screen !== 'dashboard' && TOUR_AUTO_NAV[s.screen]){
-            TOUR_AUTO_NAV[s.screen]();
-            showScreen(s.screen); // wrapper's tourOnScreen picks the step up once that screen is active
-          } else {
-            tourShowStep(startIdx);
-          }
+          tourActive = true; tourWaitingScreen = null; tourIdx = 0;
+          const s = ACTIVE_TOUR_STEPS[0];
+          TOUR_AUTO_NAV[s.screen] && TOUR_AUTO_NAV[s.screen]();
+          showScreen(s.screen); // wrapper's tourOnScreen picks the step up once that screen is active
         }, 600);
       }
       return;
     }
     // active tour: resume or pause depending on where the user went
     if (tourWaitingScreen && name === tourWaitingScreen){
-      const idx = TOUR_STEPS.findIndex(s=>s.screen === name && TOUR_STEPS.indexOf(s) > tourIdx);
+      const idx = ACTIVE_TOUR_STEPS.findIndex(s=>s.screen === name && ACTIVE_TOUR_STEPS.indexOf(s) > tourIdx);
       tourWaitingScreen = null;
       tourIdx = idx !== -1 ? idx : tourIdx;
       setTimeout(()=>tourShowStep(tourIdx), 600);
       return;
     }
-    const cur = TOUR_STEPS[tourIdx];
+    const cur = ACTIVE_TOUR_STEPS[tourIdx];
     if (cur && name !== cur.screen){
       // user wandered elsewhere mid-tour: pause quietly, resume if they come back
       tourPause(cur.screen);
@@ -10016,7 +10043,7 @@
   // keep the coach glued to its target while scrolling / resizing
   ['scroll','resize'].forEach(ev=>window.addEventListener(ev, ()=>{
     if (!tourActive || tourIdx < 0) return;
-    const s = TOUR_STEPS[tourIdx];
+    const s = ACTIVE_TOUR_STEPS[tourIdx];
     const el = s && document.getElementById(s.el);
     if (el && document.getElementById('tourCoach').classList.contains('on')) tourPosition(el);
   }, { passive:true }));
