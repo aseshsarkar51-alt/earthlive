@@ -1826,9 +1826,6 @@
     <div style="max-width:1040px; margin:0 auto; padding:36px 24px 60px;">
       <div class="form-eyebrow">Your private space</div>
       <h2 style="font-size:30px; margin:0 0 4px; font-weight:700;">My diary</h2>
-      <p style="color:var(--ink-soft); font-size:13.5px; margin:6px 0 22px;">
-        Only you can see this. Today's page stays editable — at midnight it seals, and becomes a record of what you felt then. You can always add a note underneath, or delete it.
-      </p>
 
       <div class="diary-split">
 
@@ -1840,7 +1837,6 @@
           </div>
           <div class="mood-card" id="moodCard">
             <p class="mood-q">How are you feeling today?</p>
-            <p class="mood-hint">Tap a color — it becomes your mood for today. Tap again to clear it.</p>
             <div class="mood-row" id="moodRow"></div>
           </div>
           <div class="d-pane-body">
@@ -3089,13 +3085,11 @@
       <label>Name your circle</label>
       <input type="text" id="ncName" maxlength="40" placeholder="e.g. the hostel gang" autocomplete="off">
     </div>
-    <div class="field" style="margin-bottom:6px;">
-      <label>Add people <span class="hint">by their EarthLive username</span></label>
-      <div style="display:flex; gap:8px;">
-        <input type="text" id="ncUsername" maxlength="20" placeholder="@username" autocomplete="off" style="flex:1;"
-               onkeydown="if(event.key==='Enter'){event.preventDefault(); ncAddMember();}">
-        <button type="button" class="btn-small" style="flex:none;" onclick="ncAddMember()">Add</button>
-      </div>
+    <div class="field" style="margin-bottom:6px; position:relative;">
+      <label>Add people <span class="hint">search by name or username</span></label>
+      <input type="text" id="ncUsername" maxlength="20" placeholder="Type a name, e.g. kal…" autocomplete="off" style="width:100%;"
+             oninput="ncSearchTyped()">
+      <div class="ev-ta" id="ncTaResults"></div>
     </div>
     <div class="nc-chips" id="ncChips"></div>
     <div class="crop-actions" style="margin-top:16px;">
@@ -9321,6 +9315,8 @@
   document.addEventListener('click', function(e){
     const ta = document.getElementById('evTaResults');
     if (ta && !e.target.closest('#evSearchInput') && !e.target.closest('#evTaResults')) ta.classList.remove('open');
+    const nct = document.getElementById('ncTaResults');
+    if (nct && !e.target.closest('#ncUsername') && !e.target.closest('#ncTaResults')) nct.classList.remove('open');
     const cs = document.getElementById('evCitySuggestions');
     if (cs && !e.target.closest('#evAboutCity') && !e.target.closest('#evCitySuggestions')) cs.classList.remove('open');
   });
@@ -10506,6 +10502,8 @@
     ncMembers = [];
     document.getElementById('ncName').value = '';
     document.getElementById('ncUsername').value = '';
+    document.getElementById('ncTaResults').classList.remove('open');
+    document.getElementById('ncTaResults').innerHTML = '';
     renderNcChips();
     document.getElementById('newCircleModal').style.display = 'flex';
     setTimeout(()=>document.getElementById('ncName').focus(), 60);
@@ -10519,21 +10517,55 @@
     ).join('');
   }
 
-  async function ncAddMember(){
-    const inp = document.getElementById('ncUsername');
-    const uname = inp.value.trim().replace(/^@/, '').toLowerCase();
-    if (!uname) return;
-    if (uname === (profile.username || '').toLowerCase()){ showToast('You\u2019re in your circles automatically'); inp.value=''; return; }
-    if (ncMembers.some(m=>m.username === uname)){ inp.value=''; return; }
-    const { data: p, error } = await db.from('profiles')
-      .select('id, user_id, name, username, ink')
-      .eq('username', uname).maybeSingle();
-    if (error || !p){
-      showToast('@' + uname + ' wasn\u2019t found \u2014 check the username (private pages can\u2019t be added)');
-      return;
+  /* ── New circle: typeahead search of public profiles (same pattern as event invites) ── */
+  let ncSearchTimer = null;
+  function ncSearchTyped(){
+    clearTimeout(ncSearchTimer);
+    const q = document.getElementById('ncUsername').value.trim();
+    if (q.length < 2){
+      const box = document.getElementById('ncTaResults');
+      box.classList.remove('open'); box.innerHTML=''; return;
     }
-    ncMembers.push({ user_id: p.user_id, profile_id: p.id, name: p.name, username: p.username, ink: p.ink || '#726A59' });
-    inp.value = '';
+    ncSearchTimer = setTimeout(ncRunSearch, 300);
+  }
+  async function ncRunSearch(){
+    const q = document.getElementById('ncUsername').value.trim();
+    const box = document.getElementById('ncTaResults');
+    if (!q || !db){ box.classList.remove('open'); return; }
+    const safe = q.replace(/^@/,'').replace(/[%,()]/g,'').trim();
+    const { data, error } = await db.from('profiles').select('id, user_id, name, username, ink, avatar_url')
+      .eq('visibility','public')
+      .or(`name.ilike.%${safe}%,username.ilike.%${safe}%`)
+      .limit(8);
+    if (error){
+      box.innerHTML = '<div class="ev-ta-none">Search failed: ' + escapeHtml(error.message) + '</div>';
+      box.classList.add('open'); return;
+    }
+    const rows = (data||[]).filter(r=>!(currentUser && r.user_id === currentUser.id));
+    if (!rows.length){
+      box.innerHTML = '<div class="ev-ta-none">No public pages found for "' + escapeHtml(q) + '". Private pages can\u2019t be added.</div>';
+      box.classList.add('open'); return;
+    }
+    const re = new RegExp('(' + safe.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')','i');
+    box.innerHTML = rows.map(r=>{
+      const already = ncMembers.some(m=>m.user_id === r.user_id);
+      const initials = r.name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+      const hlName = escapeHtml(r.name).replace(re,'<span class="hl">$1</span>');
+      return `
+      <div class="ev-ta-item" ${already?'':`onclick='ncPickProfile(${JSON.stringify(r.user_id)}, ${JSON.stringify(r.id)}, ${JSON.stringify(r.name)}, ${JSON.stringify(r.username)}, ${JSON.stringify(r.ink || '#726A59')})'`}>
+        <div class="ev-avatar" style="width:32px; height:32px; font-size:11px; background:${r.ink || 'var(--moss)'};">${escapeHtml(initials)}</div>
+        <div style="flex:1;"><b>${hlName}</b>${r.username?'<div style="font-size:12px; color:var(--ink-soft);">@'+escapeHtml(r.username)+'</div>':''}</div>
+        ${already ? '<span style="font-size:12px; color:var(--moss); font-weight:700;">Added \u2713</span>' : '<span class="btn-small" style="pointer-events:none;">Add</span>'}
+      </div>`;
+    }).join('');
+    box.classList.add('open');
+  }
+  function ncPickProfile(userId, profileId, name, username, ink){
+    if (ncMembers.some(m=>m.user_id === userId)) return;
+    ncMembers.push({ user_id: userId, profile_id: profileId, name, username, ink: ink || '#726A59' });
+    document.getElementById('ncUsername').value = '';
+    document.getElementById('ncTaResults').classList.remove('open');
+    document.getElementById('ncTaResults').innerHTML = '';
     renderNcChips();
   }
 
