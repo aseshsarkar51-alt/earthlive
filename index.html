@@ -1054,6 +1054,24 @@
 
 
 
+
+  /* ---------- CIRCLES (group messages) ---------- */
+  .msg-tabs{display:flex; gap:6px; margin-bottom:16px;}
+  .msg-tab{border:1px solid var(--line); background:none; color:var(--ink-soft); border-radius:999px; padding:7px 16px; font-size:12.5px; font-weight:600; font-family:inherit; cursor:pointer;}
+  .msg-tab.on{background:var(--moss); border-color:var(--moss); color:#fff;}
+  .circle-stack{display:inline-flex; flex:none;}
+  .circle-av{width:26px; height:26px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#fff; border:2px solid var(--card);}
+  .circle-stack .circle-av + .circle-av{margin-left:-9px;}
+  .circle-members{font-size:12px; color:var(--ink-soft); font-weight:400; margin-top:2px;}
+  .circle-msg{border-left:2.5px solid var(--line); padding:2px 0 2px 12px; margin-bottom:14px;}
+  .circle-msg .cm-body{font-size:14px; line-height:1.55; margin:0 0 3px; word-break:break-word;}
+  .circle-msg .cm-who{font-size:11.5px; color:var(--ink-soft); margin:0;}
+  .circle-msg.mine{border-left-style:double;}
+  .nc-chips{display:flex; flex-wrap:wrap; gap:7px; min-height:8px;}
+  .nc-chip{display:inline-flex; align-items:center; gap:7px; border-radius:999px; padding:5px 12px 5px 7px; font-size:13px; font-weight:600; background:var(--oat); color:var(--ink);}
+  .nc-chip .circle-av{width:22px; height:22px; font-size:9.5px; border:none;}
+  .nc-chip button{background:none; border:none; cursor:pointer; color:var(--ink-soft); font-size:11px; padding:0; font-family:inherit;}
+
   /* ---------- GUIDED TOUR ---------- */
   .tour-scrim{position:fixed; inset:0; background:rgba(245,244,241,.5); z-index:400; opacity:0; pointer-events:none; transition:opacity .25s;}
   .tour-scrim.on{opacity:1;}
@@ -2997,11 +3015,37 @@
 <section class="screen" id="screen-messages">
   <div class="wrap" style="max-width:680px; padding-top:44px; padding-bottom:90px;">
     <div id="convListView">
-      <div class="entries-head" style="margin-bottom:20px;">
+      <div class="entries-head" style="margin-bottom:14px;">
         <h3>Messages</h3>
-        <button class="btn-small" onclick="renderConvList()">Refresh</button>
+        <span style="display:flex; gap:8px;">
+          <button class="btn-small" id="newCircleBtn" style="display:none;" onclick="openNewCircleModal()">+ New circle</button>
+          <button class="btn-small" onclick="msgTab==='circles' ? renderCircleList() : renderConvList()">Refresh</button>
+        </span>
+      </div>
+      <div class="msg-tabs">
+        <button type="button" class="msg-tab on" id="tabDirect" onclick="setMsgTab('direct')">Direct</button>
+        <button type="button" class="msg-tab" id="tabCircles" onclick="setMsgTab('circles')">Circles</button>
       </div>
       <div id="convList"></div>
+      <div id="circleList" style="display:none;"></div>
+    </div>
+    <div id="circleThreadView" style="display:none;">
+      <button class="link-quiet" style="margin-bottom:14px;" onclick="backFromCircle()">← All messages</button>
+      <div class="thread-box">
+        <div class="thread-head">
+          <span>
+            <strong id="circleName"></strong>
+            <div class="circle-members" id="circleMembers"></div>
+          </span>
+          <button class="btn-small" onclick="openCircle(currentCircleId)">Refresh</button>
+        </div>
+        <div class="thread-msgs" id="circleMsgs"></div>
+        <div class="thread-input">
+          <input type="text" id="circleMsgInput" placeholder="Add to the circle…" maxlength="2000"
+                 onkeydown="if(event.key==='Enter'){event.preventDefault(); sendCircleMessage();}">
+          <button class="btn-small" style="flex:none;" onclick="sendCircleMessage()">Send</button>
+        </div>
+      </div>
     </div>
     <div id="threadView" style="display:none;">
       <button class="link-quiet" style="margin-bottom:14px;" onclick="backToConvList()">← All messages</button>
@@ -3021,6 +3065,30 @@
     </div>
   </div>
 </section>
+
+<div class="lightbox" id="newCircleModal" style="display:none;" onclick="closeNewCircleModal()">
+  <div class="crop-card" onclick="event.stopPropagation()" style="max-width:380px;">
+    <p class="panel-title">New circle</p>
+    <p style="font-size:12.5px; color:var(--ink-soft); margin:0 0 14px;">A shared thread your people write together. Only members can see it.</p>
+    <div class="field" style="margin-bottom:12px;">
+      <label>Name your circle</label>
+      <input type="text" id="ncName" maxlength="40" placeholder="e.g. the hostel gang" autocomplete="off">
+    </div>
+    <div class="field" style="margin-bottom:6px;">
+      <label>Add people <span class="hint">by their EarthLive username</span></label>
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="ncUsername" maxlength="20" placeholder="@username" autocomplete="off" style="flex:1;"
+               onkeydown="if(event.key==='Enter'){event.preventDefault(); ncAddMember();}">
+        <button type="button" class="btn-small" style="flex:none;" onclick="ncAddMember()">Add</button>
+      </div>
+    </div>
+    <div class="nc-chips" id="ncChips"></div>
+    <div class="crop-actions" style="margin-top:16px;">
+      <button class="btn btn-ghost" onclick="closeNewCircleModal()">Cancel</button>
+      <button class="btn btn-primary" id="ncCreateBtn" onclick="createCircle()">Create circle</button>
+    </div>
+  </div>
+</div>
 
 <div class="lightbox" id="photoLightbox" style="display:none;" onclick="closeLightbox()">
   <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">✕</button>
@@ -4589,6 +4657,8 @@
 
   function backToConvList(){
     document.getElementById('threadView').style.display = 'none';
+    const cv = document.getElementById('circleThreadView');
+    if (cv) cv.style.display = 'none';
     document.getElementById('convListView').style.display = 'block';
   }
 
@@ -5133,6 +5203,13 @@
   }
 
   function openEditProfile(){
+    if (!profile || !profile.dbId){
+      // No page exists yet \u2014 there is nothing to edit. Route to creation,
+      // where the guided tour picks them up at step one.
+      showToast('Let\u2019s make your page first \u2014 it takes a minute');
+      startNewBook();
+      return;
+    }
     editMode = true;
     try{
       populateEditForm();
@@ -6887,6 +6964,16 @@
     }
   });
 
+  function openMyAccount(){
+    if (!profile || !profile.dbId){
+      showToast('Make your page first \u2014 then your account lives here');
+      startNewBook();
+      return;
+    }
+    renderAccount();
+    showScreen('account');
+  }
+
   async function renderAccount(){
     if (!profile) return;
     document.getElementById('acctInviteLink').textContent = myBookLink();
@@ -7192,7 +7279,7 @@
     menu.innerHTML =
       '<div class="nav-am-head"><b>' + escapeHtml((profile && profile.name) || 'Your account') + '</b>' +
       ((profile && profile.username) ? '<small>@' + escapeHtml(profile.username) + '</small>' : '') + '</div>' +
-      '<button class="nav-am-item" onclick="closeAvatarMenu(); renderAccount(); showScreen(\'account\');">My account</button>' +
+      '<button class="nav-am-item" onclick="closeAvatarMenu(); openMyAccount();">My account</button>' +
       '<div class="nav-am-theme"><span>Theme</span><div id="navThemeSwatches"></div></div>' +
       '<button class="nav-am-item" onclick="closeAvatarMenu(); showScreen(\'how\');">How it works</button>' +
       '<button class="nav-am-item" onclick="closeAvatarMenu(); tourReplay();">↻ Guided tour</button>' +
@@ -9976,8 +10063,16 @@
 
   function tourNext(){
     const cur = ACTIVE_TOUR_STEPS[tourIdx];
-    // Last step of the create screen: the user must finish the form themselves.
+    // Last step of the create screen: a first-timer must finish the form
+    // themselves; someone replaying already has a book, so the tour walks
+    // them straight to the dashboard and keeps going.
     if (cur && cur.last === 'create'){
+      if (tourIsReplay && profile && profile.dbId){
+        tourIdx++;
+        renderDashboard();
+        showScreen('dashboard'); // wrapper resumes the tour on the dashboard step
+        return;
+      }
       tourPause('dashboard');
       showToast('Finish your page \u2014 the guide continues on your book \u2713');
       return;
@@ -10004,7 +10099,7 @@
   }
 
   function tourEnd(skipped){
-    tourActive = false; tourWaitingScreen = null;
+    tourActive = false; tourWaitingScreen = null; tourIsReplay = false;
     document.querySelectorAll('.tour-lit').forEach(x=>x.classList.remove('tour-lit'));
     document.getElementById('tourCoach').classList.remove('on');
     document.getElementById('tourScrim').classList.remove('on');
@@ -10054,18 +10149,23 @@
     }
   }
 
+  let tourIsReplay = false; // replaying with an existing book: same tour, but
+                            // the create screen shows THEIR details (edit mode)
+                            // and the tour walks itself to the dashboard.
+
   function tourReplay(){
     try{ localStorage.removeItem(tourKey()); }catch(e){}
     tourActive = false; tourWaitingScreen = null;
+    ACTIVE_TOUR_STEPS = TOUR_STEPS_SIGNUP; // ONE tour \u2014 identical to first sign-in
     if (currentUser && profile && profile.dbId){
-      // Existing book \u2014 run the returning walkthrough: My account, editing
-      // your details, then your profile status.
-      ACTIVE_TOUR_STEPS = TOUR_STEPS_RETURNING;
-      renderAccount();
-      showScreen('account');
+      tourIsReplay = true;
+      editMode = true;
+      try{ populateEditForm(); }catch(e){ console.warn('[tour]', e); }
+      showScreen('create');
       setTimeout(()=>tourSafely(()=>tourStartAt(0)), 700);
     } else {
-      beginFlow(); // routes to Create my page, where the signup tour auto-starts
+      tourIsReplay = false;
+      beginFlow(); // routes to Create my page, where the tour auto-starts at step one
     }
   }
 
@@ -10083,6 +10183,272 @@
     _tourOrigShowScreen(name);
     try{ tourOnScreen(name); }catch(e){ console.warn('[tour]', e); }
   };
+
+
+
+  /* ==================== CIRCLES (group messages) ====================
+     Small shared threads between people who already know each other.
+     No feed, no strangers: only members can see or write, and anyone
+     can leave. Kept fully separate from 1-to-1 conversations so the
+     existing messaging code is untouched.
+
+     Run this SQL once in the Supabase SQL editor:
+     ------------------------------------------------------------------
+     create table if not exists circles (
+       id uuid primary key default gen_random_uuid(),
+       name text not null,
+       created_by uuid not null,
+       created_at timestamptz not null default now()
+     );
+     create table if not exists circle_members (
+       id uuid primary key default gen_random_uuid(),
+       circle_id uuid not null references circles(id) on delete cascade,
+       user_id uuid not null,
+       profile_id uuid,
+       name text not null default '',
+       username text not null default '',
+       ink text not null default '#726A59',
+       created_at timestamptz not null default now(),
+       unique (circle_id, user_id)
+     );
+     create table if not exists circle_messages (
+       id uuid primary key default gen_random_uuid(),
+       circle_id uuid not null references circles(id) on delete cascade,
+       sender_user_id uuid not null,
+       sender_name text not null default '',
+       body text not null,
+       created_at timestamptz not null default now()
+     );
+
+     -- membership check without recursive RLS
+     create or replace function is_circle_member(cid uuid)
+     returns boolean language sql security definer stable as
+     $$ select exists (select 1 from circle_members
+                       where circle_id = cid and user_id = auth.uid()); $$;
+
+     alter table circles enable row level security;
+     alter table circle_members enable row level security;
+     alter table circle_messages enable row level security;
+
+     create policy "members read circles" on circles
+       for select using (is_circle_member(id) or created_by = auth.uid());
+     create policy "signed-in create circles" on circles
+       for insert with check (created_by = auth.uid());
+     create policy "creator deletes circle" on circles
+       for delete using (created_by = auth.uid());
+
+     create policy "members read members" on circle_members
+       for select using (is_circle_member(circle_id));
+     create policy "creator adds members" on circle_members
+       for insert with check (
+         auth.uid() = (select created_by from circles where id = circle_id));
+     create policy "leave or be removed by creator" on circle_members
+       for delete using (
+         user_id = auth.uid()
+         or auth.uid() = (select created_by from circles where id = circle_id));
+
+     create policy "members read messages" on circle_messages
+       for select using (is_circle_member(circle_id));
+     create policy "members write messages" on circle_messages
+       for insert with check (
+         sender_user_id = auth.uid() and is_circle_member(circle_id));
+     ------------------------------------------------------------------
+  */
+  function timeAgo(ts){
+    try{
+      const d = new Date(ts), now = new Date();
+      const mins = Math.floor((now - d) / 60000);
+      if (mins < 1) return 'just now';
+      if (mins < 60) return mins + 'm ago';
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return hrs + 'h ago';
+      const days = Math.floor(hrs / 24);
+      if (days === 1) return 'yesterday';
+      if (days < 7) return days + 'd ago';
+      return d.toLocaleDateString('en-IN', { day:'numeric', month:'short' });
+    }catch(e){ return ''; }
+  }
+
+  const CIRCLE_INKS = ['#57614A','#A9764F','#3C4A5E','#C08078','#6E5322','#544266'];
+  let msgTab = 'direct';
+  let currentCircleId = null;
+  let currentCircleMembers = [];
+  let ncMembers = []; // people picked in the New-circle modal
+
+  function setMsgTab(tab){
+    msgTab = tab;
+    document.getElementById('tabDirect').classList.toggle('on', tab === 'direct');
+    document.getElementById('tabCircles').classList.toggle('on', tab === 'circles');
+    document.getElementById('convList').style.display = tab === 'direct' ? 'block' : 'none';
+    document.getElementById('circleList').style.display = tab === 'circles' ? 'block' : 'none';
+    document.getElementById('newCircleBtn').style.display = tab === 'circles' ? 'inline-flex' : 'none';
+    if (tab === 'circles') renderCircleList();
+  }
+
+  function circleAv(m, extra){
+    const initials = (m.name || m.username || '?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    return '<span class="circle-av" style="background:' + escapeHtml(m.ink || '#726A59') + ';' + (extra||'') + '" title="' + escapeHtml(m.name || m.username || '') + '">' + escapeHtml(initials) + '</span>';
+  }
+
+  async function renderCircleList(){
+    const el = document.getElementById('circleList');
+    if (!db || !currentUser || !profile || !profile.dbId){
+      el.innerHTML = '<div class="empty-state"><div class="stamp-outline"></div><p>Make your page and sign in to start a circle.</p></div>';
+      return;
+    }
+    el.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Loading\u2026</p>';
+    const { data: myRows, error } = await db.from('circle_members')
+      .select('circle_id').eq('user_id', currentUser.id);
+    if (error){
+      el.innerHTML = '<div class="empty-state"><div class="stamp-outline"></div><p>Circles isn\u2019t set up yet.</p></div>';
+      console.warn('[EarthLive] circles:', error.message);
+      return;
+    }
+    const ids = (myRows || []).map(r=>r.circle_id);
+    if (!ids.length){
+      el.innerHTML = '<div class="empty-state"><div class="stamp-outline"></div><p>No circles yet.<br>Start one \u2014 a shared thread your people write together.</p></div>';
+      return;
+    }
+    const [{ data: circles }, { data: members }] = await Promise.all([
+      db.from('circles').select('*').in('id', ids).order('created_at', { ascending:false }),
+      db.from('circle_members').select('*').in('circle_id', ids)
+    ]);
+    const byCircle = {};
+    (members || []).forEach(m=>{ (byCircle[m.circle_id] = byCircle[m.circle_id] || []).push(m); });
+    el.innerHTML = (circles || []).map(cir=>{
+      const mem = byCircle[cir.id] || [];
+      const stack = mem.slice(0,3).map(m=>circleAv(m)).join('');
+      return '<div class="conv-item" onclick="openCircle(\'' + cir.id + '\')">' +
+        '<span class="circle-stack">' + stack + '</span>' +
+        '<div class="conv-info"><strong>' + escapeHtml(cir.name) + '</strong>' +
+        '<span>' + mem.length + (mem.length === 1 ? ' person' : ' people') + '</span></div>' +
+        '</div>';
+    }).join('');
+  }
+
+  /* ----- creating a circle ----- */
+  function openNewCircleModal(){
+    if (!db || !currentUser || !profile || !profile.dbId){
+      showToast('Make your page first \u2014 then start a circle');
+      return;
+    }
+    ncMembers = [];
+    document.getElementById('ncName').value = '';
+    document.getElementById('ncUsername').value = '';
+    renderNcChips();
+    document.getElementById('newCircleModal').style.display = 'flex';
+    setTimeout(()=>document.getElementById('ncName').focus(), 60);
+  }
+  function closeNewCircleModal(){ document.getElementById('newCircleModal').style.display = 'none'; }
+
+  function renderNcChips(){
+    document.getElementById('ncChips').innerHTML = ncMembers.map((m,i)=>
+      '<span class="nc-chip">' + circleAv(m) + escapeHtml(m.name || '@' + m.username) +
+      '<button type="button" onclick="ncMembers.splice(' + i + ',1); renderNcChips();" aria-label="Remove">\u2715</button></span>'
+    ).join('');
+  }
+
+  async function ncAddMember(){
+    const inp = document.getElementById('ncUsername');
+    const uname = inp.value.trim().replace(/^@/, '').toLowerCase();
+    if (!uname) return;
+    if (uname === (profile.username || '').toLowerCase()){ showToast('You\u2019re in your circles automatically'); inp.value=''; return; }
+    if (ncMembers.some(m=>m.username === uname)){ inp.value=''; return; }
+    const { data: p, error } = await db.from('profiles')
+      .select('id, user_id, name, username, ink')
+      .eq('username', uname).maybeSingle();
+    if (error || !p){
+      showToast('@' + uname + ' wasn\u2019t found \u2014 check the username (private pages can\u2019t be added)');
+      return;
+    }
+    ncMembers.push({ user_id: p.user_id, profile_id: p.id, name: p.name, username: p.username, ink: p.ink || '#726A59' });
+    inp.value = '';
+    renderNcChips();
+  }
+
+  async function createCircle(){
+    const name = document.getElementById('ncName').value.trim();
+    if (!name){ showToast('Give your circle a name'); return; }
+    if (!ncMembers.length){ showToast('Add at least one person'); return; }
+    const btn = document.getElementById('ncCreateBtn');
+    btn.disabled = true; btn.textContent = 'Creating\u2026';
+    const done = ()=>{ btn.disabled = false; btn.textContent = 'Create circle'; };
+    const { data: cir, error } = await db.from('circles')
+      .insert({ name, created_by: currentUser.id }).select().single();
+    if (error){ done(); showToast('Could not create: ' + error.message); return; }
+    const rows = [{ circle_id: cir.id, user_id: currentUser.id, profile_id: profile.dbId,
+                    name: profile.name, username: profile.username || '', ink: profile.ink || '#726A59' }]
+      .concat(ncMembers.map(m=>({ circle_id: cir.id, user_id: m.user_id, profile_id: m.profile_id,
+                    name: m.name, username: m.username, ink: m.ink })));
+    const { error: mErr } = await db.from('circle_members').insert(rows);
+    done();
+    if (mErr){ showToast('Circle made, but adding people failed: ' + mErr.message); }
+    closeNewCircleModal();
+    showToast('\u201c' + name + '\u201d is ready \u2713');
+    renderCircleList();
+    openCircle(cir.id);
+  }
+
+  /* ----- inside a circle ----- */
+  function circleInkFor(userId){
+    const i = currentCircleMembers.findIndex(m=>m.user_id === userId);
+    return CIRCLE_INKS[(i === -1 ? 0 : i) % CIRCLE_INKS.length];
+  }
+
+  async function openCircle(circleId){
+    currentCircleId = circleId;
+    document.getElementById('convListView').style.display = 'none';
+    document.getElementById('threadView').style.display = 'none';
+    document.getElementById('circleThreadView').style.display = 'block';
+    const msgsEl = document.getElementById('circleMsgs');
+    msgsEl.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Loading\u2026</p>';
+    const [{ data: cir }, { data: members }, { data: msgs, error }] = await Promise.all([
+      db.from('circles').select('*').eq('id', circleId).maybeSingle(),
+      db.from('circle_members').select('*').eq('circle_id', circleId).order('created_at', { ascending:true }),
+      db.from('circle_messages').select('*').eq('circle_id', circleId).order('created_at', { ascending:true })
+    ]);
+    if (!cir){ showToast('That circle isn\u2019t available'); backFromCircle(); return; }
+    currentCircleMembers = members || [];
+    document.getElementById('circleName').textContent = cir.name;
+    document.getElementById('circleMembers').innerHTML =
+      currentCircleMembers.map(m=>escapeHtml(m.name || '@' + m.username)).join(' \u00b7 ');
+    if (error){ msgsEl.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Could not load messages.</p>'; return; }
+    if (!msgs || !msgs.length){
+      msgsEl.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Nothing here yet \u2014 write the first line.</p>';
+    } else {
+      msgsEl.innerHTML = msgs.map(m=>{
+        const mine = currentUser && m.sender_user_id === currentUser.id;
+        return '<div class="circle-msg' + (mine ? ' mine' : '') + '" style="border-left-color:' + circleInkFor(m.sender_user_id) + ';">' +
+          '<p class="cm-body">' + escapeHtml(m.body) + '</p>' +
+          '<p class="cm-who">' + (mine ? 'You' : escapeHtml(m.sender_name || 'someone')) +
+          ' \u00b7 ' + timeAgo(m.created_at) + '</p></div>';
+      }).join('');
+      msgsEl.scrollTop = msgsEl.scrollHeight;
+    }
+    setTimeout(()=>{ const i = document.getElementById('circleMsgInput'); if (i) i.focus(); }, 80);
+  }
+
+  function backFromCircle(){
+    currentCircleId = null;
+    document.getElementById('circleThreadView').style.display = 'none';
+    document.getElementById('convListView').style.display = 'block';
+    setMsgTab('circles');
+  }
+
+  async function sendCircleMessage(){
+    const inp = document.getElementById('circleMsgInput');
+    const body = inp.value.trim();
+    if (!body || !currentCircleId) return;
+    inp.value = '';
+    const { error } = await db.from('circle_messages').insert({
+      circle_id: currentCircleId,
+      sender_user_id: currentUser.id,
+      sender_name: profile.name,
+      body
+    });
+    if (error){ inp.value = body; showToast('Could not send: ' + error.message); return; }
+    openCircle(currentCircleId);
+  }
 
 
 </script>
