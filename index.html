@@ -3908,7 +3908,7 @@
     db.auth.onAuthStateChange((event, session)=>{
       currentUser = session ? session.user : null;
       refreshNav();
-      if (event === 'SIGNED_OUT'){ lastAuthUserId = null; hideReactivateBanner(); }
+      if (event === 'SIGNED_OUT'){ lastAuthUserId = null; hideReactivateBanner(); profile = null; entries = []; try{ tourSkippedSession = false; }catch(e){} }
       if (event === 'SIGNED_IN' && currentUser){
         if (lastAuthUserId === currentUser.id){
           // Same user, tab refocus / token refresh — do NOT navigate anywhere.
@@ -4928,7 +4928,7 @@
     if (!db || !currentUser) return false;
     const { data, error } = await db.from('profiles').select('*').eq('user_id', currentUser.id).maybeSingle();
     if (error){ console.error('[EarthLive] profile load failed:', error.message); return false; }
-    if (!data) return false;
+    if (!data){ profile = null; entries = []; return false; } // never keep another account\u2019s page in memory
     profile = dbRowToProfile(data);
     await loadEntriesFromDb();
     // Deactivated? Offer a one-tap way back.
@@ -5161,6 +5161,7 @@
     editMode = false;
     resetCreateFormUI();
     showScreen('create');
+    tourMaybeStartCreate(); // belt-and-braces: don\u2019t rely only on the screen wrapper
   }
 
   function populateEditForm(){
@@ -10025,7 +10026,11 @@
   function tourMarkDone(){ try{ localStorage.setItem(tourKey(), '1'); }catch(e){} }
 
   function tourVisible(el){
-    return el && el.offsetParent !== null && el.getBoundingClientRect().height > 0;
+    if (!el) return false;
+    const r = el.getBoundingClientRect();
+    // ANY signal of visibility counts \u2014 offsetParent alone is unreliable
+    // across browsers and must never silently swallow the tour.
+    return el.offsetParent !== null || r.height > 0 || r.width > 0;
   }
 
   function tourPosition(el){
@@ -10043,6 +10048,9 @@
     const s = ACTIVE_TOUR_STEPS[i];
     const el = document.getElementById(s.el);
     if (!tourVisible(el)){
+      // Not rendered yet? Wait once and try the SAME step again before skipping.
+      if (!s._retried){ s._retried = true; setTimeout(()=>tourSafely(()=>{ if (tourActive) tourShowStep(i); }), 450); return; }
+      s._retried = false;
       // element missing or hidden -> skip forward gracefully
       if (i + 1 < ACTIVE_TOUR_STEPS.length && ACTIVE_TOUR_STEPS[i+1].screen === s.screen){ tourIdx = i + 1; return tourShowStep(tourIdx); }
       return tourPause(s.screen === 'create' ? 'dashboard' : s.screen);
@@ -10100,11 +10108,14 @@
 
   function tourEnd(skipped){
     tourActive = false; tourWaitingScreen = null; tourIsReplay = false;
+    if (skipped) tourSkippedSession = true;   // quiet for this visit only
     document.querySelectorAll('.tour-lit').forEach(x=>x.classList.remove('tour-lit'));
     document.getElementById('tourCoach').classList.remove('on');
     document.getElementById('tourScrim').classList.remove('on');
-    tourMarkDone();
-    if (!skipped) showToast('You\u2019re all set \u2014 your book is ready \u2713');
+    if (!skipped){
+      tourMarkDone();                          // finished it \u2014 remember that
+      showToast('You\u2019re all set \u2014 your book is ready \u2713');
+    }
   }
 
   function tourStartAt(i){
@@ -10113,23 +10124,50 @@
   }
 
   function tourSafely(fn){
-    // The tour must NEVER take the app down \u2014 any failure ends it quietly.
+    // The tour must NEVER take the app down \u2014 any failure ends it quietly,
+    // and an error must never permanently mark the tour as done.
     try{ fn(); }catch(e){ console.warn('[tour]', e); try{ tourEnd(true); }catch(_){} }
+  }
+
+  let tourSkippedSession = false; // Skip only silences the tour for THIS visit
+
+  // Try to start the create-screen tour, retrying a few times so a slow render,
+  // font load, or timing race can never swallow it. Logs why it declines.
+  function tourMaybeStartCreate(attempt){
+    attempt = attempt || 1;
+    const isFirstTimer = currentUser && (!profile || !profile.dbId);
+    const isEditing = (typeof editMode !== 'undefined') && editMode;
+    if (tourActive){ return; }
+    if (!isFirstTimer){ console.log('[tour] not starting: user already has a page (or not signed in)'); return; }
+    if (isEditing){ console.log('[tour] not starting: edit mode'); return; }
+    if (tourSkippedSession){ console.log('[tour] not starting: skipped this session'); return; }
+    setTimeout(()=>{
+      if (tourActive || tourSkippedSession) return;
+      const onCreate = currentScreenName === 'create';
+      const el = document.getElementById('cName');
+      const r = el ? el.getBoundingClientRect() : null;
+      const visible = onCreate && el && (r.height > 0 || r.width > 0 || el.offsetParent !== null);
+      if (visible){
+        console.log('[tour] starting at step one (attempt ' + attempt + ')');
+        ACTIVE_TOUR_STEPS = TOUR_STEPS_SIGNUP;
+        tourSafely(()=>tourStartAt(0));
+      } else if (attempt < 4){
+        console.log('[tour] create screen not ready yet (attempt ' + attempt + ') \u2014 retrying');
+        tourMaybeStartCreate(attempt + 1);
+      } else {
+        console.warn('[tour] gave up: create screen never became visible');
+      }
+    }, attempt === 1 ? 600 : 900 * attempt);
   }
 
   function tourOnScreen(name){
     if (!tourActive){
-      if (tourDone()) return;
-      // First-timers only: the tour starts when someone with NO page yet lands
-      // on Create my page (new sign-ins are routed there automatically).
-      // People who already made their book never see it uninvited \u2014 they can
-      // replay it anytime from the avatar menu.
-      const isFirstTimer = currentUser && (!profile || !profile.dbId);
-      const isEditing = (typeof editMode !== 'undefined') && editMode;
-      if (name === 'create' && isFirstTimer && !isEditing){
-        ACTIVE_TOUR_STEPS = TOUR_STEPS_SIGNUP;
-        setTimeout(()=>tourSafely(()=>tourStartAt(0)), 600);
-      }
+      // First-timers: anyone signed in with NO page yet gets the tour on the
+      // create screen \u2014 every time, on every sign-in, regardless of any old
+      // stored flag (a stale flag must never rob a new person of the guide).
+      // Skipping silences it for the current session only. Once they have a
+      // book, the tour never auto-starts again \u2014 replay lives in the avatar menu.
+      if (name === 'create'){ tourMaybeStartCreate(); }
       return;
     }
     // active tour: resume or pause depending on where the user went
