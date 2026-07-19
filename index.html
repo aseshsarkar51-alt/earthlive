@@ -3894,6 +3894,11 @@
             if (found){
               renderDashboard();
               showScreen('dashboard');
+            } else {
+              // Signed in but no page yet (first visit, OAuth redirect, or
+              // email-confirmation return): take them straight to Create my
+              // page \u2014 the guided tour starts there automatically.
+              startNewBook();
             }
           });
         } else {
@@ -4788,6 +4793,20 @@
 
   /* ---------- REAL PAGES (Stage 2, piece 3) ---------- */
 
+  // Stored questions can arrive as jsonb, a JSON string (older rows), or an
+  // unexpected shape \u2014 normalise to an array of {id,...} objects or fall back
+  // to the classic template. This can never throw.
+  function normalizeQuestions(raw){
+    try{
+      let q = raw;
+      if (typeof q === 'string'){ q = JSON.parse(q); }
+      if (Array.isArray(q) && q.length && q.every(x=>x && typeof x === 'object' && x.id)){
+        return q;
+      }
+    }catch(e){ console.warn('[EarthLive] questions column had an odd shape \u2014 using default set'); }
+    return TEMPLATES[0].questions;
+  }
+
   function dbRowToProfile(row){
     return {
       dbId: row.id,
@@ -4801,8 +4820,8 @@
       cover: row.cover_url || null,
       visibility: row.visibility,
       templateId: row.template_id || 'classic',
-      questions: (row.questions && row.questions.length) ? row.questions : TEMPLATES[0].questions,
-      links: row.links || {},
+      questions: normalizeQuestions(row.questions),
+      links: (row.links && typeof row.links === 'object') ? row.links : {},
       extras: row.extras || {},
       createdAt: row.created_at,
       code: row.username
@@ -5100,7 +5119,8 @@
     // template (e.g. an older account) \u2014 this used to throw and crash the page.
     selectedTemplateId = (TEMPLATES.find(t=>t.id === profile.templateId) ? profile.templateId : TEMPLATES[0].id);
     const fallbackQuestions = TEMPLATES.find(t=>t.id === selectedTemplateId).questions;
-    enabledQuestionIds = new Set(((profile.questions && profile.questions.length) ? profile.questions : fallbackQuestions).map(q=>q.id));
+    const safeQuestions = normalizeQuestions(profile.questions && profile.questions.length ? profile.questions : fallbackQuestions);
+    enabledQuestionIds = new Set(safeQuestions.map(q=>q.id));
     renderTemplatePicker();
     const links = profile.links || {};
     document.getElementById('cLinkInstagram').value = links.instagram || '';
@@ -5114,7 +5134,13 @@
 
   function openEditProfile(){
     editMode = true;
-    populateEditForm();
+    try{
+      populateEditForm();
+    }catch(e){
+      // A single odd field must not take the whole page down.
+      console.warn('[EarthLive] edit form population hit bad data:', e);
+      showToast('Some saved details could not be loaded \u2014 they\u2019re using defaults');
+    }
     showScreen('create');
   }
 
@@ -9991,24 +10017,23 @@
     tourShowStep(i);
   }
 
+  function tourSafely(fn){
+    // The tour must NEVER take the app down \u2014 any failure ends it quietly.
+    try{ fn(); }catch(e){ console.warn('[tour]', e); try{ tourEnd(true); }catch(_){} }
+  }
+
   function tourOnScreen(name){
     if (!tourActive){
       if (tourDone()) return;
-      if (name === 'create'){
+      // First-timers only: the tour starts when someone with NO page yet lands
+      // on Create my page (new sign-ins are routed there automatically).
+      // People who already made their book never see it uninvited \u2014 they can
+      // replay it anytime from the avatar menu.
+      const isFirstTimer = currentUser && (!profile || !profile.dbId);
+      const isEditing = (typeof editMode !== 'undefined') && editMode;
+      if (name === 'create' && isFirstTimer && !isEditing){
         ACTIVE_TOUR_STEPS = TOUR_STEPS_SIGNUP;
-        setTimeout(()=>tourStartAt(0), 500);
-      }
-      else if (name === 'dashboard' && currentUser && profile && profile.dbId){
-        // Returning user, straight after sign-in: open on My account first
-        // (as if they'd clicked the avatar \u2192 My account), then walk through
-        // updating name / username, then finish on the profile status step.
-        ACTIVE_TOUR_STEPS = TOUR_STEPS_RETURNING;
-        setTimeout(()=>{
-          tourActive = true; tourWaitingScreen = null; tourIdx = 0;
-          const s = ACTIVE_TOUR_STEPS[0];
-          TOUR_AUTO_NAV[s.screen] && TOUR_AUTO_NAV[s.screen]();
-          showScreen(s.screen); // wrapper's tourOnScreen picks the step up once that screen is active
-        }, 600);
+        setTimeout(()=>tourSafely(()=>tourStartAt(0)), 600);
       }
       return;
     }
@@ -10017,7 +10042,7 @@
       const idx = ACTIVE_TOUR_STEPS.findIndex(s=>s.screen === name && ACTIVE_TOUR_STEPS.indexOf(s) > tourIdx);
       tourWaitingScreen = null;
       tourIdx = idx !== -1 ? idx : tourIdx;
-      setTimeout(()=>tourShowStep(tourIdx), 600);
+      setTimeout(()=>tourSafely(()=>tourShowStep(tourIdx)), 700);
       return;
     }
     const cur = ACTIVE_TOUR_STEPS[tourIdx];
@@ -10025,7 +10050,7 @@
       // user wandered elsewhere mid-tour: pause quietly, resume if they come back
       tourPause(cur.screen);
     } else if (cur && name === cur.screen && tourWaitingScreen === null){
-      setTimeout(()=>tourShowStep(tourIdx), 500);
+      setTimeout(()=>tourSafely(()=>tourShowStep(tourIdx)), 500);
     }
   }
 
@@ -10033,10 +10058,14 @@
     try{ localStorage.removeItem(tourKey()); }catch(e){}
     tourActive = false; tourWaitingScreen = null;
     if (currentUser && profile && profile.dbId){
-      renderDashboard();
-      showScreen('dashboard');
+      // Existing book \u2014 run the returning walkthrough: My account, editing
+      // your details, then your profile status.
+      ACTIVE_TOUR_STEPS = TOUR_STEPS_RETURNING;
+      renderAccount();
+      showScreen('account');
+      setTimeout(()=>tourSafely(()=>tourStartAt(0)), 700);
     } else {
-      beginFlow();
+      beginFlow(); // routes to Create my page, where the signup tour auto-starts
     }
   }
 
