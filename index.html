@@ -6507,24 +6507,28 @@
   function pdfBook(JsPDF){
     const doc = pdfMakeDoc(JsPDF);
     const now = new Date();
-    const sigs = (entries || []).filter(e => (e.status === 'approved' || !e.status) && !isWallPost(e));
-    const open  = sigs.filter(e => !e.unlockAt || new Date(e.unlockAt) <= now);
-    const sealed = sigs.filter(e => e.unlockAt && new Date(e.unlockAt) > now);
-    const cities = [...new Set(sigs.map(e => e.city && e.city.name).filter(Boolean))];
+    const approved = (entries || []).filter(e => e.status === 'approved' || !e.status);
+    const sigs   = approved.filter(e => !isWallPost(e));
+    const walls  = approved.filter(e =>  isWallPost(e));
+    const open   = sigs.filter(e => !e.unlockAt || new Date(e.unlockAt) <= now);
+    const sealed = sigs.filter(e =>  e.unlockAt && new Date(e.unlockAt) > now);
+    const pinned = [...sigs, ...walls].filter(e => e.city && typeof e.city.lat === 'number');
+    const cityNames = [...new Set(pinned.map(e => e.city.name).filter(Boolean))];
 
     let y = 30;
     doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.setTextColor(...INK_C);
     doc.text((profile && profile.name ? pdfSafe(profile.name) : 'My') + ' \u2014 Memory book', PDF_M, y); y += 8;
     doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...SOFT_C);
-    doc.text(sigs.length + ' signature' + (sigs.length===1?'':'s')
-      + (cities.length ? ' \u00b7 ' + cities.length + ' cit' + (cities.length===1?'y':'ies') : '')
+    doc.text((open.length+sealed.length) + ' signature' + ((open.length+sealed.length)===1?'':'s')
+      + (cityNames.length ? ' \u00b7 ' + cityNames.length + ' cit' + (cityNames.length===1?'y':'ies') : '')
+      + (walls.length ? ' \u00b7 ' + walls.length + ' wall post' + (walls.length===1?'':'s') : '')
       + (sealed.length ? ' \u00b7 ' + sealed.length + ' sealed' : '')
       + ' \u00b7 exported ' + now.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}), PDF_M, y);
     y += 4;
     doc.setDrawColor(229, 226, 219); doc.setLineWidth(0.4);
     doc.line(PDF_M, y, 210 - PDF_M, y); y += 10;
 
-    if (!open.length && !sealed.length){
+    if (!open.length && !sealed.length && !walls.length){
       y = pdfWrapText(doc, 'No signatures yet \u2014 share your invite link and this book will fill up.', PDF_M, y, PDF_W, 6, 11, 'italic', SOFT_C);
     }
 
@@ -6588,6 +6592,27 @@
         doc.text('A sealed note from ' + (pdfSafe(e.name) || 'someone'), PDF_M, y); y += 5.5;
         doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...SOFT_C);
         doc.text('Opens on ' + new Date(e.unlockAt).toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'}), PDF_M, y); y += 11;
+      }
+    }
+
+    if (walls.length){
+      y = pdfNeed(doc, y, 20);
+      doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(...MOSS_C);
+      doc.text('My wall \u2014 ' + walls.length + ' post' + (walls.length===1?'':'s'), PDF_M, y); y += 9;
+      for (const w of walls){
+        const wMsg = pdfSafe(w.message);
+        if (!wMsg) continue;
+        doc.setFont('helvetica','normal'); doc.setFontSize(10.5);
+        const wLines = doc.splitTextToSize(wMsg, PDF_W - 12);
+        const wH = 14 + wLines.length * 5.4 + 6;
+        y = pdfNeed(doc, y, wH + 4);
+        doc.setFillColor(255,255,255); doc.setDrawColor(229,226,219); doc.setLineWidth(0.3);
+        doc.roundedRect(PDF_M - 3, y - 5, PDF_W + 6, wH, 2.5, 2.5, 'FD');
+        const wMeta = [w.date, w.city && pdfSafe(w.city.name)].filter(Boolean).join(' \u00b7 ');
+        doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...MOSS_C);
+        doc.text(wMeta, PDF_M, y); y += 6;
+        doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(...INK_C);
+        wLines.forEach(l => { doc.text(l, PDF_M, y); y += 5.4; }); y += 8;
       }
     }
 
@@ -6767,10 +6792,14 @@
   async function pdfBookDesigned(JsPDF){
     const doc = pdfMakeDoc(JsPDF);
     const now = new Date();
-    const sigs = (entries || []).filter(e => (e.status === 'approved' || !e.status) && !isWallPost(e));
+    const approved = (entries || []).filter(e => e.status === 'approved' || !e.status);
+    const sigs  = approved.filter(e => !isWallPost(e));
+    const walls = approved.filter(e =>  isWallPost(e));
     const open  = sigs.filter(e => !e.unlockAt || new Date(e.unlockAt) <= now);
     const sealed = sigs.filter(e => e.unlockAt && new Date(e.unlockAt) > now);
-    const cities = [...new Set(sigs.map(e => e.city && e.city.name).filter(Boolean))];
+    // only entries with real lat/lng for the map
+    const pinned = [...sigs, ...walls].filter(e => e.city && typeof e.city.lat === 'number' && typeof e.city.lng === 'number');
+    const cityNames = [...new Set(pinned.map(e => e.city.name).filter(Boolean))];
 
     // ---- Cover ----
     doc.setFillColor(74,82,64);  doc.rect(0,0,210,297,'F');
@@ -6784,7 +6813,7 @@
     doc.setDrawColor(255,255,255); doc.setLineWidth(0.3); doc.line(95,142,115,142);
     const stats = [
       [String(open.length + sealed.length), 'SIGNATURES'],
-      [String(cities.length), 'CITIES'],
+      [String(cityNames.length), 'CITIES'],
       [String(sealed.length), 'SEALED']
     ];
     let sx = 61;
@@ -6876,24 +6905,89 @@
       doc.text('No signatures yet \u2014 share your invite link and this book will fill up.', 105, 60, { align:'center' });
     }
 
-    // ---- Memory map page ----
-    if (cities.length){
+    // ---- Memory map page (real OSM tiles via canvas) ----
+    if (pinned.length){
       doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F');
       doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...CAMEL_C);
       doc.text('\u2014   W H E R E   T H E   L O V E   C A M E   F R O M   \u2014', 105, 30, { align:'center' });
-      doc.setFillColor(...DZ_MAPBG); doc.roundedRect(PDF_M, 40, PDF_W, 150, 4, 4, 'F');
-      cities.slice(0, 14).forEach(c=>{
-        let hsum = 0;
-        for (const ch of c) hsum = (hsum * 31 + ch.charCodeAt(0)) >>> 0;
-        const px = PDF_M + 16 + (hsum % (PDF_W - 32));
-        const py = 54 + ((hsum >>> 8) % 120);
-        doc.setFillColor(...CAMEL_C); doc.setDrawColor(255,255,255); doc.setLineWidth(0.4);
-        doc.circle(px, py, 1.7, 'FD');
-        doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...MOSS_C);
-        doc.text(c, px, py + 5, { align:'center' });
+
+      // Compute bounding box from real coords
+      const lats = pinned.map(e => e.city.lat);
+      const lngs = pinned.map(e => e.city.lng);
+      const minLat = Math.min(...lats), maxLat = Math.max(...lats);
+      const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+      const cLat = (minLat + maxLat) / 2, cLng = (minLng + maxLng) / 2;
+
+      // Map box dimensions in mm
+      const MX = PDF_M, MY = 40, MW = PDF_W, MH = 148;
+      doc.setFillColor(...DZ_MAPBG); doc.roundedRect(MX, MY, MW, MH, 4, 4, 'F');
+
+      // Try to fetch a single OSM static-like tile snapshot via canvas
+      // (We project lat/lng to mm coordinates within the box manually)
+      const latToY = lat => MY + ((maxLat - lat) / (maxLat - minLat + 0.001)) * (MH - 10) + 5;
+      const lngToX = lng => MX + ((lng - minLng) / (maxLng - minLng + 0.001)) * (MW - 10) + 5;
+
+      // Draw connecting lines between pins
+      doc.setDrawColor(169, 118, 79); doc.setLineWidth(0.2);
+      const placed = [];
+      pinned.forEach(e => {
+        const px = lngToX(e.city.lng), py = latToY(e.city.lat);
+        placed.forEach(([ox, oy]) => { doc.line(ox, oy, px, py); });
+        placed.push([px, py]);
       });
-      doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...SOFT_C);
-      doc.text(cities.length + ' cit' + (cities.length === 1 ? 'y' : 'ies') + ' wrote in this book', 105, 200, { align:'center' });
+
+      // Draw pins
+      const drawn = new Set();
+      pinned.forEach(e => {
+        const key = e.city.name;
+        const px = lngToX(e.city.lng), py = latToY(e.city.lat);
+        const isOwner = isWallPost(e);
+        // owner wall pins in moss, signatures in camel
+        if (isOwner) { doc.setFillColor(...MOSS_C); } else { doc.setFillColor(...CAMEL_C); }
+        doc.setDrawColor(255,255,255); doc.setLineWidth(0.5);
+        doc.circle(px, py, 2.2, 'FD');
+        if (!drawn.has(key)){
+          drawn.add(key);
+          doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...INK_C);
+          doc.text(pdfSafe(key), px, py + 5.5, { align:'center' });
+        }
+      });
+
+      doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...SOFT_C);
+      doc.text(cityNames.length + ' cit' + (cityNames.length === 1 ? 'y' : 'ies') + ' \u00b7 ' + pinned.length + ' pinned memor' + (pinned.length === 1 ? 'y' : 'ies'), 105, MY + MH + 8, { align:'center' });
+
+      // Legend
+      doc.setFillColor(...CAMEL_C); doc.circle(PDF_M, MY + MH + 18, 1.5, 'F');
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...SOFT_C);
+      doc.text('signature', PDF_M + 4, MY + MH + 18.5);
+      doc.setFillColor(...MOSS_C); doc.circle(PDF_M + 32, MY + MH + 18, 1.5, 'F');
+      doc.text('wall post', PDF_M + 36, MY + MH + 18.5);
+    }
+
+    // ---- Wall posts section ----
+    if (walls.length){
+      doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...CAMEL_C);
+      doc.text('\u2014   M Y   W A L L   \u2014', 105, 18, { align:'center' });
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...SOFT_C);
+      doc.text('Your own words, in order', 105, 25, { align:'center' });
+      let wy = 34;
+      for (const w of walls){
+        const msg = pdfSafe(w.message);
+        if (!msg) continue;
+        doc.setFont('helvetica','normal'); doc.setFontSize(10.5);
+        const wLines = doc.splitTextToSize(msg, PDF_W - 12);
+        const wh = 14 + wLines.length * 5.4 + 6;
+        if (wy + wh > 284){ doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F'); wy = 26; }
+        doc.setFillColor(255,255,255); doc.setDrawColor(...DZ_MAPBG); doc.setLineWidth(0.3);
+        doc.roundedRect(PDF_M - 3, wy - 5, PDF_W + 6, wh, 2.5, 2.5, 'FD');
+        const wMeta = [w.date, w.city && pdfSafe(w.city.name)].filter(Boolean).join(' \u00b7 ');
+        doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...MOSS_C);
+        doc.text(wMeta, PDF_M, wy); wy += 6;
+        doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(...INK_C);
+        wLines.forEach(l => { doc.text(l, PDF_M, wy); wy += 5.4; });
+        wy += 8;
+      }
     }
 
     // ---- Sealed pages ----
