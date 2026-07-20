@@ -1727,8 +1727,8 @@
     </nav>
 
     <!-- ===== PRINT MY BOOK ===== -->
-    <button type="button" onclick="openPrintModal('book')" style="display:flex; align-items:center; gap:10px; width:100%; background:var(--moss); color:#fff; border:none; border-radius:12px; padding:13px 16px; margin:14px 0 4px; cursor:pointer; font-family:inherit; text-align:left;">
-      <span style="font-size:17px;" aria-hidden="true">🖨</span>
+    <button type="button" id="printBookBtn" onclick="openPrintModal('book')" style="display:flex; align-items:center; gap:10px; width:100%; background:var(--moss); color:#fff; border:none; border-radius:12px; padding:13px 16px; margin:14px 0 4px; cursor:pointer; font-family:inherit; text-align:left;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>
       <span style="flex:1;">
         <span style="display:block; font-size:13.5px; font-weight:700;">Print my book</span>
         <span style="display:block; font-size:11.5px; color:rgba(255,255,255,.75); margin-top:1px;">Turn every signature into a keepsake PDF</span>
@@ -1837,7 +1837,7 @@
       <div class="form-eyebrow">Your private space</div>
       <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
         <h2 style="font-size:30px; margin:0 0 4px; font-weight:700;">My diary</h2>
-        <button type="button" class="btn-small" onclick="openPrintModal('diary')" style="flex:none;">🖨 Print diary</button>
+        <button type="button" class="cal-toggle" onclick="openPrintModal('diary')" style="flex:none;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg> Print diary</button>
       </div>
 
       <div class="diary-split">
@@ -2357,8 +2357,8 @@
             <div class="ev-sub" id="evMeta"></div>
             <div class="ev-sub" id="evDesc" style="margin-top:6px; display:none;"></div>
           </div>
-          <button type="button" class="btn-small" id="evEditBtn" style="display:none; flex:none;" onclick="toggleEventEdit()">✎ Edit details</button>
-          <button type="button" class="btn-small" id="evPrintBtn" style="flex:none;" onclick="openPrintModal('event')">🖨 Print</button>
+          <button type="button" class="btn-small" id="evEditBtn" style="display:none; flex:none; align-items:center; gap:6px;" onclick="toggleEventEdit()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit details</button>
+          <button type="button" class="btn-small" id="evPrintBtn" style="flex:none; display:inline-flex; align-items:center; gap:6px;" onclick="openPrintModal('event')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg> Print</button>
         </div>
 
         <div id="evCoverDisplay" style="display:none; margin-top:14px; border-radius:12px; overflow:hidden; height:180px; background:var(--oat-deep) center/cover no-repeat;"></div>
@@ -5464,6 +5464,7 @@
         profile = dbRowToProfile(data);
         // Ink fix: your newly chosen ink becomes your pen immediately (no reload needed)
         if (profile.ink) selectedPen = profile.ink;
+        applyInkToPrintBtn();
         // If a storage upload failed, keep showing the local copy rather than losing the photo.
         if (!profile.avatar && localAvatar) profile.avatar = localAvatar;
         if (!profile.cover && localCover) profile.cover = localCover;
@@ -6409,6 +6410,12 @@
      ============================================================ */
   let printContext = 'book';
 
+  function applyInkToPrintBtn(){
+    // The big print button wears the ink colour the owner chose for their page
+    const b = document.getElementById('printBookBtn');
+    if (b && profile && profile.ink) b.style.background = profile.ink;
+  }
+
   function openPrintModal(kind){
     printContext = kind;
     const titles = {
@@ -6483,6 +6490,20 @@
   }
 
   // --- 1. MEMORY BOOK ------------------------------------------------------
+  // Strip characters jsPDF's built-in fonts cannot print (emoji, symbols
+  // outside Latin-1). Prevents "Ø>Ý"-style garbage and broken letter spacing.
+  function pdfSafe(s){
+    if (!s) return '';
+    return String(s)
+      .replace(/[\u{1F000}-\u{1FAFF}]/gu, '')
+      .replace(/[\u{2600}-\u{27BF}]/gu, '')
+      .replace(/[\u{FE00}-\u{FE0F}\u200D\u20E3]/gu, '')
+      .replace(/[\u2190-\u21FF\u2B00-\u2BFF]/gu, '')
+      .replace(/[^\x20-\x7E\u00A0-\u00FF\u2013\u2014\u2018\u2019\u201C\u201D\u2026\u00B7]/g, '')
+      .replace(/ {2,}/g, ' ')
+      .trim();
+  }
+
   function pdfBook(JsPDF){
     const doc = pdfMakeDoc(JsPDF);
     const now = new Date();
@@ -6493,7 +6514,7 @@
 
     let y = 30;
     doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.setTextColor(...INK_C);
-    doc.text((profile && profile.name ? profile.name : 'My') + ' \u2014 Memory book', PDF_M, y); y += 8;
+    doc.text((profile && profile.name ? pdfSafe(profile.name) : 'My') + ' \u2014 Memory book', PDF_M, y); y += 8;
     doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...SOFT_C);
     doc.text(sigs.length + ' signature' + (sigs.length===1?'':'s')
       + (cities.length ? ' \u00b7 ' + cities.length + ' cit' + (cities.length===1?'y':'ies') : '')
@@ -6508,42 +6529,65 @@
     }
 
     for (const e of open){
-      y = pdfNeed(doc, y, 24);
+      const safeName = pdfSafe(e.name) || 'Someone';
+      const safeMsg = pdfSafe(e.message);
+      const meta = [pdfSafe(e.relation), e.city && pdfSafe(e.city.name), e.date].filter(Boolean).join(' \u00b7 ');
+      doc.setFont('helvetica','italic'); doc.setFontSize(11);
+      const msgLines = safeMsg ? doc.splitTextToSize('\u201c' + safeMsg + '\u201d', PDF_W - 12) : [];
+      let ansLines = [];
+      (e.answers || []).forEach(a=>{
+        const at = pdfSafe(a.label) + ': ' + pdfSafe(a.value);
+        doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+        ansLines = ansLines.concat(doc.splitTextToSize(at, PDF_W - 12));
+      });
+      const cardH = 15 + (e.word ? 5.5 : 0) + msgLines.length * 5.6
+        + (ansLines.length ? ansLines.length * 5.2 + 1 : 0)
+        + (e.photos && e.photos.length ? 5.5 : 0) + 6;
+      y = pdfNeed(doc, y, cardH + 6);
+
+      // Card frame — each signature sits in its own bordered card, book style
+      doc.setFillColor(255,255,255); doc.setDrawColor(232,228,218); doc.setLineWidth(0.35);
+      doc.roundedRect(PDF_M - 3, y - 6, PDF_W + 6, cardH, 2.5, 2.5, 'FD');
+
       doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...INK_C);
-      doc.text(e.name || 'Someone', PDF_M, y);
-      const meta = [e.relation, e.city && e.city.name, e.date].filter(Boolean).join(' \u00b7 ');
+      doc.text(safeName, PDF_M, y);
       if (meta){
-        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...CAMEL_C);
-        doc.text(meta, PDF_M + doc.getTextWidth(e.name || 'Someone') + 4, y);
+        // Meta on its own line — never overlaps the name
+        doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...CAMEL_C);
+        doc.text(meta, PDF_M, y + 4.8);
       }
-      y += 6;
+      y += meta ? 10.5 : 6;
       if (e.word){
         doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...MOSS_C);
-        doc.text('In one word: ' + e.word, PDF_M, y); y += 5.5;
+        doc.text('In one word: ' + pdfSafe(e.word), PDF_M, y); y += 5.5;
       }
-      y = pdfWrapText(doc, '\u201c' + (e.message || '') + '\u201d', PDF_M, y, PDF_W, 5.6, 11, 'italic', INK_C);
-      (e.answers || []).forEach(a => {
-        y = pdfWrapText(doc, a.label + ': ' + a.value, PDF_M, y + 1, PDF_W, 5.2, 9.5, 'normal', SOFT_C);
-      });
+      doc.setFont('helvetica','italic'); doc.setFontSize(11); doc.setTextColor(...INK_C);
+      msgLines.forEach(ln => { doc.text(ln, PDF_M, y); y += 5.6; });
+      if (ansLines.length){
+        y += 1;
+        doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...SOFT_C);
+        ansLines.forEach(ln => { doc.text(ln, PDF_M, y); y += 5.2; });
+      }
       if (e.photos && e.photos.length){
-        y = pdfWrapText(doc, '\ud83d\udcf7 ' + e.photos.length + ' photo' + (e.photos.length===1?'':'s') + ' attached \u2014 view them on the page', PDF_M, y + 1, PDF_W, 5, 8.5, 'normal', SOFT_C);
+        doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...SOFT_C);
+        doc.text('+' + e.photos.length + ' photo' + (e.photos.length===1?'':'s') + ' on the page', PDF_M, y);
+        y += 5.5;
       }
-      y += 3;
-      doc.setDrawColor(238, 235, 228); doc.setLineWidth(0.3);
-      y = pdfNeed(doc, y, 4);
-      doc.line(PDF_M, y, 210 - PDF_M, y); y += 8;
+      y += 10;
     }
 
     if (sealed.length){
       y = pdfNeed(doc, y, 20);
       doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(...CAMEL_C);
-      doc.text('Sealed letters \u2014 still waiting to be opened', PDF_M, y); y += 8;
+      doc.text('Sealed letters \u2014 still waiting to be opened', PDF_M, y); y += 9;
       for (const e of sealed){
-        y = pdfNeed(doc, y, 12);
+        y = pdfNeed(doc, y, 18);
+        doc.setFillColor(252,250,245); doc.setDrawColor(...CAMEL_C); doc.setLineWidth(0.4);
+        doc.roundedRect(PDF_M - 3, y - 5.5, PDF_W + 6, 14.5, 2.5, 2.5, 'FD');
         doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...INK_C);
-        doc.text('\ud83d\udd12 A sealed note from ' + (e.name || 'someone'), PDF_M, y); y += 5.5;
+        doc.text('A sealed note from ' + (pdfSafe(e.name) || 'someone'), PDF_M, y); y += 5.5;
         doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...SOFT_C);
-        doc.text('Opens on ' + new Date(e.unlockAt).toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'}), PDF_M, y); y += 8;
+        doc.text('Opens on ' + new Date(e.unlockAt).toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'}), PDF_M, y); y += 11;
       }
     }
 
@@ -6561,7 +6605,7 @@
     doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.setTextColor(...INK_C);
     doc.text('My diary', PDF_M, y); y += 8;
     doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...SOFT_C);
-    doc.text(((profile && profile.name) ? profile.name + ' \u00b7 ' : '') + list.length + ' entr' + (list.length===1?'y':'ies')
+    doc.text(((profile && profile.name) ? pdfSafe(profile.name) + ' \u00b7 ' : '') + list.length + ' entr' + (list.length===1?'y':'ies')
       + ' \u00b7 exported ' + new Date().toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})
       + ' \u00b7 private', PDF_M, y);
     y += 4;
@@ -6581,11 +6625,11 @@
       doc.text(head, PDF_M, y); y += 6;
       if (d.title){
         doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...MOSS_C);
-        doc.text(d.title, PDF_M, y); y += 6;
+        doc.text(pdfSafe(d.title), PDF_M, y); y += 6;
       }
-      if (d.body) y = pdfWrapText(doc, d.body, PDF_M, y, PDF_W, 5.6, 10.5, 'normal', INK_C);
+      if (d.body) y = pdfWrapText(doc, pdfSafe(d.body), PDF_M, y, PDF_W, 5.6, 10.5, 'normal', INK_C);
       if (d.photos && d.photos.length){
-        y = pdfWrapText(doc, '\ud83d\udcf7 ' + d.photos.length + ' photo' + (d.photos.length===1?'':'s') + ' in this entry', PDF_M, y + 1, PDF_W, 5, 8.5, 'normal', SOFT_C);
+        y = pdfWrapText(doc, '+' + d.photos.length + ' photo' + (d.photos.length===1?'':'s') + ' in this entry', PDF_M, y + 1, PDF_W, 5, 8.5, 'normal', SOFT_C);
       }
       y += 3;
       doc.setDrawColor(238, 235, 228); doc.setLineWidth(0.3);
@@ -6611,18 +6655,18 @@
     doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(...SOFT_C);
     const meta = [
       ev.event_date ? new Date(ev.event_date + 'T00:00:00').toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) : null,
-      ev.location || null,
-      'hosted by ' + (curHostName || 'the host')
+      pdfSafe(ev.location) || null,
+      'hosted by ' + (pdfSafe(curHostName) || 'the host')
     ].filter(Boolean).join(' \u00b7 ');
     y = pdfWrapText(doc, meta, PDF_M, y, PDF_W, 5.6, 10.5, 'normal', SOFT_C);
     y += 2;
     doc.setDrawColor(229, 226, 219); doc.setLineWidth(0.4);
     doc.line(PDF_M, y, 210 - PDF_M, y); y += 10;
 
-    if (ev.description){
+    if (pdfSafe(ev.description)){
       doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...MOSS_C);
       doc.text('About this event', PDF_M, y); y += 6;
-      y = pdfWrapText(doc, '\u201c' + ev.description + '\u201d', PDF_M, y, PDF_W, 5.8, 11, 'italic', INK_C);
+      y = pdfWrapText(doc, '\u201c' + pdfSafe(ev.description) + '\u201d', PDF_M, y, PDF_W, 5.8, 11, 'italic', INK_C);
       y += 6;
     }
 
@@ -6734,7 +6778,7 @@
     doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(200,165,131);
     doc.text('M E M O R Y   B O O K', 105, 106, { align:'center' });
     doc.setFont('times','normal'); doc.setFontSize(34); doc.setTextColor(255,255,255);
-    doc.text((profile && profile.name) ? profile.name : 'My book', 105, 124, { align:'center' });
+    doc.text((profile && profile.name) ? pdfSafe(profile.name) : 'My book', 105, 124, { align:'center' });
     doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(225,222,214);
     doc.text('Collected with love \u00b7 ' + now.getFullYear(), 105, 134, { align:'center' });
     doc.setDrawColor(255,255,255); doc.setLineWidth(0.3); doc.line(95,142,115,142);
@@ -6772,11 +6816,11 @@
         }
       }
       doc.setFont('times','italic'); doc.setFontSize(12);
-      const msgLines = doc.splitTextToSize('\u201c' + (e.message || '') + '\u201d', PDF_W - 16);
+      const msgLines = doc.splitTextToSize('\u201c' + pdfSafe(e.message) + '\u201d', PDF_W - 16);
       let ansLines = [];
       (e.answers || []).forEach(a=>{
         doc.setFont('helvetica','normal'); doc.setFontSize(9);
-        ansLines = ansLines.concat(doc.splitTextToSize(a.label + ': ' + a.value, PDF_W - 16));
+        ansLines = ansLines.concat(doc.splitTextToSize(pdfSafe(a.label) + ': ' + pdfSafe(a.value), PDF_W - 16));
       });
       const photoH = imgs.length ? 34 : 0;
       const h = 20 + msgLines.length * 5.4
@@ -6789,8 +6833,8 @@
       const pen = dzHexRgb(e.color);
       doc.setFillColor(pen[0],pen[1],pen[2]); doc.circle(210 - PDF_M - 2, y - 1, 1.6, 'F');
       doc.setFont('helvetica','bold'); doc.setFontSize(12.5); doc.setTextColor(...INK_C);
-      doc.text(e.name || 'Someone', PDF_M, y);
-      const meta = [e.relation, e.city && e.city.name, e.date].filter(Boolean).join(' \u00b7 ');
+      doc.text(pdfSafe(e.name) || 'Someone', PDF_M, y);
+      const meta = [pdfSafe(e.relation), e.city && pdfSafe(e.city.name), e.date].filter(Boolean).join(' \u00b7 ');
       if (meta){
         doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...CAMEL_C);
         doc.text(meta, PDF_M, y + 5);
@@ -6818,10 +6862,10 @@
       }
       if (e.word){
         doc.setFont('helvetica','bold'); doc.setFontSize(8);
-        const ww = doc.getTextWidth(e.word) + 8;
+        const ww = doc.getTextWidth(pdfSafe(e.word)) + 8;
         doc.setDrawColor(224,220,210); doc.setFillColor(...DZ_CREAM);
         doc.roundedRect(PDF_M, yy - 1, ww, 6, 3, 3, 'FD');
-        doc.setTextColor(...MOSS_C); doc.text(e.word, PDF_M + 4, yy + 3.2);
+        doc.setTextColor(...MOSS_C); doc.text(pdfSafe(e.word), PDF_M + 4, yy + 3.2);
         yy += 10;
       }
       y = yy + 9;
@@ -6871,7 +6915,7 @@
         doc.setFillColor(...CAMEL_C);
         doc.roundedRect(101.4, sy + 7, 7.2, 5.4, 1, 1, 'F');
         doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...INK_C);
-        doc.text('A sealed letter from ' + (e.name || 'someone'), 105, sy + 18.5, { align:'center' });
+        doc.text('A sealed letter from ' + (pdfSafe(e.name) || 'someone'), 105, sy + 18.5, { align:'center' });
         doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...SOFT_C);
         doc.text('Opens on ' + new Date(e.unlockAt).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }), 105, sy + 24, { align:'center' });
         sy += 36;
@@ -6903,7 +6947,7 @@
     doc.setFont('times','normal'); doc.setFontSize(32); doc.setTextColor(255,255,255);
     doc.text('My diary', 105, 124, { align:'center' });
     doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(220,225,232);
-    doc.text(((profile && profile.name) ? profile.name + ' \u00b7 ' : '') + new Date().toLocaleDateString('en-IN', { month:'long', year:'numeric' }), 105, 134, { align:'center' });
+    doc.text(((profile && profile.name) ? pdfSafe(profile.name) + ' \u00b7 ' : '') + new Date().toLocaleDateString('en-IN', { month:'long', year:'numeric' }), 105, 134, { align:'center' });
     doc.setDrawColor(255,255,255); doc.setLineWidth(0.3); doc.line(95,142,115,142);
     const dstats = [
       [String(list.length), 'ENTRIES'],
@@ -6959,7 +7003,7 @@
       const dt = new Date(d.created_at);
       const mood = d.mood ? MOODS.find(m => m.label === d.mood || m.id === d.mood) : null;
       doc.setFont('helvetica','normal'); doc.setFontSize(10);
-      const bodyLines = d.body ? doc.splitTextToSize(d.body, PDF_W - 24) : [];
+      const bodyLines = d.body ? doc.splitTextToSize(pdfSafe(d.body), PDF_W - 24) : [];
       const eh = 14 + (d.title ? 6 : 0) + bodyLines.length * 4.8 + 6;
       if (y + eh > 280){
         doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F');
@@ -6987,7 +7031,7 @@
       }
       if (d.title){
         doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...INK_C);
-        doc.text(d.title, PDF_M + 17, yy); yy += 6;
+        doc.text(pdfSafe(d.title), PDF_M + 17, yy); yy += 6;
       }
       doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(70,66,58);
       bodyLines.forEach(ln=>{ doc.text(ln, PDF_M + 17, yy); yy += 4.8; });
@@ -7021,26 +7065,26 @@
     doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(200,165,131);
     doc.text("Y O U ' R E   P A R T   O F   T H I S", 74, 34, { align:'center' });
     doc.setFont('times','normal'); doc.setFontSize(23); doc.setTextColor(255,255,255);
-    const nameLines = doc.splitTextToSize(ev.name || 'Our event', 120);
+    const nameLines = doc.splitTextToSize(pdfSafe(ev.name) || 'Our event', 120);
     let ny = 48;
     nameLines.forEach(ln=>{ doc.text(ln, 74, ny, { align:'center' }); ny += 10; });
     doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(222,226,216);
     const meta = [
       ev.event_date ? new Date(ev.event_date + 'T00:00:00').toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short', year:'numeric' }) : null,
-      ev.location || null
+      pdfSafe(ev.location) || null
     ].filter(Boolean).join('  \u00b7  ');
     if (meta) doc.text(meta, 74, ny + 2, { align:'center' });
     doc.setDrawColor(255,255,255); doc.setLineWidth(0.3); doc.line(64, ny + 9, 84, ny + 9);
 
     let cy = ny + 20;
-    if (ev.description){
+    if (pdfSafe(ev.description)){
       doc.setFont('times','italic'); doc.setFontSize(11); doc.setTextColor(238,240,234);
-      const descLines = doc.splitTextToSize('\u201c' + ev.description + '\u201d', 112);
+      const descLines = doc.splitTextToSize('\u201c' + pdfSafe(ev.description) + '\u201d', 112);
       descLines.slice(0,4).forEach(ln=>{ doc.text(ln, 74, cy, { align:'center' }); cy += 5.6; });
       cy += 4;
     }
     doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(200,207,192);
-    doc.text(members.length + ' guest' + (members.length===1?'':'s') + ' joined \u00b7 hosted by ' + (curHostName || 'the host'), 74, cy, { align:'center' });
+    doc.text(members.length + ' guest' + (members.length===1?'':'s') + ' joined \u00b7 hosted by ' + (pdfSafe(curHostName) || 'the host'), 74, cy, { align:'center' });
 
     // QR block
     let qrData = null;
@@ -7288,6 +7332,7 @@
     // Your pen defaults to YOUR chosen ink from your own page
     if (profile && profile.ink){
       selectedPen = profile.ink;
+      applyInkToPrintBtn();
       buildSwatches('penSwatches', ()=>selectedPen, c=>selectedPen=c);
     }
     showScreen('fill');
@@ -9753,7 +9798,7 @@
         <h3 style="margin:0 0 4px; font-size:16.5px;">${escapeHtml(ev.name)}</h3>
         <div style="font-size:13px; color:var(--ink-soft); line-height:1.7;">
           ${icon('calendar')} ${escapeHtml(dateTxt)} · ${icon('pin')} ${escapeHtml(ev.location || 'TBD')}
-          ${ev.description ? '<br>"' + escapeHtml(ev.description.length>90 ? ev.description.slice(0,90)+'…' : ev.description) + '"' : ''}
+          ${pdfSafe(ev.description) ? '<br>"' + escapeHtml(pdfSafe(ev.description).length>90 ? pdfSafe(ev.description).slice(0,90)+'…' : pdfSafe(ev.description)) + '"' : ''}
         </div>
         <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
           <button class="btn-small" style="background:var(--moss); color:#fff; border-color:var(--moss);" onclick="acceptInviteFromList('${x.guestRowId}', '${ev.id}')">Join this event</button>
@@ -9937,8 +9982,8 @@
     // Title and description sit below the cover (never overlaying the photo)
     const descEl = document.getElementById('evDesc');
     if (descEl){
-      descEl.textContent = ev.description ? '\u201c' + ev.description + '\u201d' : '';
-      descEl.style.display = ev.description ? 'block' : 'none';
+      descEl.textContent = pdfSafe(ev.description) ? '\u201c' + pdfSafe(ev.description) + '\u201d' : '';
+      descEl.style.display = pdfSafe(ev.description) ? 'block' : 'none';
     }
     const coverDisplay = document.getElementById('evCoverDisplay');
     if (coverDisplay){
