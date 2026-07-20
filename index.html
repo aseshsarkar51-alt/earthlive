@@ -1726,6 +1726,16 @@
       <a onclick="jumpTo('sigsAnchor')">Signatures <span class="n" id="jumpSigCount"></span></a>
     </nav>
 
+    <!-- ===== PRINT MY BOOK ===== -->
+    <button type="button" onclick="openPrintModal('book')" style="display:flex; align-items:center; gap:10px; width:100%; background:var(--moss); color:#fff; border:none; border-radius:12px; padding:13px 16px; margin:14px 0 4px; cursor:pointer; font-family:inherit; text-align:left;">
+      <span style="font-size:17px;" aria-hidden="true">🖨</span>
+      <span style="flex:1;">
+        <span style="display:block; font-size:13.5px; font-weight:700;">Print my book</span>
+        <span style="display:block; font-size:11.5px; color:rgba(255,255,255,.75); margin-top:1px;">Turn every signature into a keepsake PDF</span>
+      </span>
+      <span style="font-size:13px; color:rgba(255,255,255,.7);">→</span>
+    </button>
+
     <!-- ===== MY WALL ===== -->
     <div class="shead" id="wallAnchor">
       <h3>My wall</h3>
@@ -1825,7 +1835,10 @@
   <div class="wrap">
     <div style="max-width:1040px; margin:0 auto; padding:36px 24px 60px;">
       <div class="form-eyebrow">Your private space</div>
-      <h2 style="font-size:30px; margin:0 0 4px; font-weight:700;">My diary</h2>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+        <h2 style="font-size:30px; margin:0 0 4px; font-weight:700;">My diary</h2>
+        <button type="button" class="btn-small" onclick="openPrintModal('diary')" style="flex:none;">🖨 Print diary</button>
+      </div>
 
       <div class="diary-split">
 
@@ -2103,6 +2116,10 @@
           <label for="fName">Your name</label>
           <input type="text" id="fName" placeholder="e.g. Aman Verma" required>
         </div>
+        <div class="field" id="fEmailWrap" style="display:none;">
+          <label for="fEmail">Your email <span class="hint">so <span id="fillOwnerName3"></span> knows it's really you — never shown publicly</span></label>
+          <input type="email" id="fEmail" placeholder="you@example.com">
+        </div>
         <div class="field">
           <label for="fNick">Your nickname <span class="hint">optional</span></label>
           <input type="text" id="fNick" placeholder="What they actually call you">
@@ -2341,6 +2358,7 @@
             <div class="ev-sub" id="evDesc" style="margin-top:6px; display:none;"></div>
           </div>
           <button type="button" class="btn-small" id="evEditBtn" style="display:none; flex:none;" onclick="toggleEventEdit()">✎ Edit details</button>
+          <button type="button" class="btn-small" id="evPrintBtn" style="flex:none;" onclick="openPrintModal('event')">🖨 Print</button>
         </div>
 
         <div id="evCoverDisplay" style="display:none; margin-top:14px; border-radius:12px; overflow:hidden; height:180px; background:var(--oat-deep) center/cover no-repeat;"></div>
@@ -3142,10 +3160,52 @@
 <div class="modal-overlay" id="creatorHandoffOverlay" onclick="if(event.target===this) closeCreatorHandoff()">
   <div class="entry-modal" style="max-width:380px; text-align:center; padding:34px 28px 28px;">
     <button class="modal-close" onclick="closeCreatorHandoff()" aria-label="Close">✕</button>
-    <p style="font-size:17px; font-weight:600; margin:6px 0 8px;">Loved writing that.</p>
-    <p style="font-size:14px; color:var(--ink-soft); margin:0 0 20px;">Want your own page, so people can write things like that for you?</p>
-    <button class="btn btn-primary" style="width:100%; margin-bottom:8px;" onclick="closeCreatorHandoff(); startNewBook();">Create my page ↗</button>
-    <button class="btn btn-ghost" style="width:100%;" onclick="closeCreatorHandoff()">Not now</button>
+    <p style="font-size:17px; font-weight:600; margin:6px 0 8px;" id="handoffTitle">Your words are on their way.</p>
+    <p style="font-size:14px; color:var(--ink-soft); margin:0 0 20px;" id="handoffSub">Want a memory book of your own? Your people write in it. You keep it forever.</p>
+    <button class="btn btn-primary" style="width:100%; margin-bottom:8px;" onclick="closeCreatorHandoff(); guestStartOwnBook();">Create my book — it's free</button>
+    <button class="btn btn-ghost" style="width:100%;" onclick="closeCreatorHandoff()">Maybe later</button>
+    <p style="font-size:11.5px; color:var(--ink-soft); margin:12px 0 0; display:none;" id="handoffNote"></p>
+  </div>
+</div>
+
+<!-- ===== PRINT MODAL (book / diary / event) ===== -->
+<div class="modal-overlay" id="printModalOverlay" onclick="if(event.target===this) closePrintModal()">
+  <div class="entry-modal" style="max-width:400px; padding:28px 24px 22px;">
+    <button class="modal-close" onclick="closePrintModal()" aria-label="Close">✕</button>
+    <p style="font-size:17px; font-weight:600; margin:2px 0 4px;" id="printModalTitle">Print my book</p>
+    <p style="font-size:13px; color:var(--ink-soft); margin:0 0 18px;" id="printModalSub">EarthLive composes and organises everything automatically.</p>
+
+    <button type="button" onclick="generateSimplePdf()" style="display:flex; align-items:center; gap:12px; width:100%; border:1.5px solid var(--camel); background:#FDFAF5; border-radius:12px; padding:12px 14px; margin-bottom:9px; cursor:pointer; font-family:inherit; text-align:left;">
+      <span style="font-size:19px;" aria-hidden="true">📄</span>
+      <span style="flex:1;">
+        <span style="display:block; font-size:13.5px; font-weight:700; color:var(--ink);">Simple PDF</span>
+        <span style="display:block; font-size:11.5px; color:var(--ink-soft); margin-top:1px;" id="printSimpleDesc">All entries, clean layout</span>
+      </span>
+      <span style="font-size:11.5px; font-weight:800; color:var(--moss);">FREE</span>
+    </button>
+
+    <button type="button" onclick="generateDesignedPdf()" style="display:flex; align-items:center; gap:12px; width:100%; border:1.5px solid var(--camel); background:var(--page); border-radius:12px; padding:12px 14px; margin-bottom:9px; cursor:pointer; font-family:inherit; text-align:left;">
+      <span style="font-size:19px;" aria-hidden="true">📖</span>
+      <span style="flex:1;">
+        <span style="display:block; font-size:13.5px; font-weight:700; color:var(--ink);">Designed book PDF</span>
+        <span style="display:block; font-size:11.5px; color:var(--ink-soft); margin-top:1px;">Cover page, styled pages, memory map, no watermark</span>
+      </span>
+      <span style="text-align:right;">
+        <span style="display:block; font-size:10px; color:var(--ink-soft); text-decoration:line-through;">₹199</span>
+        <span style="display:block; font-size:11px; font-weight:800; color:var(--camel);">FREE at launch</span>
+      </span>
+    </button>
+
+    <button type="button" onclick="showToast('Printed hardcover delivery is coming soon')" style="display:flex; align-items:center; gap:12px; width:100%; border:1px solid var(--line); background:var(--page); border-radius:12px; padding:12px 14px; cursor:pointer; font-family:inherit; text-align:left; opacity:.75;">
+      <span style="font-size:19px;" aria-hidden="true">📦</span>
+      <span style="flex:1;">
+        <span style="display:block; font-size:13.5px; font-weight:700; color:var(--ink);">Printed hardcover</span>
+        <span style="display:block; font-size:11.5px; color:var(--ink-soft); margin-top:1px;">A5, delivered in 7 days</span>
+      </span>
+      <span style="font-size:11.5px; font-weight:700; color:var(--camel);">soon</span>
+    </button>
+
+    <p style="font-size:11px; color:var(--ink-soft); text-align:center; margin:14px 0 0;">Sealed notes stay sealed — they print as locked pages with their open date.</p>
   </div>
 </div>
 
@@ -4922,6 +4982,7 @@
       color: row.color || '#3C4A5E',
       unlockAt: row.unlock_at || null,
       signerUserId: row.signer_user_id || null,
+      guestEmail: row.guest_email || null,
       profileId: row.profile_id || null,
       fromDiary: !!row.diary_entry_id,
       diaryEntryId: row.diary_entry_id || null,
@@ -5577,6 +5638,9 @@
           <span class="pen-dot" style="background:${entry.color}"></span>
           <span class="entry-name">${escapeHtml(entry.name)}${entry.unlockAt ? ' <span style="font-size:11px; color:var(--camel);">\ud83d\udd13 unsealed today</span>' : ''}</span>
         </div>
+        ${entry.guestEmail
+          ? `<div style="font-size:11.5px; color:var(--camel); margin:2px 0 0 18px;">${escapeHtml(entry.guestEmail)} <span style="font-size:10px; background:var(--oat-deep, #E8E6E1); color:var(--ink-soft); padding:1px 7px; border-radius:99px; margin-left:4px;">guest</span></div>`
+          : (entry.signerUserId ? `<div style="font-size:11px; color:var(--moss); margin:2px 0 0 18px;">\u2713 EarthLive member</div>` : '')}
         <p class="entry-msg" style="color:${entry.color || 'var(--ink)'}">"${linkify(entry.message)}"</p>
         <div class="pending-actions">
           <button class="btn-small" onclick="acceptEntry('${entry.id}')">Accept &amp; post</button>
@@ -6339,6 +6403,668 @@
     setTimeout(()=>{ try{ w.print(); }catch(e){} }, 400);
   }
 
+  /* ============================================================
+     PRINT MY BOOK / DIARY / EVENT  \u2014 free Simple PDF tier
+     Collects existing content, composes pages, generates a PDF.
+     ============================================================ */
+  let printContext = 'book';
+
+  function openPrintModal(kind){
+    printContext = kind;
+    const titles = {
+      book:  ['Print my book', 'Every approved signature, sealed notes listed with their open dates.', 'All signatures, clean layout'],
+      diary: ['Print my diary', 'Your private entries, dated, with moods \u2014 for your eyes only.', 'All entries with dates and moods'],
+      event: ['Print event keepsake', 'Details, description and guest list as a one-page summary.', 'Event summary with guest list']
+    };
+    const t = titles[kind] || titles.book;
+    document.getElementById('printModalTitle').textContent = t[0];
+    document.getElementById('printModalSub').textContent = t[1];
+    document.getElementById('printSimpleDesc').textContent = t[2];
+    document.getElementById('printModalOverlay').classList.add('open');
+  }
+
+  function closePrintModal(){
+    document.getElementById('printModalOverlay').classList.remove('open');
+  }
+
+  // --- shared page helpers -------------------------------------------------
+  function pdfMakeDoc(JsPDF){
+    return new JsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  }
+  const PDF_M = 18;               // page margin (mm)
+  const PDF_W = 210 - PDF_M * 2;  // usable width
+
+  function pdfFooter(doc){
+    const pages = doc.getNumberOfPages();
+    for (let i = 1; i <= pages; i++){
+      doc.setPage(i);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(170, 166, 156);
+      doc.text('Made with EarthLive \u00b7 earthlive.in', 105, 291, { align:'center' });
+      doc.text(String(i), 210 - PDF_M, 291, { align:'right' });
+    }
+  }
+
+  function pdfNeed(doc, y, needed){
+    if (y + needed > 278){ doc.addPage(); return 24; }
+    return y;
+  }
+
+  function pdfWrapText(doc, text, x, y, maxW, lineH, fontSize, style, color){
+    doc.setFont('helvetica', style || 'normal');
+    doc.setFontSize(fontSize);
+    if (color) doc.setTextColor(color[0], color[1], color[2]);
+    const lines = doc.splitTextToSize(text || '', maxW);
+    for (const ln of lines){
+      y = pdfNeed(doc, y, lineH);
+      doc.text(ln, x, y);
+      y += lineH;
+    }
+    return y;
+  }
+
+  const INK_C = [46, 42, 34], SOFT_C = [110, 106, 96], CAMEL_C = [169, 118, 79], MOSS_C = [87, 97, 74];
+
+  async function generateSimplePdf(){
+    closePrintModal();
+    showToast('Composing your PDF\u2026');
+    let JsPDF;
+    try { JsPDF = await ensureJsPdf(); }
+    catch(e){ showToast('Could not load the PDF tool \u2014 check your connection'); return; }
+    try {
+      if (printContext === 'diary') return pdfDiary(JsPDF);
+      if (printContext === 'event') return pdfEvent(JsPDF);
+      return pdfBook(JsPDF);
+    } catch(err){
+      console.error('[EarthLive] PDF failed:', err);
+      showToast('Something went wrong composing the PDF');
+    }
+  }
+
+  // --- 1. MEMORY BOOK ------------------------------------------------------
+  function pdfBook(JsPDF){
+    const doc = pdfMakeDoc(JsPDF);
+    const now = new Date();
+    const sigs = (entries || []).filter(e => (e.status === 'approved' || !e.status) && !isWallPost(e));
+    const open  = sigs.filter(e => !e.unlockAt || new Date(e.unlockAt) <= now);
+    const sealed = sigs.filter(e => e.unlockAt && new Date(e.unlockAt) > now);
+    const cities = [...new Set(sigs.map(e => e.city && e.city.name).filter(Boolean))];
+
+    let y = 30;
+    doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.setTextColor(...INK_C);
+    doc.text((profile && profile.name ? profile.name : 'My') + ' \u2014 Memory book', PDF_M, y); y += 8;
+    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...SOFT_C);
+    doc.text(sigs.length + ' signature' + (sigs.length===1?'':'s')
+      + (cities.length ? ' \u00b7 ' + cities.length + ' cit' + (cities.length===1?'y':'ies') : '')
+      + (sealed.length ? ' \u00b7 ' + sealed.length + ' sealed' : '')
+      + ' \u00b7 exported ' + now.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}), PDF_M, y);
+    y += 4;
+    doc.setDrawColor(229, 226, 219); doc.setLineWidth(0.4);
+    doc.line(PDF_M, y, 210 - PDF_M, y); y += 10;
+
+    if (!open.length && !sealed.length){
+      y = pdfWrapText(doc, 'No signatures yet \u2014 share your invite link and this book will fill up.', PDF_M, y, PDF_W, 6, 11, 'italic', SOFT_C);
+    }
+
+    for (const e of open){
+      y = pdfNeed(doc, y, 24);
+      doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...INK_C);
+      doc.text(e.name || 'Someone', PDF_M, y);
+      const meta = [e.relation, e.city && e.city.name, e.date].filter(Boolean).join(' \u00b7 ');
+      if (meta){
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...CAMEL_C);
+        doc.text(meta, PDF_M + doc.getTextWidth(e.name || 'Someone') + 4, y);
+      }
+      y += 6;
+      if (e.word){
+        doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...MOSS_C);
+        doc.text('In one word: ' + e.word, PDF_M, y); y += 5.5;
+      }
+      y = pdfWrapText(doc, '\u201c' + (e.message || '') + '\u201d', PDF_M, y, PDF_W, 5.6, 11, 'italic', INK_C);
+      (e.answers || []).forEach(a => {
+        y = pdfWrapText(doc, a.label + ': ' + a.value, PDF_M, y + 1, PDF_W, 5.2, 9.5, 'normal', SOFT_C);
+      });
+      if (e.photos && e.photos.length){
+        y = pdfWrapText(doc, '\ud83d\udcf7 ' + e.photos.length + ' photo' + (e.photos.length===1?'':'s') + ' attached \u2014 view them on the page', PDF_M, y + 1, PDF_W, 5, 8.5, 'normal', SOFT_C);
+      }
+      y += 3;
+      doc.setDrawColor(238, 235, 228); doc.setLineWidth(0.3);
+      y = pdfNeed(doc, y, 4);
+      doc.line(PDF_M, y, 210 - PDF_M, y); y += 8;
+    }
+
+    if (sealed.length){
+      y = pdfNeed(doc, y, 20);
+      doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(...CAMEL_C);
+      doc.text('Sealed letters \u2014 still waiting to be opened', PDF_M, y); y += 8;
+      for (const e of sealed){
+        y = pdfNeed(doc, y, 12);
+        doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...INK_C);
+        doc.text('\ud83d\udd12 A sealed note from ' + (e.name || 'someone'), PDF_M, y); y += 5.5;
+        doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...SOFT_C);
+        doc.text('Opens on ' + new Date(e.unlockAt).toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'}), PDF_M, y); y += 8;
+      }
+    }
+
+    pdfFooter(doc);
+    doc.save('earthlive-memory-book-' + ((profile && profile.name) || 'my').toLowerCase().replace(/[^a-z0-9]+/g,'-') + '.pdf');
+    showToast('Your memory book PDF is ready \u2713');
+  }
+
+  // --- 2. DIARY ------------------------------------------------------------
+  function pdfDiary(JsPDF){
+    const doc = pdfMakeDoc(JsPDF);
+    const list = (diaryEntriesCache || []).slice().sort((a,b)=> new Date(b.created_at) - new Date(a.created_at));
+
+    let y = 30;
+    doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.setTextColor(...INK_C);
+    doc.text('My diary', PDF_M, y); y += 8;
+    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...SOFT_C);
+    doc.text(((profile && profile.name) ? profile.name + ' \u00b7 ' : '') + list.length + ' entr' + (list.length===1?'y':'ies')
+      + ' \u00b7 exported ' + new Date().toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})
+      + ' \u00b7 private', PDF_M, y);
+    y += 4;
+    doc.setDrawColor(229, 226, 219); doc.setLineWidth(0.4);
+    doc.line(PDF_M, y, 210 - PDF_M, y); y += 10;
+
+    if (!list.length){
+      y = pdfWrapText(doc, 'No diary entries yet.', PDF_M, y, PDF_W, 6, 11, 'italic', SOFT_C);
+    }
+
+    for (const d of list){
+      y = pdfNeed(doc, y, 20);
+      const dt = new Date(d.created_at);
+      doc.setFont('helvetica','bold'); doc.setFontSize(11.5); doc.setTextColor(...INK_C);
+      let head = dt.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+      if (d.mood) head += '  \u00b7  ' + d.mood;
+      doc.text(head, PDF_M, y); y += 6;
+      if (d.title){
+        doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...MOSS_C);
+        doc.text(d.title, PDF_M, y); y += 6;
+      }
+      if (d.body) y = pdfWrapText(doc, d.body, PDF_M, y, PDF_W, 5.6, 10.5, 'normal', INK_C);
+      if (d.photos && d.photos.length){
+        y = pdfWrapText(doc, '\ud83d\udcf7 ' + d.photos.length + ' photo' + (d.photos.length===1?'':'s') + ' in this entry', PDF_M, y + 1, PDF_W, 5, 8.5, 'normal', SOFT_C);
+      }
+      y += 3;
+      doc.setDrawColor(238, 235, 228); doc.setLineWidth(0.3);
+      y = pdfNeed(doc, y, 4);
+      doc.line(PDF_M, y, 210 - PDF_M, y); y += 8;
+    }
+
+    pdfFooter(doc);
+    doc.save('earthlive-diary.pdf');
+    showToast('Your diary PDF is ready \u2713');
+  }
+
+  // --- 3. EVENT ------------------------------------------------------------
+  function pdfEvent(JsPDF){
+    const doc = pdfMakeDoc(JsPDF);
+    const ev = curEvent;
+    if (!ev){ showToast('Open an event first'); return; }
+    const members = (curGuests || []).filter(g => g.status === 'joined');
+
+    let y = 30;
+    doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.setTextColor(...INK_C);
+    y = pdfWrapText(doc, ev.name || 'Event', PDF_M, y, PDF_W, 9, 22, 'bold', INK_C);
+    doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(...SOFT_C);
+    const meta = [
+      ev.event_date ? new Date(ev.event_date + 'T00:00:00').toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) : null,
+      ev.location || null,
+      'hosted by ' + (curHostName || 'the host')
+    ].filter(Boolean).join(' \u00b7 ');
+    y = pdfWrapText(doc, meta, PDF_M, y, PDF_W, 5.6, 10.5, 'normal', SOFT_C);
+    y += 2;
+    doc.setDrawColor(229, 226, 219); doc.setLineWidth(0.4);
+    doc.line(PDF_M, y, 210 - PDF_M, y); y += 10;
+
+    if (ev.description){
+      doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...MOSS_C);
+      doc.text('About this event', PDF_M, y); y += 6;
+      y = pdfWrapText(doc, '\u201c' + ev.description + '\u201d', PDF_M, y, PDF_W, 5.8, 11, 'italic', INK_C);
+      y += 6;
+    }
+
+    doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...MOSS_C);
+    y = pdfNeed(doc, y, 10);
+    doc.text('Guests \u00b7 ' + members.length + ' joined', PDF_M, y); y += 6;
+    if (members.length){
+      const names = members.map(g => g.guest_name || 'Member').join(', ');
+      y = pdfWrapText(doc, names, PDF_M, y, PDF_W, 5.6, 10.5, 'normal', INK_C);
+    } else {
+      y = pdfWrapText(doc, 'No confirmed guests yet.', PDF_M, y, PDF_W, 5.6, 10.5, 'italic', SOFT_C);
+    }
+    y += 6;
+
+    if (ev.slug){
+      doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...MOSS_C);
+      y = pdfNeed(doc, y, 12);
+      doc.text('Join this event', PDF_M, y); y += 6;
+      y = pdfWrapText(doc, eventUrl(ev.slug), PDF_M, y, PDF_W, 5.6, 10.5, 'normal', CAMEL_C);
+    }
+
+    pdfFooter(doc);
+    doc.save('earthlive-event-' + (ev.name || 'event').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0, 40) + '.pdf');
+    showToast('Your event PDF is ready \u2713');
+  }
+
+  /* ============================================================
+     DESIGNED PDF (premium tier) — cover pages, styled cards,
+     memory map, sealed pages, mood chart, A5 event card with QR.
+     Free during launch; wire Razorpay in front of generateDesignedPdf
+     when payments go live.
+     ============================================================ */
+  const DZ_CREAM = [251,250,247], DZ_MAPBG = [237,240,232], DZ_SEALBG = [245,242,236];
+
+  function dzHexRgb(hex){
+    hex = String(hex || '#3C4A5E').replace('#','');
+    if (hex.length !== 6) hex = '3C4A5E';
+    return [parseInt(hex.slice(0,2),16), parseInt(hex.slice(2,4),16), parseInt(hex.slice(4,6),16)];
+  }
+
+  function dzCredit(doc){
+    // One discreet credit on the final page only — no per-page watermark.
+    const n = doc.getNumberOfPages();
+    doc.setPage(n);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(190,186,176);
+    doc.text('Composed with EarthLive', doc.internal.pageSize.getWidth()/2, doc.internal.pageSize.getHeight()-6, { align:'center' });
+  }
+
+  async function dzFetchImage(url){
+    try{
+      const res = await fetch(url, { mode:'cors' });
+      if (!res.ok) return null;
+      const blob = await res.blob();
+      return await new Promise(r=>{
+        const fr = new FileReader();
+        fr.onload = ()=>r(fr.result);
+        fr.onerror = ()=>r(null);
+        fr.readAsDataURL(blob);
+      });
+    }catch(e){ return null; }
+  }
+
+  function dzMakeQr(text){
+    return new Promise(resolve=>{
+      const done = ()=>{
+        try{
+          const c = document.createElement('canvas');
+          new QRious({ element:c, value:text, size:220, background:'#ffffff', foreground:'#3d4634' });
+          resolve(c.toDataURL('image/png'));
+        }catch(e){ resolve(null); }
+      };
+      if (window.QRious) return done();
+      const sc = document.createElement('script');
+      sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js';
+      sc.onload = done;
+      sc.onerror = ()=>resolve(null);
+      document.head.appendChild(sc);
+    });
+  }
+
+  async function generateDesignedPdf(){
+    closePrintModal();
+    showToast('Launch offer: free right now \u2014 composing your designed book\u2026');
+    let JsPDF;
+    try{ JsPDF = await ensureJsPdf(); }
+    catch(e){ showToast('Could not load the PDF tool \u2014 check your connection'); return; }
+    try{
+      if (printContext === 'diary') return await pdfDiaryDesigned(JsPDF);
+      if (printContext === 'event') return await pdfEventDesigned(JsPDF);
+      return await pdfBookDesigned(JsPDF);
+    }catch(err){
+      console.error('[EarthLive] designed PDF failed:', err);
+      showToast('Something went wrong composing the designed PDF');
+    }
+  }
+
+  // --- DESIGNED 1. MEMORY BOOK ---------------------------------------------
+  async function pdfBookDesigned(JsPDF){
+    const doc = pdfMakeDoc(JsPDF);
+    const now = new Date();
+    const sigs = (entries || []).filter(e => (e.status === 'approved' || !e.status) && !isWallPost(e));
+    const open  = sigs.filter(e => !e.unlockAt || new Date(e.unlockAt) <= now);
+    const sealed = sigs.filter(e => e.unlockAt && new Date(e.unlockAt) > now);
+    const cities = [...new Set(sigs.map(e => e.city && e.city.name).filter(Boolean))];
+
+    // ---- Cover ----
+    doc.setFillColor(74,82,64);  doc.rect(0,0,210,297,'F');
+    doc.setFillColor(46,51,40);  doc.rect(0,205,210,92,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(200,165,131);
+    doc.text('M E M O R Y   B O O K', 105, 106, { align:'center' });
+    doc.setFont('times','normal'); doc.setFontSize(34); doc.setTextColor(255,255,255);
+    doc.text((profile && profile.name) ? profile.name : 'My book', 105, 124, { align:'center' });
+    doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(225,222,214);
+    doc.text('Collected with love \u00b7 ' + now.getFullYear(), 105, 134, { align:'center' });
+    doc.setDrawColor(255,255,255); doc.setLineWidth(0.3); doc.line(95,142,115,142);
+    const stats = [
+      [String(open.length + sealed.length), 'SIGNATURES'],
+      [String(cities.length), 'CITIES'],
+      [String(sealed.length), 'SEALED']
+    ];
+    let sx = 61;
+    stats.forEach(([n,l])=>{
+      doc.setFont('times','normal'); doc.setFontSize(19); doc.setTextColor(255,255,255);
+      doc.text(n, sx, 158, { align:'center' });
+      doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(190,197,182);
+      doc.text(l, sx, 164, { align:'center' });
+      sx += 44;
+    });
+
+    // ---- Signature pages ----
+    const newSigPage = ()=>{
+      doc.addPage();
+      doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...CAMEL_C);
+      doc.text('\u2014   S I G N A T U R E S   \u2014', 105, 18, { align:'center' });
+      return 30;
+    };
+    let y = newSigPage();
+
+    for (const e of open){
+      // Photos: best-effort, up to 2, skipped silently on failure
+      const imgs = [];
+      if (e.photos && e.photos.length){
+        for (const u of e.photos.slice(0,2)){
+          const durl = await dzFetchImage(u);
+          if (durl) imgs.push(durl);
+        }
+      }
+      doc.setFont('times','italic'); doc.setFontSize(12);
+      const msgLines = doc.splitTextToSize('\u201c' + (e.message || '') + '\u201d', PDF_W - 16);
+      let ansLines = [];
+      (e.answers || []).forEach(a=>{
+        doc.setFont('helvetica','normal'); doc.setFontSize(9);
+        ansLines = ansLines.concat(doc.splitTextToSize(a.label + ': ' + a.value, PDF_W - 16));
+      });
+      const photoH = imgs.length ? 34 : 0;
+      const h = 20 + msgLines.length * 5.4
+        + (ansLines.length ? ansLines.length * 4.6 + 2 : 0)
+        + (e.word ? 10 : 0) + photoH + 6;
+      if (y + h > 282){ y = newSigPage(); }
+
+      doc.setFillColor(255,255,255); doc.setDrawColor(232,228,218); doc.setLineWidth(0.35);
+      doc.roundedRect(PDF_M - 4, y - 7, PDF_W + 8, h, 3, 3, 'FD');
+      const pen = dzHexRgb(e.color);
+      doc.setFillColor(pen[0],pen[1],pen[2]); doc.circle(210 - PDF_M - 2, y - 1, 1.6, 'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(12.5); doc.setTextColor(...INK_C);
+      doc.text(e.name || 'Someone', PDF_M, y);
+      const meta = [e.relation, e.city && e.city.name, e.date].filter(Boolean).join(' \u00b7 ');
+      if (meta){
+        doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...CAMEL_C);
+        doc.text(meta, PDF_M, y + 5);
+      }
+      let yy = y + 13;
+      doc.setFont('times','italic'); doc.setFontSize(12); doc.setTextColor(58,54,44);
+      msgLines.forEach(ln=>{ doc.text(ln, PDF_M, yy); yy += 5.4; });
+      if (ansLines.length){
+        yy += 1;
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...SOFT_C);
+        ansLines.forEach(ln=>{ doc.text(ln, PDF_M, yy); yy += 4.6; });
+      }
+      if (imgs.length){
+        let ix = PDF_M;
+        for (const durl of imgs){
+          try{
+            const props = doc.getImageProperties(durl);
+            const w = 42;
+            const ih = Math.min(30, w * props.height / props.width);
+            doc.addImage(durl, ix, yy + 1, w, ih, undefined, 'FAST');
+            ix += w + 5;
+          }catch(imgErr){ /* skip photo */ }
+        }
+        yy += 33;
+      }
+      if (e.word){
+        doc.setFont('helvetica','bold'); doc.setFontSize(8);
+        const ww = doc.getTextWidth(e.word) + 8;
+        doc.setDrawColor(224,220,210); doc.setFillColor(...DZ_CREAM);
+        doc.roundedRect(PDF_M, yy - 1, ww, 6, 3, 3, 'FD');
+        doc.setTextColor(...MOSS_C); doc.text(e.word, PDF_M + 4, yy + 3.2);
+        yy += 10;
+      }
+      y = yy + 9;
+    }
+
+    if (!open.length){
+      doc.setFont('times','italic'); doc.setFontSize(12); doc.setTextColor(...SOFT_C);
+      doc.text('No signatures yet \u2014 share your invite link and this book will fill up.', 105, 60, { align:'center' });
+    }
+
+    // ---- Memory map page ----
+    if (cities.length){
+      doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...CAMEL_C);
+      doc.text('\u2014   W H E R E   T H E   L O V E   C A M E   F R O M   \u2014', 105, 30, { align:'center' });
+      doc.setFillColor(...DZ_MAPBG); doc.roundedRect(PDF_M, 40, PDF_W, 150, 4, 4, 'F');
+      cities.slice(0, 14).forEach(c=>{
+        let hsum = 0;
+        for (const ch of c) hsum = (hsum * 31 + ch.charCodeAt(0)) >>> 0;
+        const px = PDF_M + 16 + (hsum % (PDF_W - 32));
+        const py = 54 + ((hsum >>> 8) % 120);
+        doc.setFillColor(...CAMEL_C); doc.setDrawColor(255,255,255); doc.setLineWidth(0.4);
+        doc.circle(px, py, 1.7, 'FD');
+        doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...MOSS_C);
+        doc.text(c, px, py + 5, { align:'center' });
+      });
+      doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...SOFT_C);
+      doc.text(cities.length + ' cit' + (cities.length === 1 ? 'y' : 'ies') + ' wrote in this book', 105, 200, { align:'center' });
+    }
+
+    // ---- Sealed pages ----
+    if (sealed.length){
+      doc.addPage(); doc.setFillColor(...DZ_SEALBG); doc.rect(0,0,210,297,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...CAMEL_C);
+      doc.text('\u2014   S T I L L   S E A L E D   \u2014', 105, 30, { align:'center' });
+      let sy = 48;
+      for (const e of sealed){
+        if (sy > 250){
+          doc.addPage(); doc.setFillColor(...DZ_SEALBG); doc.rect(0,0,210,297,'F');
+          sy = 34;
+        }
+        doc.setFillColor(255,255,255); doc.setDrawColor(...CAMEL_C); doc.setLineWidth(0.5);
+        doc.roundedRect(50, sy, 110, 28, 3, 3, 'FD');
+        // drawn lock icon (no emoji — clean print)
+        doc.setDrawColor(...CAMEL_C); doc.setLineWidth(0.8);
+        doc.circle(105, sy + 7, 2.4, 'S');
+        doc.setFillColor(...CAMEL_C);
+        doc.roundedRect(101.4, sy + 7, 7.2, 5.4, 1, 1, 'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...INK_C);
+        doc.text('A sealed letter from ' + (e.name || 'someone'), 105, sy + 18.5, { align:'center' });
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...SOFT_C);
+        doc.text('Opens on ' + new Date(e.unlockAt).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }), 105, sy + 24, { align:'center' });
+        sy += 36;
+      }
+    }
+
+    dzCredit(doc);
+    doc.save('earthlive-designed-book-' + (((profile && profile.name) || 'my').toLowerCase().replace(/[^a-z0-9]+/g,'-')) + '.pdf');
+    showToast('Your designed book is ready \u2713');
+  }
+
+  // --- DESIGNED 2. DIARY ---------------------------------------------------
+  async function pdfDiaryDesigned(JsPDF){
+    const doc = pdfMakeDoc(JsPDF);
+    const list = (diaryEntriesCache || []).slice().sort((a,b)=> new Date(b.created_at) - new Date(a.created_at));
+    const photoCount = list.reduce((n,d)=> n + ((d.photos && d.photos.length) || 0), 0);
+
+    const counts = {};
+    Object.values(moodByDate || {}).forEach(id=>{ counts[id] = (counts[id] || 0) + 1; });
+    let topMood = null, best = 0;
+    Object.entries(counts).forEach(([id,c])=>{ if (c > best){ best = c; topMood = id; } });
+    const topMoodLabel = topMood ? ((moodOf(topMood) || {}).label || '\u2014') : '\u2014';
+
+    // ---- Cover (navy) ----
+    doc.setFillColor(60,74,94);  doc.rect(0,0,210,297,'F');
+    doc.setFillColor(40,50,63);  doc.rect(0,205,210,92,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(200,165,131);
+    doc.text('P R I V A T E   D I A R Y', 105, 106, { align:'center' });
+    doc.setFont('times','normal'); doc.setFontSize(32); doc.setTextColor(255,255,255);
+    doc.text('My diary', 105, 124, { align:'center' });
+    doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(220,225,232);
+    doc.text(((profile && profile.name) ? profile.name + ' \u00b7 ' : '') + new Date().toLocaleDateString('en-IN', { month:'long', year:'numeric' }), 105, 134, { align:'center' });
+    doc.setDrawColor(255,255,255); doc.setLineWidth(0.3); doc.line(95,142,115,142);
+    const dstats = [
+      [String(list.length), 'ENTRIES'],
+      [String(photoCount), 'PHOTOS'],
+      [topMoodLabel.toUpperCase(), 'TOP MOOD']
+    ];
+    let dx = 61;
+    dstats.forEach(([n,l])=>{
+      doc.setFont('times','normal'); doc.setFontSize(16); doc.setTextColor(255,255,255);
+      doc.text(n, dx, 158, { align:'center' });
+      doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(178,190,204);
+      doc.text(l, dx, 164, { align:'center' });
+      dx += 44;
+    });
+
+    // ---- Mood month page ----
+    doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...CAMEL_C);
+    doc.text('\u2014   Y O U R   M O N T H   I N   M O O D S   \u2014', 105, 28, { align:'center' });
+    const rank = { great:6, calm:5, okay:4, tired:3, sad:2, notgood:1 };
+    const baseY = 92, maxH = 46, barW = 4.6, gap = 1.2;
+    let bx = PDF_M + 2;
+    for (let i = 29; i >= 0; i--){
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const id = (moodByDate || {})[calKey(d)];
+      if (id && rank[id]){
+        const m = moodOf(id);
+        const rgb = dzHexRgb(m ? m.bg : '#C7C0B2');
+        const h = (rank[id] / 6) * maxH;
+        doc.setFillColor(rgb[0],rgb[1],rgb[2]);
+        doc.roundedRect(bx, baseY - h, barW, h, 0.8, 0.8, 'F');
+      } else {
+        doc.setFillColor(232,230,225);
+        doc.rect(bx, baseY - 2, barW, 2, 'F');
+      }
+      bx += barW + gap;
+    }
+    doc.setDrawColor(224,220,210); doc.setLineWidth(0.3); doc.line(PDF_M, baseY + 1, 210 - PDF_M, baseY + 1);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...SOFT_C);
+    doc.text('Last 30 days \u00b7 taller = brighter day', PDF_M, baseY + 7);
+    let lx = PDF_M, ly = baseY + 16;
+    MOODS.forEach(m=>{
+      const rgb = dzHexRgb(m.bg);
+      doc.setFillColor(rgb[0],rgb[1],rgb[2]); doc.circle(lx + 1.5, ly - 1.2, 1.5, 'F');
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...INK_C);
+      doc.text(m.label, lx + 4.5, ly);
+      lx += doc.getTextWidth(m.label) + 12;
+    });
+
+    // ---- Entries ----
+    let y = baseY + 30;
+    for (const d of list){
+      const dt = new Date(d.created_at);
+      const mood = d.mood ? MOODS.find(m => m.label === d.mood || m.id === d.mood) : null;
+      doc.setFont('helvetica','normal'); doc.setFontSize(10);
+      const bodyLines = d.body ? doc.splitTextToSize(d.body, PDF_W - 24) : [];
+      const eh = 14 + (d.title ? 6 : 0) + bodyLines.length * 4.8 + 6;
+      if (y + eh > 280){
+        doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F');
+        y = 26;
+      }
+      // date block
+      doc.setFont('times','normal'); doc.setFontSize(17); doc.setTextColor(...INK_C);
+      doc.text(String(dt.getDate()), PDF_M + 5, y + 4, { align:'center' });
+      doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(...SOFT_C);
+      doc.text(dt.toLocaleDateString('en-IN', { weekday:'short' }).toUpperCase(), PDF_M + 5, y + 8.5, { align:'center' });
+      // mood-coloured spine
+      const spineRgb = mood ? dzHexRgb(mood.bg) : [200,196,186];
+      doc.setFillColor(spineRgb[0],spineRgb[1],spineRgb[2]);
+      doc.roundedRect(PDF_M + 12, y - 2, 1.2, eh - 8, 0.6, 0.6, 'F');
+      let yy = y + 2;
+      if (mood){
+        doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+        const mw = doc.getTextWidth(mood.label) + 7;
+        const chipRgb = dzHexRgb(mood.chip), txRgb = dzHexRgb(mood.tx);
+        doc.setFillColor(chipRgb[0],chipRgb[1],chipRgb[2]);
+        doc.roundedRect(PDF_M + 17, yy - 3.5, mw, 5.2, 2.6, 2.6, 'F');
+        doc.setTextColor(txRgb[0],txRgb[1],txRgb[2]);
+        doc.text(mood.label, PDF_M + 20.5, yy);
+        yy += 7;
+      }
+      if (d.title){
+        doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...INK_C);
+        doc.text(d.title, PDF_M + 17, yy); yy += 6;
+      }
+      doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(70,66,58);
+      bodyLines.forEach(ln=>{ doc.text(ln, PDF_M + 17, yy); yy += 4.8; });
+      if (d.photos && d.photos.length){
+        doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...SOFT_C);
+        doc.text(d.photos.length + ' photo' + (d.photos.length===1?'':'s') + ' in this entry \u2014 view them in the app', PDF_M + 17, yy);
+        yy += 5;
+      }
+      y = yy + 8;
+    }
+    if (!list.length){
+      doc.setFont('times','italic'); doc.setFontSize(12); doc.setTextColor(...SOFT_C);
+      doc.text('No diary entries yet.', 105, y + 10, { align:'center' });
+    }
+
+    dzCredit(doc);
+    doc.save('earthlive-designed-diary.pdf');
+    showToast('Your designed diary is ready \u2713');
+  }
+
+  // --- DESIGNED 3. EVENT (A5 table card with QR) ---------------------------
+  async function pdfEventDesigned(JsPDF){
+    const ev = curEvent;
+    if (!ev){ showToast('Open an event first'); return; }
+    const members = (curGuests || []).filter(g => g.status === 'joined');
+    const doc = new JsPDF({ orientation:'portrait', unit:'mm', format:'a5' }); // 148 x 210
+
+    doc.setFillColor(74,82,64); doc.rect(0,0,148,210,'F');
+    doc.setFillColor(56,64,48); doc.rect(0,150,148,60,'F');
+
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(200,165,131);
+    doc.text("Y O U ' R E   P A R T   O F   T H I S", 74, 34, { align:'center' });
+    doc.setFont('times','normal'); doc.setFontSize(23); doc.setTextColor(255,255,255);
+    const nameLines = doc.splitTextToSize(ev.name || 'Our event', 120);
+    let ny = 48;
+    nameLines.forEach(ln=>{ doc.text(ln, 74, ny, { align:'center' }); ny += 10; });
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(222,226,216);
+    const meta = [
+      ev.event_date ? new Date(ev.event_date + 'T00:00:00').toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short', year:'numeric' }) : null,
+      ev.location || null
+    ].filter(Boolean).join('  \u00b7  ');
+    if (meta) doc.text(meta, 74, ny + 2, { align:'center' });
+    doc.setDrawColor(255,255,255); doc.setLineWidth(0.3); doc.line(64, ny + 9, 84, ny + 9);
+
+    let cy = ny + 20;
+    if (ev.description){
+      doc.setFont('times','italic'); doc.setFontSize(11); doc.setTextColor(238,240,234);
+      const descLines = doc.splitTextToSize('\u201c' + ev.description + '\u201d', 112);
+      descLines.slice(0,4).forEach(ln=>{ doc.text(ln, 74, cy, { align:'center' }); cy += 5.6; });
+      cy += 4;
+    }
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(200,207,192);
+    doc.text(members.length + ' guest' + (members.length===1?'':'s') + ' joined \u00b7 hosted by ' + (curHostName || 'the host'), 74, cy, { align:'center' });
+
+    // QR block
+    let qrData = null;
+    if (ev.slug){
+      try { qrData = await dzMakeQr(eventUrl(ev.slug)); } catch(e){ qrData = null; }
+    }
+    if (qrData){
+      doc.setFillColor(255,255,255);
+      doc.roundedRect(56, 158, 36, 36, 2.5, 2.5, 'F');
+      try { doc.addImage(qrData, 'PNG', 59, 161, 30, 30); } catch(e){}
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(222,226,216);
+      doc.text('Scan to open the event page', 74, 200, { align:'center' });
+    } else if (ev.slug){
+      doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(222,226,216);
+      doc.text('Join at:', 74, 168, { align:'center' });
+      doc.setTextColor(200,165,131);
+      doc.text(eventUrl(ev.slug), 74, 174, { align:'center' });
+    }
+
+    dzCredit(doc);
+    doc.save('earthlive-event-card-' + (ev.name || 'event').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40) + '.pdf');
+    showToast('Your event keepsake card is ready \u2713');
+  }
+
   function reportEntry(){
     const entry = modalEntrySource[currentModalIndex];
     if (!entry) return;
@@ -6527,14 +7253,24 @@
   let fillTarget = null;
 
   function openFillForm(profileObj, entriesArr, isOwn, returnScreen){
-    if (db && !currentUser){
-      showToast('Sign in to sign someone\u2019s page');
-      showScreen('auth');
-      return;
-    }
+    // Guests can sign with name + email — no account needed. The owner's
+    // approval queue plus the visible email is the security layer.
     fillTarget = { profileObj, entriesArr, isOwn, returnScreen: returnScreen || 'dashboard' };
     document.getElementById('fillOwnerName').textContent = profileObj.name;
     document.getElementById('fillOwnerName2').textContent = profileObj.name;
+    const emailWrap = document.getElementById('fEmailWrap');
+    const emailInput = document.getElementById('fEmail');
+    const ownerName3 = document.getElementById('fillOwnerName3');
+    if (ownerName3) ownerName3.textContent = profileObj.name;
+    if (db && !currentUser){
+      emailWrap.style.display = '';
+      emailInput.required = true;
+      try { const saved = localStorage.getItem('el_guest_email'); if (saved && !emailInput.value) emailInput.value = saved; } catch(e){}
+      try { const savedName = localStorage.getItem('el_guest_name'); const nm = document.getElementById('fName'); if (savedName && !nm.value) nm.value = savedName; } catch(e){}
+    } else {
+      emailWrap.style.display = 'none';
+      emailInput.required = false;
+    }
     renderTemplateQuestionFields(profileObj);
 
     // Your name comes from your account and can't be changed while signing.
@@ -6594,6 +7330,23 @@
     const relation = document.getElementById('fRelation').value;
     const word = document.getElementById('fWord').value.trim();
     const msg = document.getElementById('fMsg').value.trim();
+
+    // Guest identity: email is required when not signed in
+    const isGuest = !!(db && !currentUser);
+    let guestEmail = null;
+    if (isGuest){
+      guestEmail = (document.getElementById('fEmail').value || '').trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)){
+        showToast('Please enter a valid email so ' + (target.profileObj.name || 'they') + ' knows it\u2019s you');
+        return;
+      }
+      try {
+        localStorage.setItem('el_guest_email', guestEmail);
+        localStorage.setItem('el_guest_name', name);
+        const n = parseInt(localStorage.getItem('el_guest_signs') || '0', 10) + 1;
+        localStorage.setItem('el_guest_signs', String(n));
+      } catch(e){}
+    }
 
     if (!enforceWordLimit(msg, 'Your message')) return;
 
@@ -6659,6 +7412,7 @@
         status: 'pending',
         unlock_at: unlockAt
       };
+      if (guestEmail) row.guest_email = guestEmail;
 
       const { error } = await db.from('entries').insert(row);
       if (error){
@@ -6720,10 +7474,52 @@
     if (creatorHandoffShown) return;      // once per session \u2014 don't nag
     if (profile && profile.dbId) return;  // already has their own page
     creatorHandoffShown = true;
+    // Personalise: first-time vs repeat guest signer
+    try {
+      const ownerName = (fillTarget && fillTarget.profileObj && fillTarget.profileObj.name) ? fillTarget.profileObj.name : null;
+      const signs = parseInt(localStorage.getItem('el_guest_signs') || '0', 10);
+      const titleEl = document.getElementById('handoffTitle');
+      const subEl = document.getElementById('handoffSub');
+      const noteEl = document.getElementById('handoffNote');
+      if (titleEl){
+        titleEl.textContent = ownerName
+          ? 'Your words are on their way to ' + ownerName + '.'
+          : 'Your words are on their way.';
+      }
+      if (subEl && signs >= 2){
+        subEl.textContent = 'You\u2019ve now written in ' + signs + ' books. Time for one of your own?';
+      }
+      if (noteEl){
+        const gEmail = localStorage.getItem('el_guest_email');
+        if (gEmail){
+          noteEl.textContent = 'We\u2019ll use the name and email you just entered.';
+          noteEl.style.display = 'block';
+        } else {
+          noteEl.style.display = 'none';
+        }
+      }
+    } catch(e){}
     setTimeout(()=>{
       const overlay = document.getElementById('creatorHandoffOverlay');
       if (overlay) overlay.classList.add('open');
     }, 900);
+  }
+
+  function guestStartOwnBook(){
+    // Pre-fill the auth email with the guest's email, then run the normal flow.
+    try {
+      const gEmail = localStorage.getItem('el_guest_email');
+      if (db && !currentUser && gEmail){
+        showScreen('auth');
+        const flow = document.getElementById('emailFlow');
+        if (flow) flow.style.display = 'block';
+        const emailInput = document.getElementById('authEmail');
+        if (emailInput) emailInput.value = gEmail;
+        showToast('Verify your email and your book is ready');
+        return;
+      }
+    } catch(e){}
+    startNewBook();
   }
 
   function closeCreatorHandoff(){
@@ -6742,14 +7538,8 @@
 
   function signCurrentVisitorProfile(){
     if (!currentVisitorProfile) return;
-    // Reading a book is open to everyone. Signing it needs an account \u2014 ask here,
-    // at the moment it actually matters, and come straight back afterwards.
-    if (db && !currentUser){
-      pendingLinkUsername = currentVisitorProfile.username || null;
-      showToast('Sign in to add your signature \u2014 we\u2019ll bring you right back');
-      showScreen('auth');
-      return;
-    }
+    // Reading and signing a book are open to everyone. Guests sign with
+    // name + email; the owner's approval queue is the gate that matters.
     openFillForm(currentVisitorProfile, currentVisitorEntries, currentVisitorIsOwn, visitorReturnScreen);
   }
 
