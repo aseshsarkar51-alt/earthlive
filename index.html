@@ -6477,7 +6477,7 @@
     try {
       if (printContext === 'diary') return pdfDiary(JsPDF);
       if (printContext === 'event') return pdfEvent(JsPDF);
-      return pdfBook(JsPDF);
+      return await pdfBook(JsPDF);
     } catch(err){
       console.error('[EarthLive] PDF failed:', err);
       showToast('Something went wrong composing the PDF');
@@ -6499,7 +6499,7 @@
       .trim();
   }
 
-  function pdfBook(JsPDF){
+  async function pdfBook(JsPDF){
     const doc = pdfMakeDoc(JsPDF);
     const now = new Date();
     const approved = (entries || []).filter(e => e.status === 'approved' || !e.status);
@@ -6511,8 +6511,38 @@
     const cityNames = [...new Set(pinned.map(e => e.city.name).filter(Boolean))];
 
     let y = 30;
+
+    // ---- Cover photo strip ----
+    if (profile && profile.cover){
+      const coverUrl = await dzFetchImage(profile.cover);
+      if (coverUrl){
+        try{
+          const props = doc.getImageProperties(coverUrl);
+          const w = PDF_W, h = Math.min(48, w * props.height / props.width);
+          doc.addImage(coverUrl, PDF_M, y - 12, w, h, undefined, 'FAST');
+          y += h + 6;
+        }catch(e){ /* skip cover on failure */ }
+      }
+    }
+
+    // ---- Profile photo + name + bio ----
+    const avatarSize = 22;
+    let avatarUrl = null;
+    if (profile && profile.avatar) avatarUrl = await dzCircleAvatar(profile.avatar, 200);
+    const textX = avatarUrl ? PDF_M + avatarSize + 6 : PDF_M;
+    if (avatarUrl){
+      try{ doc.addImage(avatarUrl, PDF_M, y, avatarSize, avatarSize, undefined, 'FAST'); }catch(e){ /* skip */ }
+    }
     doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.setTextColor(...INK_C);
-    doc.text((profile && profile.name ? pdfSafe(profile.name) : 'My') + ' \u2014 Memory book', PDF_M, y); y += 8;
+    doc.text((profile && profile.name ? pdfSafe(profile.name) : 'My') + ' \u2014 Memory book', textX, y + (avatarUrl ? 9 : 0));
+    let by = y + (avatarUrl ? 15 : 8);
+    if (profile && profile.bio){
+      doc.setFont('helvetica','italic'); doc.setFontSize(9.5); doc.setTextColor(...SOFT_C);
+      const bioLines = doc.splitTextToSize(pdfSafe(profile.bio), PDF_W - (textX - PDF_M));
+      bioLines.slice(0,2).forEach(ln => { doc.text(ln, textX, by); by += 4.6; });
+    }
+    y = Math.max(by, y + avatarSize) + 4;
+
     doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...SOFT_C);
     doc.text((open.length+sealed.length) + ' signature' + ((open.length+sealed.length)===1?'':'s')
       + (cityNames.length ? ' \u00b7 ' + cityNames.length + ' cit' + (cityNames.length===1?'y':'ies') : '')
@@ -6522,6 +6552,22 @@
     y += 4;
     doc.setDrawColor(229, 226, 219); doc.setLineWidth(0.4);
     doc.line(PDF_M, y, 210 - PDF_M, y); y += 10;
+
+    // ---- Memory map (real OpenStreetMap tiles) ----
+    if (pinned.length){
+      const mapImg = await dzRenderOsmMap(pinned, 900, 620);
+      if (mapImg){
+        y = pdfNeed(doc, y, 100);
+        const mh = 92;
+        try{
+          doc.addImage(mapImg, 'JPEG', PDF_M, y, PDF_W, mh, undefined, 'FAST');
+          y += mh + 4;
+          doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...SOFT_C);
+          doc.text(cityNames.length + ' cit' + (cityNames.length===1?'y':'ies') + ' \u00b7 ' + pinned.length + ' pinned memor' + (pinned.length===1?'y':'ies') + ' \u00b7 from OpenStreetMap', PDF_M, y);
+          y += 9;
+        }catch(e){ /* skip map on failure */ }
+      }
+    }
 
     if (!open.length && !sealed.length && !walls.length){
       y = pdfWrapText(doc, 'No signatures yet \u2014 share your invite link and this book will fill up.', PDF_M, y, PDF_W, 6, 11, 'italic', SOFT_C);
@@ -6767,6 +6813,107 @@
     });
   }
 
+  async function dzCircleAvatar(url, size){
+    const durl = await dzFetchImage(url);
+    if (!durl) return null;
+    return new Promise(res=>{
+      const img = new Image();
+      img.onload = ()=>{
+        try{
+          const c = document.createElement('canvas'); c.width = size; c.height = size;
+          const ctx = c.getContext('2d');
+          ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, 2*Math.PI); ctx.closePath(); ctx.clip();
+          const scale = Math.max(size/img.width, size/img.height);
+          const w = img.width*scale, h = img.height*scale;
+          ctx.drawImage(img, (size-w)/2, (size-h)/2, w, h);
+          res(c.toDataURL('image/png'));
+        }catch(e){ res(null); }
+      };
+      img.onerror = ()=>res(null);
+      img.src = durl;
+    });
+  }
+
+  function dzLonToWorldX(lon, z){ return (lon+180)/360 * 256 * Math.pow(2,z); }
+  function dzLatToWorldY(lat, z){
+    const s = Math.sin(lat*Math.PI/180);
+    return (0.5 - Math.log((1+s)/(1-s)) / (4*Math.PI)) * 256 * Math.pow(2,z);
+  }
+
+  // Stitches real OpenStreetMap tiles (tile.openstreetmap.org) into a canvas
+  // and draws pins on top \u2014 returns a dataURL, or null if it can't be built.
+  async function dzRenderOsmMap(pinned, pxW, pxH){
+    if (!pinned || !pinned.length) return null;
+    const lats = pinned.map(e=>e.city.lat), lngs = pinned.map(e=>e.city.lng);
+    let minLat = Math.min(...lats), maxLat = Math.max(...lats);
+    let minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+    const padLat = Math.max((maxLat-minLat)*0.2, 3);
+    const padLng = Math.max((maxLng-minLng)*0.2, 3);
+    minLat -= padLat; maxLat += padLat; minLng -= padLng; maxLng += padLng;
+
+    let zoom = 2;
+    for (let z = 9; z >= 1; z--){
+      const w = dzLonToWorldX(maxLng, z) - dzLonToWorldX(minLng, z);
+      const h = dzLatToWorldY(minLat, z) - dzLatToWorldY(maxLat, z);
+      if (w <= pxW && h <= pxH){ zoom = z; break; }
+    }
+    const tileSize = 256;
+    const minTX = Math.floor(dzLonToWorldX(minLng, zoom)/tileSize);
+    const maxTX = Math.floor(dzLonToWorldX(maxLng, zoom)/tileSize);
+    const minTY = Math.floor(dzLatToWorldY(maxLat, zoom)/tileSize);
+    const maxTY = Math.floor(dzLatToWorldY(minLat, zoom)/tileSize);
+    const cols = maxTX - minTX + 1, rows = maxTY - minTY + 1;
+    if (cols*rows > 36 || cols < 1 || rows < 1) return null;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = cols*tileSize; canvas.height = rows*tileSize;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#EDEEE9'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    const subs = ['a','b','c'];
+    let i = 0;
+    for (let ty = minTY; ty <= maxTY; ty++){
+      for (let tx = minTX; tx <= maxTX; tx++){
+        const s = subs[i++ % subs.length];
+        const url = 'https://' + s + '.tile.openstreetmap.org/' + zoom + '/' + tx + '/' + ty + '.png';
+        try{
+          const durl = await dzFetchImage(url);
+          if (durl){
+            const img = await new Promise(r=>{ const im=new Image(); im.onload=()=>r(im); im.onerror=()=>r(null); im.src=durl; });
+            if (img) ctx.drawImage(img, (tx-minTX)*tileSize, (ty-minTY)*tileSize);
+          }
+        }catch(e){ /* skip this tile, leave background */ }
+      }
+    }
+
+    const originX = minTX*tileSize, originY = minTY*tileSize;
+    const placedPts = [];
+    pinned.forEach(e=>{
+      const px = dzLonToWorldX(e.city.lng, zoom) - originX;
+      const py = dzLatToWorldY(e.city.lat, zoom) - originY;
+      placedPts.forEach(([ox,oy])=>{
+        ctx.strokeStyle = 'rgba(169,118,79,0.5)'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(px,py); ctx.stroke();
+      });
+      placedPts.push([px,py]);
+    });
+    const drawnLabels = new Set();
+    pinned.forEach(e=>{
+      const px = dzLonToWorldX(e.city.lng, zoom) - originX;
+      const py = dzLatToWorldY(e.city.lat, zoom) - originY;
+      const isOwner = isWallPost(e);
+      ctx.fillStyle = isOwner ? '#434B39' : '#A9764F';
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(px, py, 7, 0, 2*Math.PI); ctx.fill(); ctx.stroke();
+      const key = e.city.name;
+      if (key && !drawnLabels.has(key)){
+        drawnLabels.add(key);
+        ctx.fillStyle = '#2E2A22'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(pdfSafe(key), px, py + 20);
+      }
+    });
+    return canvas.toDataURL('image/jpeg', 0.85);
+  }
+
   async function generateDesignedPdf(){
     closePrintModal();
     showToast('Launch offer: free right now \u2014 composing your designed book\u2026');
@@ -6797,15 +6944,46 @@
     const cityNames = [...new Set(pinned.map(e => e.city.name).filter(Boolean))];
 
     // ---- Cover ----
-    doc.setFillColor(74,82,64);  doc.rect(0,0,210,297,'F');
+    let coverImgUrl = null;
+    if (profile && profile.cover) coverImgUrl = await dzFetchImage(profile.cover);
+    if (coverImgUrl){
+      try{
+        doc.addImage(coverImgUrl, 0, 0, 210, 205, undefined, 'FAST');
+        doc.setFillColor(40,44,34);
+        if (doc.setGState && doc.GState){
+          doc.setGState(new doc.GState({ opacity: 0.5 }));
+          doc.rect(0,0,210,205,'F');
+          doc.setGState(new doc.GState({ opacity: 1 }));
+        }
+      }catch(e){ doc.setFillColor(74,82,64); doc.rect(0,0,210,205,'F'); }
+    } else {
+      doc.setFillColor(74,82,64); doc.rect(0,0,210,205,'F');
+    }
     doc.setFillColor(46,51,40);  doc.rect(0,205,210,92,'F');
+
+    // ---- Profile photo badge ----
+    if (profile && profile.avatar){
+      const avatarImg = await dzCircleAvatar(profile.avatar, 300);
+      if (avatarImg){
+        try{
+          doc.addImage(avatarImg, 'PNG', 90, 62, 30, 30, undefined, 'FAST');
+          doc.setDrawColor(255,255,255); doc.setLineWidth(1);
+          doc.circle(105, 77, 15, 'S');
+        }catch(e){ /* skip avatar */ }
+      }
+    }
+
     doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(200,165,131);
     doc.text('M E M O R Y   B O O K', 105, 106, { align:'center' });
     doc.setFont('times','normal'); doc.setFontSize(34); doc.setTextColor(255,255,255);
     doc.text((profile && profile.name) ? pdfSafe(profile.name) : 'My book', 105, 124, { align:'center' });
     doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(225,222,214);
     doc.text('Collected with love \u00b7 ' + now.getFullYear(), 105, 134, { align:'center' });
-    doc.setDrawColor(255,255,255); doc.setLineWidth(0.3); doc.line(95,142,115,142);
+    if (profile && profile.bio){
+      doc.setFont('helvetica','italic'); doc.setFontSize(9); doc.setTextColor(220,217,209);
+      doc.text(pdfSafe(profile.bio).slice(0,90), 105, 141, { align:'center' });
+    }
+    doc.setDrawColor(255,255,255); doc.setLineWidth(0.3); doc.line(95,148,115,148);
     const stats = [
       [String(open.length + sealed.length), 'SIGNATURES'],
       [String(cityNames.length), 'CITIES'],
@@ -6900,56 +7078,23 @@
       doc.text('No signatures yet \u2014 share your invite link and this book will fill up.', 105, 60, { align:'center' });
     }
 
-    // ---- Memory map page (real OSM tiles via canvas) ----
+    // ---- Memory map page (real OpenStreetMap tiles) ----
     if (pinned.length){
       doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F');
       doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...CAMEL_C);
       doc.text('\u2014   W H E R E   T H E   L O V E   C A M E   F R O M   \u2014', 105, 30, { align:'center' });
 
-      // Compute bounding box from real coords
-      const lats = pinned.map(e => e.city.lat);
-      const lngs = pinned.map(e => e.city.lng);
-      const minLat = Math.min(...lats), maxLat = Math.max(...lats);
-      const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
-      const cLat = (minLat + maxLat) / 2, cLng = (minLng + maxLng) / 2;
-
-      // Map box dimensions in mm
       const MX = PDF_M, MY = 40, MW = PDF_W, MH = 148;
       doc.setFillColor(...DZ_MAPBG); doc.roundedRect(MX, MY, MW, MH, 4, 4, 'F');
 
-      // Try to fetch a single OSM static-like tile snapshot via canvas
-      // (We project lat/lng to mm coordinates within the box manually)
-      const latToY = lat => MY + ((maxLat - lat) / (maxLat - minLat + 0.001)) * (MH - 10) + 5;
-      const lngToX = lng => MX + ((lng - minLng) / (maxLng - minLng + 0.001)) * (MW - 10) + 5;
-
-      // Draw connecting lines between pins
-      doc.setDrawColor(169, 118, 79); doc.setLineWidth(0.2);
-      const placed = [];
-      pinned.forEach(e => {
-        const px = lngToX(e.city.lng), py = latToY(e.city.lat);
-        placed.forEach(([ox, oy]) => { doc.line(ox, oy, px, py); });
-        placed.push([px, py]);
-      });
-
-      // Draw pins
-      const drawn = new Set();
-      pinned.forEach(e => {
-        const key = e.city.name;
-        const px = lngToX(e.city.lng), py = latToY(e.city.lat);
-        const isOwner = isWallPost(e);
-        // owner wall pins in moss, signatures in camel
-        if (isOwner) { doc.setFillColor(...MOSS_C); } else { doc.setFillColor(...CAMEL_C); }
-        doc.setDrawColor(255,255,255); doc.setLineWidth(0.5);
-        doc.circle(px, py, 2.2, 'FD');
-        if (!drawn.has(key)){
-          drawn.add(key);
-          doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...INK_C);
-          doc.text(pdfSafe(key), px, py + 5.5, { align:'center' });
-        }
-      });
+      const mapImg = await dzRenderOsmMap(pinned, 1000, 700);
+      if (mapImg){
+        try{ doc.addImage(mapImg, 'JPEG', MX, MY, MW, MH, undefined, 'FAST'); }
+        catch(e){ /* keep the plain background box on failure */ }
+      }
 
       doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...SOFT_C);
-      doc.text(cityNames.length + ' cit' + (cityNames.length === 1 ? 'y' : 'ies') + ' \u00b7 ' + pinned.length + ' pinned memor' + (pinned.length === 1 ? 'y' : 'ies'), 105, MY + MH + 8, { align:'center' });
+      doc.text(cityNames.length + ' cit' + (cityNames.length === 1 ? 'y' : 'ies') + ' \u00b7 ' + pinned.length + ' pinned memor' + (pinned.length === 1 ? 'y' : 'ies') + ' \u00b7 map data from OpenStreetMap', 105, MY + MH + 8, { align:'center' });
 
       // Legend
       doc.setFillColor(...CAMEL_C); doc.circle(PDF_M, MY + MH + 18, 1.5, 'F');
