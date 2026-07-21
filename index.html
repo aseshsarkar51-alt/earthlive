@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/full.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Caveat:wght@500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -514,6 +515,51 @@
     content:''; position:absolute; inset:-6px; border-radius:50%;
     border:1px solid var(--camel); animation:mripple 2.5s ease-out infinite;
   }
+
+  /* ---------- MY ALBUM ---------- */
+  .album-panel{margin-bottom:34px;}
+  .album-layout{display:grid; grid-template-columns:1.3fr 1fr; gap:18px; align-items:start;}
+  @media (max-width:820px){ .album-layout{grid-template-columns:1fr;} }
+
+  .album-dropzone{
+    border:1.5px dashed var(--line); border-radius:var(--radius); padding:22px 16px;
+    text-align:center; cursor:pointer; background:var(--oat); color:var(--ink-soft);
+    font-size:13px; margin-bottom:10px; transition:border-color .15s ease, background .15s ease, color .15s ease;
+  }
+  .album-dropzone:hover{border-color:var(--camel); color:var(--ink);}
+  .album-dropzone.dragover{border-color:var(--camel); background:var(--card); color:var(--ink);}
+  .album-dropzone .ic{display:block; margin:0 auto 8px; width:22px; height:22px; color:var(--camel);}
+  .album-dropzone .ic svg{width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1.6;}
+  .album-dropzone p{margin:0;}
+
+  .album-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;
+  }
+  .album-tile{
+    position:relative; aspect-ratio:1; border-radius:9px; overflow:hidden; cursor:pointer;
+    background:var(--oat-deep); box-shadow:var(--shadow);
+  }
+  .album-tile img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    transition:transform .4s cubic-bezier(.2,.8,.2,1);
+  }
+  .album-tile:hover img{transform:scale(1.08);}
+  .album-tile-pin{
+    position:absolute; bottom:5px; right:5px; width:17px; height:17px; border-radius:50%;
+    background:rgba(255,255,255,.92); display:flex; align-items:center; justify-content:center;
+    box-shadow:0 1px 4px rgba(26,22,18,.3);
+  }
+  .album-tile-pin svg{width:9px; height:9px; fill:none; stroke:var(--camel); stroke-width:2;}
+  .album-tile-remove{
+    position:absolute; top:4px; right:4px; width:20px; height:20px; border-radius:50%; border:none;
+    background:rgba(26,22,18,.55); color:#fff; font-size:11px; line-height:1; cursor:pointer;
+    opacity:0; transition:opacity .15s ease; display:flex; align-items:center; justify-content:center;
+  }
+  .album-tile:hover .album-tile-remove{opacity:1;}
+
+  .album-map-wrap .memory-map{height:100%; min-height:230px;}
+  .album-map-caption{font-size:11.5px; color:var(--ink-soft); margin:8px 0 0; text-align:center;}
+
 
   .mem-popup-wrap .leaflet-popup-content-wrapper{
     background:var(--card); border:1px solid var(--line); border-radius:6px;
@@ -1459,6 +1505,128 @@
   .nav-evbadge{display:inline-flex; align-items:center; justify-content:center; min-width:17px; height:17px; border-radius:999px; background:var(--camel); color:#fff; font-size:10.5px; font-weight:700; padding:0 5px; margin-left:5px; vertical-align:1px;}
   .ev-member-row{display:flex; gap:11px; align-items:center; padding:10px 0; border-bottom:1px solid var(--line);}
   .ev-member-row:last-child{border-bottom:none;}
+
+  /* ---------- WAYPOINTS (album) — merged from waypoints_page.html, scoped ---------- */
+  #screen-waypoints .wpts-main{padding:34px 24px 60px; max-width:1000px; margin:0 auto;}
+  #screen-waypoints .wpts-eyebrow{font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--camel); font-weight:600; margin:0 0 6px;}
+  #screen-waypoints h1{font-family:"Fraunces",serif; font-weight:500; font-size:30px; margin:0 0 6px; letter-spacing:-0.01em; line-height:1.15;}
+  #screen-waypoints .wpts-sub{font-size:13.5px; color:var(--ink-soft); margin:0 0 22px; max-width:520px;}
+  #screen-waypoints .wpts-stat-row{display:flex; gap:22px; margin-bottom:22px; flex-wrap:wrap;}
+  #screen-waypoints .wpts-stat-row div{display:flex; flex-direction:column;}
+  #screen-waypoints .wpts-stat-row b{font-family:"Fraunces",serif; font-size:20px; font-weight:500;}
+  #screen-waypoints .wpts-stat-row span{font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.5px;}
+  #screen-waypoints .wpts-overview{border-radius:var(--radius); overflow:hidden; border:1px solid var(--line); margin-bottom:30px; background:#EDEEE9; position:relative; height:190px;}
+  #screen-waypoints .wpts-overview-tag{position:absolute; top:12px; left:14px; background:rgba(255,255,255,.92); border-radius:16px; padding:5px 12px; font-size:11.5px; font-weight:500; color:var(--ink); display:flex; align-items:center; gap:5px; z-index:2;}
+  #screen-waypoints .wpts-overview-tag svg{width:11px; height:11px; stroke:var(--camel); fill:none; stroke-width:2;}
+  #screen-waypoints .moment-rail{display:flex; gap:8px; overflow-x:auto; padding-bottom:20px;}
+  #screen-waypoints .moment-chip{flex:none; padding:7px 14px; border-radius:20px; border:1px solid var(--line); background:var(--card); font-size:12.5px; color:var(--ink-soft); cursor:pointer; white-space:nowrap;}
+  #screen-waypoints .moment-chip.active{background:var(--ink); border-color:var(--ink); color:var(--page); font-weight:500;}
+  #screen-waypoints .moment-group{margin-bottom:34px;}
+  #screen-waypoints .moment-head{display:flex; align-items:baseline; gap:10px; margin-bottom:4px;}
+  #screen-waypoints .moment-head h2{font-family:"Fraunces",serif; font-weight:500; font-size:19px; margin:0;}
+  #screen-waypoints .moment-head .moment-meta{font-size:12px; color:var(--ink-soft);}
+  #screen-waypoints .moment-firstperson{font-size:12.5px; color:var(--camel); font-style:italic; margin:0 0 12px; font-family:"Fraunces",serif;}
+  #screen-waypoints .masonry{display:grid; grid-template-columns:repeat(4, 1fr); grid-auto-rows:110px; gap:7px;}
+  @media (max-width:640px){ #screen-waypoints .masonry{grid-template-columns:repeat(2, 1fr); grid-auto-rows:96px;} }
+  #screen-waypoints .wpts-tile{position:relative; border-radius:12px; overflow:hidden; cursor:pointer; background:var(--oat-deep);}
+  #screen-waypoints .wpts-tile img{width:100%; height:100%; object-fit:cover; display:block; transition:transform .45s cubic-bezier(.2,.8,.2,1);}
+  #screen-waypoints .wpts-tile:hover img{transform:scale(1.06);}
+  #screen-waypoints .wpts-tile.big{grid-column:span 2; grid-row:span 2;}
+  #screen-waypoints .tile-caption{position:absolute; left:0; right:0; bottom:0; padding:20px 10px 8px; background:linear-gradient(to top, rgba(20,17,12,.75), rgba(20,17,12,0)); color:#fff; font-size:11px; opacity:0; transition:opacity .2s ease;}
+  #screen-waypoints .wpts-tile:hover .tile-caption{opacity:1;}
+  #screen-waypoints .tile-caption b{display:block; font-size:12px; font-weight:500;}
+  #screen-waypoints .tile-weather{display:flex; align-items:center; gap:3px; margin-top:2px; font-size:10.5px; opacity:.9;}
+  #screen-waypoints .tile-weather svg{width:10px; height:10px; stroke:#fff; fill:none; stroke-width:2;}
+  #screen-waypoints .then-now{display:grid; grid-template-columns:1fr 1fr; gap:10px; border-radius:var(--radius); overflow:hidden; margin-top:10px;}
+  #screen-waypoints .then-now .half{position:relative; aspect-ratio:4/3;}
+  #screen-waypoints .then-now img{width:100%; height:100%; object-fit:cover; display:block; border-radius:10px;}
+  #screen-waypoints .then-now .tag{position:absolute; top:8px; left:8px; background:rgba(255,255,255,.92); font-size:10.5px; font-weight:500; padding:3px 9px; border-radius:12px; color:var(--ink);}
+  #screen-waypoints .prompt-line{display:flex; align-items:center; gap:8px; margin-top:12px; padding:10px 14px; background:var(--card); border:1px dashed var(--line); border-radius:10px; font-size:12.5px; color:var(--ink-soft);}
+  #screen-waypoints .prompt-line svg{width:14px; height:14px; stroke:var(--camel); fill:none; stroke-width:1.8; flex:none;}
+
+  /* ---------- COMPACT ICON NAV (always on, all sizes) ---------- */
+  .nav-ic{position:relative; background:none; border:none; height:30px; border-radius:999px; padding:0 9px; color:var(--ink-soft); display:inline-flex; align-items:center; justify-content:center; gap:5px; cursor:pointer; flex:none; font-family:inherit; font-size:11px; font-weight:500; white-space:nowrap; letter-spacing:.01em; transition:background .12s ease, color .12s ease;}
+  .nav-ic .nav-lbl{display:inline;}
+  @media (max-width:760px){
+    .nav-ic{width:34px; padding:0;}
+    .nav-ic .nav-lbl{display:none;}
+  }
+  .nav-ic:hover{background:var(--oat); color:var(--ink);}
+  .nav-ic.active{background:var(--ink); color:var(--page);}
+  .nav-ic svg{width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex:none;}
+  .nav-ic .nav-tip{position:absolute; top:calc(100% + 6px); left:50%; transform:translateX(-50%) translateY(2px); background:var(--ink); color:var(--page); font-size:11px; font-weight:500; padding:4px 9px; border-radius:6px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .15s ease, transform .15s ease; z-index:900;}
+  @media (max-width:760px){
+    .nav-ic:hover .nav-tip, .nav-ic:focus-visible .nav-tip{opacity:1; transform:translateX(-50%) translateY(0);}
+  }
+  .nav-ic .nav-badge, .nav-ic .nav-evbadge{position:static; margin-left:2px; min-width:15px; height:15px; font-size:9.5px; padding:0 4px;}
+  @media (max-width:760px){
+    .nav-ic .nav-badge, .nav-ic .nav-evbadge{position:absolute; top:2px; right:2px; margin:0;}
+  }
+  .nav-right{gap:4px;}
+
+  /* Waypoints drop zone */
+  #screen-waypoints .wpts-drop{border:1.5px dashed var(--line); border-radius:14px; padding:24px 18px; text-align:center; background:var(--card); color:var(--ink-soft); cursor:pointer; margin:0 0 24px; transition:border-color .15s ease, background .15s ease;}
+  #screen-waypoints .wpts-drop.dragover, #screen-waypoints .wpts-drop:hover{border-color:var(--camel); background:var(--oat);}
+  #screen-waypoints .wpts-drop-ic{display:inline-flex; width:26px; height:26px; color:var(--camel); margin-bottom:6px;}
+  #screen-waypoints .wpts-drop-ic svg{width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;}
+  #screen-waypoints .wpts-drop b{display:block; font-size:14px; font-weight:500; color:var(--ink); margin:2px 0 4px;}
+  #screen-waypoints .wpts-drop-sub{display:block; font-size:12.5px; max-width:380px; margin:0 auto;}
+  #screen-waypoints .wpts-drop-btns{display:flex; gap:8px; justify-content:center; margin-top:12px; flex-wrap:wrap;}
+  #screen-waypoints .wpts-btn{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:500; padding:8px 14px; border-radius:999px; border:1px solid var(--line); background:var(--page); color:var(--ink); cursor:pointer; font-family:inherit;}
+  #screen-waypoints .wpts-btn.primary{background:var(--ink); color:var(--page); border-color:var(--ink);}
+  #screen-waypoints .wpts-btn svg{width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+
+  /* Waypoints: people search + face-match map */
+  #screen-waypoints .wpts-people{position:relative; margin:0 0 14px;}
+  #screen-waypoints .wpts-people .sig-search{margin-bottom:0;}
+  #screen-waypoints .wpts-sugg{position:absolute; left:0; right:0; top:100%; z-index:30; margin-top:4px; background:var(--card); border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow); overflow:hidden; display:none;}
+  #screen-waypoints .wpts-sugg.open{display:block;}
+  #screen-waypoints .wpts-sugg button{display:flex; align-items:center; gap:10px; width:100%; text-align:left; padding:10px 14px; font-size:13.5px; background:none; border:none; border-bottom:1px solid var(--line); color:var(--ink); cursor:pointer; font-family:inherit;}
+  #screen-waypoints .wpts-sugg button:last-child{border-bottom:none;}
+  #screen-waypoints .wpts-sugg button:hover{background:var(--oat);}
+  #screen-waypoints .wpts-sugg .sav{width:28px; height:28px; border-radius:50%; overflow:hidden; flex:none; background:var(--oat-deep); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; color:var(--ink-soft);}
+  #screen-waypoints .wpts-sugg .sav img{width:100%; height:100%; object-fit:cover;}
+  #screen-waypoints .wpts-sugg .noface{font-size:11px; color:var(--ink-soft); margin-left:auto;}
+  #screen-waypoints .wpts-status{display:none; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-soft); background:var(--card); border:1px dashed var(--line); border-radius:10px; padding:9px 13px; margin:10px 0 0;}
+  #screen-waypoints .wpts-status.on{display:flex;}
+  #screen-waypoints .wpts-status .spin{width:12px; height:12px; border:2px solid var(--oat-deep); border-top-color:var(--camel); border-radius:50%; animation:wptsSpin .8s linear infinite; flex:none;}
+  @keyframes wptsSpin{to{transform:rotate(360deg);}}
+  #screen-waypoints .wpts-map-wrap{display:none; margin:14px 0 6px;}
+  #screen-waypoints .wpts-map-wrap.on{display:block;}
+  #screen-waypoints #wptsMap{height:300px; border-radius:14px; border:1px solid var(--line); background:var(--oat); z-index:0;}
+  #screen-waypoints .wpts-map-cap{font-size:11.5px; color:var(--ink-soft); margin:8px 0 0; text-align:center;}
+  #screen-waypoints .wpts-match-strip{display:none; gap:8px; overflow-x:auto; padding:12px 0 6px;}
+  #screen-waypoints .wpts-match-strip.on{display:flex;}
+  #screen-waypoints .wpts-match-strip .m{flex:none; width:86px;}
+  #screen-waypoints .wpts-match-strip img{width:86px; height:86px; object-fit:cover; border-radius:10px; border:2px solid var(--camel); cursor:pointer; display:block;}
+  #screen-waypoints .wpts-match-strip span{display:block; font-size:10px; color:var(--ink-soft); margin-top:3px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .wpts-face-marker{width:34px; height:34px; border-radius:50%; overflow:hidden; border:2.5px solid var(--camel); box-shadow:0 2px 10px rgba(26,22,18,.4); background:#fff;}
+  .wpts-face-marker img{width:100%; height:100%; object-fit:cover;}
+
+  /* Waypoints: privacy pill, People tiles, match grid */
+  #screen-waypoints .wpts-vis{display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:999px; border:1px solid var(--line); background:var(--card); font-size:12.5px; font-weight:500; cursor:pointer; font-family:inherit; color:var(--ink);}
+  #screen-waypoints .wpts-vis .vdot{width:8px; height:8px; border-radius:50%; background:var(--blush);}
+  #screen-waypoints .wpts-vis.public .vdot{background:var(--moss);}
+  #screen-waypoints .wpts-people-sec{margin:6px 0 20px;}
+  #screen-waypoints .wpts-people-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px;}
+  #screen-waypoints .wpts-people-head h2{font-family:"Fraunces",serif; font-weight:500; font-size:19px; margin:0;}
+  #screen-waypoints .wpts-people-row{display:flex; gap:10px; overflow-x:auto; padding-bottom:6px;}
+  #screen-waypoints .wpts-person-tile{flex:none; width:92px; text-align:center; background:none; border:none; cursor:pointer; font-family:inherit; padding:0;}
+  #screen-waypoints .wpts-person-tile .pt-imgs{position:relative; width:76px; height:76px; margin:0 auto 6px;}
+  #screen-waypoints .wpts-person-tile .pt-me,#screen-waypoints .wpts-person-tile .pt-them{position:absolute; width:52px; height:52px; border-radius:50%; overflow:hidden; border:2.5px solid var(--card); box-shadow:0 2px 8px rgba(26,22,18,.2); background:var(--oat-deep); display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:600; color:var(--ink-soft);}
+  #screen-waypoints .wpts-person-tile .pt-me{left:0; top:12px; z-index:1;}
+  #screen-waypoints .wpts-person-tile .pt-them{right:0; top:0; z-index:2; border-color:var(--camel);}
+  #screen-waypoints .wpts-person-tile img{width:100%; height:100%; object-fit:cover;}
+  #screen-waypoints .wpts-person-tile b{display:block; font-size:12px; font-weight:500; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  #screen-waypoints .wpts-person-tile span{display:block; font-size:10.5px; color:var(--ink-soft);}
+  #screen-waypoints .wpts-person-tile.sel .pt-them{box-shadow:0 0 0 2px var(--camel);}
+  #screen-waypoints .wpts-match-grid{display:none; grid-template-columns:repeat(4,1fr); gap:7px; margin:12px 0 6px;}
+  #screen-waypoints .wpts-match-grid.on{display:grid;}
+  @media (max-width:640px){ #screen-waypoints .wpts-match-grid{grid-template-columns:repeat(3,1fr);} }
+  #screen-waypoints .wpts-match-grid .mg{position:relative; aspect-ratio:1; border-radius:10px; overflow:hidden; cursor:pointer; background:var(--oat-deep);}
+  #screen-waypoints .wpts-match-grid .mg img{width:100%; height:100%; object-fit:cover; display:block;}
+  #screen-waypoints .wpts-match-grid .mg .pin{position:absolute; bottom:5px; right:5px; width:17px; height:17px; border-radius:50%; background:rgba(255,255,255,.92); display:flex; align-items:center; justify-content:center;}
+  #screen-waypoints .wpts-match-grid .mg .pin svg{width:9px; height:9px; fill:none; stroke:var(--camel); stroke-width:2;}
 </style>
 </head>
 <body>
@@ -1472,12 +1640,15 @@
 </noscript>
 
 <nav class="nav">
-  <div class="brand"><span class="dot"></span>EarthLive</div>
+  <div style="display:flex; align-items:center; gap:10px;">
+    <div class="brand"><span class="dot"></span>EarthLive</div>
+    <span id="navLeft" style="display:inline-flex; align-items:center; gap:4px;"></span>
+  </div>
   <div class="nav-right" id="navRight">
-    <button class="nav-link" onclick="showScreen('about')">Our story</button>
-    <button class="nav-link" onclick="showScreen('how')">How it works</button>
-    <button class="nav-link" onclick="showScreen('landing')">Home</button>
-    <button class="nav-link" onclick="showScreen('auth')">Sign in</button>
+    <button class="nav-ic" title="Our story" aria-label="Our story" onclick="showScreen('about')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v5h1"/></svg><span class="nav-lbl">Our story</span><span class="nav-tip">Our story</span></button>
+    <button class="nav-ic" title="How it works" aria-label="How it works" onclick="showScreen('how')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 015.8 1c0 2-3 2.5-3 4M12 17v.01"/></svg><span class="nav-lbl">How it works</span><span class="nav-tip">How it works</span></button>
+    <button class="nav-ic" title="Home" aria-label="Home" onclick="showScreen('landing')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v9a1 1 0 01-1 1h-4v-6h-6v6H5a1 1 0 01-1-1z"/></svg><span class="nav-lbl">Home</span><span class="nav-tip">Home</span></button>
+    <button class="nav-ic" title="Sign in" aria-label="Sign in" onclick="showScreen('auth')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2v-2M9 12h11m-3-3l3 3-3 3"/></svg><span class="nav-lbl">Sign in</span><span class="nav-tip">Sign in</span></button>
   </div>
 </nav>
 
@@ -1801,6 +1972,30 @@
       <div class="memory-map" id="ownerMap"></div>
     </div>
 
+    <div class="album-panel" id="albumPanel" style="display:none;">
+      <div class="entries-head">
+        <h3>My album</h3>
+        <span id="albumCount"></span>
+      </div>
+      <p style="font-size:13px; color:var(--ink-soft); margin:0 0 14px;">
+        Drop photos in, or send them straight from your phone. Anything with location data pins itself on the map — no tagging needed.
+      </p>
+      <div class="album-layout">
+        <div class="album-grid-wrap">
+          <div class="album-dropzone" id="albumDropzone" onclick="document.getElementById('albumFileInput').click()">
+            <input type="file" accept="image/*" id="albumFileInput" multiple capture="environment" style="display:none;" onchange="albumHandleFiles(event.target.files); event.target.value='';">
+            <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span>
+            <p>Drop photos here, or tap to add</p>
+          </div>
+          <div class="album-grid" id="albumGrid"></div>
+        </div>
+        <div class="album-map-wrap" id="albumMapWrap" style="display:none;">
+          <div class="memory-map" id="albumMap"></div>
+          <p class="album-map-caption" id="albumMapCaption"></p>
+        </div>
+      </div>
+    </div>
+
     <div class="entries-head" id="sigsAnchor" style="gap:14px; flex-wrap:wrap; align-items:center;">
       <h3 style="flex:none;">Signatures</h3>
       <div class="sig-search" style="flex:1; min-width:220px; margin-bottom:0;">
@@ -1822,7 +2017,7 @@
   <div class="wrap">
     <div style="max-width:640px; margin:0 auto; padding:40px 24px;">
       <div class="form-eyebrow">Today</div>
-      <h2 style="font-family:'Fraunces',serif; font-size:34px; margin:0 0 4px; font-weight:500; letter-spacing:-0.01em;">For you</h2>
+      <h2 style="font-family:'Fraunces',serif; font-size:34px; margin:0 0 4px; font-weight:500; letter-spacing:-0.01em;">For me</h2>
       <p style="color:var(--ink-soft); font-size:14px; margin:0 0 24px;">Only what involves you. No infinite scroll.</p>
       <div id="forYouList"></div>
       <button class="link-quiet" style="margin-top:24px;" onclick="showScreen('landing')">Back to home</button>
@@ -3041,6 +3236,121 @@
 
 
 <!-- ============ MESSAGES ============ -->
+
+<!-- ============ WAYPOINTS (album) — merged from waypoints_page.html ============ -->
+<section class="screen" id="screen-waypoints">
+  <div class="wpts-main">
+    <p class="wpts-eyebrow">My waypoints</p>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <h1 style="margin-bottom:6px;">Everywhere you've been</h1>
+      <span style="display:flex; gap:8px; flex:none; align-items:center;">
+      <button type="button" class="wpts-vis" id="wptsVisPill" onclick="wptsToggleVisibility()"><span class="vdot"></span><span id="wptsVisLabel">Album: Private</span></button>
+      <button type="button" class="wpts-btn" style="flex:none;" onclick="openPrintModal('waypoints')"><svg viewBox="0 0 24 24"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 01-2-2v-4a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg> Print waypoints</button>
+      </span>
+    </div>
+
+    <div class="wpts-drop" id="wptsDrop" onclick="document.getElementById('wptsFileInput').click()">
+      <input type="file" accept="image/*" id="wptsFileInput" multiple capture="environment" style="display:none;" onchange="wptsHandleFiles(event.target.files); event.target.value='';">
+      <span class="wpts-drop-ic"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span>
+      <b>Drop photos here, or tap to add</b>
+      <span class="wpts-drop-sub">Anything with location data pins itself on the map — no tagging needed</span>
+      <div class="wpts-drop-btns">
+        <button type="button" class="wpts-btn primary" onclick="event.stopPropagation(); document.getElementById('wptsFileInput').click();"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7"/></svg> Upload photos</button>
+        <button type="button" class="wpts-btn" onclick="event.stopPropagation(); document.getElementById('wptsFileInput').click();"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg> Take a photo</button>
+      </div>
+    </div>
+    <p class="wpts-sub">No likes here, no algorithm deciding what mattered. Just where you were, and what it looked like.</p>
+
+    <div class="wpts-stat-row">
+      <div><b>3</b><span>places</span></div>
+      <div><b>14</b><span>photos pinned</span></div>
+      <div><b>1,940 km</b><span>farthest from home</span></div>
+    </div>
+
+    <div class="wpts-people">
+      <div class="sig-search" style="background:var(--card); border:1px solid var(--line); border-radius:999px; padding:8px 16px;">
+        <span class="ic" aria-hidden="true" style="display:inline-flex; width:15px; height:15px; color:var(--ink-soft);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
+        <input type="text" id="wptsPersonSearch" placeholder="Search someone who signed your book — find photos of you two…" autocomplete="off" oninput="wptsPersonTyped()" style="flex:1; border:none; outline:none; background:transparent; font-family:inherit; font-size:13.5px; color:var(--ink);">
+        <button type="button" id="wptsPersonClear" style="display:none; background:none; border:none; cursor:pointer; color:var(--ink-soft); font-size:12px; padding:2px 4px;" onclick="wptsClearPerson()" aria-label="Clear">✕</button>
+      </div>
+      <div class="wpts-sugg" id="wptsSugg"></div>
+      <div class="wpts-status" id="wptsStatus"><span class="spin"></span><span id="wptsStatusText"></span></div>
+    </div>
+
+    <div class="wpts-people-sec" id="wptsPeopleSec">
+      <div class="wpts-people-head">
+        <h2>People</h2>
+        <button type="button" class="wpts-btn" id="wptsScanBtn" onclick="wptsFindPeople()"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.4-5 5.5-5s5.5 2 5.5 5"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.6c2.8.2 5 2 5 4.4"/></svg> Find people in my photos</button>
+      </div>
+      <div class="wpts-people-row" id="wptsPeopleRow"></div>
+    </div>
+
+    <div class="wpts-match-grid" id="wptsMatchGrid"></div>
+
+    <div class="wpts-map-wrap" id="wptsMapWrap">
+      <div id="wptsMap"></div>
+      <p class="wpts-map-cap" id="wptsMapCap"></p>
+    </div>
+    <div class="wpts-match-strip" id="wptsMatchStrip"></div>
+
+    <div class="wpts-overview">
+      <span class="wpts-overview-tag"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Tap to open full map</span>
+      <svg viewBox="0 0 800 260" style="width:100%; height:100%; display:block;">
+        <rect width="800" height="260" fill="#EDEEE9"/>
+        <path d="M60 90 L220 70 L280 130 L240 200 L100 210 Z" fill="#F5F4F1"/>
+        <path d="M400 40 L620 20 L700 110 L580 190 L460 160 L380 100 Z" fill="#F5F4F1"/>
+        <path d="M320 190 L470 200 L440 250 L300 240 Z" fill="#F5F4F1"/>
+        <circle cx="510" cy="105" r="16" fill="rgba(169,118,79,0.22)"/><rect x="505" y="100" width="10" height="10" fill="#A9764F" stroke="#fff" stroke-width="1.5"/>
+        <circle cx="600" cy="150" r="16" fill="rgba(87,97,74,0.22)"/><rect x="595" y="145" width="10" height="10" fill="#57614A" stroke="#fff" stroke-width="1.5"/>
+        <circle cx="360" cy="205" r="16" fill="rgba(169,118,79,0.22)"/><rect x="355" y="200" width="10" height="10" fill="#A9764F" stroke="#fff" stroke-width="1.5"/>
+      </svg>
+    </div>
+
+    <div class="moment-rail">
+      <div class="moment-chip active" onclick="wptsChip(this)">All moments</div>
+      <div class="moment-chip" onclick="wptsChip(this)">Goa · Mar 2024</div>
+      <div class="moment-chip" onclick="wptsChip(this)">Bangalore · this year</div>
+      <div class="moment-chip" onclick="wptsChip(this)">Kolkata · Dec 2023</div>
+    </div>
+
+    <div class="moment-group">
+      <div class="moment-head">
+        <h2>Goa</h2>
+        <span class="moment-meta">March 2024 · 6 photos</span>
+      </div>
+      <p class="moment-firstperson">You stood on Baga beach at sunset, 28°C, barely a cloud.</p>
+      <div class="masonry">
+        <div class="wpts-tile big" onclick="openLightbox(this.querySelector('img').src)">
+          <img src="https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=500&h=500&fit=crop" alt="">
+          <div class="tile-caption">
+            <b>Baga beach</b>2 Mar 2024
+            <div class="tile-weather"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2"/></svg> 28°C, clear</div>
+          </div>
+        </div>
+        <div class="wpts-tile" onclick="openLightbox(this.querySelector('img').src)"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300&h=300&fit=crop" alt=""></div>
+        <div class="wpts-tile" onclick="openLightbox(this.querySelector('img').src)"><img src="https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=300&h=300&fit=crop" alt=""></div>
+        <div class="wpts-tile" onclick="openLightbox(this.querySelector('img').src)"><img src="https://images.unsplash.com/photo-1512100356356-de1b84283e18?w=300&h=300&fit=crop" alt=""></div>
+        <div class="wpts-tile" onclick="openLightbox(this.querySelector('img').src)"><img src="https://images.unsplash.com/photo-1519046904884-53103b34b206?w=300&h=300&fit=crop" alt=""></div>
+      </div>
+      <div class="prompt-line"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg> What were you doing here? One line is enough.</div>
+    </div>
+
+    <div class="moment-group">
+      <div class="moment-head">
+        <h2>Then and now — Cubbon Park</h2>
+        <span class="moment-meta">2021 → 2026</span>
+      </div>
+      <p class="moment-firstperson">Same bench, five years apart.</p>
+      <div class="then-now">
+        <div class="half"><span class="tag">2021</span><img src="https://images.unsplash.com/photo-1573982292856-5c9b4b5b3c9d?w=400&h=300&fit=crop" alt="" onclick="openLightbox(this.src)"></div>
+        <div class="half"><span class="tag">2026</span><img src="https://images.unsplash.com/photo-1580655653885-65763b2597d0?w=400&h=300&fit=crop" alt="" onclick="openLightbox(this.src)"></div>
+      </div>
+    </div>
+
+    <button class="link-quiet" onclick="showScreen(currentUser ? 'dashboard' : 'landing')">← Back</button>
+  </div>
+</section>
+
 <section class="screen" id="screen-messages">
   <div class="wrap" style="max-width:680px; padding-top:44px; padding-bottom:90px;">
     <div id="convListView">
@@ -4957,6 +5267,7 @@
       questions: normalizeQuestions(row.questions),
       links: (row.links && typeof row.links === 'object') ? row.links : {},
       extras: row.extras || {},
+      albumPublic: (typeof row.album_public === 'boolean') ? row.album_public : !!(row.extras && row.extras.album_public),
       createdAt: row.created_at,
       code: row.username
     };
@@ -4996,6 +5307,7 @@
     if (!data){ profile = null; entries = []; return false; } // never keep another account\u2019s page in memory
     profile = dbRowToProfile(data);
     await loadEntriesFromDb();
+    await loadAlbumFromDb();
     // Deactivated? Offer a one-tap way back.
     if (profile.deactivated) showReactivateBanner(); else hideReactivateBanner();
     refreshNav(); // nav was built before profile existed — rebuild now so My book / My diary show up
@@ -5569,6 +5881,7 @@
     const js = document.getElementById('jumpSigCount');
     if (js) js.textContent = signatures.length || '';
     renderMemoryMap('ownerMapPanel', 'ownerMap', 'ownerMapCount', entries.filter(isApproved));
+    try { renderAlbumGrid(); renderAlbumMap(); } catch(err){ console.error('[EarthLive] album render failed:', err); }
     renderPendingPanel(entries.filter(e => e.status === 'pending'));
     renderOnThisDay();
   }
@@ -6416,7 +6729,8 @@
     const titles = {
       book:  ['Print my book', 'Every approved signature, sealed notes listed with their open dates.', 'All signatures, clean layout'],
       diary: ['Print my diary', 'Your private entries, dated, with moods \u2014 for your eyes only.', 'All entries with dates and moods'],
-      event: ['Print event keepsake', 'Details, description and guest list as a one-page summary.', 'Event summary with guest list']
+      event: ['Print event keepsake', 'Details, description and guest list as a one-page summary.', 'Event summary with guest list'],
+      waypoints: ['Print my waypoints', 'Every pinned photo, grouped by place, with dates \u2014 your travels as an album.', 'All photos grouped by place']
     };
     const t = titles[kind] || titles.book;
     document.getElementById('printModalTitle').textContent = t[0];
@@ -6477,6 +6791,7 @@
     try {
       if (printContext === 'diary') return pdfDiary(JsPDF);
       if (printContext === 'event') return pdfEvent(JsPDF);
+      if (printContext === 'waypoints') return await pdfWaypoints(JsPDF, false);
       return await pdfBook(JsPDF);
     } catch(err){
       console.error('[EarthLive] PDF failed:', err);
@@ -6499,6 +6814,38 @@
       .trim();
   }
 
+  // Renders the "a few things about me" two-column facts grid (hometown,
+  // current city, birthday, favourite song, etc). Caller prints its own
+  // heading; this only draws the rows and returns the new y position.
+  function pdfDetailsBlock(doc, profileObj, y){
+    const extras = (profileObj && profileObj.extras) || {};
+    const filled = DETAIL_FIELDS.filter(f => extras[f.key]);
+    if (!filled.length) return y;
+    const colW = (PDF_W - 8) / 2;
+    const leftX = PDF_M, rightX = PDF_M + colW + 8;
+    for (let i = 0; i < filled.length; i += 2){
+      y = pdfNeed(doc, y, 10);
+      const rowY = y;
+      const left = filled[i], right = filled[i+1];
+      doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...SOFT_C);
+      doc.text(left.label, leftX, rowY);
+      doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...INK_C);
+      doc.text(pdfSafe(extras[left.key]), leftX + colW, rowY, { align:'right' });
+      if (right){
+        doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...SOFT_C);
+        doc.text(right.label, rightX, rowY);
+        doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...INK_C);
+        doc.text(pdfSafe(extras[right.key]), rightX + colW, rowY, { align:'right' });
+      }
+      y += 5;
+      doc.setDrawColor(229,226,219); doc.setLineWidth(0.2);
+      doc.line(leftX, y, leftX + colW, y);
+      if (right) doc.line(rightX, y, rightX + colW, y);
+      y += 6;
+    }
+    return y + 4;
+  }
+
   async function pdfBook(JsPDF){
     const doc = pdfMakeDoc(JsPDF);
     const now = new Date();
@@ -6514,13 +6861,12 @@
 
     // ---- Cover photo strip ----
     if (profile && profile.cover){
-      const coverUrl = await dzFetchImage(profile.cover);
+      const stripH = 44;
+      const coverUrl = await dzCoverFitImage(profile.cover, PDF_W, stripH, 4);
       if (coverUrl){
         try{
-          const props = doc.getImageProperties(coverUrl);
-          const w = PDF_W, h = Math.min(48, w * props.height / props.width);
-          doc.addImage(coverUrl, PDF_M, y - 12, w, h, undefined, 'FAST');
-          y += h + 6;
+          doc.addImage(coverUrl, PDF_M, y - 12, PDF_W, stripH, undefined, 'FAST');
+          y += stripH + 6;
         }catch(e){ /* skip cover on failure */ }
       }
     }
@@ -6543,6 +6889,15 @@
     }
     y = Math.max(by, y + avatarSize) + 4;
 
+    // ---- A few things about me ----
+    const extrasFilled = DETAIL_FIELDS.filter(f => profile && profile.extras && profile.extras[f.key]);
+    if (extrasFilled.length){
+      y = pdfNeed(doc, y, 16);
+      doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...INK_C);
+      doc.text('A few things about me', PDF_M, y); y += 8;
+      y = pdfDetailsBlock(doc, profile, y);
+    }
+
     doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...SOFT_C);
     doc.text((open.length+sealed.length) + ' signature' + ((open.length+sealed.length)===1?'':'s')
       + (cityNames.length ? ' \u00b7 ' + cityNames.length + ' cit' + (cityNames.length===1?'y':'ies') : '')
@@ -6555,10 +6910,10 @@
 
     // ---- Memory map (real OpenStreetMap tiles) ----
     if (pinned.length){
-      const mapImg = await dzRenderOsmMap(pinned, 900, 620);
+      const mapImg = await dzRenderOsmMap(pinned);
       if (mapImg){
-        y = pdfNeed(doc, y, 100);
-        const mh = 92;
+        const mh = PDF_W / 2;
+        y = pdfNeed(doc, y, mh + 12);
         try{
           doc.addImage(mapImg, 'JPEG', PDF_M, y, PDF_W, mh, undefined, 'FAST');
           y += mh + 4;
@@ -6663,6 +7018,99 @@
   }
 
   // --- 2. DIARY ------------------------------------------------------------
+
+  // --- WAYPOINTS ALBUM PDF --------------------------------------------------
+  // Photos from albumPhotos, grouped by place, 2-up grid with dates.
+  // `designed` adds a title page; both share the same photo pages.
+  async function pdfWaypoints(JsPDF, designed){
+    if (!albumPhotos || !albumPhotos.length){
+      showToast('Add some photos to your waypoints first');
+      return;
+    }
+    const doc = pdfMakeDoc(JsPDF);
+
+    // Group photos by place (untagged photos go last under "Somewhere")
+    const groups = {};
+    albumPhotos.forEach(p=>{
+      const key = p.place || 'Somewhere';
+      (groups[key] = groups[key] || []).push(p);
+    });
+    const placeNames = Object.keys(groups).sort((a,b)=>{
+      if (a === 'Somewhere') return 1;
+      if (b === 'Somewhere') return -1;
+      return a.localeCompare(b);
+    });
+
+    let y = 26;
+    if (designed){
+      // Title page
+      doc.setFillColor(245,244,241); doc.rect(0,0,210,297,'F');
+      doc.setFont('times','normal'); doc.setFontSize(30); doc.setTextColor(...INK_C);
+      doc.text('My waypoints', 105, 120, { align:'center' });
+      doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(...SOFT_C);
+      doc.text(pdfSafe((profile && profile.name) || ''), 105, 132, { align:'center' });
+      doc.setFontSize(9); doc.setTextColor(...CAMEL_C);
+      doc.text(placeNames.length + (placeNames.length===1 ? ' place' : ' places') + ' \u00b7 ' +
+        albumPhotos.length + (albumPhotos.length===1 ? ' photo' : ' photos'), 105, 142, { align:'center' });
+      doc.setDrawColor(...CAMEL_C); doc.setLineWidth(0.4);
+      doc.line(90, 150, 120, 150);
+      doc.addPage();
+      y = 26;
+    } else {
+      doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.setTextColor(...INK_C);
+      doc.text('My waypoints', PDF_M, y); y += 7;
+      doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...SOFT_C);
+      doc.text(placeNames.length + ' places \u00b7 ' + albumPhotos.length + ' photos', PDF_M, y); y += 10;
+    }
+
+    const colW = (PDF_W - 6) / 2;   // two columns
+    const imgH = 62;                // photo height mm
+
+    for (const place of placeNames){
+      const photos = groups[place];
+      y = pdfNeed(doc, y, 14 + imgH);
+      doc.setFont('times','italic'); doc.setFontSize(14); doc.setTextColor(...INK_C);
+      doc.text(pdfSafe(place), PDF_M, y);
+      doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...CAMEL_C);
+      doc.text(photos.length + (photos.length===1 ? ' photo' : ' photos'), PDF_M + doc.getTextWidth(pdfSafe(place)) * 0.5 + 20, y);
+      y += 5;
+      doc.setDrawColor(229,226,219); doc.setLineWidth(0.25);
+      doc.line(PDF_M, y, PDF_M + PDF_W, y);
+      y += 6;
+
+      for (let i = 0; i < photos.length; i += 2){
+        y = pdfNeed(doc, y, imgH + 10);
+        const rowY = y;
+        for (let c = 0; c < 2; c++){
+          const ph = photos[i + c];
+          if (!ph) continue;
+          const x = PDF_M + c * (colW + 6);
+          const durl = await dzCoverFitImage(ph.url, colW, imgH, 3);
+          if (durl){
+            try{ doc.addImage(durl, 'JPEG', x, rowY, colW, imgH, undefined, 'FAST'); }catch(e){}
+          } else {
+            doc.setFillColor(232,230,225); doc.rect(x, rowY, colW, imgH, 'F');
+          }
+          doc.setDrawColor(229,226,219); doc.setLineWidth(0.3);
+          doc.rect(x, rowY, colW, imgH);
+          const when = ph.takenAt
+            ? new Date(ph.takenAt).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
+            : '';
+          if (when){
+            doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...SOFT_C);
+            doc.text(when, x, rowY + imgH + 4);
+          }
+        }
+        y = rowY + imgH + 9;
+      }
+      y += 4;
+    }
+
+    pdfFooter(doc);
+    doc.save('my-waypoints-earthlive.pdf');
+    showToast('Your waypoints album is ready \u2713');
+  }
+
   function pdfDiary(JsPDF){
     const doc = pdfMakeDoc(JsPDF);
     const list = (diaryEntriesCache || []).slice().sort((a,b)=> new Date(b.created_at) - new Date(a.created_at));
@@ -6813,6 +7261,55 @@
     });
   }
 
+  // Fits an image into a target box like CSS object-fit: cover \u2014 scales up
+  // to fill the box and crops the overflow, instead of stretching. targetW/H
+  // are in mm (PDF units); dpi controls the working resolution.
+  async function dzCoverFitImage(url, targetW, targetH, dpi){
+    const durl = await dzFetchImage(url);
+    if (!durl) return null;
+    dpi = dpi || 150;
+    return new Promise(res=>{
+      const img = new Image();
+      img.onload = ()=>{
+        try{
+          const pxW = Math.round(targetW / 25.4 * dpi), pxH = Math.round(targetH / 25.4 * dpi);
+          const c = document.createElement('canvas'); c.width = pxW; c.height = pxH;
+          const ctx = c.getContext('2d');
+          const scale = Math.max(pxW / img.width, pxH / img.height);
+          const w = img.width * scale, h = img.height * scale;
+          ctx.drawImage(img, (pxW - w) / 2, (pxH - h) / 2, w, h);
+          res(c.toDataURL('image/jpeg', 0.88));
+        }catch(e){ res(null); }
+      };
+      img.onerror = ()=>res(null);
+      img.src = durl;
+    });
+  }
+
+  // "Cover" fit, like CSS object-fit:cover \u2014 scales the source image up
+  // to fill the target box, centre-crops the overflow, never stretches it.
+  async function dzCoverFitImage(url, wMm, hMm, pxPerMm){
+    const durl = await dzFetchImage(url);
+    if (!durl) return null;
+    return new Promise(res=>{
+      const img = new Image();
+      img.onload = ()=>{
+        try{
+          const scale = pxPerMm || 4;
+          const cw = Math.round(wMm*scale), ch = Math.round(hMm*scale);
+          const c = document.createElement('canvas'); c.width = cw; c.height = ch;
+          const ctx = c.getContext('2d');
+          const s = Math.max(cw/img.width, ch/img.height);
+          const dw = img.width*s, dh = img.height*s;
+          ctx.drawImage(img, (cw-dw)/2, (ch-dh)/2, dw, dh);
+          res(c.toDataURL('image/jpeg', 0.9));
+        }catch(e){ res(null); }
+      };
+      img.onerror = ()=>res(null);
+      img.src = durl;
+    });
+  }
+
   async function dzCircleAvatar(url, size){
     const durl = await dzFetchImage(url);
     if (!durl) return null;
@@ -6842,33 +7339,23 @@
 
   // Stitches real OpenStreetMap tiles (tile.openstreetmap.org) into a canvas
   // and draws pins on top \u2014 returns a dataURL, or null if it can't be built.
-  async function dzRenderOsmMap(pinned, pxW, pxH){
+  // Matches the live in-app memory map exactly: same fixed world view
+  // (zoom 2, centred like Leaflet's setView([20,10],2)), the same washed
+  // tile look (brightness/contrast filter), and square pins with a soft
+  // glow halo standing in for the page's animated ripple marker.
+  async function dzRenderOsmMap(pinned){
     if (!pinned || !pinned.length) return null;
-    const lats = pinned.map(e=>e.city.lat), lngs = pinned.map(e=>e.city.lng);
-    let minLat = Math.min(...lats), maxLat = Math.max(...lats);
-    let minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
-    const padLat = Math.max((maxLat-minLat)*0.2, 3);
-    const padLng = Math.max((maxLng-minLng)*0.2, 3);
-    minLat -= padLat; maxLat += padLat; minLng -= padLng; maxLng += padLng;
-
-    let zoom = 2;
-    for (let z = 9; z >= 1; z--){
-      const w = dzLonToWorldX(maxLng, z) - dzLonToWorldX(minLng, z);
-      const h = dzLatToWorldY(minLat, z) - dzLatToWorldY(maxLat, z);
-      if (w <= pxW && h <= pxH){ zoom = z; break; }
-    }
-    const tileSize = 256;
-    const minTX = Math.floor(dzLonToWorldX(minLng, zoom)/tileSize);
-    const maxTX = Math.floor(dzLonToWorldX(maxLng, zoom)/tileSize);
-    const minTY = Math.floor(dzLatToWorldY(maxLat, zoom)/tileSize);
-    const maxTY = Math.floor(dzLatToWorldY(minLat, zoom)/tileSize);
+    const zoom = 2, tileSize = 256;
+    // Crop out the polar tile rows (0 and 3) \u2014 gives the same wide,
+    // mostly-populated-world crop seen on the live map.
+    const minTX = 0, maxTX = 3, minTY = 1, maxTY = 2;
     const cols = maxTX - minTX + 1, rows = maxTY - minTY + 1;
-    if (cols*rows > 36 || cols < 1 || rows < 1) return null;
 
     const canvas = document.createElement('canvas');
     canvas.width = cols*tileSize; canvas.height = rows*tileSize;
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#EDEEE9'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    if ('filter' in ctx) ctx.filter = 'brightness(1.08) contrast(0.92)';
     const subs = ['a','b','c'];
     let i = 0;
     for (let ty = minTY; ty <= maxTY; ty++){
@@ -6884,35 +7371,29 @@
         }catch(e){ /* skip this tile, leave background */ }
       }
     }
+    if ('filter' in ctx) ctx.filter = 'none';
 
     const originX = minTX*tileSize, originY = minTY*tileSize;
-    const placedPts = [];
     pinned.forEach(e=>{
       const px = dzLonToWorldX(e.city.lng, zoom) - originX;
       const py = dzLatToWorldY(e.city.lat, zoom) - originY;
-      placedPts.forEach(([ox,oy])=>{
-        ctx.strokeStyle = 'rgba(169,118,79,0.5)'; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(px,py); ctx.stroke();
-      });
-      placedPts.push([px,py]);
-    });
-    const drawnLabels = new Set();
-    pinned.forEach(e=>{
-      const px = dzLonToWorldX(e.city.lng, zoom) - originX;
-      const py = dzLatToWorldY(e.city.lat, zoom) - originY;
+      if (px < -20 || px > canvas.width + 20 || py < -20 || py > canvas.height + 20) return;
       const isOwner = isWallPost(e);
-      ctx.fillStyle = isOwner ? '#434B39' : '#A9764F';
-      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5;
-      ctx.beginPath(); ctx.arc(px, py, 7, 0, 2*Math.PI); ctx.fill(); ctx.stroke();
-      const key = e.city.name;
-      if (key && !drawnLabels.has(key)){
-        drawnLabels.add(key);
-        ctx.fillStyle = '#2E2A22'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText(pdfSafe(key), px, py + 20);
-      }
+      const color = isOwner ? '#57614A' : '#A9764F';
+      const halo = ctx.createRadialGradient(px, py, 0, px, py, 26);
+      halo.addColorStop(0, color + '3D');
+      halo.addColorStop(1, color + '00');
+      ctx.fillStyle = halo;
+      ctx.beginPath(); ctx.arc(px, py, 26, 0, 2*Math.PI); ctx.fill();
+      const s2 = 8;
+      ctx.fillStyle = color;
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+      ctx.fillRect(px - s2/2, py - s2/2, s2, s2);
+      ctx.strokeRect(px - s2/2, py - s2/2, s2, s2);
     });
-    return canvas.toDataURL('image/jpeg', 0.85);
+    return canvas.toDataURL('image/jpeg', 0.9);
   }
+
 
   async function generateDesignedPdf(){
     closePrintModal();
@@ -6923,6 +7404,7 @@
     try{
       if (printContext === 'diary') return await pdfDiaryDesigned(JsPDF);
       if (printContext === 'event') return await pdfEventDesigned(JsPDF);
+      if (printContext === 'waypoints') return await pdfWaypoints(JsPDF, true);
       return await pdfBookDesigned(JsPDF);
     }catch(err){
       console.error('[EarthLive] designed PDF failed:', err);
@@ -6945,7 +7427,7 @@
 
     // ---- Cover ----
     let coverImgUrl = null;
-    if (profile && profile.cover) coverImgUrl = await dzFetchImage(profile.cover);
+    if (profile && profile.cover) coverImgUrl = await dzCoverFitImage(profile.cover, 210, 205, 4);
     if (coverImgUrl){
       try{
         doc.addImage(coverImgUrl, 0, 0, 210, 205, undefined, 'FAST');
@@ -6997,6 +7479,15 @@
       doc.text(l, sx, 164, { align:'center' });
       sx += 44;
     });
+
+    // ---- A few things about me ----
+    const dzExtrasFilled = DETAIL_FIELDS.filter(f => profile && profile.extras && profile.extras[f.key]);
+    if (dzExtrasFilled.length){
+      doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...CAMEL_C);
+      doc.text('\u2014   A   F E W   T H I N G S   A B O U T   M E   \u2014', 105, 30, { align:'center' });
+      pdfDetailsBlock(doc, profile, 50);
+    }
 
     // ---- Signature pages ----
     const newSigPage = ()=>{
@@ -7084,10 +7575,10 @@
       doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...CAMEL_C);
       doc.text('\u2014   W H E R E   T H E   L O V E   C A M E   F R O M   \u2014', 105, 30, { align:'center' });
 
-      const MX = PDF_M, MY = 40, MW = PDF_W, MH = 148;
+      const MX = PDF_M, MY = 55, MW = PDF_W, MH = PDF_W / 2;
       doc.setFillColor(...DZ_MAPBG); doc.roundedRect(MX, MY, MW, MH, 4, 4, 'F');
 
-      const mapImg = await dzRenderOsmMap(pinned, 1000, 700);
+      const mapImg = await dzRenderOsmMap(pinned);
       if (mapImg){
         try{ doc.addImage(mapImg, 'JPEG', MX, MY, MW, MH, undefined, 'FAST'); }
         catch(e){ /* keep the plain background box on failure */ }
@@ -8382,78 +8873,61 @@
     showScreen('dashboard');
   }
 
+  const NAV_ICONS = {
+    about:   '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v5h1"/></svg>',
+    how:     '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 015.8 1c0 2-3 2.5-3 4M12 17v.01"/></svg>',
+    home:    '<svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9a1 1 0 01-1 1h-4v-6h-6v6H5a1 1 0 01-1-1z"/></svg>',
+    signin:  '<svg viewBox="0 0 24 24"><path d="M14 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2v-2M9 12h11m-3-3l3 3-3 3"/></svg>',
+    find:    '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
+    feed:    '<svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/></svg>',
+    events:  '<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>',
+    book:    '<svg viewBox="0 0 24 24"><path d="M12 5v15M4 5c3 0 6 1 8 2 2-1 5-2 8-2v14c-3 0-6 1-8 2-2-1-5-2-8-2z"/></svg>',
+    diary:   '<svg viewBox="0 0 24 24"><rect x="4" y="5" width="14" height="15" rx="1.5"/><path d="M8 9h6M8 13h6"/><path d="M17 3l3 3-8 8h-3v-3z"/></svg>',
+    wpts:    '<svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+    msgs:    '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>'
+  };
+  function navBtn(key, label, onClick, badgeHtml){
+    const b = document.createElement('button');
+    b.className = 'nav-ic';
+    b.type = 'button';
+    b.setAttribute('aria-label', label);
+    b.setAttribute('title', label);
+    b.innerHTML = NAV_ICONS[key] + '<span class="nav-lbl">' + label + '</span>' + (badgeHtml || '') + '<span class="nav-tip">' + label + '</span>';
+    b.onclick = onClick;
+    return b;
+  }
+
   function refreshNav(){
     const navRight = document.getElementById('navRight');
+    const navLeft = document.getElementById('navLeft');
     navRight.innerHTML = '';
+    if (navLeft) navLeft.innerHTML = '';
 
     if (!currentUser){
-      // Signed OUT: About + Home + Sign in
-      const about = document.createElement('button');
-      about.className = 'nav-link';
-      about.textContent = 'Our story';
-      about.onclick = ()=>showScreen('about');
-      navRight.appendChild(about);
-
-      const how = document.createElement('button');
-      how.className = 'nav-link';
-      how.textContent = 'How it works';
-      how.onclick = ()=>showScreen('how');
-      navRight.appendChild(how);
-
-      const home = document.createElement('button');
-      home.className = 'nav-link';
-      home.textContent = 'Home';
-      home.onclick = ()=>showScreen('landing');
-      navRight.appendChild(home);
-
-      const signIn = document.createElement('button');
-      signIn.className = 'nav-link';
-      signIn.textContent = 'Sign in';
-      signIn.onclick = ()=>showScreen('auth');
-      navRight.appendChild(signIn);
+      navRight.appendChild(navBtn('about', 'Our story', ()=>showScreen('about')));
+      navRight.appendChild(navBtn('how',   'How it works', ()=>showScreen('how')));
+      navRight.appendChild(navBtn('home',  'Home', ()=>showScreen('landing')));
+      navRight.appendChild(navBtn('signin','Sign in', ()=>showScreen('auth')));
       return;
     }
 
-    // Signed IN: Find · For you · Events · My book · My diary · Messages · avatar
-    const find = document.createElement('button');
-    find.className = 'nav-link';
-    find.textContent = 'Find';
-    find.onclick = ()=>showScreen('search');
-    navRight.appendChild(find);
-
-    const feed = document.createElement('button');
-    feed.className = 'nav-link';
-    feed.innerHTML = 'For you<span class="nav-evbadge" id="navForYouBadge" style="display:none;"></span>';
-    feed.onclick = ()=>{ renderForYou(); showScreen('feed'); };
-    navRight.appendChild(feed);
-
-    const events = document.createElement('button');
-    events.className = 'nav-link';
-    events.innerHTML = 'Events<span class="nav-evbadge" id="navEventsBadge" style="display:none;"></span>';
-    events.onclick = ()=>{ renderMyEvents(); showScreen('events'); };
-    navRight.appendChild(events);
+    (navLeft || navRight).appendChild(navBtn('find', 'Find', ()=>showScreen('search')));
+    navRight.appendChild(navBtn('feed', 'For me', ()=>{ renderForYou(); showScreen('feed'); },
+      '<span class="nav-evbadge" id="navForYouBadge" style="display:none;"></span>'));
+    navRight.appendChild(navBtn('events', 'My events', ()=>{ renderMyEvents(); showScreen('events'); },
+      '<span class="nav-evbadge" id="navEventsBadge" style="display:none;"></span>'));
 
     if (profile){
-      const myPage = document.createElement('button');
-      myPage.className = 'nav-link';
-      myPage.textContent = 'My book';
-      myPage.onclick = ()=>showScreen('dashboard');
-      navRight.appendChild(myPage);
-
-      const diary = document.createElement('button');
-      diary.className = 'nav-link';
+      navRight.appendChild(navBtn('book',  'My book',  ()=>showScreen('dashboard')));
+      const diary = navBtn('diary', 'My diary', ()=>{ openDiaryEditor(null); renderDiary(); showScreen('diary'); });
       diary.id = 'navDiaryBtn';
-      diary.textContent = 'My diary';
-      diary.onclick = ()=>{ openDiaryEditor(null); renderDiary(); showScreen('diary'); };
       navRight.appendChild(diary);
+      navRight.appendChild(navBtn('wpts',  'My waypoints', ()=>{ showScreen('waypoints'); wptsOpen(); }));
     }
 
     if (profile && profile.dbId){
-      const msgs = document.createElement('button');
-      msgs.className = 'nav-link';
-      msgs.innerHTML = 'Messages' + (pendingMsgCount > 0 ? '<span class="nav-badge">' + pendingMsgCount + '</span>' : '');
-      msgs.onclick = openMessages;
-      navRight.appendChild(msgs);
+      const badge = pendingMsgCount > 0 ? '<span class="nav-badge">' + pendingMsgCount + '</span>' : '';
+      navRight.appendChild(navBtn('msgs', 'Messages', openMessages, badge));
     }
 
     // Avatar menu: My account · Theme · About · Sign out (no icons)
@@ -8506,6 +8980,435 @@
   document.addEventListener('click', function(e){
     if (!e.target.closest('.nav-avatar-wrap')) closeAvatarMenu();
   });
+
+
+  /* Waypoints: chip highlight (merged from waypoints_page.html) */
+
+
+  /* ============================================================
+     WAYPOINTS — FACE SEARCH
+     Type a signer's name -> their profile photo becomes the
+     reference face -> in-browser face-api scans your album ->
+     photos with you + them pop up as pins on the waypoints map.
+     All detection runs locally in the browser.
+     ============================================================ */
+  let wptsMap = null, wptsMarkers = [], wptsSigners = null, wptsBusy = false;
+  const FACE_MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
+  let faceApiReady = null;
+
+  function wptsOpen(){
+    wptsInitMap();
+    wptsSyncVisPill();
+  }
+
+  function wptsInitMap(){
+    const el = document.getElementById('wptsMap');
+    if (!el || typeof L === 'undefined') return;
+    const wrap = document.getElementById('wptsMapWrap');
+    const pinned = (albumPhotos || []).filter(p => typeof p.lat === 'number' && typeof p.lng === 'number');
+    if (!pinned.length && !wptsMap){ return; }
+    wrap.classList.add('on');
+    if (!wptsMap){
+      wptsMap = L.map('wptsMap', { scrollWheelZoom:false }).setView([22.5, 80], 4);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution:'&copy; OpenStreetMap &copy; CARTO', maxZoom:18
+      }).addTo(wptsMap);
+    }
+    setTimeout(()=>{ try{ wptsMap.invalidateSize(); }catch(e){} }, 200);
+    wptsDrawBaseMarkers(pinned);
+    document.getElementById('wptsMapCap').textContent = pinned.length
+      ? pinned.length + (pinned.length===1 ? ' photo pinned from its location data' : ' photos pinned from their location data')
+      : '';
+  }
+
+  function wptsClearMarkers(){
+    wptsMarkers.forEach(m=>{ try{ wptsMap.removeLayer(m); }catch(e){} });
+    wptsMarkers = [];
+  }
+
+  function wptsDrawBaseMarkers(pinned){
+    if (!wptsMap) return;
+    wptsClearMarkers();
+    const pts = [];
+    pinned.forEach(p=>{
+      const mk = L.marker([p.lat, p.lng], {
+        icon: L.divIcon({ className:'', html:'<div class="mem-marker"></div>', iconSize:[11,11], iconAnchor:[6,6] })
+      }).addTo(wptsMap);
+      mk.bindPopup('<div class="map-popup"><img src="' + p.url + '">' +
+        (p.place ? '<div class="map-city">' + escapeHtml(p.place) + '</div>' : '') +
+        (p.takenAt ? '<p style="font-family:\'Inter Tight\',sans-serif; font-size:12px;">' + new Date(p.takenAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) + '</p>' : '') +
+        '</div>', { className:'mem-popup-wrap' });
+      wptsMarkers.push(mk);
+      pts.push([p.lat, p.lng]);
+    });
+    if (pts.length){ try{ wptsMap.fitBounds(pts, { padding:[30,30], maxZoom:10 }); }catch(e){} }
+  }
+
+
+  /* ---- shared face index: photoId -> [descriptors], built once, reused ---- */
+  let wptsFaceIndex = null;
+
+  async function wptsBuildIndex(){
+    if (wptsFaceIndex) return wptsFaceIndex;
+    await ensureFaceApi();
+    const opts = new faceapi.TinyFaceDetectorOptions({ inputSize:416 });
+    const idx = {};
+    const total = albumPhotos.length;
+    for (let i = 0; i < total; i++){
+      const ph = albumPhotos[i];
+      wptsSetStatus('Scanning photo ' + (i+1) + ' of ' + total + '\u2026');
+      const img = await wptsLoadImg(ph.url);
+      if (!img){ idx[ph.id] = []; continue; }
+      try{
+        const dets = await faceapi.detectAllFaces(img, opts).withFaceLandmarks(true).withFaceDescriptors();
+        idx[ph.id] = (dets || []).map(d => d.descriptor);
+      }catch(e){ idx[ph.id] = []; }
+    }
+    wptsFaceIndex = idx;
+    return idx;
+  }
+
+  function wptsPhotoHas(ref, photoId){
+    const descs = (wptsFaceIndex && wptsFaceIndex[photoId]) || [];
+    return descs.some(d => faceapi.euclideanDistance(d, ref) < 0.55);
+  }
+
+  /* ---- PEOPLE (Apple-Photos style): match every signer at once ---- */
+  let wptsPeopleData = null;
+
+  async function wptsFindPeople(){
+    if (wptsBusy) return;
+    if (!albumPhotos || !albumPhotos.length){
+      wptsSetStatus('Your waypoints album is empty \u2014 add some photos first.', false);
+      return;
+    }
+    wptsBusy = true;
+    try{
+      const signers = (await wptsLoadSigners()).filter(s => s.avatar);
+      if (!signers.length){
+        wptsSetStatus('None of your signers have profile photos yet \u2014 that photo is the reference face.', false);
+        wptsBusy = false; return;
+      }
+      wptsSetStatus('Loading the face model (first time only)\u2026');
+      await ensureFaceApi();
+
+      let refMe = null;
+      if (profile && profile.avatar){
+        wptsSetStatus('Reading your face\u2026');
+        refMe = await wptsDescriptorFromAvatar(profile.avatar);
+      }
+
+      await wptsBuildIndex();
+
+      const people = [];
+      for (const s of signers){
+        wptsSetStatus('Matching ' + s.name.split(' ')[0] + '\u2026');
+        const ref = await wptsDescriptorFromAvatar(s.avatar);
+        if (!ref) continue;
+        const photos = albumPhotos.filter(ph =>
+          wptsPhotoHas(ref, ph.id) && (refMe ? wptsPhotoHas(refMe, ph.id) : true));
+        if (photos.length) people.push({ name:s.name, avatar:s.avatar, photos:photos });
+      }
+      people.sort((a,b)=>b.photos.length - a.photos.length);
+      wptsPeopleData = people;
+      wptsRenderPeopleRow();
+      wptsSetStatus(people.length
+        ? 'Found ' + people.length + (people.length===1 ? ' person' : ' people') + ' in your photos \u2014 tap a tile'
+        : 'No signers matched any of your photos yet.', false);
+    }catch(err){
+      console.error('[EarthLive] people scan failed:', err);
+      wptsSetStatus('People scan could not run \u2014 check your connection and try again.', false);
+    }
+    wptsBusy = false;
+  }
+
+  function wptsRenderPeopleRow(selName){
+    const row = document.getElementById('wptsPeopleRow');
+    if (!row) return;
+    if (!wptsPeopleData || !wptsPeopleData.length){ row.innerHTML = ''; return; }
+    const myAv = (profile && profile.avatar)
+      ? '<img src="' + profile.avatar + '">'
+      : escapeHtml(((profile && profile.name) || 'Me').charAt(0).toUpperCase());
+    row.innerHTML = wptsPeopleData.map(function(pp, i){
+      return '<button type="button" class="wpts-person-tile' + (pp.name===selName ? ' sel' : '') + '" onclick="wptsOpenPerson(' + i + ')">' +
+        '<span class="pt-imgs">' +
+          '<span class="pt-me">' + myAv + '</span>' +
+          '<span class="pt-them"><img src="' + pp.avatar + '"></span>' +
+        '</span>' +
+        '<b>You &amp; ' + escapeHtml(pp.name.split(' ')[0]) + '</b>' +
+        '<span>' + pp.photos.length + (pp.photos.length===1 ? ' photo' : ' photos') + '</span>' +
+      '</button>';
+    }).join('');
+  }
+
+  function wptsOpenPerson(i){
+    const pp = wptsPeopleData && wptsPeopleData[i];
+    if (!pp) return;
+    document.getElementById('wptsPersonSearch').value = pp.name;
+    document.getElementById('wptsPersonClear').style.display = '';
+    wptsRenderPeopleRow(pp.name);
+    wptsRenderMatches({ name: pp.name, avatar: pp.avatar }, pp.photos, !!(profile && profile.avatar));
+  }
+
+  /* ---- ALBUM VISIBILITY: private (default) or public ---- */
+  function wptsAlbumIsPublic(){
+    if (!profile) return false;
+    if (typeof profile.albumPublic === 'boolean') return profile.albumPublic;
+    return !!(profile.extras && profile.extras.album_public);
+  }
+
+  function wptsSyncVisPill(){
+    const pill = document.getElementById('wptsVisPill');
+    if (!pill) return;
+    const pub = wptsAlbumIsPublic();
+    pill.classList.toggle('public', pub);
+    document.getElementById('wptsVisLabel').textContent = pub ? 'Album: Public' : 'Album: Private';
+    pill.title = pub
+      ? 'Visitors to your book can see your waypoints photos. Tap to make private.'
+      : 'Only you can see your waypoints photos. Tap to make public.';
+  }
+
+  async function wptsToggleVisibility(){
+    if (!profile){ showToast('Sign in and create your book first'); return; }
+    const next = !wptsAlbumIsPublic();
+    profile.albumPublic = next;
+    profile.extras = Object.assign({}, profile.extras || {}, { album_public: next });
+    wptsSyncVisPill();
+    if (db && currentUser && profile.dbId){
+      let { error } = await db.from('profiles').update({ album_public: next }).eq('id', profile.dbId);
+      if (error && /album_public/i.test(error.message || '')){
+        ({ error } = await db.from('profiles').update({ extras: profile.extras }).eq('id', profile.dbId));
+        console.warn('[EarthLive] profiles.album_public missing \u2014 run the updated supabase-album.sql. Saved to extras instead.');
+      }
+      if (error){ showToast('Could not save: ' + error.message); return; }
+    }
+    showToast(next
+      ? 'Album is now public \u2014 visitors to your book can see your waypoints'
+      : 'Album is now private \u2014 only you can see it');
+  }
+
+  /* ---- signer directory: people who signed my book, with their avatars ---- */
+  async function wptsLoadSigners(){
+    if (wptsSigners) return wptsSigners;
+    const sigs = (entries || []).filter(e => (e.status === 'approved' || !e.status) && !isWallPost(e));
+    const byName = {};
+    sigs.forEach(e=>{
+      if (!byName[e.name]) byName[e.name] = { name:e.name, signerUserId:e.signerUserId || null, avatar:null };
+    });
+    const ids = [...new Set(sigs.map(e=>e.signerUserId).filter(Boolean))];
+    if (db && ids.length){
+      const { data } = await db.from('profiles').select('user_id, name, avatar_url').in('user_id', ids);
+      (data || []).forEach(pr=>{
+        Object.values(byName).forEach(s=>{
+          if (s.signerUserId === pr.user_id) s.avatar = pr.avatar_url || null;
+        });
+      });
+    }
+    wptsSigners = Object.values(byName);
+    return wptsSigners;
+  }
+
+  async function wptsPersonTyped(){
+    const q = document.getElementById('wptsPersonSearch').value.trim().toLowerCase();
+    const box = document.getElementById('wptsSugg');
+    document.getElementById('wptsPersonClear').style.display = q ? '' : 'none';
+    if (!q){ box.classList.remove('open'); return; }
+    const signers = await wptsLoadSigners();
+    const matches = signers.filter(s => s.name.toLowerCase().includes(q)).slice(0, 6);
+    if (!matches.length){
+      box.innerHTML = '<button type="button" style="cursor:default;">No signer matches "' + escapeHtml(q) + '"</button>';
+      box.classList.add('open');
+      return;
+    }
+    box.innerHTML = matches.map((s,i)=>
+      '<button type="button" onclick="wptsPickPerson(' + i + ')">' +
+        '<span class="sav">' + (s.avatar ? '<img src="' + s.avatar + '">' : escapeHtml(s.name.charAt(0).toUpperCase())) + '</span>' +
+        '<span>' + escapeHtml(s.name) + '</span>' +
+        (!s.avatar ? '<span class="noface">no profile photo</span>' : '') +
+      '</button>').join('');
+    box.dataset.matches = JSON.stringify(matches);
+    box.classList.add('open');
+  }
+
+  function wptsClearPerson(){
+    document.getElementById('wptsPersonSearch').value = '';
+    document.getElementById('wptsPersonClear').style.display = 'none';
+    document.getElementById('wptsSugg').classList.remove('open');
+    document.getElementById('wptsMatchStrip').classList.remove('on');
+    document.getElementById('wptsMatchGrid').classList.remove('on');
+    wptsRenderPeopleRow();
+    wptsSetStatus(null);
+    const pinned = (albumPhotos || []).filter(p => typeof p.lat === 'number' && typeof p.lng === 'number');
+    wptsDrawBaseMarkers(pinned);
+    document.getElementById('wptsMapCap').textContent = pinned.length ? pinned.length + ' photos pinned from their location data' : '';
+  }
+
+  function wptsSetStatus(text, spinning){
+    const st = document.getElementById('wptsStatus');
+    if (!text){ st.classList.remove('on'); return; }
+    st.classList.add('on');
+    st.querySelector('.spin').style.display = spinning === false ? 'none' : '';
+    document.getElementById('wptsStatusText').textContent = text;
+  }
+
+  function ensureFaceApi(){
+    if (faceApiReady) return faceApiReady;
+    faceApiReady = new Promise((resolve, reject)=>{
+      const done = async ()=>{
+        try{
+          await Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri(FACE_MODEL_URL),
+            faceapi.nets.faceLandmark68TinyNet.loadFromUri(FACE_MODEL_URL),
+            faceapi.nets.faceRecognitionNet.loadFromUri(FACE_MODEL_URL)
+          ]);
+          resolve();
+        }catch(e){ faceApiReady = null; reject(e); }
+      };
+      if (window.faceapi) return done();
+      const sc = document.createElement('script');
+      sc.src = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js';
+      sc.onload = done;
+      sc.onerror = ()=>{ faceApiReady = null; reject(new Error('load failed')); };
+      document.head.appendChild(sc);
+    });
+    return faceApiReady;
+  }
+
+  function wptsLoadImg(url){
+    return new Promise(res=>{
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = ()=>res(img);
+      img.onerror = ()=>res(null);
+      img.src = url;
+    });
+  }
+
+  async function wptsDescriptorFromAvatar(url){
+    const img = await wptsLoadImg(url);
+    if (!img) return null;
+    const det = await faceapi.detectSingleFace(img, new faceapi.TinyFaceDetectorOptions({ inputSize:320 }))
+      .withFaceLandmarks(true).withFaceDescriptor();
+    return det ? det.descriptor : null;
+  }
+
+  async function wptsPickPerson(idx){
+    if (wptsBusy) return;
+    const box = document.getElementById('wptsSugg');
+    const matches = JSON.parse(box.dataset.matches || '[]');
+    const person = matches[idx];
+    if (!person) return;
+    box.classList.remove('open');
+    document.getElementById('wptsPersonSearch').value = person.name;
+
+    if (!person.avatar){
+      wptsSetStatus(person.name + ' has no profile photo, so there is no reference face to match. Ask them to add one.', false);
+      return;
+    }
+    if (!albumPhotos || !albumPhotos.length){
+      wptsSetStatus('Your waypoints album is empty — add some photos first.', false);
+      return;
+    }
+
+    wptsBusy = true;
+    try{
+      wptsSetStatus('Loading the face model (first time only)…');
+      await ensureFaceApi();
+
+      wptsSetStatus('Reading ' + person.name.split(' ')[0] + "'s face…");
+      const refPerson = await wptsDescriptorFromAvatar(person.avatar);
+      if (!refPerson){
+        wptsSetStatus("Couldn't find a clear face in " + person.name + "'s profile photo.", false);
+        wptsBusy = false; return;
+      }
+      let refMe = null;
+      if (profile && profile.avatar){
+        refMe = await wptsDescriptorFromAvatar(profile.avatar);
+      }
+
+      await wptsBuildIndex();
+      const matchesFound = albumPhotos.filter(ph =>
+        wptsPhotoHas(refPerson, ph.id) && (refMe ? wptsPhotoHas(refMe, ph.id) : true));
+
+      wptsRenderMatches(person, matchesFound, !!refMe);
+    }catch(err){
+      console.error('[EarthLive] face search failed:', err);
+      wptsSetStatus('Face search could not run — check your connection and try again.', false);
+    }
+    wptsBusy = false;
+  }
+
+  function wptsRenderMatches(person, found, matchedBoth){
+    const first = person.name.split(' ')[0];
+    if (!found.length){
+      wptsSetStatus('No photos of you and ' + first + ' found in your waypoints album.', false);
+      document.getElementById('wptsMatchStrip').classList.remove('on');
+      return;
+    }
+    const label = matchedBoth ? 'you & ' + first : first;
+    wptsSetStatus(found.length + (found.length===1 ? ' photo' : ' photos') + ' of ' + label + ' \u2713', false);
+
+    const pinned = found.filter(p => typeof p.lat === 'number' && typeof p.lng === 'number');
+    const unpinned = found.filter(p => !(typeof p.lat === 'number' && typeof p.lng === 'number'));
+
+    if (wptsMap){
+      document.getElementById('wptsMapWrap').classList.add('on');
+      wptsClearMarkers();
+      const pts = [];
+      pinned.forEach(p=>{
+        const mk = L.marker([p.lat, p.lng], {
+          icon: L.divIcon({ className:'', html:'<div class="wpts-face-marker"><img src="' + p.url + '"></div>', iconSize:[34,34], iconAnchor:[17,17] })
+        }).addTo(wptsMap);
+        mk.bindPopup('<div class="map-popup"><img src="' + p.url + '">' +
+          '<div class="map-city">' + escapeHtml(label) + (p.place ? ' \u00b7 ' + escapeHtml(p.place) : '') + '</div>' +
+          (p.takenAt ? '<p style="font-family:\'Inter Tight\',sans-serif; font-size:12px;">' + new Date(p.takenAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) + '</p>' : '') +
+          '</div>', { className:'mem-popup-wrap' });
+        wptsMarkers.push(mk);
+        pts.push([p.lat, p.lng]);
+      });
+      if (pts.length){ try{ wptsMap.fitBounds(pts, { padding:[40,40], maxZoom:11 }); }catch(e){} }
+      document.getElementById('wptsMapCap').textContent = pinned.length
+        ? pinned.length + ' of these pinned on the map'
+        : 'None of these photos carry location data, so they can\u2019t pin \u2014 they\u2019re below instead.';
+    }
+
+    const grid = document.getElementById('wptsMatchGrid');
+    grid.innerHTML = found.map(function(p){
+      return '<div class="mg" onclick="openLightbox(&quot;' + p.url + '&quot;)"><img src="' + p.url + '">' +
+      ((typeof p.lat === 'number') ? '<span class="pin"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>' : '') +
+      '</div>';
+    }).join('');
+    grid.classList.add('on');
+    document.getElementById('wptsMatchStrip').classList.remove('on');
+  }
+
+  /* Waypoints uploads route into the existing My-album pipeline */
+  async function wptsHandleFiles(files){
+    if (typeof albumHandleFiles !== 'function'){ showToast('Sign in and open your book once, then try again'); return; }
+    await albumHandleFiles(files);
+  }
+  (function wireWptsDrop(){
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const dz = document.getElementById('wptsDrop');
+      if (!dz) return;
+      ['dragenter','dragover'].forEach(evt => dz.addEventListener(evt, e=>{
+        e.preventDefault(); e.stopPropagation(); dz.classList.add('dragover');
+      }));
+      ['dragleave','dragend'].forEach(evt => dz.addEventListener(evt, e=>{
+        e.preventDefault(); e.stopPropagation(); dz.classList.remove('dragover');
+      }));
+      dz.addEventListener('drop', e=>{
+        e.preventDefault(); e.stopPropagation(); dz.classList.remove('dragover');
+        const files = e.dataTransfer && e.dataTransfer.files;
+        if (files && files.length) wptsHandleFiles(files);
+      });
+    });
+  })();
+
+  function wptsChip(el){
+    el.parentElement.querySelectorAll('.moment-chip').forEach(c=>c.classList.remove('active'));
+    el.classList.add('active');
+  }
 
   let currentScreenName = 'landing';
   let navFromPopstate = false;
@@ -8720,6 +9623,186 @@
       });
 
       // Global preview, as in the source EarthLive map
+      map.setView([20, 10], 2);
+      setTimeout(()=>map.invalidateSize(), 120);
+    }, 80);
+  }
+
+/* ═══════════════ MY ALBUM (drag-drop / mobile upload, auto-pinned from photo EXIF) ═══════════════ */
+
+  let albumPhotos = []; // {id, url, lat, lng, place, takenAt}
+  let albumMapInstance = null;
+
+  function dbRowToAlbumPhoto(r){
+    return { id:r.id, url:r.url, lat:r.lat, lng:r.lng, place:r.place_name, takenAt:r.taken_at };
+  }
+
+  async function loadAlbumFromDb(){
+    if (!db || !profile || !profile.dbId) return;
+    const { data, error } = await db.from('album_photos').select('*')
+      .eq('profile_id', profile.dbId).order('created_at', { ascending:false });
+    if (error){
+      // Table not created yet, or RLS not set up \u2014 hide the panel rather than break the dashboard.
+      console.error('[EarthLive] album load failed:', error.message);
+      return;
+    }
+    albumPhotos = (data || []).map(dbRowToAlbumPhoto);
+    renderAlbumGrid();
+    renderAlbumMap();
+  }
+
+  function initAlbumDropzone(){
+    const dz = document.getElementById('albumDropzone');
+    if (!dz || dz.dataset.wired) return;
+    dz.dataset.wired = '1';
+    ['dragenter','dragover'].forEach(evt => dz.addEventListener(evt, e=>{
+      e.preventDefault(); e.stopPropagation(); dz.classList.add('dragover');
+    }));
+    ['dragleave','dragend'].forEach(evt => dz.addEventListener(evt, e=>{
+      e.preventDefault(); e.stopPropagation(); dz.classList.remove('dragover');
+    }));
+    dz.addEventListener('drop', e=>{
+      e.preventDefault(); e.stopPropagation(); dz.classList.remove('dragover');
+      const files = e.dataTransfer && e.dataTransfer.files;
+      if (files && files.length) albumHandleFiles(files);
+    });
+  }
+
+  // Reads GPS + capture date straight from a photo's EXIF data, in the browser,
+  // before it's compressed for upload (compression strips EXIF).
+  async function albumReadExif(file){
+    let gps = null, takenAt = null;
+    if (window.exifr){
+      try{ gps = await exifr.gps(file); }catch(e){ /* no GPS tag \u2014 fine, we'll ask for a city instead */ }
+      try{
+        const dt = await exifr.parse(file, ['DateTimeOriginal','CreateDate']);
+        if (dt) takenAt = dt.DateTimeOriginal || dt.CreateDate || null;
+      }catch(e){ /* no date tag */ }
+    }
+    return { gps, takenAt };
+  }
+
+  // Best-effort place name for a pin, using OpenStreetMap's free reverse-geocoder.
+  async function reverseGeocodeCoords(lat, lng){
+    try{
+      const res = await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng + '&zoom=10');
+      if (!res.ok) return null;
+      const data = await res.json();
+      const a = data.address || {};
+      return a.city || a.town || a.village || a.county || a.state || null;
+    }catch(e){ return null; }
+  }
+
+  async function albumHandleFiles(fileList){
+    if (!db || !currentUser){ showToast('Sign in to add photos'); return; }
+    if (!profile || !profile.dbId){ showToast('Save your book first'); return; }
+    const files = Array.from(fileList || []).filter(f => f.type && f.type.startsWith('image/'));
+    if (!files.length) return;
+    showToast(files.length > 1 ? 'Adding photos\u2026' : 'Adding photo\u2026');
+
+    for (const file of files){
+      const { gps, takenAt } = await albumReadExif(file);
+
+      let dataUrl;
+      try{ dataUrl = await readImageFile(file); }
+      catch(e){ continue; } // too large / not really an image \u2014 skip it quietly
+
+      const url = await uploadImage(dataUrl, 'entry-photos',
+        'album_' + currentUser.id + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,8));
+      if (!url) continue;
+
+      let place = null;
+      if (gps && typeof gps.latitude === 'number'){
+        place = await reverseGeocodeCoords(gps.latitude, gps.longitude);
+      }
+
+      const row = {
+        profile_id: profile.dbId,
+        signer_user_id: currentUser.id,
+        url,
+        lat: gps ? gps.latitude : null,
+        lng: gps ? gps.longitude : null,
+        place_name: place,
+        taken_at: takenAt ? new Date(takenAt).toISOString() : null
+      };
+      const { data, error } = await db.from('album_photos').insert(row).select().single();
+      if (error){
+        console.error('[EarthLive] album insert failed:', error.message);
+        showToast('Could not save that photo');
+        continue;
+      }
+      albumPhotos.unshift(dbRowToAlbumPhoto(data));
+    }
+    renderAlbumGrid();
+    renderAlbumMap();
+    showToast('Album updated \u2713');
+  }
+
+  async function removeAlbumPhoto(id){
+    if (!db) return;
+    const { error } = await db.from('album_photos').delete().eq('id', id);
+    if (error){ showToast(friendlyError(error)); return; }
+    albumPhotos = albumPhotos.filter(p => p.id !== id);
+    renderAlbumGrid();
+    renderAlbumMap();
+  }
+
+  function renderAlbumGrid(){
+    const panel = document.getElementById('albumPanel');
+    const grid = document.getElementById('albumGrid');
+    if (!panel || !grid) return;
+    panel.style.display = (currentUser && profile && profile.dbId) ? 'block' : 'none';
+    initAlbumDropzone();
+    const countEl = document.getElementById('albumCount');
+    if (countEl) countEl.textContent = albumPhotos.length ? (albumPhotos.length + (albumPhotos.length===1 ? ' photo' : ' photos')) : '';
+    grid.innerHTML = albumPhotos.map(p => `
+      <div class="album-tile" onclick="openLightbox('${p.url}')">
+        <img src="${p.url}" alt="" loading="lazy">
+        ${ (typeof p.lat === 'number') ? '<span class="album-tile-pin">' + icon('pin') + '</span>' : '' }
+        <button type="button" class="album-tile-remove" onclick="event.stopPropagation(); removeAlbumPhoto('${p.id}')" aria-label="Remove photo">\u2715</button>
+      </div>`).join('');
+  }
+
+  function renderAlbumMap(){
+    const wrap = document.getElementById('albumMapWrap');
+    const mapEl = document.getElementById('albumMap');
+    const caption = document.getElementById('albumMapCaption');
+    if (!wrap || !mapEl) return;
+    const pinned = albumPhotos.filter(p => typeof p.lat === 'number' && typeof p.lng === 'number');
+
+    if (!pinned.length || typeof L === 'undefined'){
+      wrap.style.display = 'none';
+      if (albumMapInstance){ albumMapInstance.remove(); albumMapInstance = null; }
+      return;
+    }
+    wrap.style.display = 'block';
+    if (caption) caption.textContent = pinned.length + ' photo' + (pinned.length===1 ? '' : 's') + ' pinned automatically from their location data';
+
+    setTimeout(()=>{
+      if (albumMapInstance){ albumMapInstance.remove(); albumMapInstance = null; }
+      const map = L.map('albumMap', {
+        scrollWheelZoom:false, worldCopyJump:true, minZoom:2, maxZoom:18,
+        zoomControl:true, attributionControl:false
+      });
+      albumMapInstance = map;
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom:19, subdomains:['a','b','c']
+      }).addTo(map);
+      L.control.attribution({prefix:false})
+        .addAttribution('&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>')
+        .addTo(map);
+
+      const dotIcon = L.divIcon({ className:'', html:'<div class="mem-marker"></div>', iconSize:[11,11], iconAnchor:[6,6] });
+      pinned.forEach(p=>{
+        const popupHtml = `
+          <div class="map-popup">
+            <img src="${p.url}" alt="">
+            <div class="map-city">${escapeHtml(p.place || 'Somewhere on the map')}</div>
+          </div>`;
+        L.marker([p.lat, p.lng], {icon: dotIcon}).addTo(map)
+          .bindPopup(popupHtml, { maxWidth:220, className:'mem-popup-wrap' });
+      });
+
       map.setView([20, 10], 2);
       setTimeout(()=>map.invalidateSize(), 120);
     }, 80);
