@@ -1510,50 +1510,27 @@
   #screen-waypoints .wpts-main{padding:34px 24px 60px; max-width:1000px; margin:0 auto;}
   #screen-waypoints .wpts-eyebrow{font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--camel); font-weight:600; margin:0 0 6px;}
   #screen-waypoints h1{font-family:"Fraunces",serif; font-weight:500; font-size:30px; margin:0 0 6px; letter-spacing:-0.01em; line-height:1.15;}
-  #screen-waypoints .wpts-sub{font-size:13.5px; color:var(--ink-soft); margin:0 0 22px; max-width:520px;}
   #screen-waypoints .wpts-stat-row{display:flex; gap:22px; margin-bottom:22px; flex-wrap:wrap;}
   #screen-waypoints .wpts-stat-row div{display:flex; flex-direction:column;}
   #screen-waypoints .wpts-stat-row b{font-family:"Fraunces",serif; font-size:20px; font-weight:500;}
   #screen-waypoints .wpts-stat-row span{font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.5px;}
-  #screen-waypoints .wpts-overview{border-radius:var(--radius); overflow:hidden; border:1px solid var(--line); margin-bottom:30px; background:#EDEEE9; position:relative; height:190px;}
-  #screen-waypoints .wpts-overview-tag{position:absolute; top:12px; left:14px; background:rgba(255,255,255,.92); border-radius:16px; padding:5px 12px; font-size:11.5px; font-weight:500; color:var(--ink); display:flex; align-items:center; gap:5px; z-index:2;}
-  #screen-waypoints .wpts-overview-tag svg{width:11px; height:11px; stroke:var(--camel); fill:none; stroke-width:2;}
-  #screen-waypoints .moment-rail{display:flex; gap:8px; overflow-x:auto; padding-bottom:20px;}
-  #screen-waypoints .moment-chip{flex:none; padding:7px 14px; border-radius:20px; border:1px solid var(--line); background:var(--card); font-size:12.5px; color:var(--ink-soft); cursor:pointer; white-space:nowrap;}
-  #screen-waypoints .moment-chip.active{background:var(--ink); border-color:var(--ink); color:var(--page); font-weight:500;}
-  #screen-waypoints .moment-group{margin-bottom:34px;}
-  #screen-waypoints .moment-head{display:flex; align-items:baseline; gap:10px; margin-bottom:4px;}
-  #screen-waypoints .moment-head h2{font-family:"Fraunces",serif; font-weight:500; font-size:19px; margin:0;}
-  #screen-waypoints .moment-head .moment-meta{font-size:12px; color:var(--ink-soft);}
-  #screen-waypoints .moment-firstperson{font-size:12.5px; color:var(--camel); font-style:italic; margin:0 0 12px; font-family:"Fraunces",serif;}
-  #screen-waypoints .masonry{display:grid; grid-template-columns:repeat(4, 1fr); grid-auto-rows:110px; gap:7px;}
-  @media (max-width:640px){ #screen-waypoints .masonry{grid-template-columns:repeat(2, 1fr); grid-auto-rows:96px;} }
-  #screen-waypoints .wpts-tile{position:relative; border-radius:12px; overflow:hidden; cursor:pointer; background:var(--oat-deep);}
-  #screen-waypoints .wpts-tile img{width:100%; height:100%; object-fit:cover; display:block; transition:transform .45s cubic-bezier(.2,.8,.2,1);}
-  #screen-waypoints .wpts-tile:hover img{transform:scale(1.06);}
-  #screen-waypoints .wpts-tile.big{grid-column:span 2; grid-row:span 2;}
-  #screen-waypoints .tile-caption{position:absolute; left:0; right:0; bottom:0; padding:20px 10px 8px; background:linear-gradient(to top, rgba(20,17,12,.75), rgba(20,17,12,0)); color:#fff; font-size:11px; opacity:0; transition:opacity .2s ease;}
-  #screen-waypoints .wpts-tile:hover .tile-caption{opacity:1;}
-  #screen-waypoints .tile-caption b{display:block; font-size:12px; font-weight:500;}
-  #screen-waypoints .tile-weather{display:flex; align-items:center; gap:3px; margin-top:2px; font-size:10.5px; opacity:.9;}
-  #screen-waypoints .tile-weather svg{width:10px; height:10px; stroke:#fff; fill:none; stroke-width:2;}
-  #screen-waypoints .then-now{display:grid; grid-template-columns:1fr 1fr; gap:10px; border-radius:var(--radius); overflow:hidden; margin-top:10px;}
-  #screen-waypoints .then-now .half{position:relative; aspect-ratio:4/3;}
-  #screen-waypoints .then-now img{width:100%; height:100%; object-fit:cover; display:block; border-radius:10px;}
-  #screen-waypoints .then-now .tag{position:absolute; top:8px; left:8px; background:rgba(255,255,255,.92); font-size:10.5px; font-weight:500; padding:3px 9px; border-radius:12px; color:var(--ink);}
-  #screen-waypoints .prompt-line{display:flex; align-items:center; gap:8px; margin-top:12px; padding:10px 14px; background:var(--card); border:1px dashed var(--line); border-radius:10px; font-size:12.5px; color:var(--ink-soft);}
-  #screen-waypoints .prompt-line svg{width:14px; height:14px; stroke:var(--camel); fill:none; stroke-width:1.8; flex:none;}
 
   /* ---------- COMPACT ICON NAV (always on, all sizes) ---------- */
-  .nav-ic{position:relative; background:none; border:none; height:30px; border-radius:999px; padding:0 9px; color:var(--ink-soft); display:inline-flex; align-items:center; justify-content:center; gap:5px; cursor:pointer; flex:none; font-family:inherit; font-size:11px; font-weight:500; white-space:nowrap; letter-spacing:.01em; transition:background .12s ease, color .12s ease;}
+  .nav-ic{position:relative; background:none; border:none; padding:6px 2px; color:var(--ink-soft); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; flex:none; font-family:inherit; font-size:14px; font-weight:400; white-space:nowrap; border-bottom:1px solid transparent; border-radius:0; transition:color .12s ease, border-color .12s ease;}
+  .nav-ic:hover{background:none; color:var(--ink); border-bottom-color:var(--ink-soft);}
+  .nav-ic.active{background:none; color:var(--ink); border-bottom-color:var(--ink);}
+  .nav-ic svg{display:none;}
   .nav-ic .nav-lbl{display:inline;}
+  .nav-right{gap:18px;}
   @media (max-width:760px){
-    .nav-ic{width:34px; padding:0;}
+    .nav-ic{width:34px; height:34px; padding:0; border-radius:9px; border-bottom:none;}
+    .nav-ic:hover{background:var(--oat);}
+    .nav-ic.active{background:var(--ink); color:var(--page);}
+    .nav-ic svg{display:block;}
     .nav-ic .nav-lbl{display:none;}
+    .nav-right{gap:4px;}
   }
-  .nav-ic:hover{background:var(--oat); color:var(--ink);}
-  .nav-ic.active{background:var(--ink); color:var(--page);}
-  .nav-ic svg{width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex:none;}
+  .nav-ic svg{width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex:none;}
   .nav-ic .nav-tip{position:absolute; top:calc(100% + 6px); left:50%; transform:translateX(-50%) translateY(2px); background:var(--ink); color:var(--page); font-size:11px; font-weight:500; padding:4px 9px; border-radius:6px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .15s ease, transform .15s ease; z-index:900;}
   @media (max-width:760px){
     .nav-ic:hover .nav-tip, .nav-ic:focus-visible .nav-tip{opacity:1; transform:translateX(-50%) translateY(0);}
@@ -1898,14 +1875,13 @@
     </nav>
 
     <!-- ===== PRINT MY BOOK ===== -->
-    <button type="button" id="printBookBtn" onclick="openPrintModal('book')" style="display:flex; align-items:center; gap:10px; width:100%; background:var(--moss); color:#fff; border:none; border-radius:12px; padding:13px 16px; margin:14px 0 4px; cursor:pointer; font-family:inherit; text-align:left;">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>
-      <span style="flex:1;">
-        <span style="display:block; font-size:13.5px; font-weight:700;">Print my book</span>
-        <span style="display:block; font-size:11.5px; color:rgba(255,255,255,.75); margin-top:1px;">Turn every signature into a keepsake PDF</span>
-      </span>
-      <span style="font-size:13px; color:rgba(255,255,255,.7);">→</span>
-    </button>
+
+    <div style="display:flex; justify-content:flex-end; margin:14px 0 4px;">
+      <button type="button" id="printBookBtn" class="btn-share-hdr" onclick="openPrintModal('book')" title="Turn every signature into a keepsake PDF" style="display:inline-flex; align-items:center; gap:6px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>
+        Print my book
+      </button>
+    </div>
 
     <!-- ===== MY WALL ===== -->
     <div class="shead" id="wallAnchor">
@@ -3157,7 +3133,15 @@
       </div>
 
       <p style="font-size:12px; color:var(--ink-soft); margin:0 0 18px;">We usually reply within a day or two.</p>
-      <button class="link-quiet" onclick="showScreen(currentUser ? 'dashboard' : 'landing')">← Back</button>
+      <div id="wptsEmpty" class="empty-state" style="margin:6px 0 20px;">
+      <div class="stamp-outline"></div>
+      <p><b style="color:var(--ink);">Your waypoints are empty.</b><br>
+      Drop in a few photos above — anything with location data pins itself on the map, and the People search can find who's in them.</p>
+    </div>
+
+    <div class="wpts-match-grid on" id="wptsAllGrid" style="display:none;"></div>
+
+    <button class="link-quiet" onclick="showScreen(currentUser ? 'dashboard' : 'landing')">← Back</button>
       <div style="border-top:1px solid var(--line); margin-top:40px; padding-top:16px;">
         <div class="footer-links" style="margin-top:0;">
           <button onclick="showScreen('contact')">Contact us</button>
@@ -3259,12 +3243,11 @@
         <button type="button" class="wpts-btn" onclick="event.stopPropagation(); document.getElementById('wptsFileInput').click();"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg> Take a photo</button>
       </div>
     </div>
-    <p class="wpts-sub">No likes here, no algorithm deciding what mattered. Just where you were, and what it looked like.</p>
 
-    <div class="wpts-stat-row">
-      <div><b>3</b><span>places</span></div>
-      <div><b>14</b><span>photos pinned</span></div>
-      <div><b>1,940 km</b><span>farthest from home</span></div>
+    <div class="wpts-stat-row" id="wptsStats" style="display:none;">
+      <div><b id="wptsStatPlaces">0</b><span>places</span></div>
+      <div><b id="wptsStatPhotos">0</b><span>photos</span></div>
+      <div><b id="wptsStatPinned">0</b><span>pinned on the map</span></div>
     </div>
 
     <div class="wpts-people">
@@ -3292,60 +3275,6 @@
       <p class="wpts-map-cap" id="wptsMapCap"></p>
     </div>
     <div class="wpts-match-strip" id="wptsMatchStrip"></div>
-
-    <div class="wpts-overview">
-      <span class="wpts-overview-tag"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Tap to open full map</span>
-      <svg viewBox="0 0 800 260" style="width:100%; height:100%; display:block;">
-        <rect width="800" height="260" fill="#EDEEE9"/>
-        <path d="M60 90 L220 70 L280 130 L240 200 L100 210 Z" fill="#F5F4F1"/>
-        <path d="M400 40 L620 20 L700 110 L580 190 L460 160 L380 100 Z" fill="#F5F4F1"/>
-        <path d="M320 190 L470 200 L440 250 L300 240 Z" fill="#F5F4F1"/>
-        <circle cx="510" cy="105" r="16" fill="rgba(169,118,79,0.22)"/><rect x="505" y="100" width="10" height="10" fill="#A9764F" stroke="#fff" stroke-width="1.5"/>
-        <circle cx="600" cy="150" r="16" fill="rgba(87,97,74,0.22)"/><rect x="595" y="145" width="10" height="10" fill="#57614A" stroke="#fff" stroke-width="1.5"/>
-        <circle cx="360" cy="205" r="16" fill="rgba(169,118,79,0.22)"/><rect x="355" y="200" width="10" height="10" fill="#A9764F" stroke="#fff" stroke-width="1.5"/>
-      </svg>
-    </div>
-
-    <div class="moment-rail">
-      <div class="moment-chip active" onclick="wptsChip(this)">All moments</div>
-      <div class="moment-chip" onclick="wptsChip(this)">Goa · Mar 2024</div>
-      <div class="moment-chip" onclick="wptsChip(this)">Bangalore · this year</div>
-      <div class="moment-chip" onclick="wptsChip(this)">Kolkata · Dec 2023</div>
-    </div>
-
-    <div class="moment-group">
-      <div class="moment-head">
-        <h2>Goa</h2>
-        <span class="moment-meta">March 2024 · 6 photos</span>
-      </div>
-      <p class="moment-firstperson">You stood on Baga beach at sunset, 28°C, barely a cloud.</p>
-      <div class="masonry">
-        <div class="wpts-tile big" onclick="openLightbox(this.querySelector('img').src)">
-          <img src="https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=500&h=500&fit=crop" alt="">
-          <div class="tile-caption">
-            <b>Baga beach</b>2 Mar 2024
-            <div class="tile-weather"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2"/></svg> 28°C, clear</div>
-          </div>
-        </div>
-        <div class="wpts-tile" onclick="openLightbox(this.querySelector('img').src)"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300&h=300&fit=crop" alt=""></div>
-        <div class="wpts-tile" onclick="openLightbox(this.querySelector('img').src)"><img src="https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=300&h=300&fit=crop" alt=""></div>
-        <div class="wpts-tile" onclick="openLightbox(this.querySelector('img').src)"><img src="https://images.unsplash.com/photo-1512100356356-de1b84283e18?w=300&h=300&fit=crop" alt=""></div>
-        <div class="wpts-tile" onclick="openLightbox(this.querySelector('img').src)"><img src="https://images.unsplash.com/photo-1519046904884-53103b34b206?w=300&h=300&fit=crop" alt=""></div>
-      </div>
-      <div class="prompt-line"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg> What were you doing here? One line is enough.</div>
-    </div>
-
-    <div class="moment-group">
-      <div class="moment-head">
-        <h2>Then and now — Cubbon Park</h2>
-        <span class="moment-meta">2021 → 2026</span>
-      </div>
-      <p class="moment-firstperson">Same bench, five years apart.</p>
-      <div class="then-now">
-        <div class="half"><span class="tag">2021</span><img src="https://images.unsplash.com/photo-1573982292856-5c9b4b5b3c9d?w=400&h=300&fit=crop" alt="" onclick="openLightbox(this.src)"></div>
-        <div class="half"><span class="tag">2026</span><img src="https://images.unsplash.com/photo-1580655653885-65763b2597d0?w=400&h=300&fit=crop" alt="" onclick="openLightbox(this.src)"></div>
-      </div>
-    </div>
 
     <button class="link-quiet" onclick="showScreen(currentUser ? 'dashboard' : 'landing')">← Back</button>
   </div>
@@ -6719,9 +6648,7 @@
   let printContext = 'book';
 
   function applyInkToPrintBtn(){
-    // The big print button wears the ink colour the owner chose for their page
-    const b = document.getElementById('printBookBtn');
-    if (b && profile && profile.ink) b.style.background = profile.ink;
+    // Print is now a quiet outlined pill next to Share — no ink repaint needed.
   }
 
   function openPrintModal(kind){
@@ -8997,28 +8924,64 @@
   let faceApiReady = null;
 
   function wptsOpen(){
+    wptsRenderScreen();
     wptsInitMap();
     wptsSyncVisPill();
   }
+  function wptsRenderScreen(){
+    const photos = albumPhotos || [];
+    const empty = document.getElementById('wptsEmpty');
+    const grid = document.getElementById('wptsAllGrid');
+    const stats = document.getElementById('wptsStats');
+    const people = document.getElementById('wptsPeopleSec');
+    if (!empty) return;
+
+    if (!photos.length){
+      empty.style.display = '';
+      grid.style.display = 'none';
+      stats.style.display = 'none';
+      if (people) people.style.display = 'none';
+      return;
+    }
+
+    empty.style.display = 'none';
+    if (people) people.style.display = '';
+
+    const pinned = photos.filter(p => typeof p.lat === 'number' && typeof p.lng === 'number');
+    const places = new Set(photos.map(p => p.place).filter(Boolean)).size;
+    stats.style.display = '';
+    document.getElementById('wptsStatPlaces').textContent = places;
+    document.getElementById('wptsStatPhotos').textContent = photos.length;
+    document.getElementById('wptsStatPinned').textContent = pinned.length;
+
+    grid.style.display = '';
+    grid.innerHTML = photos.map(function(p){
+      return '<div class="mg" onclick="openLightbox(&quot;' + p.url + '&quot;)"><img src="' + p.url + '">' +
+        ((typeof p.lat === 'number') ? '<span class="pin"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>' : '') +
+        '</div>';
+    }).join('');
+  }
+
 
   function wptsInitMap(){
     const el = document.getElementById('wptsMap');
     if (!el || typeof L === 'undefined') return;
     const wrap = document.getElementById('wptsMapWrap');
     const pinned = (albumPhotos || []).filter(p => typeof p.lat === 'number' && typeof p.lng === 'number');
-    if (!pinned.length && !wptsMap){ return; }
+    // Always show the world map — even on an empty account.
     wrap.classList.add('on');
     if (!wptsMap){
-      wptsMap = L.map('wptsMap', { scrollWheelZoom:false }).setView([22.5, 80], 4);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution:'&copy; OpenStreetMap &copy; CARTO', maxZoom:18
+      wptsMap = L.map('wptsMap', { scrollWheelZoom:false, worldCopyJump:true, minZoom:2 }).setView([20, 0], 2);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom:19
       }).addTo(wptsMap);
     }
     setTimeout(()=>{ try{ wptsMap.invalidateSize(); }catch(e){} }, 200);
     wptsDrawBaseMarkers(pinned);
     document.getElementById('wptsMapCap').textContent = pinned.length
       ? pinned.length + (pinned.length===1 ? ' photo pinned from its location data' : ' photos pinned from their location data')
-      : '';
+      : 'Your world map — photos with location data will pin here';
   }
 
   function wptsClearMarkers(){
@@ -9042,6 +9005,7 @@
       pts.push([p.lat, p.lng]);
     });
     if (pts.length){ try{ wptsMap.fitBounds(pts, { padding:[30,30], maxZoom:10 }); }catch(e){} }
+    else { try{ wptsMap.setView([20, 0], 2); }catch(e){} }
   }
 
 
@@ -9405,11 +9369,6 @@
     });
   })();
 
-  function wptsChip(el){
-    el.parentElement.querySelectorAll('.moment-chip').forEach(c=>c.classList.remove('active'));
-    el.classList.add('active');
-  }
-
   let currentScreenName = 'landing';
   let navFromPopstate = false;
 
@@ -9569,17 +9528,18 @@
       .filter(x => x.entry.city && typeof x.entry.city.lat === 'number' && typeof x.entry.city.lng === 'number');
     const panel = document.getElementById(panelId);
 
-    if (!tagged.length || typeof L === 'undefined'){
+    if (typeof L === 'undefined'){
       panel.style.display = 'none';
-      if (mapInstances[mapId]){ mapInstances[mapId].remove(); delete mapInstances[mapId]; }
-      document.getElementById(mapType+'TimelineFilter').style.display = 'none';
       return;
     }
+    // The map is always visible \u2014 a blank world when empty; dots appear as
+    // cities get tagged on signatures and wall posts.
     panel.style.display = 'block';
-    document.getElementById(mapType+'TimelineFilter').style.display = 'block';
-    document.getElementById(countId).textContent =
-      tagged.length + (tagged.length===1 ? ' pinned memory' : ' pinned memories');
-    document.getElementById(mapType+'DotsCount').textContent = tagged.length;
+    document.getElementById(mapType+'TimelineFilter').style.display = tagged.length ? 'block' : 'none';
+    document.getElementById(countId).textContent = tagged.length
+      ? tagged.length + (tagged.length===1 ? ' pinned memory' : ' pinned memories')
+      : 'memories will pin here as cities are tagged';
+    document.getElementById(mapType+'DotsCount').textContent = tagged.length || 'no';
 
     // Defer so the container is visible and sized before Leaflet measures it
     setTimeout(()=>{
@@ -9735,6 +9695,8 @@
     }
     renderAlbumGrid();
     renderAlbumMap();
+    wptsFaceIndex = null; // photos changed: face index must rebuild
+    if (typeof wptsRenderScreen === 'function'){ wptsRenderScreen(); wptsInitMap(); }
     showToast('Album updated \u2713');
   }
 
@@ -9745,6 +9707,8 @@
     albumPhotos = albumPhotos.filter(p => p.id !== id);
     renderAlbumGrid();
     renderAlbumMap();
+    wptsFaceIndex = null;
+    if (typeof wptsRenderScreen === 'function'){ wptsRenderScreen(); wptsInitMap(); }
   }
 
   function renderAlbumGrid(){
