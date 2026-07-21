@@ -1527,7 +1527,7 @@
   .nav-ic--iconly svg{display:block; width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
   .nav-ic--iconly:hover .nav-tip, .nav-ic--iconly:focus-visible .nav-tip{opacity:1; transform:translateX(-50%) translateY(0);}
   .nav-ic .nav-lbl{display:inline;}
-  .nav-right{gap:26px;}
+  .nav-right{gap:36px;}
   @media (max-width:760px){
     .nav-ic{width:34px; height:34px; padding:0; border-radius:9px; border-bottom:none;}
     .nav-ic:hover{background:var(--oat);}
@@ -3140,8 +3140,6 @@
       Drop in a few photos above — anything with location data pins itself on the map, and the People search can find who's in them.</p>
     </div>
 
-    <div class="wpts-match-grid on" id="wptsAllGrid" style="display:none;"></div>
-
     <button class="link-quiet" onclick="showScreen(currentUser ? 'dashboard' : 'landing')">← Back</button>
       <div style="border-top:1px solid var(--line); margin-top:40px; padding-top:16px;">
         <div class="footer-links" style="margin-top:0;">
@@ -3241,8 +3239,15 @@
       <span class="wpts-drop-sub">Anything with location data pins itself on the map — no tagging needed</span>
       <div class="wpts-drop-btns">
         <button type="button" class="wpts-btn primary" onclick="event.stopPropagation(); document.getElementById('wptsFileInput').click();"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7"/></svg> Upload photos</button>
-        <button type="button" class="wpts-btn" onclick="event.stopPropagation(); document.getElementById('wptsFileInput').click();"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg> Take a photo</button>
       </div>
+    </div>
+
+    <div id="wptsAlbumSec" style="display:none; margin-top:22px;">
+      <div class="entries-head" style="align-items:baseline; margin-bottom:12px;">
+        <h3 style="margin:0;">Your album</h3>
+        <span id="wptsAlbumCount" style="font-size:12.5px; color:var(--ink-soft);"></span>
+      </div>
+      <div class="wpts-match-grid on" id="wptsAllGrid"></div>
     </div>
 
     <div class="wpts-stat-row" id="wptsStats" style="display:none;">
@@ -8398,6 +8403,8 @@
           attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>', maxZoom:19
         }).addTo(visitorWptsMap);
         const bounds = [];
+        // If no photo carries GPS, still show the world map \u2014 no pins.
+        if (!pinned.length){ try{ visitorWptsMap.setView([20, 0], 2); }catch(e){} }
         pinned.forEach(function(p){
           const mk = L.marker([p.lat, p.lng], {
             icon: L.divIcon({ className:'', html:'<div class="mem-marker"></div>', iconSize:[11,11], iconAnchor:[6,6] })
@@ -9055,7 +9062,12 @@
   const FACE_MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
   let faceApiReady = null;
 
-  function wptsOpen(){
+  async function wptsOpen(){
+    // Refresh from DB so photos always appear even if the initial load ran
+    // before the profile was ready. Safe to call repeatedly.
+    if (typeof loadAlbumFromDb === 'function' && db && currentUser && profile && profile.dbId){
+      try { await loadAlbumFromDb(); } catch(e){ console.warn('[EarthLive] album reload failed', e); }
+    }
     wptsRenderScreen();
     wptsInitMap();
     wptsSyncVisPill();
@@ -9073,11 +9085,17 @@
       grid.style.display = 'none';
       stats.style.display = 'none';
       if (people) people.style.display = 'none';
+      const albumSec = document.getElementById('wptsAlbumSec');
+      if (albumSec) albumSec.style.display = 'none';
       return;
     }
 
     empty.style.display = 'none';
     if (people) people.style.display = '';
+    const albumSec = document.getElementById('wptsAlbumSec');
+    if (albumSec) albumSec.style.display = '';
+    const cnt = document.getElementById('wptsAlbumCount');
+    if (cnt) cnt.textContent = photos.length + (photos.length===1 ? ' photo' : ' photos');
 
     const pinned = photos.filter(p => typeof p.lat === 'number' && typeof p.lng === 'number');
     const places = new Set(photos.map(p => p.place).filter(Boolean)).size;
