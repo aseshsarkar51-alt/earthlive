@@ -429,11 +429,6 @@
     padding:12px 16px; font-size:13px; color:var(--ink-soft); margin-bottom:22px;
   }
   .hint-card b{color:var(--ink);}
-  .mutual-badge{
-    display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600;
-    background:var(--oat); border:1px solid var(--camel); color:var(--camel);
-    border-radius:999px; padding:6px 13px;
-  }
   .cover-edit-menu-wrap{position:absolute; right:14px; top:14px; z-index:3;}
   .cover-edit-btn{
     position:static; background:rgba(30,28,24,0.68); color:#F6F1E7;
@@ -1426,6 +1421,10 @@
   .d-empty{text-align:center; padding:38px 16px; color:var(--ink-soft); font-size:13.5px;}
   /* FOR YOU */
   .fy-item{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; box-shadow:var(--shadow); margin-bottom:12px;}
+  .fy-mutual{cursor:pointer; padding:14px 18px; border-left:3px solid var(--moss); transition:border-color .15s, background .15s;}
+  .fy-mutual:hover{background:var(--oat);}
+  .fy-mutual-ic{width:34px; height:34px; border-radius:50%; background:var(--oat); color:var(--moss); display:inline-flex; align-items:center; justify-content:center; flex:none;}
+  .fy-mutual-ic svg{width:17px; height:17px;}
   .fy-row{display:flex; gap:12px; align-items:flex-start;}
   .fy-preview{font-size:13.5px; line-height:1.65; color:var(--ink); background:var(--oat); border-left:3px solid var(--camel); border-radius:0 8px 8px 0; padding:10px 13px; margin-top:9px; white-space:pre-wrap;}
   .fy-preview.plain{font-size:13.5px;}
@@ -1520,6 +1519,11 @@
   .nav-ic:hover{background:none; color:var(--ink); border-bottom-color:var(--ink-soft);}
   .nav-ic.active{background:none; color:var(--ink); border-bottom-color:var(--ink);}
   .nav-ic svg{display:none;}
+  .nav-ic--iconly{width:34px; height:34px; padding:0; border-radius:9px; border-bottom:none;}
+  .nav-ic--iconly:hover{background:var(--oat); color:var(--ink); border-bottom:none;}
+  .nav-ic--iconly .nav-lbl{display:none;}
+  .nav-ic--iconly svg{display:block; width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+  .nav-ic--iconly:hover .nav-tip, .nav-ic--iconly:focus-visible .nav-tip{opacity:1; transform:translateX(-50%) translateY(0);}
   .nav-ic .nav-lbl{display:inline;}
   .nav-right{gap:18px;}
   @media (max-width:760px){
@@ -1599,11 +1603,16 @@
   #screen-waypoints .wpts-person-tile.sel .pt-them{box-shadow:0 0 0 2px var(--camel);}
   #screen-waypoints .wpts-match-grid{display:none; grid-template-columns:repeat(4,1fr); gap:7px; margin:12px 0 6px;}
   #screen-waypoints .wpts-match-grid.on{display:grid;}
-  @media (max-width:640px){ #screen-waypoints .wpts-match-grid{grid-template-columns:repeat(3,1fr);} }
+  @media (max-width:640px){ #screen-waypoints .wpts-match-grid, #visitorWptsGrid{grid-template-columns:repeat(3,1fr);} }
   #screen-waypoints .wpts-match-grid .mg{position:relative; aspect-ratio:1; border-radius:10px; overflow:hidden; cursor:pointer; background:var(--oat-deep);}
   #screen-waypoints .wpts-match-grid .mg img{width:100%; height:100%; object-fit:cover; display:block;}
   #screen-waypoints .wpts-match-grid .mg .pin{position:absolute; bottom:5px; right:5px; width:17px; height:17px; border-radius:50%; background:rgba(255,255,255,.92); display:flex; align-items:center; justify-content:center;}
   #screen-waypoints .wpts-match-grid .mg .pin svg{width:9px; height:9px; fill:none; stroke:var(--camel); stroke-width:2;}
+
+  #screen-waypoints .wpts-match-grid .mg{position:relative; overflow:hidden;}
+  #screen-waypoints .wpts-match-grid .mg-loc{position:absolute; bottom:5px; left:5px; background:rgba(255,255,255,.94); border:none; color:var(--ink); font-family:inherit; font-size:10px; font-weight:600; padding:3px 7px; border-radius:999px; cursor:pointer; display:inline-flex; align-items:center; gap:3px; box-shadow:0 1px 3px rgba(0,0,0,.15);}
+  #screen-waypoints .wpts-match-grid .mg-loc:hover{background:#fff;}
+  #screen-waypoints .wpts-match-grid .mg-loc svg{width:11px; height:11px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
 </style>
 </head>
 <body>
@@ -1874,15 +1883,6 @@
       <a onclick="jumpTo('sigsAnchor')">Signatures <span class="n" id="jumpSigCount"></span></a>
     </nav>
 
-    <!-- ===== PRINT MY BOOK ===== -->
-
-    <div style="display:flex; justify-content:flex-end; margin:14px 0 4px;">
-      <button type="button" id="printBookBtn" class="btn-share-hdr" onclick="openPrintModal('book')" title="Turn every signature into a keepsake PDF" style="display:inline-flex; align-items:center; gap:6px;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>
-        Print my book
-      </button>
-    </div>
-
     <!-- ===== MY WALL ===== -->
     <div class="shead" id="wallAnchor">
       <h3>My wall</h3>
@@ -1948,30 +1948,6 @@
       <div class="memory-map" id="ownerMap"></div>
     </div>
 
-    <div class="album-panel" id="albumPanel" style="display:none;">
-      <div class="entries-head">
-        <h3>My album</h3>
-        <span id="albumCount"></span>
-      </div>
-      <p style="font-size:13px; color:var(--ink-soft); margin:0 0 14px;">
-        Drop photos in, or send them straight from your phone. Anything with location data pins itself on the map — no tagging needed.
-      </p>
-      <div class="album-layout">
-        <div class="album-grid-wrap">
-          <div class="album-dropzone" id="albumDropzone" onclick="document.getElementById('albumFileInput').click()">
-            <input type="file" accept="image/*" id="albumFileInput" multiple capture="environment" style="display:none;" onchange="albumHandleFiles(event.target.files); event.target.value='';">
-            <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span>
-            <p>Drop photos here, or tap to add</p>
-          </div>
-          <div class="album-grid" id="albumGrid"></div>
-        </div>
-        <div class="album-map-wrap" id="albumMapWrap" style="display:none;">
-          <div class="memory-map" id="albumMap"></div>
-          <p class="album-map-caption" id="albumMapCaption"></p>
-        </div>
-      </div>
-    </div>
-
     <div class="entries-head" id="sigsAnchor" style="gap:14px; flex-wrap:wrap; align-items:center;">
       <h3 style="flex:none;">Signatures</h3>
       <div class="sig-search" style="flex:1; min-width:220px; margin-bottom:0;">
@@ -1980,6 +1956,10 @@
         <button type="button" id="sigSearchClear" style="display:none;" onclick="clearSignatureSearch()" aria-label="Clear search">✕</button>
       </div>
       <span id="entryCount" style="flex:none;">0 people</span>
+      <button type="button" id="printBookBtn" class="btn-share-hdr" onclick="openPrintModal('book')" title="Turn every signature into a keepsake PDF" style="display:inline-flex; align-items:center; gap:6px; flex:none;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>
+        Print my book
+      </button>
     </div>
     <div id="sigSearchMeta" class="sig-search-meta" style="display:none;"></div>
 
@@ -2375,7 +2355,6 @@
       <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
         <button class="btn btn-ghost" id="followBtn" style="display:none;" onclick="toggleFollow()">Follow</button>
         <button class="btn btn-ghost" id="msgBtn" style="display:none;" onclick="startConversationWithVisitor()">Message</button>
-        <span class="mutual-badge" id="mutualBadge" style="display:none;">\U0001f91d You've signed each other's books</span>
         <button class="btn btn-primary" onclick="signCurrentVisitorProfile()">Sign this page</button>
         <button class="btn btn-ghost" onclick="exitVisitorPreview()">Back</button>
         <button class="link-quiet" id="blockBtn" style="display:none;" onclick="blockThisPage()">Block</button>
@@ -2419,6 +2398,17 @@
         </div>
         <div class="memory-map" id="visitorMap"></div>
       </div>
+
+      <div id="visitorWptsSection" style="display:none; margin-bottom:34px;">
+        <div class="entries-head" style="align-items:baseline;">
+          <h3 style="margin:0;">Waypoints</h3>
+          <span id="visitorWptsCount" style="font-size:12.5px; color:var(--ink-soft);"></span>
+        </div>
+        <p style="font-size:13px; color:var(--ink-soft); margin:0 0 14px;">Places they've been — auto-pinned from their photos.</p>
+        <div id="visitorWptsMap" style="height:280px; border-radius:14px; border:1px solid var(--line); background:var(--oat); margin-bottom:12px;"></div>
+        <div class="wpts-match-grid on" id="visitorWptsGrid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:7px;"></div>
+      </div>
+
       <div class="entries-head" style="gap:14px; flex-wrap:wrap; align-items:center;">
         <h3 style="flex:none;">Signatures</h3>
         <div class="sig-search" id="visitorSigSearchBox" style="flex:1; min-width:220px; margin-bottom:0;">
@@ -3386,6 +3376,26 @@
   </div>
 </div>
 
+
+<!-- Waypoints: add / edit location for a photo without EXIF GPS -->
+<div class="modal-overlay" id="wptsLocOverlay" onclick="if(event.target===this) closeWptsLoc()">
+  <div class="modal-card" style="max-width:420px;">
+    <button class="modal-close" onclick="closeWptsLoc()" aria-label="Close">✕</button>
+    <p style="font-size:17px; font-weight:600; margin:0 0 4px;">Add a location to this photo</p>
+    <p style="font-size:12.5px; color:var(--ink-soft); margin:0 0 16px;">It will pin here on your map. Photos without location data won’t pin automatically — you can type a city for them here.</p>
+    <div id="wptsLocPreview" style="width:100%; height:120px; border-radius:10px; background:var(--oat-deep) center/cover no-repeat; margin-bottom:12px;"></div>
+    <div class="sig-search" style="background:var(--card); border:1px solid var(--line); border-radius:999px; padding:8px 16px; margin-bottom:8px; position:relative;">
+      <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
+      <input type="text" id="wptsLocInput" placeholder="Type a city…" autocomplete="off" oninput="wptsLocTyped()" style="flex:1; border:none; outline:none; background:transparent; font-family:inherit; font-size:13.5px; color:var(--ink);">
+    </div>
+    <div class="ev-ta" id="wptsLocSuggest" style="position:relative; margin:0 0 14px;"></div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn-small" style="flex:1;" onclick="closeWptsLoc()">Cancel</button>
+      <button class="btn-small" style="flex:1; background:var(--ink); color:var(--oat); border-color:var(--ink);" onclick="wptsLocSave()">Save location</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="reciprocalModalOverlay" onclick="if(event.target===this) closeReciprocalModal()">
   <div class="entry-modal" style="max-width:380px; text-align:center; padding:34px 28px 28px;">
     <button class="modal-close" onclick="closeReciprocalModal()" aria-label="Close">✕</button>
@@ -4311,27 +4321,10 @@
     showToast('Entry removed from your page');
   }
 
-  /* ---------- MUTUAL SIGNATURE BADGE ---------- */
-  async function updateMutualBadge(profileObj){
-    const badge = document.getElementById('mutualBadge');
-    badge.style.display = 'none';
-    const isOwnPage = profile && profile.dbId && profileObj.dbId === profile.dbId;
-    if (!db || !currentUser || !profile || !profile.dbId || !profileObj.dbId || !profileObj.userId || isOwnPage) return;
-
-    const [iSignedThem, theySignedMe] = await Promise.all([
-      db.from('entries').select('id', { count:'exact', head:true })
-        .eq('profile_id', profileObj.dbId)
-        .eq('signer_user_id', currentUser.id)
-        .eq('status', 'approved'),
-      db.from('entries').select('id', { count:'exact', head:true })
-        .eq('profile_id', profile.dbId)
-        .eq('signer_user_id', profileObj.userId)
-        .eq('status', 'approved')
-    ]);
-    if ((iSignedThem.count || 0) > 0 && (theySignedMe.count || 0) > 0){
-      badge.style.display = 'inline-flex';
-    }
-  }
+  /* Mutual signature is now surfaced in the For me feed as a minimal
+     handshake notification \u2014 not as a header badge. This is a no-op stub
+     to keep old callers safe. */
+  async function updateMutualBadge(_profileObj){ /* moved to For me */ }
 
   /* ---------- FOLLOWERS SECTION ---------- */
   let myFollowersList = [];   // [{name, username, ink, avatar}] latest first
@@ -8278,8 +8271,136 @@
         renderEntries('visitorEntries', signatures, 'visitorEntryCount', false);
       }
       renderMemoryMap('visitorMapPanel', 'visitorMap', 'visitorMapCount', approved);
+      renderVisitorWaypoints(profileObj);
     }
     showScreen('visitor');
+  }
+
+
+
+  /* ---------- Waypoints: manual location for a photo ---------- */
+  let wptsLocPhotoId = null, wptsLocPicked = null;
+
+  function openWptsLoc(id){
+    const ph = (albumPhotos || []).find(p=>p.id === id);
+    if (!ph) return;
+    wptsLocPhotoId = id;
+    wptsLocPicked = null;
+    document.getElementById('wptsLocPreview').style.backgroundImage = 'url(' + ph.url + ')';
+    const inp = document.getElementById('wptsLocInput');
+    inp.value = ph.place || '';
+    document.getElementById('wptsLocSuggest').innerHTML = '';
+    document.getElementById('wptsLocOverlay').classList.add('open');
+    setTimeout(()=>inp.focus(), 60);
+  }
+  function closeWptsLoc(){
+    document.getElementById('wptsLocOverlay').classList.remove('open');
+    wptsLocPhotoId = null; wptsLocPicked = null;
+  }
+  let wptsLocTimer = null;
+  function wptsLocTyped(){
+    clearTimeout(wptsLocTimer);
+    wptsLocPicked = null;
+    wptsLocTimer = setTimeout(()=>{
+      const q = document.getElementById('wptsLocInput').value.trim().toLowerCase();
+      const box = document.getElementById('wptsLocSuggest');
+      if (q.length < 2){ box.classList.remove('open'); box.innerHTML=''; return; }
+      const starts = CITIES.filter(c=>c.name.toLowerCase().startsWith(q));
+      const has = CITIES.filter(c=>!c.name.toLowerCase().startsWith(q) && c.name.toLowerCase().includes(q));
+      const hits = [...starts, ...has].slice(0,6);
+      if (hits.length < 6) augmentCitiesFromWeb(q, wptsLocTyped);
+      if (!hits.length){ box.classList.remove('open'); return; }
+      box.innerHTML = hits.map(c=>'<div class="ev-ta-item" onclick="wptsLocPick(' + CITIES.indexOf(c) + ')">' + icon('pin') + ' ' + cityLabel(c, q) + '</div>').join('');
+      box.classList.add('open');
+    }, 200);
+  }
+  function wptsLocPick(i){
+    wptsLocPicked = CITIES[i];
+    document.getElementById('wptsLocInput').value = wptsLocPicked.name;
+    document.getElementById('wptsLocSuggest').classList.remove('open');
+  }
+  async function wptsLocSave(){
+    if (!wptsLocPhotoId) return;
+    const typed = document.getElementById('wptsLocInput').value.trim();
+    const city = wptsLocPicked || (typed ? CITIES.find(c=>c.name.toLowerCase() === typed.toLowerCase()) : null);
+    if (typed && !city){ showToast('Pick a city from the suggestions'); return; }
+    const patch = city
+      ? { lat: city.lat, lng: city.lng, place_name: city.name }
+      : { lat: null, lng: null, place_name: null };
+    const { error } = await db.from('album_photos').update(patch).eq('id', wptsLocPhotoId);
+    if (error){ showToast(friendlyError(error)); return; }
+    // update local state
+    const ph = albumPhotos.find(p=>p.id === wptsLocPhotoId);
+    if (ph){ ph.lat = patch.lat; ph.lng = patch.lng; ph.place = patch.place_name; }
+    wptsFaceIndex = null;
+    closeWptsLoc();
+    wptsRenderScreen();
+    wptsInitMap();
+    showToast(city ? ('Pinned to ' + city.name + ' ✓') : 'Location cleared');
+  }
+
+  /* ---------- VISITOR WAYPOINTS (public albums only) ---------- */
+  let visitorWptsMap = null;
+
+  async function renderVisitorWaypoints(profileObj){
+    const section = document.getElementById('visitorWptsSection');
+    if (!section) return;
+    section.style.display = 'none';
+    if (!db || !profileObj || !profileObj.dbId) return;
+    // Only public albums on public books are visible to strangers. Owner sees
+    // their own via the Waypoints screen; on the visitor view of their own
+    // book we skip too (that's what "preview" is for).
+    if (profile && profileObj.dbId === profile.dbId) return;
+    if (!profileObj.albumPublic || profileObj.visibility !== 'public') return;
+
+    const { data, error } = await db.from('album_photos')
+      .select('id, url, lat, lng, place_name, taken_at, created_at')
+      .eq('profile_id', profileObj.dbId)
+      .order('created_at', { ascending:false });
+    if (error || !data || !data.length) return;
+
+    const photos = data.map(r => ({
+      id:r.id, url:r.url, lat:r.lat, lng:r.lng,
+      place:r.place_name, takenAt:r.taken_at
+    }));
+    const pinned = photos.filter(p => typeof p.lat === 'number' && typeof p.lng === 'number');
+
+    section.style.display = 'block';
+    document.getElementById('visitorWptsCount').textContent =
+      photos.length + (photos.length===1 ? ' photo' : ' photos') +
+      (pinned.length ? ' \u00b7 ' + pinned.length + ' pinned' : '');
+
+    // Photo grid
+    document.getElementById('visitorWptsGrid').innerHTML = photos.map(function(p){
+      return '<div class="mg" onclick="openLightbox(&quot;' + p.url + '&quot;)"><img src="' + p.url + '">' +
+        ((typeof p.lat === 'number') ? '<span class="pin"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>' : '') +
+        '</div>';
+    }).join('');
+
+    // World map with pins (or blank world if none carry GPS)
+    if (typeof L !== 'undefined'){
+      const el = document.getElementById('visitorWptsMap');
+      if (visitorWptsMap){ try{ visitorWptsMap.remove(); }catch(e){} visitorWptsMap = null; }
+      setTimeout(()=>{
+        visitorWptsMap = L.map(el, { scrollWheelZoom:false, worldCopyJump:true, minZoom:2 }).setView([20, 0], 2);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>', maxZoom:19
+        }).addTo(visitorWptsMap);
+        const bounds = [];
+        pinned.forEach(function(p){
+          const mk = L.marker([p.lat, p.lng], {
+            icon: L.divIcon({ className:'', html:'<div class="mem-marker"></div>', iconSize:[11,11], iconAnchor:[6,6] })
+          }).addTo(visitorWptsMap);
+          mk.bindPopup('<div class="map-popup"><img src="' + p.url + '">' +
+            (p.place ? '<div class="map-city">' + escapeHtml(p.place) + '</div>' : '') +
+            (p.takenAt ? '<p style="font-family:\'Inter Tight\',sans-serif; font-size:12px;">' + new Date(p.takenAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) + '</p>' : '') +
+            '</div>', { className:'mem-popup-wrap' });
+          bounds.push([p.lat, p.lng]);
+        });
+        if (bounds.length){ try{ visitorWptsMap.fitBounds(bounds, { padding:[30,30], maxZoom:10 }); }catch(e){} }
+        setTimeout(()=>{ try{ visitorWptsMap.invalidateSize(); }catch(e){} }, 200);
+      }, 60);
+    }
   }
 
   /* Their wall, as a visitor sees it: read + like + comment, but no editing. */
@@ -8815,7 +8936,7 @@
   };
   function navBtn(key, label, onClick, badgeHtml){
     const b = document.createElement('button');
-    b.className = 'nav-ic';
+    b.className = 'nav-ic' + (key === 'find' ? ' nav-ic--iconly' : '');
     b.type = 'button';
     b.setAttribute('aria-label', label);
     b.setAttribute('title', label);
@@ -8841,15 +8962,15 @@
     (navLeft || navRight).appendChild(navBtn('find', 'Find', ()=>showScreen('search')));
     navRight.appendChild(navBtn('feed', 'For me', ()=>{ renderForYou(); showScreen('feed'); },
       '<span class="nav-evbadge" id="navForYouBadge" style="display:none;"></span>'));
-    navRight.appendChild(navBtn('events', 'My events', ()=>{ renderMyEvents(); showScreen('events'); },
+    navRight.appendChild(navBtn('events', 'Events', ()=>{ renderMyEvents(); showScreen('events'); },
       '<span class="nav-evbadge" id="navEventsBadge" style="display:none;"></span>'));
 
     if (profile){
-      navRight.appendChild(navBtn('book',  'My book',  ()=>showScreen('dashboard')));
-      const diary = navBtn('diary', 'My diary', ()=>{ openDiaryEditor(null); renderDiary(); showScreen('diary'); });
+      navRight.appendChild(navBtn('book',  'Book',  ()=>showScreen('dashboard')));
+      const diary = navBtn('diary', 'Diary', ()=>{ openDiaryEditor(null); renderDiary(); showScreen('diary'); });
       diary.id = 'navDiaryBtn';
       navRight.appendChild(diary);
-      navRight.appendChild(navBtn('wpts',  'My waypoints', ()=>{ showScreen('waypoints'); wptsOpen(); }));
+      navRight.appendChild(navBtn('wpts',  'Waypoints', ()=>{ showScreen('waypoints'); wptsOpen(); }));
     }
 
     if (profile && profile.dbId){
@@ -8956,8 +9077,13 @@
 
     grid.style.display = '';
     grid.innerHTML = photos.map(function(p){
-      return '<div class="mg" onclick="openLightbox(&quot;' + p.url + '&quot;)"><img src="' + p.url + '">' +
-        ((typeof p.lat === 'number') ? '<span class="pin"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>' : '') +
+      const hasLoc = typeof p.lat === 'number';
+      return '<div class="mg">' +
+        '<img src="' + p.url + '" onclick="openLightbox(&quot;' + p.url + '&quot;)">' +
+        (hasLoc ? '<span class="pin" title="' + escapeHtml(p.place || 'Pinned') + '"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>' : '') +
+        '<button class="mg-loc" onclick="event.stopPropagation(); openWptsLoc(\'' + p.id + '\')" title="' + (hasLoc ? 'Change location' : 'Add location') + '">' +
+        (hasLoc ? '<svg viewBox="0 0 24 24"><path d="M4 20h16M6 16l3-3 3 3 6-6"/></svg>' : '+ location') +
+        '</button>' +
         '</div>';
     }).join('');
   }
@@ -9728,6 +9854,7 @@
   }
 
   function renderAlbumMap(){
+    if (!document.getElementById('albumMap')) return; // panel removed from book page
     const wrap = document.getElementById('albumMapWrap');
     const mapEl = document.getElementById('albumMap');
     const caption = document.getElementById('albumMapCaption');
@@ -9877,11 +10004,37 @@
     const files = Array.from(e.target.files || []);
     const room = 4 - wallPhotos.length;
     if (room <= 0){ showToast('Up to 4 photos per post'); e.target.value=''; return; }
-    files.slice(0, room).forEach(f=>{
+    const taken = files.slice(0, room);
+    taken.forEach(f=>{
       const r = new FileReader();
       r.onload = ()=>{ wallPhotos.push(r.result); renderWallThumbs(); };
       r.readAsDataURL(f);
     });
+    // Try to auto-fill the city field from the first photo's EXIF GPS \u2014
+    // only if the user hasn't already typed a city (never overwrite intent).
+    (async ()=>{
+      const cityInput = document.getElementById('wallCity');
+      if (!cityInput || cityInput.value.trim() || wallSelectedCity) return;
+      for (const f of taken){
+        try{
+          const { gps } = await albumReadExif(f);
+          if (!gps || typeof gps.latitude !== 'number') continue;
+          const place = await reverseGeocodeCoords(gps.latitude, gps.longitude);
+          if (!place) continue;
+          // Prefer an existing entry in CITIES so we get a map pin; else add one.
+          let city = CITIES.find(c => c.name.toLowerCase() === place.toLowerCase());
+          if (!city){
+            city = { name: place, lat: gps.latitude, lng: gps.longitude };
+            CITIES.push(city);
+          }
+          if (cityInput.value.trim() || wallSelectedCity) return;   // double-check: user typed while we were fetching
+          wallSelectedCity = city;
+          cityInput.value = city.name;
+          showToast('Location added from photo \u2014 ' + city.name);
+          return;
+        }catch(e){ /* try the next file */ }
+      }
+    })();
     e.target.value = '';
   }
   function removeWallPhoto(i){ wallPhotos.splice(i,1); renderWallThumbs(); }
@@ -10185,6 +10338,15 @@
     else badge.style.display = 'none';
   }
 
+
+  function markMutualSeen(profileId, at){
+    try{
+      const seen = JSON.parse(localStorage.getItem('el_mutual_seen') || '{}');
+      seen[profileId] = at;
+      localStorage.setItem('el_mutual_seen', JSON.stringify(seen));
+    }catch(e){}
+  }
+
   async function renderForYou(){
     const list = document.getElementById('forYouList');
     list.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Loading…</p>';
@@ -10316,6 +10478,63 @@
       });
     }
 
+    // Mutual signatures: books you and someone else BOTH signed for each other.
+    // Shown as a minimal handshake notification in this feed instead of a header
+    // badge on their page (which was the old behaviour).
+    if (profile && profile.dbId){
+      const { data: whoSignedMe } = await db.from('entries')
+        .select('signer_user_id, created_at')
+        .eq('profile_id', profile.dbId)
+        .eq('status', 'approved')
+        .not('signer_user_id','is', null)
+        .order('created_at', { ascending:false })
+        .limit(40);
+      const signerIds = [...new Set((whoSignedMe || [])
+        .map(r=>r.signer_user_id).filter(id => id && id !== currentUser.id))];
+      if (signerIds.length){
+        // Fetch those signers' profile IDs so we can check whether I signed THEIRS
+        const { data: signerProfiles } = await db.from('profiles')
+          .select('id, user_id, name, username, ink, avatar_url')
+          .in('user_id', signerIds);
+        if (signerProfiles && signerProfiles.length){
+          const otherProfileIds = signerProfiles.map(p=>p.id);
+          const { data: mySigs } = await db.from('entries')
+            .select('profile_id, created_at')
+            .in('profile_id', otherProfileIds)
+            .eq('signer_user_id', currentUser.id)
+            .eq('status', 'approved');
+          const mySigMap = {};
+          (mySigs || []).forEach(r=>{
+            if (!mySigMap[r.profile_id] || new Date(r.created_at) > new Date(mySigMap[r.profile_id]))
+              mySigMap[r.profile_id] = r.created_at;
+          });
+          const theirLatest = {};
+          (whoSignedMe || []).forEach(r=>{
+            if (!theirLatest[r.signer_user_id]) theirLatest[r.signer_user_id] = r.created_at;
+          });
+          const seenKey = 'el_mutual_seen';
+          let seen = {};
+          try { seen = JSON.parse(localStorage.getItem(seenKey) || '{}'); } catch(e){}
+          signerProfiles.forEach(pr=>{
+            if (!mySigMap[pr.id]) return;
+            // The event date is the later of the two signatures
+            const at = new Date(mySigMap[pr.id]) > new Date(theirLatest[pr.user_id])
+              ? mySigMap[pr.id] : theirLatest[pr.user_id];
+            if (seen[pr.id] && seen[pr.id] >= at) return; // already surfaced
+            items.push({
+              kind:'mutual',
+              at,
+              username: pr.username,
+              profileId: pr.id,
+              avatar: (pr.name||'?').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase(),
+              color: pr.ink || 'var(--moss)',
+              title: personLink(pr.name || 'They', { username: pr.username }) + ' \u00b7 you\u2019ve signed each other',
+              meta: evTimeAgo(at)
+            });
+          });
+        }
+      }
+    }
     items.sort((a,b)=> new Date(b.at) - new Date(a.at));
 
     if (!items.length){
@@ -10351,6 +10570,18 @@
               </div>
             </div>
           </div>`;
+        }
+        if (it.kind === 'mutual'){
+          return '<div class="fy-item fy-mutual" onclick="markMutualSeen(\''+it.profileId+'\', \''+it.at+'\'); openProfileByUsername(\''+it.username+'\')">' +
+            '<div class="fy-row" style="align-items:center;">' +
+              '<div class="fy-mutual-ic" aria-label="Mutual signatures"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 12l-3-3-3 3 3 3"/><path d="M13 12l3 3 3-3-3-3"/><path d="M9 12h6"/></svg></div>' +
+              '<div class="ev-avatar" style="background:' + it.color + ';">' + it.avatar + '</div>' +
+              '<div style="flex:1; min-width:0;">' +
+                '<div style="font-size:14px;">' + it.title + '</div>' +
+                '<div style="font-size:11.5px; color:var(--ink-soft); margin-top:1px;">' + it.meta + '</div>' +
+              '</div>' +
+              '<span style="font-size:11.5px; color:var(--ink-soft); flex:none;">Open \u2192</span>' +
+            '</div></div>';
         }
         let action = '';
         if (it.kind==='signature') action = '<button class="btn-small" onclick="showScreen(\'dashboard\')">Open in my book</button>';
