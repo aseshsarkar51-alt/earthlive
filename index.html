@@ -1184,6 +1184,8 @@
   .book-jump a{flex:1; text-align:center; padding:8px 6px; border-radius:999px; font-size:12.5px; font-weight:600; color:var(--ink-soft); cursor:pointer; border:1px solid transparent; transition:all .15s;}
   .book-jump a:hover{background:var(--card); border-color:var(--line); color:var(--ink);}
   .book-jump a .n{opacity:.6; font-weight:500;}
+  .book-jump-print{flex:none; display:inline-flex; align-items:center; gap:6px; background:var(--ink); color:var(--oat); border:none; border-radius:999px; padding:7px 14px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; transition:opacity .15s; margin-left:6px;}
+  .book-jump-print:hover{opacity:.85;}
   .shead{display:flex; align-items:baseline; justify-content:space-between; margin:30px 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);}
   .shead h3{margin:0; font-family:'Fraunces',serif; font-size:20px; font-weight:500;}
   .shead .cnt{font-size:12.5px; color:var(--ink-soft);}
@@ -1525,7 +1527,7 @@
   .nav-ic--iconly svg{display:block; width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
   .nav-ic--iconly:hover .nav-tip, .nav-ic--iconly:focus-visible .nav-tip{opacity:1; transform:translateX(-50%) translateY(0);}
   .nav-ic .nav-lbl{display:inline;}
-  .nav-right{gap:18px;}
+  .nav-right{gap:26px;}
   @media (max-width:760px){
     .nav-ic{width:34px; height:34px; padding:0; border-radius:9px; border-bottom:none;}
     .nav-ic:hover{background:var(--oat);}
@@ -1610,9 +1612,18 @@
   #screen-waypoints .wpts-match-grid .mg .pin svg{width:9px; height:9px; fill:none; stroke:var(--camel); stroke-width:2;}
 
   #screen-waypoints .wpts-match-grid .mg{position:relative; overflow:hidden;}
-  #screen-waypoints .wpts-match-grid .mg-loc{position:absolute; bottom:5px; left:5px; background:rgba(255,255,255,.94); border:none; color:var(--ink); font-family:inherit; font-size:10px; font-weight:600; padding:3px 7px; border-radius:999px; cursor:pointer; display:inline-flex; align-items:center; gap:3px; box-shadow:0 1px 3px rgba(0,0,0,.15);}
-  #screen-waypoints .wpts-match-grid .mg-loc:hover{background:#fff;}
-  #screen-waypoints .wpts-match-grid .mg-loc svg{width:11px; height:11px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+
+  #screen-waypoints .wpts-match-grid .mg{position:relative; overflow:hidden;}
+  #screen-waypoints .wpts-match-grid .mg-del{position:absolute; top:5px; right:5px; width:22px; height:22px; border-radius:50%; background:rgba(0,0,0,.55); color:#fff; border:none; font-size:12px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity .15s;}
+  #screen-waypoints .wpts-match-grid .mg:hover .mg-del{opacity:1;}
+  @media (hover:none){ #screen-waypoints .wpts-match-grid .mg-del{opacity:1;} }
+  #screen-waypoints .wpts-match-grid .mg-place{position:absolute; left:5px; right:5px; bottom:5px; background:rgba(255,255,255,.94); border:none; color:var(--ink); font-family:inherit; font-size:10.5px; font-weight:600; padding:4px 8px; border-radius:999px; cursor:pointer; display:flex; align-items:center; gap:4px; box-shadow:0 1px 4px rgba(0,0,0,.15); overflow:hidden;}
+  #screen-waypoints .wpts-match-grid .mg-place:hover{background:#fff;}
+  #screen-waypoints .wpts-match-grid .mg-place svg{width:10px; height:10px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex:none;}
+  #screen-waypoints .wpts-match-grid .mg-place span{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  #screen-waypoints .wpts-match-grid .mg-place.has{background:rgba(255,255,255,.94); color:var(--ink);}
+  #screen-waypoints .wpts-match-grid .mg-place.none{background:var(--camel); color:#fff;}
+  #screen-waypoints .wpts-match-grid .mg-place.none:hover{background:#8B5F3E;}
 </style>
 </head>
 <body>
@@ -1881,6 +1892,10 @@
       <a onclick="jumpTo('wallAnchor')">My wall <span class="n" id="jumpWallCount"></span></a>
       <a onclick="jumpTo('mapAnchor')">Map</a>
       <a onclick="jumpTo('sigsAnchor')">Signatures <span class="n" id="jumpSigCount"></span></a>
+      <button type="button" id="printBookBtn" class="book-jump-print" onclick="openPrintModal('book')" title="Turn every signature into a keepsake PDF">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>
+        Print
+      </button>
     </nav>
 
     <!-- ===== MY WALL ===== -->
@@ -1956,10 +1971,6 @@
         <button type="button" id="sigSearchClear" style="display:none;" onclick="clearSignatureSearch()" aria-label="Clear search">✕</button>
       </div>
       <span id="entryCount" style="flex:none;">0 people</span>
-      <button type="button" id="printBookBtn" class="btn-share-hdr" onclick="openPrintModal('book')" title="Turn every signature into a keepsake PDF" style="display:inline-flex; align-items:center; gap:6px; flex:none;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>
-        Print my book
-      </button>
     </div>
     <div id="sigSearchMeta" class="sig-search-meta" style="display:none;"></div>
 
@@ -9078,14 +9089,21 @@
     grid.style.display = '';
     grid.innerHTML = photos.map(function(p){
       const hasLoc = typeof p.lat === 'number';
+      const placeTxt = p.place ? escapeHtml(p.place) : (hasLoc ? 'Pinned' : '+ Add location');
       return '<div class="mg">' +
         '<img src="' + p.url + '" onclick="openLightbox(&quot;' + p.url + '&quot;)">' +
-        (hasLoc ? '<span class="pin" title="' + escapeHtml(p.place || 'Pinned') + '"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>' : '') +
-        '<button class="mg-loc" onclick="event.stopPropagation(); openWptsLoc(\'' + p.id + '\')" title="' + (hasLoc ? 'Change location' : 'Add location') + '">' +
-        (hasLoc ? '<svg viewBox="0 0 24 24"><path d="M4 20h16M6 16l3-3 3 3 6-6"/></svg>' : '+ location') +
+        '<button class="mg-del" onclick="event.stopPropagation(); wptsConfirmDelete(\'' + p.id + '\')" title="Remove">\u2715</button>' +
+        '<button class="mg-place ' + (hasLoc ? 'has' : 'none') + '" onclick="event.stopPropagation(); openWptsLoc(\'' + p.id + '\')" title="' + (hasLoc ? 'Change location' : 'Add a location so it pins on the map') + '">' +
+          '<svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>' +
+          '<span>' + placeTxt + '</span>' +
         '</button>' +
         '</div>';
     }).join('');
+  }
+
+  function wptsConfirmDelete(id){
+    if (!confirm('Remove this photo from your waypoints?')) return;
+    removeAlbumPhoto(id);
   }
 
 
@@ -9824,6 +9842,13 @@
     wptsFaceIndex = null; // photos changed: face index must rebuild
     if (typeof wptsRenderScreen === 'function'){ wptsRenderScreen(); wptsInitMap(); }
     showToast('Album updated \u2713');
+    // If the user is on the Waypoints screen and the *newest* photo has no
+    // location, proactively prompt them to add one \u2014 many phone photos
+    // (especially anything that passed through WhatsApp) have EXIF stripped.
+    const first = albumPhotos[0];
+    if (first && typeof first.lat !== 'number' && currentScreenName === 'waypoints'){
+      setTimeout(()=>openWptsLoc(first.id), 500);
+    }
   }
 
   async function removeAlbumPhoto(id){
