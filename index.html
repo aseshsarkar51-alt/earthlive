@@ -1623,6 +1623,51 @@
   #screen-waypoints .wpts-match-grid .mg-place.has{background:rgba(255,255,255,.94); color:var(--ink);}
   #screen-waypoints .wpts-match-grid .mg-place.none{background:var(--camel); color:#fff;}
   #screen-waypoints .wpts-match-grid .mg-place.none:hover{background:#8B5F3E;}
+
+@media (pointer: fine) {
+  .fp, .book-jump a, .nav-ic, .fy-item, .dial-ic, .ev-rsvp-item, .prof-mutual, .mutual-opt, 
+  .prof-links a, .prof-list-follow, .wall-post, .wall-more, .wall-comment-more {
+    cursor: pointer;
+  }
+}
+@media (max-width: 480px) {
+  .wc-row .wc-ava { width: 54px; height: 54px; font-size: 16px; }
+  .wc-input { min-height: 76px; }
+  .nav-ic { font-size: 13px; padding: 8px 4px; }
+  .nav-ic svg { width: 18px; height: 18px; }
+  .sig-preview { max-width: 90vw; }
+  .ev-item { padding: 14px 0; }
+  .ev-item h3 { font-size: 16px; }
+  .ev-guests .g { width: 28px; height: 28px; }
+}
+@media (max-width: 640px) {
+  .map-panel { height: 60vh; margin: 20px -28px 0; border-radius: 0; }
+  #memMap, #visitorMap, #wptsMap { height: calc(60vh - 48px); margin: 0 -28px; border-radius: 0; }
+  .wpts-match-grid { grid-template-columns: repeat(2, 1fr); gap: 4px; }
+}
+
+@media (pointer: fine) {
+  .fp, .fp .book-jump a, .fp .nav-ic, .fp .fy-item, .fp .dial-ic, .fp .ev-rsvp-item,
+  .fp .prof-mutual, .fp .mutual-opt, .fp .prof-links a, .fp .prof-list-follow,
+  .fp .wall-post, .fp .wall-more, .fp .wall-comment-more {
+    cursor: pointer;
+  }
+}
+@media (max-width: 480px) {
+  .wc-row .wc-ava { width: 54px; height: 54px; font-size: 16px; }
+  .wc-input { min-height: 76px; }
+  .nav-ic { font-size: 13px; padding: 8px 4px; }
+  .nav-ic svg { width: 18px; height: 18px; }
+  .sig-preview { max-width: 90vw; }
+  .ev-item { padding: 14px 0; }
+  .ev-item h3 { font-size: 16px; }
+  .ev-guests .g { width: 28px; height: 28px; }  
+}
+@media (max-width: 640px) {
+  .map-panel { height: 60vh; margin: 20px -28px 0; border-radius: 0; }
+  #memMap, #visitorMap, #wptsMap { height: calc(60vh - 48px); margin: 0 -28px; border-radius: 0; }
+  .wpts-match-grid { grid-template-columns: repeat(2, 1fr); gap: 4px; }
+}
 </style>
 </head>
 <body>
@@ -2783,269 +2828,31 @@
 <!-- ============ HOW IT WORKS (interactive guide) ============ -->
 <section class="screen" id="screen-how">
   <div class="wrap">
-    <div style="max-width:560px; margin:0 auto; padding:36px 0 60px;">
-      <div style="text-align:center; margin-bottom:26px;">
-        <h2 style="font-size:28px; margin:0; font-weight:700;">How EarthLive works</h2>
+    
+      <div style="max-width:560px; margin:0 auto; padding:36px 0 60px;">
+        <div class="form-eyebrow">We're listening</div>
+        <h2 style="font-size:26px; margin:0 0 8px; font-weight:700;">Contact us</h2>
+        <p style="color:var(--ink-soft); font-size:13.5px; line-height:1.7; margin:0 0 20px;">Something broken? A question? An idea that would make EarthLive better? Write to us — a real person reads every message.</p>
+
+        <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:10px;">
+          <b style="font-size:13.5px; display:block; margin-bottom:2px;">Support &amp; help</b>  
+          <span style="font-size:12.5px; color:var(--ink-soft);">Trouble signing in, missing entries, anything not working —</span><br>
+          <a href="mailto:hello@earthlive.in" style="color:var(--camel); font-weight:600; text-decoration:none; font-size:13px;">hello@earthlive.in</a>
+        </div>
+        <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:10px;">
+          <b style="font-size:13.5px; display:block; margin-bottom:2px;">Feedback &amp; ideas</b>
+          <span style="font-size:12.5px; color:var(--ink-soft);">Tell us what to build next. Early voices shape this place —</span><br>
+          <a href="mailto:hello@earthlive.in" style="color:var(--camel); font-weight:600; text-decoration:none; font-size:13px;">hello@earthlive.in</a>  
+        </div>
+        <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:16px;">
+          <b style="font-size:13.5px; display:block; margin-bottom:2px;">Privacy questions</b>
+          <span style="font-size:12.5px; color:var(--ink-soft);">Your data, deleting your account, anything from the Privacy Policy —</span><br>
+          <a href="mailto:hello@earthlive.in" style="color:var(--camel); font-weight:600; text-decoration:none; font-size:13px;">hello@earthlive.in</a>
+        </div>
+
+        <p style="font-size:12px; color:var(--ink-soft); margin:0 0 18px;">We usually reply within a day or two.</p>
       </div>
-
-      <div style="position:relative;">
-        <div class="hiw-line"></div>
-
-        <!-- STEP 1: SIGN IN -->
-        <div class="hiw-step">
-          <div class="hiw-num" style="background:#57614A; color:#F5F4F1;">1</div>
-          <div class="hiw-card" id="hiw1" onclick="toggleHiw(1)">
-            <div class="hiw-t">Sign in <span class="chev">▾</span></div>
-            <div class="hiw-s">One tap with Google or your email. No passwords to remember.</div>
-            <div class="hiw-detail" onclick="event.stopPropagation()">
-              <div class="hiw-mini">
-                <div class="hiw-mini-label">What you'll see</div>
-                <div style="text-align:center; font-weight:700; font-size:14px; margin-bottom:10px;">Welcome to EarthLive</div>
-                <div class="hiw-fake-input" style="text-align:center; background:var(--card); font-weight:600; color:var(--ink);">Continue with Google</div>
-                <div style="text-align:center; font-size:10.5px; color:var(--ink-soft); margin:6px 0;">— or —</div>
-                <div class="hiw-fake-input">you@example.com</div>
-                <div style="text-align:center;"><span class="hiw-fake-btn">Send me a sign-in link</span></div>
-              </div>
-              <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">We email you a magic link — click it and you're in. That's the whole thing.</p>
-              <button class="hiw-go" onclick="hiwGo('auth')">Try it — Sign in →</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- STEP 2: CREATE YOUR PAGE -->
-        <div class="hiw-step">
-          <div class="hiw-num" style="background:#A9764F; color:#F5F4F1;">2</div>
-          <div class="hiw-card" id="hiw2" onclick="toggleHiw(2)">
-            <div class="hiw-t">Create your page <span class="chev">▾</span></div>
-            <div class="hiw-s">Your name, a photo, a cover, and the questions you want people to answer about you.</div>
-            <div class="hiw-detail" onclick="event.stopPropagation()">
-              <div class="hiw-mini">
-                <div class="hiw-mini-label">The form you'll fill</div>
-                <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
-                  <div style="width:44px; height:44px; border-radius:50%; background:var(--oat-deep); border:2px dashed var(--ink-soft); display:flex; align-items:center; justify-content:center; font-size:16px; flex:none;">+</div>
-                  <div style="flex:1;">
-                    <div class="hiw-fake-input" style="margin-bottom:5px;">Your name</div>
-                    <div class="hiw-fake-input" style="margin-bottom:0;">earthlive.in/?u=<b style="color:var(--ink);">yourname</b></div>
-                  </div>
-                </div>
-                <div style="font-size:11px; font-weight:700; margin-bottom:5px;">Pick your questions</div>
-                <span class="hiw-fake-chip">✓ Your favourite memory of me?</span><span class="hiw-fake-chip">✓ One word for me?</span><span class="hiw-fake-chip">Something you never told me?</span>
-              </div>
-              <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">Choose a ready-made set of questions or write your own. Add a bio, your ink color, and links. You can change everything later.</p>
-              <button class="hiw-go" onclick="hiwGo('create')">Try it — Create your page →</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- STEP 3: SHARE YOUR LINK -->
-        <div class="hiw-step">
-          <div class="hiw-num" style="background:#9DC3B6; color:#2F4A40;">3</div>
-          <div class="hiw-card" id="hiw3" onclick="toggleHiw(3)">
-            <div class="hiw-t">Share your link <span class="chev">▾</span></div>
-            <div class="hiw-s">Send your personal link to your people — or let them scan your QR code.</div>
-            <div class="hiw-detail" onclick="event.stopPropagation()">
-              <div class="hiw-mini">
-                <div class="hiw-mini-label">Your link and QR</div>
-                <div style="display:flex; gap:8px; margin-bottom:10px;">
-                  <div class="hiw-fake-input" style="flex:1; margin:0; color:var(--ink); font-weight:600;">earthlive.in/?u=yourname</div>
-                  <span class="hiw-fake-btn" style="flex:none; align-self:center;">Copy</span>
-                </div>
-                <div style="display:flex; gap:12px; align-items:center;">
-                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=88x88&data=https%3A%2F%2Fearthlive.in" alt="Example QR code" style="width:72px; height:72px; border:1px solid var(--line); border-radius:8px; background:#fff;">
-                  <div style="font-size:11.5px; color:var(--ink-soft); line-height:1.55;">Anyone who scans this lands straight on your book — WhatsApp it, print it at your birthday, put it on a wedding card.</div>
-                </div>
-              </div>
-              <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">Your link and QR live on your book page — one tap on Share sends it anywhere.</p>
-              <button class="hiw-go" onclick="hiwGo('book')">See my link →</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- STEP 4: THEY SIGN, YOU APPROVE -->
-        <div class="hiw-step">
-          <div class="hiw-num" style="background:#E4CBA0; color:#5C4A2C;">4</div>
-          <div class="hiw-card" id="hiw4" onclick="toggleHiw(4)">
-            <div class="hiw-t">They sign, you approve <span class="chev">▾</span></div>
-            <div class="hiw-s">Friends answer your questions and leave a note. Nothing appears until you say yes.</div>
-            <div class="hiw-detail" onclick="event.stopPropagation()">
-              <div class="hiw-mini">
-                <div class="hiw-mini-label">A signature waiting for you</div>
-                <div style="background:var(--card); border:1px solid var(--line); border-left:3px solid #C08078; border-radius:10px; padding:11px 13px;">
-                  <div style="font-size:13px;"><b>Priya</b> <span style="font-size:11px; color:var(--ink-soft);">· College friend · one word: <b style="color:#C08078;">"Sunshine"</b></span></div>
-                  <div style="font-size:12px; color:var(--ink-soft); line-height:1.55; margin:5px 0 9px;">"Remember the night train to Darjeeling? You sang the whole way and nobody minded…"</div>
-                  <span class="hiw-fake-btn" style="background:var(--moss);">✓ Approve</span>
-                  <span class="hiw-fake-chip" style="margin-left:6px;">Decline</span>
-                </div>
-              </div>
-              <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">You are the keeper of your book — every signature waits for your approval, and you can remove any of them later.</p>
-              <button class="hiw-go" onclick="hiwGo('book')">Open my book →</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- STEP 5: THE ROOMS -->
-        <div class="hiw-step" style="margin-bottom:0;">
-          <div class="hiw-num" style="background:#A6B9CB; color:#33455A;">5</div>
-          <div style="flex:1;">
-            <div class="hiw-card" style="cursor:default; margin-bottom:10px;">
-              <div class="hiw-t" style="justify-content:flex-start;">Then the whole world opens up</div>
-              <div class="hiw-s">Your book is just the beginning — tap any room to peek inside it.</div>
-            </div>
-            <div class="hiw-rooms" id="hiwRooms">
-
-              <button type="button" class="hiw-room" style="background:#E7EDDF;" onclick="toggleRoom('book')">
-                <b style="color:#3B4530;">📖 My book</b>
-                <span style="color:#4A5540;">Every approved signature, kept forever</span>
-              </button>
-
-              <button type="button" class="hiw-room" style="background:#E2EEEA;" onclick="toggleRoom('wall')">
-                <b style="color:#2F4A40;">✍️ My wall</b>
-                <span style="color:#3C5A50;">Your own words, posts and photos</span>
-              </button>
-
-              <div class="hiw-room-detail" id="hiwRoom-book">
-                <div class="hiw-mini" style="margin-bottom:8px;">
-                  <div class="hiw-mini-label">Inside My book</div>
-                  <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:11px 13px; margin-bottom:7px;">
-                    <div style="font-size:12.5px;"><b>Arjun</b> <span style="font-size:11px; color:var(--ink-soft);">· Brother · "Rock"</span></div>
-                    <div style="font-size:12px; color:var(--ink-soft); margin-top:3px;">"You taught me to ride a cycle by lying that you were holding on…" <span style="color:#C08078;">♥ 12</span> 💬 3</div>
-                  </div>
-                  <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:11px 13px;">
-                    <div style="font-size:12.5px;"><b>Maa</b> <span style="font-size:11px; color:var(--ink-soft);">· locked until your birthday 🔒</span></div>
-                    <div style="font-size:12px; color:var(--ink-soft); margin-top:3px;">This signature unlocks on 12 October — a little time capsule.</div>
-                  </div>
-                </div>
-                <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">Signatures can carry photos, a one-word "stamp" of you, and can even be time-locked to open on a special day. Friends can like and comment on each one.</p>
-                <button class="hiw-go" onclick="hiwGo('book')">Open My book →</button>
-              </div>
-
-              <div class="hiw-room-detail" id="hiwRoom-wall">
-                <div class="hiw-mini" style="margin-bottom:8px;">
-                  <div class="hiw-mini-label">Inside My wall</div>
-                  <div style="background:var(--card); border:1px solid var(--line); border-left:3px solid var(--moss); border-radius:10px; padding:11px 13px;">
-                    <div style="font-size:12.5px;"><b>You</b> <span style="font-size:11px; color:var(--ink-soft);">· Balurghat · today</span></div>
-                    <div style="font-size:12px; color:var(--ink-soft); margin-top:3px;">"First mango of the season. Some things never stop being exciting." <span style="color:#C08078;">♥ 8</span> 💬 2</div>
-                  </div>
-                </div>
-                <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">The wall is where <b>you</b> speak — short posts, photos, and a city tag that pins the memory on your map. People who follow you see your posts in their For You feed.</p>
-                <button class="hiw-go" onclick="hiwGo('wall')">Open My wall →</button>
-              </div>
-
-              <button type="button" class="hiw-room" style="background:#F4EAD8;" onclick="toggleRoom('diary')">
-                <b style="color:#5C4A2C;">📔 My diary</b>
-                <span style="color:#6B5636;">Private pages that seal at midnight, with your daily mood colors</span>
-              </button>
-
-              <button type="button" class="hiw-room" style="background:#F2E3E0;" onclick="toggleRoom('events')">
-                <b style="color:#5C332C;">🎉 Events</b>
-                <span style="color:#6B4640;">Members-only pages for weddings, reunions, trips</span>
-              </button>
-
-              <div class="hiw-room-detail" id="hiwRoom-diary">
-                <div class="hiw-mini" style="margin-bottom:8px;">
-                  <div class="hiw-mini-label">Inside My diary</div>
-                  <div style="font-size:11.5px; font-weight:700; margin-bottom:6px;">How are you feeling today?</div>
-                  <div style="display:flex; gap:8px; margin-bottom:10px;">
-                    <span style="width:24px; height:24px; border-radius:50%; background:#A9BC97; border:2px solid var(--ink); display:inline-block;"></span>
-                    <span style="width:24px; height:24px; border-radius:50%; background:#9DC3B6; display:inline-block;"></span>
-                    <span style="width:24px; height:24px; border-radius:50%; background:#E4CBA0; display:inline-block;"></span>
-                    <span style="width:24px; height:24px; border-radius:50%; background:#C7C0B2; display:inline-block;"></span>
-                    <span style="width:24px; height:24px; border-radius:50%; background:#A6B9CB; display:inline-block;"></span>
-                    <span style="width:24px; height:24px; border-radius:50%; background:#D3A49C; display:inline-block;"></span>
-                  </div>
-                  <div style="background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 13px;">
-                    <div style="font-size:11px; color:var(--ink-soft);">Yesterday · 🔒 Sealed · <span style="background:#E7EDDF; color:#3B4530; padding:1px 8px; border-radius:999px; font-weight:700; font-size:10px;">● Great</span></div>
-                    <div style="font-size:12px; color:var(--ink-soft); margin-top:3px;">"A slow, good morning. Tea on the balcony, no phone for an hour…"</div>
-                  </div>
-                </div>
-                <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">Nobody sees your diary — ever. Pick a mood color each day and watch your month fill in on the calendar. Entries seal at midnight; you can also send one entry to one person, like a letter.</p>
-                <button class="hiw-go" onclick="hiwGo('diary')">Open My diary →</button>
-              </div>
-
-              <div class="hiw-room-detail" id="hiwRoom-events">
-                <div class="hiw-mini" style="margin-bottom:8px;">
-                  <div class="hiw-mini-label">Inside Events</div>
-                  <div style="border-radius:10px; overflow:hidden; border:1px solid var(--line);">
-                    <div style="height:64px; background:linear-gradient(135deg, var(--moss) 0%, var(--camel) 60%, var(--blush) 100%); position:relative;">
-                      <div style="position:absolute; left:0; right:0; bottom:0; padding:18px 12px 7px; background:linear-gradient(to top, rgba(20,18,14,.7), transparent); color:#fff; font-size:13px; font-weight:700;">Riya &amp; Dev's Wedding <span style="font-weight:400; font-size:10.5px; opacity:.85;">🔒 Members only</span></div>
-                    </div>
-                    <div style="background:var(--card); padding:9px 12px; font-size:11.5px; color:var(--ink-soft);">14 members · everyone posts photos and memories · the host approves who joins</div>
-                  </div>
-                </div>
-                <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">Make a page for a wedding, reunion, or trip. Share its link or QR — people request to join, the host approves, and everyone inside posts memories, tags each other, and writes about one another.</p>
-                <button class="hiw-go" onclick="hiwGo('events')">Open Events →</button>
-              </div>
-
-              <button type="button" class="hiw-room" style="background:#E4EBF1; grid-column:1 / -1;" onclick="toggleRoom('more')">
-                <b style="color:#33455A;">🗺️ Memory map &amp; messages</b>
-                <span style="color:#3E5165;">See your memories pinned across cities, and talk to your people directly</span>
-              </button>
-
-              <div class="hiw-room-detail" id="hiwRoom-more">
-                <div class="hiw-mini" style="margin-bottom:8px;">
-                  <div class="hiw-mini-label">The map, and a conversation</div>
-                  <div style="height:58px; border-radius:8px; background:var(--oat-deep); position:relative; margin-bottom:10px; overflow:hidden;">
-                    <span style="position:absolute; top:16px; left:22%; font-size:14px;">📍</span>
-                    <span style="position:absolute; top:30px; left:48%; font-size:14px;">📍</span>
-                    <span style="position:absolute; top:12px; left:74%; font-size:14px;">📍</span>
-                    <span style="position:absolute; bottom:4px; right:8px; font-size:10px; color:var(--ink-soft);">Balurghat · Kolkata · Delhi</span>
-                  </div>
-                  <div class="hiw-msgb">Just signed your book — check your approvals! 🌸</div>
-                  <div class="hiw-msgb mine">Saw it, made my whole day ❤️</div>
-                </div>
-                <p style="font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;">Every city tagged in a signature or wall post becomes a pin on your memory map. And messages work on requests — nobody can flood you without your yes.</p>
-                <button class="hiw-go" onclick="hiwGo('messages')">Open Messages →</button>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div style="text-align:center; margin-top:28px; padding-top:18px; border-top:1px solid var(--line);">
-        <p style="font-size:12.5px; color:var(--ink-soft); line-height:1.7; max-width:400px; margin:0 auto 16px;">The purpose is simple: the people who love you carry pieces of you they've never written down. EarthLive gives them a place to leave those pieces — before the moment passes.</p>
-        <button class="btn btn-primary" onclick="beginFlow()">Start your book →</button><br>
-        <button class="link-quiet" style="margin-top:14px;" onclick="showScreen(currentUser ? 'dashboard' : 'landing')">← Back</button>
-      </div>
-      <div style="border-top:1px solid var(--line); margin-top:40px; padding-top:16px;">
-        <div class="footer-links" style="margin-top:0;">
-          <button onclick="showScreen('contact')">Contact us</button>
-          <button onclick="showScreen('privacy')">Privacy Policy</button>
-          <button onclick="showScreen('terms')">Terms of Use</button>
-        </div>
-        <div style="font-size:12px; color:var(--ink-soft); margin-top:10px;">© 2026 <b style="color:var(--ink);">EarthLive</b></div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<section class="screen" id="screen-about">
-  <div class="wrap">
-    <div class="about-body">
-      <div class="eyebrow">Our story</div>
-      <h2>Some things deserve to be written down.</h2>
-      <p>EarthLive brings back the memory book — a digital space where your people can add their thoughts, memories, and heartfelt messages. No feed to scroll, no strangers, no noise. Just words worth keeping.</p>
-      <p>Here, your page is your book. You choose the questions, send one link, and your people fill it with words you'll actually want to keep. You approve every entry before it appears, and you decide whether your book is open to the world or just for you.</p>
-
-      <h3>Your book</h3>
-      <p>Make your book and pick a question set — classic, deep, funny, or farewell. Share your link anywhere. Every signature waits for your approval before it's posted, and each entry pins to a memory map, so you can see where your people wrote from.</p>
-
-      <h3>Your diary</h3>
-      <p>Not everything is meant to be read by others. Your diary is a private space that belongs to you alone — write freely, and nobody sees a word of it unless you decide otherwise. Each entry is private by default. When you want to, you can send one to a single person like a letter, or add it to your own book. Sharing is always a choice, never the default.</p>
-
-      <h3>Your events</h3>
-      <p>Reunions, farewells, weddings, birthdays. Create an event page and share a link or QR code with the people who were there. You approve who joins. Inside, members write about each other, add photos, tag friends, and pin memories to a shared map — a book the whole group fills together.</p>
-
-      <h3>What we're not</h3>
-      <p>There's no endless feed here, no follower count to chase, no algorithm deciding what you see. EarthLive is quiet on purpose. It's meant to be a place you visit, feel something, and close — not somewhere you get stuck.</p>
-
-      <h3>Get in touch</h3>
-      <p>Questions, ideas, or something broken? Write to us at hello@earthlive.in.</p>
-      <p style="margin-top:26px;"><button class="link-quiet" style="padding:0;" onclick="showScreen('research')">Read the research note →</button></p>
-      <div class="cta-row" style="margin-top:34px;">
-        <button class="btn btn-primary" onclick="beginFlow()">Start your book →</button>
-        <button class="link-quiet" onclick="showScreen('landing')">Back to home</button>
+<button class="link-quiet" onclick="showScreen('landing')">Back to home</button>
       </div>
       <div style="border-top:1px solid var(--line); margin-top:40px; padding-top:16px;">
         <div class="footer-links" style="margin-top:0;">
@@ -6642,7 +6449,52 @@
     const w = window.open('', '_blank');
     if (!w){ showToast('Allow pop-ups to print this signature'); return; }
     w.document.write('<!DOCTYPE html><html><head><title>EarthLive \u2014 signature from ' + escapeHtml(entry.name || '') + '</title>' +
-      '<meta charset="UTF-8"><style>body{margin:0; padding:30px; background:#F5F4F1; display:flex; justify-content:center;} @media print{body{background:#fff; padding:0;}}</style>' +
+      '<meta charset="UTF-8"><style>body{margin:0; padding:30px; background:#F5F4F1; display:flex; justify-content:center;} @media print{body{background:#fff; padding:0;}}
+@media (pointer: fine) {
+  .fp, .book-jump a, .nav-ic, .fy-item, .dial-ic, .ev-rsvp-item, .prof-mutual, .mutual-opt, 
+  .prof-links a, .prof-list-follow, .wall-post, .wall-more, .wall-comment-more {
+    cursor: pointer;
+  }
+}
+@media (max-width: 480px) {
+  .wc-row .wc-ava { width: 54px; height: 54px; font-size: 16px; }
+  .wc-input { min-height: 76px; }
+  .nav-ic { font-size: 13px; padding: 8px 4px; }
+  .nav-ic svg { width: 18px; height: 18px; }
+  .sig-preview { max-width: 90vw; }
+  .ev-item { padding: 14px 0; }
+  .ev-item h3 { font-size: 16px; }
+  .ev-guests .g { width: 28px; height: 28px; }
+}
+@media (max-width: 640px) {
+  .map-panel { height: 60vh; margin: 20px -28px 0; border-radius: 0; }
+  #memMap, #visitorMap, #wptsMap { height: calc(60vh - 48px); margin: 0 -28px; border-radius: 0; }
+  .wpts-match-grid { grid-template-columns: repeat(2, 1fr); gap: 4px; }
+}
+
+@media (pointer: fine) {
+  .fp, .fp .book-jump a, .fp .nav-ic, .fp .fy-item, .fp .dial-ic, .fp .ev-rsvp-item,
+  .fp .prof-mutual, .fp .mutual-opt, .fp .prof-links a, .fp .prof-list-follow,
+  .fp .wall-post, .fp .wall-more, .fp .wall-comment-more {
+    cursor: pointer;
+  }
+}
+@media (max-width: 480px) {
+  .wc-row .wc-ava { width: 54px; height: 54px; font-size: 16px; }
+  .wc-input { min-height: 76px; }
+  .nav-ic { font-size: 13px; padding: 8px 4px; }
+  .nav-ic svg { width: 18px; height: 18px; }
+  .sig-preview { max-width: 90vw; }
+  .ev-item { padding: 14px 0; }
+  .ev-item h3 { font-size: 16px; }
+  .ev-guests .g { width: 28px; height: 28px; }  
+}
+@media (max-width: 640px) {
+  .map-panel { height: 60vh; margin: 20px -28px 0; border-radius: 0; }
+  #memMap, #visitorMap, #wptsMap { height: calc(60vh - 48px); margin: 0 -28px; border-radius: 0; }
+  .wpts-match-grid { grid-template-columns: repeat(2, 1fr); gap: 4px; }
+}
+</style>' +
       '</head><body>' + entryCardHtml(entry) + '</body></html>');
     w.document.close();
     w.focus();
