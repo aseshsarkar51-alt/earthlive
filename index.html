@@ -14,7 +14,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="EarthLive — add to my memory book">
 <meta name="twitter:description" content="Create a memory book and let your people add their thoughts and memories.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23EAE1CC'/%3E%3Ccircle cx='16' cy='16' r='6' fill='none' stroke='%23A9764F' stroke-width='2.5'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23EAE1CC'/%3E%3Ccircle cx='15' cy='15' r='9' fill='none' stroke='%23A9764F' stroke-width='2.6'/%3E%3Ccircle cx='21.4' cy='21.4' r='3.1' fill='%2357614A'/%3E%3C/svg%3E">
 <meta name="theme-color" content="#F5F4F1">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -88,7 +88,7 @@
     font-family:"Inter Tight", sans-serif; font-weight:700; font-size:22px;
     letter-spacing:-0.01em; display:flex; align-items:center; gap:8px;
   }
-  .brand .dot{width:8px; height:8px; border-radius:50%; background:var(--camel); display:inline-block;}
+  .brand-mark{width:20px; height:20px; display:inline-block; flex:none;}
   .nav-right{display:flex; align-items:center; gap:18px; font-size:14px; color:var(--ink-soft);}
   .nav-link{background:none; border:none; color:var(--ink-soft); font-size:14px; padding:6px 2px; border-bottom:1px solid transparent; white-space:nowrap;}
   .nav-link:hover{color:var(--ink); border-color:var(--ink-soft);}
@@ -113,6 +113,10 @@
     .wrap{padding-left:18px; padding-right:18px;}
     .form-card{padding:30px 22px;}
     .crop-card{padding:16px;}
+    /* keep the account avatar pinned in view instead of scrolling off with the icon strip */
+    .nav-avatar-wrap{position:sticky; right:0; flex:none; z-index:950; background:var(--page);}
+    /* let the dropdown escape the scrollable strip so it isn't clipped */
+    .nav-avatar-menu{position:fixed; top:64px; right:16px; left:auto;}
   }
 
   /* ---------- SCREENS ---------- */
@@ -1637,7 +1641,7 @@
 
 <nav class="nav">
   <div style="display:flex; align-items:center; gap:10px;">
-    <div class="brand"><span class="dot"></span>EarthLive</div>
+    <div class="brand"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="15" cy="15" r="9" fill="none" stroke="#A9764F" stroke-width="2.6"/><circle cx="21.4" cy="21.4" r="3.1" fill="#57614A"/></svg>EarthLive</div>
     <span id="navLeft" style="display:inline-flex; align-items:center; gap:4px;"></span>
   </div>
   <div class="nav-right" id="navRight">
@@ -4283,8 +4287,7 @@
               return;
             }
             if (found){
-              renderDashboard();
-              showScreen('dashboard');
+              restoreLastScreen();
             } else {
               // Signed in but no page yet (first visit, OAuth redirect, or
               // email-confirmation return): take them straight to Create my
@@ -4297,6 +4300,26 @@
         }
       }
     });
+  }
+
+  // On refresh, reopen whatever screen the person was actually on instead of
+  // always dropping them back on the dashboard.
+  const RESTORABLE_SCREENS = ['dashboard','feed','events','waypoints','messages','account','contact','privacy','terms','about','how','search'];
+  function restoreLastScreen(){
+    let saved = null;
+    try{ saved = sessionStorage.getItem('elLastScreen'); }catch(err){}
+    if (saved && RESTORABLE_SCREENS.indexOf(saved) !== -1 && document.getElementById('screen-' + saved)){
+      if (saved === 'feed'){ renderForYou(); showScreen('feed'); return; }
+      if (saved === 'events'){ renderMyEvents(); showScreen('events'); return; }
+      if (saved === 'waypoints'){ showScreen('waypoints'); wptsOpen(); return; }
+      if (saved === 'messages'){ openMessages(); return; }
+      if (saved === 'account'){ openMyAccount(); return; }
+      renderDashboard();
+      showScreen(saved);
+      return;
+    }
+    renderDashboard();
+    showScreen('dashboard');
   }
 
   // Smart entry point: skips the sign-in screen if you're already signed in.
@@ -9549,6 +9572,11 @@
       try{ history.pushState({ elScreen: name }, '', location.pathname); }catch(err){}
     }
     currentScreenName = name;
+    // Remember the screen so a refresh can reopen it instead of always
+    // bouncing back to the dashboard (see restoreLastScreen()).
+    if (name !== 'auth'){
+      try{ sessionStorage.setItem('elLastScreen', name); }catch(err){}
+    }
 
     if (name === 'search'){
       setTimeout(()=>document.getElementById('searchInput').focus(), 50);
