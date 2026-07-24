@@ -88,7 +88,7 @@
     font-family:"Inter Tight", sans-serif; font-weight:700; font-size:22px;
     letter-spacing:-0.01em; display:flex; align-items:center; gap:8px;
   }
-  .brand-mark{width:20px; height:20px; display:inline-block; flex:none;}
+  .brand .dot{width:8px; height:8px; border-radius:50%; background:var(--camel); display:inline-block;}
   .nav-right{display:flex; align-items:center; gap:18px; font-size:14px; color:var(--ink-soft);}
   .nav-link{background:none; border:none; color:var(--ink-soft); font-size:14px; padding:6px 2px; border-bottom:1px solid transparent; white-space:nowrap;}
   .nav-link:hover{color:var(--ink); border-color:var(--ink-soft);}
@@ -1641,7 +1641,7 @@
 
 <nav class="nav">
   <div style="display:flex; align-items:center; gap:10px;">
-    <div class="brand"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="15" cy="15" r="9" fill="none" stroke="#A9764F" stroke-width="2.6"/><circle cx="21.4" cy="21.4" r="3.1" fill="#57614A"/></svg>EarthLive</div>
+    <div class="brand"><span class="dot"></span>EarthLive</div>
     <span id="navLeft" style="display:inline-flex; align-items:center; gap:4px;"></span>
   </div>
   <div class="nav-right" id="navRight">
