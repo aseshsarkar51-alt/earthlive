@@ -1623,6 +1623,21 @@
   #screen-waypoints .wpts-match-grid .mg-place.has{background:rgba(255,255,255,.94); color:var(--ink);}
   #screen-waypoints .wpts-match-grid .mg-place.none{background:var(--camel); color:#fff;}
   #screen-waypoints .wpts-match-grid .mg-place.none:hover{background:#8B5F3E;}
+
+.nav-avatar-menu {
+  position: fixed;  
+  right: 10px;
+  top: 60px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px -10px rgba(46,42,34,.28);
+  width: 208px;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  z-index: 900; 
+  display: none;
+}
 </style>
 </head>
 <body>
@@ -3135,8 +3150,7 @@
       <p style="font-size:12px; color:var(--ink-soft); margin:0 0 18px;">We usually reply within a day or two.</p>
       <div id="wptsEmpty" class="empty-state" style="margin:6px 0 20px;">
       <div class="stamp-outline"></div>
-      <p><b style="color:var(--ink);">Your waypoints are empty.</b><br>
-      Drop in a few photos above — anything with location data pins itself on the map, and the People search can find who's in them.</p>
+      
     </div>
 
     <button class="link-quiet" onclick="showScreen(currentUser ? 'dashboard' : 'landing')">← Back</button>
@@ -6642,7 +6656,22 @@
     const w = window.open('', '_blank');
     if (!w){ showToast('Allow pop-ups to print this signature'); return; }
     w.document.write('<!DOCTYPE html><html><head><title>EarthLive \u2014 signature from ' + escapeHtml(entry.name || '') + '</title>' +
-      '<meta charset="UTF-8"><style>body{margin:0; padding:30px; background:#F5F4F1; display:flex; justify-content:center;} @media print{body{background:#fff; padding:0;}}</style>' +
+      '<meta charset="UTF-8"><style>body{margin:0; padding:30px; background:#F5F4F1; display:flex; justify-content:center;} @media print{body{background:#fff; padding:0;}}
+.nav-avatar-menu {
+  position: fixed;  
+  right: 10px;
+  top: 60px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px -10px rgba(46,42,34,.28);
+  width: 208px;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  z-index: 900; 
+  display: none;
+}
+</style>' +
       '</head><body>' + entryCardHtml(entry) + '</body></html>');
     w.document.close();
     w.focus();
