@@ -3497,10 +3497,10 @@
   :root{--ink:#26221C; --ink-soft:#6E6A60; --line:#EAE7E1; --camel:#A9764F; --card:#FFFFFF; --black:#0B0B0A; --page:#FFFFFF;}
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
-  body{margin:0; background:var(--page); color:var(--ink); font-family:&quot;Inter Tight&quot;,system-ui,sans-serif; -webkit-font-smoothing:antialiased; line-height:1.5; cursor:auto !important;}
-  *{cursor:auto !important;}
+  body{margin:0; padding-bottom:0 !important; background:var(--page); color:var(--ink); font-family:&quot;Inter Tight&quot;,system-ui,sans-serif; -webkit-font-smoothing:antialiased; line-height:1.5; cursor:auto !important;}
+  *{cursor:auto !important; box-sizing:border-box;}
   a,button,[onclick]{cursor:pointer !important;}
-  .wrap{max-width:1120px; margin:0 auto; padding:0 clamp(22px,5vw,64px);}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 clamp(22px,5vw,64px); padding-bottom:0;}
   .top{display:flex; align-items:center; justify-content:space-between; padding:26px 0;}
   .brand{display:flex; align-items:center; gap:9px; font-weight:600; font-size:16px; letter-spacing:-.01em;}
   .brand .dot{width:9px; height:9px; border-radius:50%; background:var(--camel);}
@@ -3537,7 +3537,7 @@
   .cta-card p{font-size:16px; line-height:1.65; color:#cfcbc2; margin:0; max-width:640px;}
   .cta .go{display:inline-block; margin-top:34px; font-size:15px; font-weight:600; padding:15px 40px; border-radius:999px; background:var(--black); color:#fff; text-decoration:none; transition:transform .15s;}
   .cta .go:hover{transform:translateY(-2px);}
-  .foot{border-top:1px solid var(--line); padding:14px 0 10px; text-align:center; font-size:13px; color:var(--ink-soft);} .foot b{color:var(--ink); font-weight:600;}
+  .foot{border-top:1px solid var(--line); padding:10px 0 6px; text-align:center; font-size:13px; color:var(--ink-soft);} .foot b{color:var(--ink); font-weight:600;}
   .rv{opacity:0; transform:translateY(22px); transition:opacity .7s cubic-bezier(.2,.6,.2,1), transform .7s cubic-bezier(.2,.6,.2,1);}
   .rv.in{opacity:1; transform:none;}
   @media(prefers-reduced-motion:reduce){ .rv{opacity:1; transform:none; transition:none;} }
@@ -3634,7 +3634,7 @@
   </section>
 </div>
 <div class=&quot;foot&quot;>EarthLive <b>·</b> a living memory book</div>
-&lt;script&gt;
+<script>
 document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
 // Life Ribbon: drift the marker down through the picks
@@ -3653,8 +3653,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   if(reduce) return;
   setInterval(()=>{ i=(i+1)%picks.length; apply(picks[i]); }, 3200);
 })();
-&lt;/script&gt;
-&lt;script&gt;function elTourPH(){try{parent.postMessage({elTourHeight:Math.max(document.body.scrollHeight,document.documentElement.scrollHeight)},&quot;*&quot;)}catch(e){}}window.addEventListener(&quot;load&quot;,elTourPH);window.addEventListener(&quot;resize&quot;,elTourPH);if(window.ResizeObserver){new ResizeObserver(elTourPH).observe(document.body);}setTimeout(elTourPH,120);setTimeout(elTourPH,500);setTimeout(elTourPH,1400);&lt;/script&gt;</body>
+</script>
+<script>function elTourPH(){try{parent.postMessage({elTourHeight:Math.max(document.body.scrollHeight,document.documentElement.scrollHeight)},&quot;*&quot;)}catch(e){}}window.addEventListener(&quot;load&quot;,elTourPH);window.addEventListener(&quot;resize&quot;,elTourPH);if(window.ResizeObserver){new ResizeObserver(elTourPH).observe(document.body);}setTimeout(elTourPH,120);setTimeout(elTourPH,500);setTimeout(elTourPH,1400);</script></body>
 </html>"></iframe></section>
 
 <section class="screen" id="screen-about">
