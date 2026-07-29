@@ -2755,8 +2755,7 @@
           <h3 style="margin:0;">Waypoints</h3>
           <span id="visitorWptsCount" style="font-size:12.5px; color:var(--ink-soft);"></span>
         </div>
-        <p style="font-size:13px; color:var(--ink-soft); margin:0 0 14px;">Places they've been — auto-pinned from their photos.</p>
-        <div id="visitorWptsMap" style="height:280px; border-radius:14px; border:1px solid var(--line); background:var(--oat); margin-bottom:12px;"></div>
+        <p style="font-size:13px; color:var(--ink-soft); margin:0 0 14px;">Photos from their album.</p>
         <div class="wpts-match-grid on" id="visitorWptsGrid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:7px;"></div>
       </div>
 
@@ -9560,8 +9559,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
     section.style.display = 'block';
     document.getElementById('visitorWptsCount').textContent =
-      photos.length + (photos.length===1 ? ' photo' : ' photos') +
-      (pinned.length ? ' \u00b7 ' + pinned.length + ' pinned' : '');
+      photos.length + (photos.length===1 ? ' photo' : ' photos');
 
     // Photo grid
     document.getElementById('visitorWptsGrid').innerHTML = photos.map(function(p){
@@ -9570,32 +9568,6 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         '</div>';
     }).join('');
 
-    // World map with pins (or blank world if none carry GPS)
-    if (typeof L !== 'undefined'){
-      const el = document.getElementById('visitorWptsMap');
-      if (visitorWptsMap){ try{ visitorWptsMap.remove(); }catch(e){} visitorWptsMap = null; }
-      setTimeout(()=>{
-        visitorWptsMap = L.map(el, { scrollWheelZoom:false, worldCopyJump:true, minZoom:2 }).setView([20, 0], 2);
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>', maxZoom:19
-        }).addTo(visitorWptsMap);
-        const bounds = [];
-        // If no photo carries GPS, still show the world map \u2014 no pins.
-        if (!pinned.length){ try{ visitorWptsMap.setView([20, 0], 2); }catch(e){} }
-        pinned.forEach(function(p){
-          const mk = L.marker([p.lat, p.lng], {
-            icon: L.divIcon({ className:'', html:'<div class="mem-marker"></div>', iconSize:[11,11], iconAnchor:[6,6] })
-          }).addTo(visitorWptsMap);
-          mk.bindPopup('<div class="map-popup"><img src="' + p.url + '">' +
-            (p.place ? '<div class="map-city">' + escapeHtml(p.place) + '</div>' : '') +
-            (p.takenAt ? '<p style="font-family:\'Inter Tight\',sans-serif; font-size:12px;">' + new Date(p.takenAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) + '</p>' : '') +
-            '</div>', { className:'mem-popup-wrap' });
-          bounds.push([p.lat, p.lng]);
-        });
-        if (bounds.length){ try{ visitorWptsMap.fitBounds(bounds, { padding:[30,30], maxZoom:10 }); }catch(e){} }
-        setTimeout(()=>{ try{ visitorWptsMap.invalidateSize(); }catch(e){} }, 200);
-      }, 60);
-    }
   }
 
   /* Their wall, as a visitor sees it: read + like + comment, but no editing. */
