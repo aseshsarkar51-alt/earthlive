@@ -1655,6 +1655,15 @@
   #screen-waypoints .wpts-match-grid .mg .pin{position:absolute; bottom:5px; right:5px; width:17px; height:17px; border-radius:50%; background:rgba(255,255,255,.92); display:flex; align-items:center; justify-content:center;}
   #screen-waypoints .wpts-match-grid .mg .pin svg{width:9px; height:9px; fill:none; stroke:var(--camel); stroke-width:2;}
 
+  /* Visitor view of someone's public Waypoints (outside #screen-waypoints) needs
+     the same tile sizing, otherwise the photo renders at full natural size. */
+  #visitorWptsGrid{display:grid; grid-template-columns:repeat(4,1fr); gap:7px;}
+  #visitorWptsGrid .mg{position:relative; aspect-ratio:1; border-radius:10px; overflow:hidden; cursor:pointer; background:var(--oat-deep);}
+  #visitorWptsGrid .mg img{width:100%; height:100%; object-fit:cover; display:block;}
+  #visitorWptsGrid .mg .pin{position:absolute; bottom:5px; right:5px; width:17px; height:17px; border-radius:50%; background:rgba(255,255,255,.92); display:flex; align-items:center; justify-content:center;}
+  #visitorWptsGrid .mg .pin svg{width:9px; height:9px; fill:none; stroke:var(--camel); stroke-width:2;}
+  @media (max-width:640px){ #visitorWptsGrid{grid-template-columns:repeat(3,1fr);} }
+
   #screen-waypoints .wpts-match-grid .mg{position:relative; overflow:hidden;}
 
   #screen-waypoints .wpts-match-grid .mg{position:relative; overflow:hidden;}
@@ -3431,7 +3440,7 @@
   </div>
 </section>
 
-<section class="screen" id="screen-tour"><div style="position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);padding:12px 20px;"><button class="link-quiet" style="padding:0;" onclick="showScreen('landing')">&#8592; Back to home</button></div><iframe id="tourFrame" title="EarthLive tour" style="width:100%;border:0;display:block;min-height:100vh;background:#fff;" srcdoc="<!DOCTYPE html>
+<section class="screen" id="screen-tour"><div style="position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);padding:12px 20px;"><button class="link-quiet" style="padding:0;" onclick="showScreen('landing')">&#8592; Back to home</button></div><iframe id="tourFrame" title="" scrolling="no" style="width:100%;border:0;display:block;min-height:320px;background:#fff;" srcdoc="<!DOCTYPE html>
 <html lang=&quot;en&quot;>
 <head>
 <meta charset=&quot;UTF-8&quot;>
@@ -3518,7 +3527,7 @@
 </head>
 <body>
 <div class=&quot;wrap&quot;>
-  <div class=&quot;top&quot;><div class=&quot;brand&quot;><span class=&quot;dot&quot;></span>EarthLive</div><a href=&quot;#&quot; onclick=&quot;try{parent.beginFlow&amp;&amp;parent.beginFlow()}catch(e){}return false;&quot;>Create your book</a></div>
+  
 
   <section class=&quot;intro&quot;>
     <h1 class=&quot;kicker rv&quot;>A living<br>memory book</h1>
@@ -3579,8 +3588,7 @@
 </div>
 <div class=&quot;foot&quot;>EarthLive <b>·</b> a living memory book</div>
 <script>
-const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.15});
-document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
 // Life Ribbon: drift the marker down through the picks
 (function(){
@@ -3599,7 +3607,7 @@ document.querySelectorAll('.rv').forEach(el=>io.observe(el));
   setInterval(()=>{ i=(i+1)%picks.length; apply(picks[i]); }, 3200);
 })();
 </script>
-<script>function elTourPH(){try{parent.postMessage({elTourHeight:Math.max(document.body.scrollHeight,document.documentElement.scrollHeight)},&quot;*&quot;)}catch(e){}}window.addEventListener(&quot;load&quot;,elTourPH);window.addEventListener(&quot;resize&quot;,elTourPH);if(window.ResizeObserver){new ResizeObserver(elTourPH).observe(document.body);}setTimeout(elTourPH,300);setTimeout(elTourPH,1000);setTimeout(elTourPH,2500);</script></body>
+<script>function elTourPH(){try{parent.postMessage({elTourHeight:Math.max(document.body.scrollHeight,document.documentElement.scrollHeight)},&quot;*&quot;)}catch(e){}}window.addEventListener(&quot;load&quot;,elTourPH);window.addEventListener(&quot;resize&quot;,elTourPH);if(window.ResizeObserver){new ResizeObserver(elTourPH).observe(document.body);}setTimeout(elTourPH,120);setTimeout(elTourPH,500);setTimeout(elTourPH,1400);</script></body>
 </html>"></iframe></section>
 
 <section class="screen" id="screen-about">
