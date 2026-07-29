@@ -3505,11 +3505,11 @@
   .brand{display:flex; align-items:center; gap:9px; font-weight:600; font-size:16px; letter-spacing:-.01em;}
   .brand .dot{width:9px; height:9px; border-radius:50%; background:var(--camel);}
   .top a{font-size:14px; color:var(--ink); text-decoration:none; border-bottom:1px solid var(--ink); padding-bottom:2px;}
-  .intro{padding:clamp(46px,9vw,110px) 0 clamp(30px,5vw,60px); max-width:820px;}
+  .intro{padding:clamp(24px,4vw,48px) 0 clamp(16px,3vw,32px); max-width:820px;}
   .kicker{font-size:clamp(24px,4.6vw,42px); font-weight:500; letter-spacing:.34em; text-transform:uppercase; margin:0 0 30px; line-height:1.16;}
   .intro .b{font-size:19px; font-weight:700; margin:0 0 14px;}
   .intro p{font-size:16px; line-height:1.7; color:var(--ink-soft); margin:0; max-width:620px;}
-  .step{position:relative; display:flex; justify-content:center; align-items:center; gap:0; padding:clamp(38px,6vw,88px) 0;}
+  .step{position:relative; display:flex; justify-content:center; align-items:center; gap:0; padding:clamp(22px,3vw,44px) 0;}
   .step.flip{flex-direction:row-reverse;}
   .step .device{flex:none;}
   .cap{flex:none; background:var(--black); color:#fff; border-radius:22px; padding:clamp(14px,1.6vw,22px) clamp(24px,2.6vw,36px); width:min(500px,52vw); z-index:3; position:relative; box-shadow:0 34px 70px -34px rgba(0,0,0,.5); margin-left:-64px;}
@@ -3531,7 +3531,7 @@
   .vp{display:flex; align-items:center; gap:9px; width:150px; flex:none; background:#0B0B0A; border-radius:9px; padding:7px 10px;}
   .vpplay{width:22px; height:22px; border-radius:50%; background:#fff; flex:none; display:flex; align-items:center; justify-content:center;}
   .vpplay svg{width:9px; height:9px;} .vpbc{flex:1; height:20px;} .vpbc svg{width:100%; height:100%;}
-  .cta{padding:clamp(20px,4vw,40px) 0 clamp(20px,4vw,40px); text-align:center;}
+  .cta{padding:clamp(14px,2vw,24px) 0 clamp(10px,2vw,16px); text-align:center;}
   .cta-card{background:var(--black); color:#fff; border-radius:26px; padding:clamp(44px,7vw,86px) clamp(28px,5vw,64px); text-align:left; max-width:1000px; margin:0 auto;}
   .cta-card h2{font-size:clamp(22px,3.2vw,30px); font-weight:700; line-height:1.28; margin:0 0 22px; letter-spacing:-.01em;}
   .cta-card p{font-size:16px; line-height:1.65; color:#cfcbc2; margin:0; max-width:640px;}
@@ -3542,7 +3542,7 @@
   .rv.in{opacity:1; transform:none;}
   @media(prefers-reduced-motion:reduce){ .rv{opacity:1; transform:none; transition:none;} }
   @media(max-width:820px){
-    .step, .step.flip{flex-direction:column; gap:0; padding:44px 0;}
+    .step, .step.flip{flex-direction:column; gap:0; padding:22px 0;}
     .step .device{justify-content:center;}
     .cap, .step.flip .cap{width:min(520px,92vw); margin:-52px auto 0;}
     .kicker{letter-spacing:.22em;} .cta-card{text-align:center;} .cta-card p{margin:0 auto;}
@@ -3627,13 +3627,9 @@
     </div></div>
     <div class=&quot;cap&quot;><h3>Your whole life, one quiet index.</h3><p>Every entry, photo, event and voice becomes a single ribbon you run down. Thickness carries the weight — run your eye along it and the years come back.</p></div></section>
 
-  <section class=&quot;cta&quot; id=&quot;start&quot;>
-    <div class=&quot;cta-card rv&quot;><h2>Keep the people who kept you.<br>Start your book.</h2>
-      <p>Open your book, share one link, and let the people in your life sign it. Everything else fills in on its own.</p></div>
-    <a class=&quot;go rv&quot; href=&quot;#&quot; onclick=&quot;try{parent.beginFlow&amp;&amp;parent.beginFlow()}catch(e){}return false;&quot;>Create your book</a>
-  </section>
+
 </div>
-<div class=&quot;foot&quot;>EarthLive <b>·</b> a living memory book</div>
+
 <script>
 document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
