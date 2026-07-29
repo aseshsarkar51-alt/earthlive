@@ -1324,7 +1324,7 @@
   .hiw-msgb.mine{margin-left:auto; background:var(--moss); color:#F5F4F1; border-color:var(--moss);}
   /* diary calendar */
   /* ── mood tracker ── */
-  .mood-card{border-bottom:1px solid var(--line); padding:14px 18px 16px; background:#FCFBF7;}
+  .mood-card{border-bottom:1px solid var(--line); padding:20px 22px 22px; background:#FCFBF7;}
   .mood-q{font-size:13.5px; font-weight:700; margin:0 0 2px;}
   .mood-hint{font-size:11.5px; color:var(--ink-soft); margin:0 0 10px;}
   .mood-row{display:flex; gap:14px; flex-wrap:wrap;}
@@ -1336,50 +1336,48 @@
   .mood-opt.sel span{color:var(--ink); font-weight:700;}
   .cal-day.mooded{font-weight:600;}
   .cal-day.dim{opacity:.18;}
-  .mood-tools{border-top:1px dashed var(--line); margin-top:14px; padding-top:12px;}
-  .mood-ranges{display:flex; gap:6px; margin-bottom:10px; align-items:center;}
-  .mood-ranges b{font-size:11.5px; margin-right:auto;}
-  .mood-range-btn{font-size:11px; padding:4px 12px; border-radius:999px; border:1px solid var(--line); background:var(--page); color:var(--ink-soft); cursor:pointer; font-family:inherit;}
-  .mood-range-btn.on{background:var(--ink); color:var(--oat); border-color:var(--ink);}
-  .mood-chips{display:flex; gap:6px; flex-wrap:nowrap; overflow-x:auto; margin-bottom:12px; padding-bottom:2px; scrollbar-width:none; -ms-overflow-style:none;}
-  .mood-chips::-webkit-scrollbar{display:none;}
-  .mood-chip{font-size:11px; padding:4px 9px; border-radius:999px; border:1px solid transparent; cursor:pointer; font-family:inherit; font-weight:600; white-space:nowrap; flex:none;}
-  .mood-chip.all{background:var(--page); border-color:var(--line); color:var(--ink-soft);}
-  .mood-chip.on{border-color:var(--ink);}
-  .mood-sum{display:grid; grid-template-columns:repeat(6,1fr); gap:6px;}
-  .mood-sum .ms{background:var(--page); border:1px solid var(--line); border-radius:10px; padding:7px 2px 6px; text-align:center; min-width:0;}
-  .mood-sum .ms i{display:block; width:9px; height:9px; border-radius:50%; margin:0 auto 3px;}
-  .mood-sum .ms b{font-size:15px; display:block; line-height:1.2;}
-  .mood-sum .ms span{display:none;}
+  .mood-tools{border-top:1px dashed var(--line); margin-top:20px; padding-top:20px;}
+  .mood-min-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;}
+  .mood-min-head b{font-size:13.5px; font-weight:700;}
+  .mood-min-head span{font-size:11.5px; color:var(--ink-soft);}
+  .mood-bar{display:flex; height:10px; border-radius:6px; overflow:hidden; background:var(--oat-deep); gap:2px;}
+  .mood-bar .seg{height:100%; min-width:3px; border-radius:3px; transition:flex-grow .3s;}
+  .mood-bar.empty{background:var(--oat-deep);}
+  .mood-legend{display:flex; flex-wrap:wrap; gap:14px 18px; margin-top:16px;}
+  .mood-legend .ml{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink-soft);}
+  .mood-legend .ml i{width:9px; height:9px; border-radius:50%; flex:none;}
+  .mood-legend .ml b{font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums;}
+  .mood-legend .ml.zero{opacity:.4;}
+  .mood-empty-note{font-size:12px; color:var(--ink-soft); opacity:.7; margin-top:10px;}
   @media(max-width:600px){
-    .mood-sum{gap:4px;}
-    .mood-sum .ms{padding:6px 1px 5px; border-radius:8px;}
-    .mood-sum .ms b{font-size:13.5px;}
-    .mood-sum .ms span{font-size:9px;}
+    .mood-card{padding:16px 16px 18px;}
+    .mood-legend{gap:11px 16px;}
   }
   .cal-toggle{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; padding:6px 11px; border-radius:999px; border:1px solid var(--line); background:var(--page); cursor:pointer; font-family:inherit; color:var(--ink-soft);}
   .cal-toggle:hover{border-color:var(--ink); color:var(--ink);}
   .cal-toggle.on{background:var(--ink); color:var(--oat); border-color:var(--ink);}
-  .cal{border-bottom:1px solid var(--line); padding:16px 18px; background:#FCFBF7;}
+  .cal{border-bottom:1px solid var(--line); padding:20px 22px; background:#FCFBF7;}
   .cal.hidden{display:none;}
-  .cal-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
-  .cal-month{font-size:13.5px; font-weight:700;}
+  .cal-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+  .cal-month{font-size:14px; font-weight:700;}
   .cal-nav{display:flex; gap:4px;}
-  .cal-nav button{width:26px; height:26px; border-radius:7px; border:1px solid var(--line); background:var(--page); cursor:pointer; color:var(--ink-soft); font-size:13px; line-height:1; display:flex; align-items:center; justify-content:center; padding:0; font-family:inherit;}
-  .cal-nav button:hover{border-color:var(--ink); color:var(--ink);}
-  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:3px;}
-  .cal-dow{font-size:10px; font-weight:700; color:var(--ink-soft); text-align:center; padding:4px 0; letter-spacing:.04em;}
-  .cal-day{aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:12px; border-radius:8px; color:var(--ink-soft); position:relative; border:1px solid transparent;}
+  .cal-nav button{width:28px; height:28px; border-radius:8px; border:1px solid transparent; background:none; cursor:pointer; color:var(--ink-soft); font-size:14px; line-height:1; display:flex; align-items:center; justify-content:center; padding:0; font-family:inherit;}
+  .cal-nav button:hover{background:var(--oat-deep); color:var(--ink);}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:5px;}
+  .cal-dow{font-size:10px; font-weight:700; color:#B4AFA4; text-align:center; padding:2px 0 6px; letter-spacing:.06em;}
+  .cal-day{aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:12.5px; border-radius:9px; color:#B4AFA4; position:relative; border:none;}
   .cal-day.empty{visibility:hidden;}
   .cal-day.has{color:var(--ink); font-weight:600; cursor:pointer;}
   .cal-day.has:hover{background:var(--oat-deep);}
   .cal-day .dot{width:4px; height:4px; border-radius:50%; background:var(--camel); position:absolute; bottom:5px;}
-  .cal-day.today{border-color:var(--moss); color:var(--moss); font-weight:700;}
-  .cal-day.sel{background:var(--ink); color:var(--oat);}
-  .cal-day.sel .dot{background:var(--oat);}
-  .cal-legend{display:flex; gap:14px; margin-top:12px; font-size:11px; color:var(--ink-soft); align-items:center; flex-wrap:wrap;}
+  .cal-day.today{color:var(--moss); font-weight:700;}
+  .cal-day.today::after{content:''; position:absolute; bottom:5px; width:4px; height:4px; border-radius:50%; background:var(--moss);}
+  .cal-day.today .dot{display:none;}
+  .cal-day.sel{box-shadow:inset 0 0 0 1.5px var(--ink); font-weight:700;}
+  .cal-day.sel.today::after{background:var(--moss);}
+  .cal-legend{display:flex; gap:16px; margin-top:16px; font-size:11px; color:var(--ink-soft); align-items:center; flex-wrap:wrap;}
   .cal-legend i{display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--camel); margin-right:5px;}
-  .cal-legend .box{display:inline-block; width:11px; height:11px; border-radius:4px; border:1.5px solid var(--moss); margin-right:5px; vertical-align:-2px;}
+  .cal-legend .box{display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--moss); margin-right:5px; vertical-align:1px;}
   .cal-clear{margin-left:auto; font-size:11.5px; color:var(--camel); background:none; border:none; cursor:pointer; font-family:inherit; font-weight:600;}
   .filter-bar{display:none; align-items:center; gap:8px; padding:10px 18px; background:#FBF6F0; border-bottom:1px solid var(--line); font-size:12.5px;}
   .filter-bar.on{display:flex;}
@@ -1658,73 +1656,52 @@
   .lb-empty b{display:block; color:var(--ink); font-family:"Fraunces",serif; font-size:19px; font-weight:500; margin-bottom:8px;}
 
   /* ---- Life Ribbon: index on the right, reading on the left ---- */
-  .vr{
+  .rib{
     --tr-bg:#F4EFE4; --tr-bd:#E2D9C7; --q:#3A342A;
-    --a-place:#7C8F5C; --a-event:#BE7B62; --a-diary:#4A5468; --a-voice:#B0561C; --a-mark:#241F17;
-    display:flex; align-items:stretch; flex-wrap:nowrap;
-    max-width:820px; margin:0 auto; padding:6px 0 2px; position:relative;
+    --a-place:#7C8F5C; --a-event:#BE7B62; --a-diary:#4A5468; --a-voice:#B0561C;
+    max-width:760px; margin:8px 0 0; padding:0;
   }
-  .vr-read{flex:1 1 auto; min-width:0; margin:30px 44px 30px 0; display:flex; flex-direction:column; justify-content:center;}
-  .vr-read-yr{font-size:10px; letter-spacing:.18em; color:#B8B1A3; font-weight:700;}
-  .vr-read-tx{
-    font-family:"Fraunces",serif; font-size:27px; font-weight:400; line-height:1.26;
-    margin:13px 0; max-width:440px; letter-spacing:-.012em; transition:opacity .18s; min-height:70px;
+  .rib-read{min-height:96px; margin-bottom:22px;}
+  .rib-read-yr{font-size:10px; letter-spacing:.16em; color:#B8B1A3; font-weight:700;}
+  .rib-read-tx{
+    font-family:"Fraunces",serif; font-size:24px; font-weight:400; line-height:1.28;
+    margin:11px 0 9px; max-width:560px; letter-spacing:-.01em; transition:opacity .18s;
   }
-  .vr-read-sr{font-size:11px; color:var(--ink-soft); opacity:.75;}
-  .vr-read-key{
-    display:flex; gap:16px; flex-wrap:wrap; margin-top:34px; padding-top:18px;
-    border-top:1px solid var(--line); font-size:11px; color:var(--ink-soft);
+  .rib-read-sr{font-size:11px; color:var(--ink-soft); opacity:.75;}
+  .rib-strip{
+    position:relative; height:44px; background:var(--tr-bg); border:1px solid var(--tr-bd);
+    border-radius:3px; overflow:hidden; cursor:crosshair; touch-action:none;
   }
-  .vr-read-key span{display:flex; align-items:center; gap:7px;}
-  .vr-read-key i{width:14px; height:2px; border-radius:1px; flex:none;}
-  .k-quiet{background:var(--q); opacity:.8;} .k-place{background:var(--a-place);}
-  .k-event{background:var(--a-event);} .k-diary{background:var(--a-diary);} .k-voice{background:var(--a-voice);}
-
-  .vr-scale{
-    flex:none; width:32px; position:relative; margin:30px 10px 30px 0;
-    font-size:9px; letter-spacing:.06em; color:var(--ink-soft); opacity:.6; font-weight:600; text-align:right;
-  }
-  .vr-scale span{position:absolute; right:0; transform:translateY(-50%); white-space:nowrap;}
-  .vr-spine{flex:none; width:124px; display:flex; flex-direction:column;}
-  .vr-trackwrap{flex:1; position:relative;}
-  .vr-cap{font-size:9px; letter-spacing:.16em; color:var(--ink-soft); opacity:.6; text-align:center; padding:7px 0; font-weight:700;}
-  .vr-track{
-    height:440px; position:relative; background:var(--tr-bg); border:1px solid var(--tr-bd);
-    border-radius:2px; overflow:hidden; cursor:crosshair; touch-action:none;
-  }
-  .vr-track svg{width:100%; height:100%; display:block;}
-  .vr-marker{
-    position:absolute; height:1px; background:var(--ink); top:0; left:-190px; right:0; z-index:2;
+  .rib-strip svg{width:100%; height:100%; display:block;}
+  .rib-marker{
+    position:absolute; width:1px; background:var(--ink); top:0; bottom:0; left:0; z-index:2;
     opacity:0; transition:opacity .14s; pointer-events:none;
   }
-  .vr-marker::after{content:''; position:absolute; right:0; top:-2px; width:5px; height:5px; border-radius:50%; background:var(--ink);}
-  .vr-trackwrap:hover .vr-marker, .vr-track.live .vr-marker{opacity:.55;}
-  .vr-face{
-    position:absolute; right:calc(100% + 14px); top:0; width:30px; height:30px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center; overflow:visible;
-    font-family:"Fraunces",serif; font-size:13px; color:#fff; background:var(--camel);
-    transform:translateY(-50%) scale(.6); opacity:0;
-    transition:top .18s cubic-bezier(.4,0,.2,1), opacity .18s, transform .18s;
+  .rib-marker::after{content:''; position:absolute; bottom:-2px; left:-2px; width:5px; height:5px; border-radius:50%; background:var(--ink);}
+  .rib-strip:hover .rib-marker, .rib-strip.live .rib-marker{opacity:.55;}
+  .rib-face{
+    position:absolute; bottom:calc(100% + 9px); left:0; width:26px; height:26px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:"Fraunces",serif; font-size:12px; color:#fff; background:var(--camel);
+    transform:translateX(-50%) scale(.6); opacity:0;
+    transition:left .18s cubic-bezier(.4,0,.2,1), opacity .18s, transform .18s;
     box-shadow:0 0 0 3px var(--oat); pointer-events:none; z-index:3;
   }
-  .vr-face.on{opacity:1; transform:translateY(-50%) scale(1);}
-  .vr-face img{width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;}
-  .vr-face i.cap{
-    position:absolute; right:calc(100% + 8px); top:50%; transform:translateY(-50%);
-    font-family:"Inter Tight",sans-serif; font-style:normal; font-size:11px; font-weight:600;
-    color:var(--ink-soft); white-space:nowrap; background:var(--oat); padding:2px 7px; border-radius:100px;
+  .rib-face.on{opacity:1; transform:translateX(-50%) scale(1);}
+  .rib-axis{display:flex; justify-content:space-between; margin-top:8px; font-size:9px; letter-spacing:.14em; color:var(--ink-soft); opacity:.55; font-weight:700;}
+  .rib-key{
+    display:flex; gap:16px; flex-wrap:wrap; margin-top:22px; padding-top:16px;
+    border-top:1px solid var(--line); font-size:11px; color:var(--ink-soft);
   }
+  .rib-key span{display:flex; align-items:center; gap:7px;}
+  .rib-key i{width:14px; height:2px; border-radius:1px; flex:none;}
+  .k-quiet{background:var(--q); opacity:.8;} .k-place{background:var(--a-place);}
+  .k-event{background:var(--a-event);} .k-diary{background:var(--a-diary);} .k-voice{background:var(--a-voice);}
   @media (max-width:760px){
-    .vr{max-width:none;}
-    .vr .vr-read{margin:14px 14px 14px 0;}
-    .vr .vr-read-tx{font-size:18px; min-height:56px;}
-    .vr .vr-read-key{gap:11px; margin-top:20px; padding-top:14px; font-size:10px;}
-    .vr .vr-scale{width:22px; margin:14px 6px 14px 0;}
-    .vr .vr-spine{width:62px;}
-    .vr .vr-track{height:360px;}
-    .vr .vr-marker{left:-140px;}
-    .vr-face{width:26px; height:26px; font-size:12px; right:calc(100% + 9px);}
-    .vr-face i.cap{display:none;}
+    .rib{max-width:none;}
+    .rib-read{min-height:88px;}
+    .rib-read-tx{font-size:19px;}
+    .rib-key{gap:12px; margin-top:18px; padding-top:13px; font-size:10px;}
   }
 
   /* ---- Constellation ---- */
@@ -1807,6 +1784,60 @@
     body.has-rail{ padding-left:0; }
     body.has-rail #elRail{ display:none; }
   }
+
+  /* ===== VOICE RECORDER UI ===== */
+  .vrec{display:flex; align-items:center; gap:11px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 13px;}
+  .vrec-btn{width:40px; height:40px; border-radius:50%; border:none; background:var(--camel); color:#fff; cursor:pointer; flex:none; display:flex; align-items:center; justify-content:center; transition:background .15s, transform .1s;}
+  .vrec-btn:hover{background:#96683f;}
+  .vrec-btn:active{transform:scale(.94);}
+  .vrec-btn svg{width:16px; height:16px; fill:currentColor;}
+  .vrec-btn.rec{background:#C0504A; animation:vrecpulse 1.3s ease-in-out infinite;}
+  @keyframes vrecpulse{0%,100%{box-shadow:0 0 0 0 rgba(192,80,74,.5);}50%{box-shadow:0 0 0 8px rgba(192,80,74,0);}}
+  .vrec-mid{flex:1; min-width:0;}
+  .vrec-label{font-size:13px; font-weight:600; color:var(--ink);}
+  .vrec-sub{font-size:11.5px; color:var(--ink-soft); margin-top:1px;}
+  .vrec-time{font-family:"Space Mono",monospace; font-size:13px; color:var(--camel); font-weight:700; flex:none;}
+  .vrec-x{background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:13px; padding:4px 6px; flex:none; font-family:inherit;}
+  .vrec-x:hover{color:var(--ink);}
+  /* recorded clip preview (before send/sign) */
+  .vclip{display:flex; align-items:center; gap:10px; background:#0B0B0A; border-radius:11px; padding:8px 13px 8px 9px;}
+  .vclip-play{width:30px; height:30px; border-radius:50%; background:#fff; border:none; cursor:pointer; flex:none; display:flex; align-items:center; justify-content:center;}
+  .vclip-play svg{width:11px; height:11px; fill:#0B0B0A;}
+  .vclip-wave{flex:1; height:26px; min-width:0;}
+  .vclip-wave svg{width:100%; height:100%;}
+  .vclip-dur{font-family:"Space Mono",monospace; font-size:11px; color:#C9C6BC; flex:none;}
+  .vclip-x{background:none; border:none; color:#8a8880; cursor:pointer; font-size:13px; padding:2px 5px; flex:none;}
+  .vclip-x:hover{color:#fff;}
+  /* voice bubble inside a message thread */
+  .msg-bubble.voice{padding:7px 11px 7px 8px;}
+  .msg-voice{display:flex; align-items:center; gap:9px; min-width:170px;}
+  .msg-voice .mv-play{width:28px; height:28px; border-radius:50%; border:none; cursor:pointer; flex:none; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.22);}
+  .msg-bubble:not(.mine) .msg-voice .mv-play{background:var(--oat-deep);}
+  .msg-voice .mv-play svg{width:10px; height:10px;}
+  .msg-bubble.mine .msg-voice .mv-play svg{fill:#fff;}
+  .msg-bubble:not(.mine) .msg-voice .mv-play svg{fill:var(--ink);}
+  .msg-voice .mv-wave{flex:1; height:22px; min-width:70px;}
+  .msg-voice .mv-wave svg{width:100%; height:100%;}
+  .msg-voice .mv-dur{font-family:"Space Mono",monospace; font-size:10px; opacity:.8; flex:none;}
+  /* mic button in the message input row */
+  .msg-mic{width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--page); color:var(--ink-soft); cursor:pointer; flex:none; display:flex; align-items:center; justify-content:center;}
+  .msg-mic:hover{border-color:var(--camel); color:var(--camel);}
+  .msg-mic.rec{background:#C0504A; border-color:#C0504A; color:#fff; animation:vrecpulse 1.3s ease-in-out infinite;}
+  .msg-mic svg{width:16px; height:16px; fill:currentColor;}
+
+  /* ===== EVENT GUEST TIMELINE ===== */
+  .etl{ --tr-bg:#F4EFE4; --tr-bd:#E2D9C7; margin-top:4px; }
+  .etl-read{min-height:52px; margin-bottom:16px;}
+  .etl-read-yr{font-size:10px; letter-spacing:.14em; color:#B8B1A3; font-weight:700; text-transform:uppercase;}
+  .etl-read-tx{font-family:"Fraunces",serif; font-size:18px; font-weight:400; line-height:1.32; margin-top:8px; max-width:520px; transition:opacity .18s;}
+  .etl-strip{position:relative; height:40px; background:var(--tr-bg); border:1px solid var(--tr-bd); border-radius:3px; overflow:hidden; cursor:crosshair; touch-action:none;}
+  .etl-strip svg{width:100%; height:100%; display:block;}
+  .etl-marker{position:absolute; width:1px; background:var(--ink); top:0; bottom:0; left:0; z-index:2; opacity:0; transition:opacity .14s; pointer-events:none;}
+  .etl-marker::after{content:''; position:absolute; bottom:-2px; left:-2px; width:5px; height:5px; border-radius:50%; background:var(--ink);}
+  .etl-strip:hover .etl-marker, .etl-strip.live .etl-marker{opacity:.55;}
+  .etl-face{position:absolute; bottom:calc(100% + 8px); left:0; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:"Fraunces",serif; font-size:11px; color:#fff; background:var(--camel); transform:translateX(-50%) scale(.6); opacity:0; transition:left .18s cubic-bezier(.4,0,.2,1), opacity .18s, transform .18s; box-shadow:0 0 0 3px var(--card); pointer-events:none; z-index:3;}
+  .etl-face.on{opacity:1; transform:translateX(-50%) scale(1);}
+  .etl-axis{display:flex; justify-content:space-between; margin-top:8px; font-size:9.5px; color:var(--ink-soft); opacity:.6; font-weight:600;}
 
 </style>
 </head>
@@ -2314,14 +2345,9 @@
               <button class="cal-clear" id="calClear" style="display:none;" onclick="clearDiaryFilter()">Show all</button>
             </div>
             <div class="mood-tools" id="moodTools">
-              <div class="mood-ranges">
-                <b>Mood summary</b>
-                <button type="button" class="mood-range-btn" data-range="week" onclick="setMoodRange('week')">Week</button>
-                <button type="button" class="mood-range-btn on" data-range="month" onclick="setMoodRange('month')">Month</button>
-                <button type="button" class="mood-range-btn" data-range="year" onclick="setMoodRange('year')">Year</button>
-              </div>
-              <div class="mood-chips" id="moodChips"></div>
-              <div class="mood-sum" id="moodSum"></div>
+              <div class="mood-min-head"><b>Mood</b><span id="moodMinCount"></span></div>
+              <div class="mood-bar" id="moodBar"></div>
+              <div class="mood-legend" id="moodLegend"></div>
             </div>
           </div>
 
@@ -2553,6 +2579,20 @@
         <div class="field">
           <label for="fMsg">Your message</label>
           <textarea id="fMsg" placeholder="Say something they'll want to keep." required></textarea>
+        </div>
+        <div class="field">
+          <label>Or record your voice <span class="hint">optional — becomes a Voiceprint on their page</span></label>
+          <div class="vrec" id="fillVrec">
+            <button type="button" class="vrec-btn" id="fillVrecBtn" onclick="fillVoiceToggle()" aria-label="Record voice">
+              <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 003-3V6a3 3 0 00-6 0v5a3 3 0 003 3z"/><path d="M18 11a6 6 0 01-12 0M12 17v4M8 21h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+            <div class="vrec-mid">
+              <div class="vrec-label" id="fillVrecLabel">Tap to record</div>
+              <div class="vrec-sub" id="fillVrecSub">Up to 2 minutes</div>
+            </div>
+            <span class="vrec-time" id="fillVrecTime" style="display:none;">0:00</span>
+          </div>
+          <div id="fillVclip" style="display:none; margin-top:10px;"></div>
         </div>
         <div class="field">
           <label>Attach photos <span class="hint">optional, up to 6</span></label>
@@ -2915,6 +2955,22 @@
           <button type="button" class="ev-chip" id="evPostCityBtn" onclick="toggleEvPostCity()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span> Add a city</button>
           <button type="button" class="ev-chip" onclick="document.getElementById('evTagTray').classList.toggle('open')">@ Tag members</button>
           <button type="button" class="btn-small" style="margin-left:auto;" onclick="evAddPost()">Post to the page</button>
+        </div>
+      </div>
+      <!-- GUEST TIMELINE -->
+      <div class="card-ev" id="evTimelineCard" style="display:none;">
+        <label class="ev-label">When everyone showed up</label>
+        <div class="etl" id="evTimeline">
+          <div class="etl-read">
+            <div class="etl-read-yr" id="etlYr"></div>
+            <div class="etl-read-tx" id="etlTx">Run along to see who added what, and when</div>
+          </div>
+          <div class="etl-strip" id="etlTrack">
+            <svg id="etlSvg" viewBox="0 0 1000 40" preserveAspectRatio="none"></svg>
+            <div class="etl-marker" id="etlMarker"></div>
+            <div class="etl-face" id="etlFace"><span></span></div>
+          </div>
+          <div class="etl-axis"><span id="etlAxisL"></span><span id="etlAxisR"></span></div>
         </div>
       </div>
       <div id="evFeed"></div>
@@ -3662,8 +3718,12 @@
         <div class="thread-input" id="threadInputRow">
           <input type="text" id="msgInput" placeholder="Write a message…" maxlength="2000"
                  onkeydown="if(event.key==='Enter'){event.preventDefault(); sendMessage();}">
+          <button class="msg-mic" id="msgMicBtn" onclick="msgVoiceToggle()" aria-label="Record voice note" style="flex:none;">
+            <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 003-3V6a3 3 0 00-6 0v5a3 3 0 003 3z"/><path d="M18 11a6 6 0 01-12 0M12 17v4M8 21h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
           <button class="btn-small" style="flex:none;" onclick="sendMessage()">Send</button>
         </div>
+        <div id="msgVoiceBar" style="display:none; padding:10px 14px; border-top:1px solid var(--line);"></div>
       </div>
     </div>
   </div>
@@ -5411,9 +5471,13 @@
     db.rpc('mark_conversation_read', { conv: convId }).then(()=>refreshMsgBadge()).catch(()=>{});
 
     const box = document.getElementById('threadMsgs');
-    box.innerHTML = (msgs || []).map(m=>`
-      <div class="msg-bubble ${m.sender_profile_id === profile.dbId ? 'mine' : ''}">${linkify(m.body)}</div>
-    `).join('') || '<p style="font-size:13px; color:var(--ink-soft); text-align:center;">No messages yet.</p>';
+    box.innerHTML = (msgs || []).map(m=>{
+      const mine = m.sender_profile_id === profile.dbId ? 'mine' : '';
+      if (m.voice_url){
+        return `<div class="msg-bubble voice ${mine}">${msgVoiceBubbleHtml(m.voice_url, m.voice_seconds)}</div>`;
+      }
+      return `<div class="msg-bubble ${mine}">${linkify(m.body)}</div>`;
+    }).join('') || '<p style="font-size:13px; color:var(--ink-soft); text-align:center;">No messages yet.</p>';
     box.scrollTop = box.scrollHeight;
 
     // Mark this conversation as read (clears its badge)
@@ -5429,6 +5493,94 @@
     showToast(accept ? 'Request accepted \u2014 say hi!' : 'Request declined');
     refreshMsgBadge();
     openThread(currentConversationId);
+  }
+
+
+  /* ---- voice notes in Messages ---- */
+  let msgVoiceCtl = null;
+  function msgVoiceToggle(){
+    const btn = document.getElementById('msgMicBtn');
+    if (!currentConversationId){ showToast('Open a conversation first'); return; }
+    if (!msgVoiceCtl){
+      msgVoiceCtl = createVoiceController({
+        onStart(){ btn.classList.add('rec'); showMsgVoiceBar('recording', 0); },
+        onTick(t){ updateMsgVoiceTime(t); },
+        onStop(res){ btn.classList.remove('rec'); showMsgVoiceReview(res.blob, res.seconds); },
+        onCancel(){ btn.classList.remove('rec'); hideMsgVoiceBar(); }
+      });
+    }
+    msgVoiceCtl.toggle();
+  }
+  function showMsgVoiceBar(mode, t){
+    const bar = document.getElementById('msgVoiceBar');
+    bar.style.display = 'block';
+    bar.innerHTML =
+      '<div class="vrec">' +
+        '<button type="button" class="vrec-btn rec" onclick="msgVoiceToggle()" aria-label="Stop"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg></button>' +
+        '<div class="vrec-mid"><div class="vrec-label">Recording\u2026 tap to stop</div><div class="vrec-sub">Up to 2 minutes</div></div>' +
+        '<span class="vrec-time" id="msgVrecTime">0:00</span>' +
+      '</div>';
+  }
+  function updateMsgVoiceTime(t){ const e = document.getElementById('msgVrecTime'); if (e) e.textContent = t; }
+  function hideMsgVoiceBar(){ const bar = document.getElementById('msgVoiceBar'); if (bar){ bar.style.display='none'; bar.innerHTML=''; } }
+  function showMsgVoiceReview(blob, seconds){
+    const bar = document.getElementById('msgVoiceBar');
+    bar.style.display = 'block';
+    const url = URL.createObjectURL(blob);
+    bar.innerHTML =
+      '<div class="vclip">' +
+        '<button type="button" class="vclip-play" id="msgVreview" aria-label="Play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>' +
+        '<span class="vclip-wave">' + voiceBarcodeSvg(seconds) + '</span>' +
+        '<span class="vclip-dur">' + fmtSecs(seconds) + '</span>' +
+        '<button type="button" class="btn-small" style="flex:none; margin-left:4px;" id="msgVsend">Send</button>' +
+        '<button type="button" class="vclip-x" id="msgVcancel" aria-label="Delete">\u2715</button>' +
+      '</div>';
+    const audio = new Audio(url);
+    const playBtn = document.getElementById('msgVreview');
+    playBtn.addEventListener('click', ()=>{
+      if (audio.paused){ audio.play(); playBtn.innerHTML='<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>'; }
+      else { audio.pause(); playBtn.innerHTML='<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'; }
+    });
+    audio.onended = ()=>{ playBtn.innerHTML='<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'; };
+    document.getElementById('msgVcancel').addEventListener('click', ()=>{ URL.revokeObjectURL(url); hideMsgVoiceBar(); });
+    document.getElementById('msgVsend').addEventListener('click', async ()=>{
+      const sendBtn = document.getElementById('msgVsend'); sendBtn.disabled = true; sendBtn.textContent = 'Sending\u2026';
+      const up = await uploadAudioBlob(blob, seconds);
+      if (!up){ sendBtn.disabled = false; sendBtn.textContent = 'Send'; return; }
+      const { error } = await db.from('messages').insert({
+        conversation_id: currentConversationId,
+        sender_profile_id: profile.dbId,
+        body: '',
+        voice_url: up.url,
+        voice_seconds: up.seconds
+      });
+      URL.revokeObjectURL(url); hideMsgVoiceBar();
+      if (error){ showToast('Could not send voice: ' + error.message); return; }
+      openThread(currentConversationId);
+    });
+  }
+  // Playable voice bubble inside a thread
+  function msgVoiceBubbleHtml(url, seconds){
+    return '<div class="msg-voice" data-vsrc="' + url + '">' +
+      '<button type="button" class="mv-play" onclick="threadVoicePlay(this)" aria-label="Play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>' +
+      '<span class="mv-wave">' + voiceBarcodeSvg(seconds || 12) + '</span>' +
+      '<span class="mv-dur">' + fmtSecs(seconds || 0) + '</span>' +
+      '</div>';
+  }
+  let _threadAudio = null, _threadAudioBtn = null;
+  function threadVoicePlay(btn){
+    const wrap = btn.closest('.msg-voice'); const src = wrap.getAttribute('data-vsrc');
+    const playIcon = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+    const pauseIcon = '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>';
+    if (_threadAudio && _threadAudioBtn === btn){
+      if (_threadAudio.paused){ _threadAudio.play(); btn.innerHTML = pauseIcon; }
+      else { _threadAudio.pause(); btn.innerHTML = playIcon; }
+      return;
+    }
+    if (_threadAudio){ _threadAudio.pause(); if (_threadAudioBtn) _threadAudioBtn.innerHTML = playIcon; }
+    _threadAudio = new Audio(src); _threadAudioBtn = btn;
+    _threadAudio.play(); btn.innerHTML = pauseIcon;
+    _threadAudio.onended = ()=>{ btn.innerHTML = playIcon; };
   }
 
   async function sendMessage(){
@@ -5730,6 +5882,157 @@
       img.onerror = ()=>resolve(dataUrl);
       img.src = dataUrl;
     });
+  }
+
+
+  /* ============================================================
+     VOICE RECORDER  (shared by the sign screen + messages)
+     Records mic audio via MediaRecorder, uploads the clip to
+     Supabase Storage, and returns { url, seconds }.
+     ============================================================ */
+  async function uploadAudioBlob(blob, seconds){
+    if (!db){ showToast('Sign in to send voice'); return null; }
+    if (!blob || !blob.size){ return null; }
+    if (blob.size > 6 * 1024 * 1024){ showToast('That recording is too long'); return null; }
+    const ext = (blob.type && blob.type.indexOf('mp4') >= 0) ? 'mp4' : 'webm';
+    const path = 'voice_' + (currentUser ? currentUser.id : 'guest') + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,7) + '.' + ext;
+    const { error } = await db.storage.from('entry-photos').upload(path, blob, { upsert: true, contentType: blob.type || 'audio/webm' });
+    if (error){
+      console.error('[EarthLive] voice upload failed:', error.message);
+      showToast('Voice upload failed: ' + error.message);
+      return null;
+    }
+    const { data } = db.storage.from('entry-photos').getPublicUrl(path);
+    return { url: data.publicUrl, seconds: Math.max(1, Math.round(seconds || 0)) };
+  }
+
+  // A small controller you bind to a container. It manages one recording
+  // session and reports state through callbacks.
+  function createVoiceController(opts){
+    opts = opts || {};
+    let mediaRecorder = null, chunks = [], stream = null;
+    let startedAt = 0, timerInt = null, seconds = 0;
+    let resultBlob = null, resultSeconds = 0;
+    const state = { recording:false, hasClip:false };
+
+    function fmt(s){ const m = Math.floor(s/60), r = Math.floor(s%60); return m + ':' + String(r).padStart(2,'0'); }
+
+    async function start(){
+      if (state.recording) return;
+      if (!navigator.mediaDevices || !window.MediaRecorder){
+        showToast('Your browser can\u2019t record audio'); return;
+      }
+      try{
+        stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+      }catch(e){
+        showToast('Microphone permission is needed to record'); return;
+      }
+      chunks = []; resultBlob = null; resultSeconds = 0;
+      let mime = '';
+      if (MediaRecorder.isTypeSupported('audio/webm')) mime = 'audio/webm';
+      else if (MediaRecorder.isTypeSupported('audio/mp4')) mime = 'audio/mp4';
+      mediaRecorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+      mediaRecorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+      mediaRecorder.onstop = ()=>{
+        resultBlob = new Blob(chunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+        resultSeconds = seconds;
+        state.hasClip = resultBlob.size > 0;
+        if (stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
+        if (opts.onStop) opts.onStop({ blob: resultBlob, seconds: resultSeconds, fmt: fmt(resultSeconds) });
+      };
+      mediaRecorder.start();
+      state.recording = true; seconds = 0; startedAt = Date.now();
+      timerInt = setInterval(()=>{
+        seconds = (Date.now() - startedAt) / 1000;
+        if (opts.onTick) opts.onTick(fmt(seconds));
+        if (seconds >= 120){ stop(); } // 2-minute ceiling
+      }, 200);
+      if (opts.onStart) opts.onStart();
+    }
+    function stop(){
+      if (!state.recording) return;
+      state.recording = false;
+      clearInterval(timerInt);
+      try{ mediaRecorder.stop(); }catch(e){}
+    }
+    function cancel(){
+      state.recording = false; state.hasClip = false;
+      clearInterval(timerInt);
+      try{ if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop(); }catch(e){}
+      if (stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
+      resultBlob = null; resultSeconds = 0;
+      if (opts.onCancel) opts.onCancel();
+    }
+    function getClip(){ return resultBlob ? { blob: resultBlob, seconds: resultSeconds } : null; }
+    function toggle(){ state.recording ? stop() : start(); }
+    return { start, stop, cancel, toggle, getClip, state, fmt };
+  }
+
+
+  /* ---- voice on the sign/fill screen ---- */
+  let fillVoiceCtl = null, fillVoiceClip = null;
+  function renderVoiceClipInto(hostId, blob, seconds, onRemove){
+    const host = document.getElementById(hostId);
+    if (!host) return;
+    const url = URL.createObjectURL(blob);
+    const bars = voiceBarcodeSvg(seconds);
+    host.style.display = 'block';
+    host.innerHTML =
+      '<div class="vclip">' +
+        '<button type="button" class="vclip-play" aria-label="Play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>' +
+        '<span class="vclip-wave">' + bars + '</span>' +
+        '<span class="vclip-dur">' + fmtSecs(seconds) + '</span>' +
+        '<button type="button" class="vclip-x" aria-label="Delete">\u2715</button>' +
+      '</div>';
+    const audio = new Audio(url);
+    const playBtn = host.querySelector('.vclip-play');
+    playBtn.addEventListener('click', ()=>{
+      if (audio.paused){ audio.play(); playBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>'; }
+      else { audio.pause(); playBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'; }
+    });
+    audio.onended = ()=>{ playBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'; };
+    host.querySelector('.vclip-x').addEventListener('click', ()=>{
+      host.style.display = 'none'; host.innerHTML = ''; URL.revokeObjectURL(url); if (onRemove) onRemove();
+    });
+  }
+  function fmtSecs(s){ const m = Math.floor(s/60), r = Math.floor(s%60); return m + ':' + String(r).padStart(2,'0'); }
+  // A deterministic barcode/waveform from a seed length — same visual language as Voiceprints.
+  function voiceBarcodeSvg(seconds){
+    let h = (Math.round(seconds*7)+13) >>> 0;
+    const rnd = ()=>{ h^=h<<13; h>>>=0; h^=h>>17; h^=h<<5; h>>>=0; return (h%1000)/1000; };
+    const N = 46; let cur = 0; const bars = [];
+    for (let i=0;i<N;i++){ const w = 1.1+rnd()*1.5, gap = 0.8+rnd()*1; bars.push({x:cur,w,ht: rnd()>0.85?18+rnd()*4:5+rnd()*11}); cur += w+gap; }
+    const sc = 196/cur;
+    let inner = '';
+    bars.forEach(b=>{ inner += '<rect x="'+(2+b.x*sc).toFixed(1)+'" width="'+Math.max(1,b.w*sc).toFixed(1)+'" y="'+((24-b.ht)/2).toFixed(1)+'" height="'+b.ht.toFixed(1)+'" fill="#6C6A64"/>'; });
+    return '<svg viewBox="0 0 200 24" preserveAspectRatio="none">'+inner+'</svg>';
+  }
+  function fillVoiceToggle(){
+    const btn = document.getElementById('fillVrecBtn');
+    const label = document.getElementById('fillVrecLabel');
+    const sub = document.getElementById('fillVrecSub');
+    const time = document.getElementById('fillVrecTime');
+    if (!fillVoiceCtl){
+      fillVoiceCtl = createVoiceController({
+        onStart(){ btn.classList.add('rec'); label.textContent = 'Recording\u2026 tap to stop'; sub.textContent = 'Speak now'; time.style.display = ''; time.textContent = '0:00'; },
+        onTick(t){ time.textContent = t; },
+        onStop(res){ btn.classList.remove('rec'); label.textContent = 'Re-record'; sub.textContent = 'Or keep the clip below'; time.style.display = 'none';
+          fillVoiceClip = { blob: res.blob, seconds: res.seconds };
+          renderVoiceClipInto('fillVclip', res.blob, res.seconds, ()=>{ fillVoiceClip = null; label.textContent = 'Tap to record'; sub.textContent = 'Up to 2 minutes'; });
+        },
+        onCancel(){ btn.classList.remove('rec'); label.textContent = 'Tap to record'; sub.textContent = 'Up to 2 minutes'; time.style.display = 'none'; }
+      });
+    }
+    fillVoiceCtl.toggle();
+  }
+  function resetFillVoice(){
+    if (fillVoiceCtl && fillVoiceCtl.state.recording) fillVoiceCtl.cancel();
+    fillVoiceClip = null;
+    const c = document.getElementById('fillVclip'); if (c){ c.style.display='none'; c.innerHTML=''; }
+    const label = document.getElementById('fillVrecLabel'); if (label) label.textContent = 'Tap to record';
+    const sub = document.getElementById('fillVrecSub'); if (sub) sub.textContent = 'Up to 2 minutes';
+    const time = document.getElementById('fillVrecTime'); if (time) time.style.display = 'none';
+    const btn = document.getElementById('fillVrecBtn'); if (btn) btn.classList.remove('rec');
   }
 
   async function uploadImage(dataUrl, bucket, path){
@@ -7444,6 +7747,64 @@
   }
 
   // --- 3. EVENT ------------------------------------------------------------
+
+  // Static "when everyone showed up" timeline for the event PDF (both tiers).
+  // jsPDF can't render the interactive strip, so we draw a bar with colored
+  // ticks + a chronological who/when list. Returns the new y.
+  function pdfEventTimeline(doc, y, opts){
+    opts = opts || {};
+    const recs = (curEntries || [])
+      .filter(e => e.created_at && (e.approved !== false))
+      .map(e => ({
+        when: new Date(e.created_at),
+        by: pdfSafe(e.author_name) || 'Someone',
+        color: dzHexRgb(e.color),
+        about: (e.entry_type || 'post') === 'about'
+      }))
+      .sort((a,b)=> a.when - b.when);
+    if (recs.length < 2) return y;
+
+    const first = recs[0].when.getTime();
+    const last = recs[recs.length-1].when.getTime();
+    const spread = Math.max(1, last - first);
+
+    y = pdfNeed(doc, y, 40);
+    doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...MOSS_C);
+    doc.text('When everyone showed up', PDF_M, y); y += 7;
+
+    // the bar
+    const barX = PDF_M, barW = PDF_W, barY = y, barH = 7;
+    doc.setFillColor(244, 239, 228); doc.setDrawColor(226, 217, 199); doc.setLineWidth(0.3);
+    doc.roundedRect(barX, barY, barW, barH, 1, 1, 'FD');
+    recs.forEach(r=>{
+      const px = barX + ((r.when.getTime() - first) / spread) * barW;
+      const w = r.about ? 1.1 : 0.7;
+      doc.setFillColor(r.color[0], r.color[1], r.color[2]);
+      doc.rect(Math.min(barX + barW - w, Math.max(barX, px - w/2)), barY, w, barH, 'F');
+    });
+    y = barY + barH + 4;
+
+    // end date captions
+    const dOpt = { day:'numeric', month:'short' };
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...SOFT_C);
+    doc.text(recs[0].when.toLocaleDateString('en-IN', dOpt), barX, y);
+    doc.text(recs[recs.length-1].when.toLocaleDateString('en-IN', dOpt), barX + barW, y, { align:'right' });
+    y += 8;
+
+    // chronological list: who, when
+    const tOpt = { day:'numeric', month:'short', hour:'numeric', minute:'2-digit' };
+    recs.forEach(r=>{
+      y = pdfNeed(doc, y, 7);
+      doc.setFillColor(r.color[0], r.color[1], r.color[2]); doc.circle(PDF_M + 1.4, y - 1.4, 1.4, 'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(9.5); doc.setTextColor(...INK_C);
+      doc.text(r.by + (r.about ? '  (wrote about someone)' : ''), PDF_M + 5, y);
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...SOFT_C);
+      doc.text(r.when.toLocaleDateString('en-IN', tOpt), 210 - PDF_M, y, { align:'right' });
+      y += 6;
+    });
+    return y + 4;
+  }
+
   function pdfEvent(JsPDF){
     const doc = pdfMakeDoc(JsPDF);
     const ev = curEvent;
@@ -7481,6 +7842,9 @@
       y = pdfWrapText(doc, 'No confirmed guests yet.', PDF_M, y, PDF_W, 5.6, 10.5, 'italic', SOFT_C);
     }
     y += 6;
+
+    // When everyone showed up — static arrival timeline
+    y = pdfEventTimeline(doc, y);
 
     if (ev.slug){
       doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...MOSS_C);
@@ -8267,6 +8631,17 @@
       }
     };
 
+    // ---- When everyone showed up (arrival timeline page) ----
+    {
+      const tlRecs = (curEntries || []).filter(e => e.created_at && (e.approved !== false));
+      if (tlRecs.length >= 2){
+        doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...CAMEL_C);
+        doc.text('\u2014   W H E N   E V E R Y O N E   S H O W E D   U P   \u2014', 105, 30, { align:'center' });
+        pdfEventTimeline(doc, 48);
+      }
+    }
+
     if (wallEntries.length) await renderEntryList(wallEntries, '\u2014   S H A R E D   M E M O R I E S   \u2014');
     if (aboutEntries.length) await renderEntryList(aboutEntries, '\u2014   W R I T T E N   F O R   S O M E O N E   \u2014');
 
@@ -8632,6 +9007,7 @@
       document.getElementById('citySuggestions').style.display = 'none';
       entryPhotos = [];
       renderPhotoThumbs();
+      resetFillVoice();
     };
 
     // ----- Real signing: write to the entries table -----
@@ -8645,6 +9021,13 @@
         if (url) photoUrls.push(url);
       }
 
+      // Upload the voice clip, if one was recorded
+      let voiceUrl = null, voiceSeconds = null;
+      if (fillVoiceClip && fillVoiceClip.blob){
+        const up = await uploadAudioBlob(fillVoiceClip.blob, fillVoiceClip.seconds);
+        if (up){ voiceUrl = up.url; voiceSeconds = up.seconds; }
+      }
+
       const row = {
         profile_id: target.profileObj.dbId,
         signer_user_id: currentUser ? currentUser.id : null,
@@ -8655,7 +9038,9 @@
         photos: photoUrls,
         color: selectedPen,
         status: 'pending',
-        unlock_at: unlockAt
+        unlock_at: unlockAt,
+        voice_url: voiceUrl,
+        voice_seconds: voiceSeconds
       };
       if (guestEmail) row.guest_email = guestEmail;
 
@@ -9652,36 +10037,39 @@
   }
   function wptsRenderScreen(){
     const photos = albumPhotos || [];
-    const empty = document.getElementById('wptsEmpty');
     const grid = document.getElementById('wptsAllGrid');
     const stats = document.getElementById('wptsStats');
     const people = document.getElementById('wptsPeopleSec');
-    if (!empty) return;
+    const albumSec = document.getElementById('wptsAlbumSec');
+    if (!grid) return;
 
+    // No photos yet: hide the album + stats sections. The dropzone stays
+    // visible on its own so the user can always add photos.
     if (!photos.length){
-      empty.style.display = '';
-      grid.style.display = 'none';
-      stats.style.display = 'none';
-      if (people) people.style.display = 'none';
-      const albumSec = document.getElementById('wptsAlbumSec');
       if (albumSec) albumSec.style.display = 'none';
+      if (stats) stats.style.display = 'none';
+      if (people) people.style.display = 'none';
+      grid.classList.remove('on');
+      grid.innerHTML = '';
       return;
     }
 
-    empty.style.display = 'none';
+    // We have photos: reveal the album grid + stats.
     if (people) people.style.display = '';
-    const albumSec = document.getElementById('wptsAlbumSec');
     if (albumSec) albumSec.style.display = '';
     const cnt = document.getElementById('wptsAlbumCount');
     if (cnt) cnt.textContent = photos.length + (photos.length===1 ? ' photo' : ' photos');
 
     const pinned = photos.filter(p => typeof p.lat === 'number' && typeof p.lng === 'number');
     const places = new Set(photos.map(p => p.place).filter(Boolean)).size;
-    stats.style.display = '';
-    document.getElementById('wptsStatPlaces').textContent = places;
-    document.getElementById('wptsStatPhotos').textContent = photos.length;
-    document.getElementById('wptsStatPinned').textContent = pinned.length;
+    if (stats){
+      stats.style.display = '';
+      document.getElementById('wptsStatPlaces').textContent = places;
+      document.getElementById('wptsStatPhotos').textContent = photos.length;
+      document.getElementById('wptsStatPinned').textContent = pinned.length;
+    }
 
+    grid.classList.add('on');
     grid.style.display = '';
     grid.innerHTML = photos.map(function(p){
       const hasLoc = typeof p.lat === 'number';
@@ -11384,48 +11772,47 @@
   }
 
   function moodCounts(){
-    const start = moodRangeStart();
-    const now = new Date();
     const counts = {};
     MOODS.forEach(m=>{ counts[m.id] = 0; });
     Object.keys(moodByDate).forEach(k=>{
-      const d = new Date(k + 'T12:00:00');
-      if (d >= start && d <= now && counts[moodByDate[k]] !== undefined) counts[moodByDate[k]]++;
+      if (counts[moodByDate[k]] !== undefined) counts[moodByDate[k]]++;
     });
     return counts;
   }
 
-  function setMoodRange(r){
-    moodRange = r;
-    document.querySelectorAll('.mood-range-btn').forEach(b=>
-      b.classList.toggle('on', b.getAttribute('data-range') === r));
-    renderMoodTools();
-  }
-
-  function setMoodFilter(id){
-    moodFilter = (moodFilter === id) ? null : id;
-    renderDiaryCal();
-    renderMoodTools();
-  }
+  // Tabs and chips were removed for a minimal look; these remain as harmless no-ops
+  // in case anything still calls them.
+  function setMoodRange(r){ renderMoodTools(); }
+  function setMoodFilter(id){ renderMoodTools(); }
 
   function renderMoodTools(){
-    const chips = document.getElementById('moodChips');
-    const sum = document.getElementById('moodSum');
-    if (!chips || !sum) return;
+    const bar = document.getElementById('moodBar');
+    const legend = document.getElementById('moodLegend');
+    const countEl = document.getElementById('moodMinCount');
+    if (!bar || !legend) return;
     const counts = moodCounts();
+    const total = MOODS.reduce((s,m)=> s + counts[m.id], 0);
 
-    chips.innerHTML =
-      '<button type="button" class="mood-chip all' + (!moodFilter ? ' on' : '') + '" onclick="setMoodFilter(null)">All</button>' +
-      MOODS.map(m=>
-        '<button type="button" class="mood-chip' + (moodFilter===m.id ? ' on' : '') + '" ' +
-        'style="background:' + m.chip + '; color:' + m.tx + ';" onclick="setMoodFilter(\'' + m.id + '\')">\u25cf ' + m.label + '</button>'
-      ).join('');
+    if (countEl) countEl.textContent = total ? (total + (total===1 ? ' day logged' : ' days logged')) : '';
 
-    const rangeWord = moodRange === 'week' ? 'this week' : (moodRange === 'year' ? 'this year' : 'this month');
-    sum.innerHTML = MOODS.map(m=>
-      '<div class="ms" title="' + escapeHtml(m.label) + ' ' + (counts[m.id]===1 ? 'day' : 'days') + ' ' + rangeWord + '">' +
-      '<i style="background:' + m.bg + ';"></i>' +
-      '<b>' + counts[m.id] + '</b></div>'
+    if (!total){
+      bar.className = 'mood-bar empty';
+      bar.innerHTML = '';
+      legend.innerHTML = '<div class="mood-empty-note">No moods logged yet. Pick how you feel above and it fills in here.</div>';
+      return;
+    }
+
+    // one calm proportional bar, coloured by mood
+    bar.className = 'mood-bar';
+    bar.innerHTML = MOODS.filter(m=>counts[m.id] > 0).map(m=>
+      '<div class="seg" style="flex-grow:' + counts[m.id] + '; background:' + m.bg + ';" title="' +
+      escapeHtml(m.label) + ' \u00b7 ' + counts[m.id] + (counts[m.id]===1?' day':' days') + '"></div>'
+    ).join('');
+
+    // quiet legend with counts underneath
+    legend.innerHTML = MOODS.map(m=>
+      '<span class="ml' + (counts[m.id] ? '' : ' zero') + '"><i style="background:' + m.bg + '"></i>' +
+      escapeHtml(m.label) + ' <b>' + counts[m.id] + '</b></span>'
     ).join('');
   }
 
@@ -11485,7 +11872,7 @@
       if (k === calSelected) cls += ' sel';
       if (moodFilter && moodId !== moodFilter) cls += ' dim';
       let styl = '';
-      if (mood && k !== calSelected){
+      if (mood){
         styl = ' style="background:' + mood.bg + '; color:' + mood.tx + ';"';
       }
       const click = has ? ' onclick="pickDiaryDate(\'' + k + '\')"' : '';
@@ -12150,6 +12537,7 @@
     document.getElementById('evMapCard').style.display = 'none';
     document.getElementById('evLockScreen').style.display = isIn ? 'none' : 'block';
     document.getElementById('evFeed').innerHTML = '';
+    var _etlCard = document.getElementById('evTimelineCard'); if (_etlCard) _etlCard.style.display = 'none';
     document.getElementById('evAboutFeed').innerHTML = '';
     document.getElementById('evLeaveBtn').style.display = (curRole==='member') ? 'inline' : 'none';
     document.getElementById('evDeleteBtn').style.display = (curRole==='owner') ? 'inline' : 'none';
@@ -12632,7 +13020,7 @@
       e._likes = lc[e.id] || 0;
       e._liked = !!lm[e.id];
     });
-    renderEventFeed(); renderEventAboutFeed(); renderEventMap();
+    renderEventFeed(); renderEventAboutFeed(); renderEventMap(); renderEventTimeline();
   }
 
   /* ── Event likes ── */
@@ -12772,6 +13160,98 @@
     if (entry) entry._commentCount = (entry._commentCount||0) + 1;
     evLoadModalComments(entryId);
     renderEventFeed(); renderEventAboutFeed();
+  }
+
+
+  /* ── Event guest timeline: when each person contributed ── */
+  function renderEventTimeline(){
+    const card = document.getElementById('evTimelineCard');
+    const host = document.getElementById('evTimeline');
+    if (!card || !host) return;
+    // every contribution with an author + time
+    const recs = (curEntries || [])
+      .filter(e => e.created_at)
+      .map(e => ({
+        when: new Date(e.created_at),
+        by: e.author_name || 'Member',
+        color: e.color || '#A9764F',
+        kind: (e.entry_type || 'post') === 'about' ? 'wrote about someone' : 'shared a memory',
+        msg: e.message || ''
+      }))
+      .sort((a,b)=> a.when - b.when);
+
+    if (recs.length < 2){ card.style.display = 'none'; return; }
+    card.style.display = 'block';
+
+    const first = recs[0].when.getTime();
+    const last = recs[recs.length-1].when.getTime();
+    const spread = Math.max(1, last - first);
+    const W = 1000;
+    const xOf = r => 6 + ((r.when.getTime() - first) / spread) * (W - 12);
+
+    const svg = document.getElementById('etlSvg');
+    svg.innerHTML = '';
+    const frag = document.createDocumentFragment();
+    recs.forEach(r=>{
+      const el = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      const w = r.kind === 'wrote about someone' ? 2.4 : 1.6;
+      el.setAttribute('x', (xOf(r) - w/2).toFixed(2)); el.setAttribute('y','0');
+      el.setAttribute('width', w.toFixed(2)); el.setAttribute('height','40');
+      el.setAttribute('fill', r.color);
+      el.style.opacity = 0.9;
+      frag.appendChild(el);
+    });
+    svg.appendChild(frag);
+
+    const dOpt = { day:'numeric', month:'short' };
+    document.getElementById('etlAxisL').textContent = recs[0].when.toLocaleDateString('en-IN', dOpt);
+    document.getElementById('etlAxisR').textContent = recs[recs.length-1].when.toLocaleDateString('en-IN', dOpt);
+
+    const track = document.getElementById('etlTrack'), marker = document.getElementById('etlMarker'), face = document.getElementById('etlFace');
+    const yrEl = document.getElementById('etlYr'), txEl = document.getElementById('etlTx');
+    const byX = recs.slice();
+    let idle = true, idleT = null, ci = 0;
+
+    function show(r, pct){
+      const when = r.when.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) +
+        ', ' + r.when.toLocaleTimeString('en-IN', { hour:'numeric', minute:'2-digit' });
+      yrEl.textContent = r.by + '   \u00b7   ' + when;
+      txEl.textContent = r.msg ? ('\u201c' + (r.msg.length > 80 ? r.msg.slice(0,80) + '\u2026' : r.msg) + '\u201d') : (r.by + ' ' + r.kind);
+      face.style.background = r.color;
+      face.querySelector('span').textContent = (r.by || '?').trim().charAt(0).toUpperCase();
+      face.classList.add('on');
+      if (typeof pct === 'number') face.style.left = pct + '%';
+    }
+    function nearest(px){
+      let best = byX[0], bd = Infinity;
+      byX.forEach(r=>{ const d = Math.abs(xOf(r) - px); if (d < bd){ bd = d; best = r; } });
+      return best;
+    }
+    function at(clientX){
+      const bb = track.getBoundingClientRect();
+      const pct = Math.max(0, Math.min(1, (clientX - bb.left) / bb.width));
+      marker.style.left = (pct * 100) + '%';
+      show(nearest(pct * W), pct * 100);
+    }
+    track.onpointerdown = e=>{ try{ track.setPointerCapture(e.pointerId); }catch(err){} track.classList.add('live'); idle = false; at(e.clientX); };
+    track.onpointermove = e=>{
+      if (e.pointerType === 'mouse' && e.buttons === 0){ idle = false; at(e.clientX); return; }
+      if (track.hasPointerCapture && track.hasPointerCapture(e.pointerId)) at(e.clientX);
+    };
+    track.onpointerup = ()=>{ track.classList.remove('live'); clearTimeout(idleT); idleT = setTimeout(()=>{ idle = true; }, 2400); };
+    track.onpointerleave = ()=>{ clearTimeout(idleT); idleT = setTimeout(()=>{ idle = true; }, 1200); };
+
+    // gentle idle drift through the arrivals
+    show(recs[0], xOf(recs[0]) / W * 100);
+    marker.style.left = (xOf(recs[0]) / W * 100) + '%';
+    clearInterval(window.__etlDrift);
+    window.__etlDrift = setInterval(()=>{
+      if (!idle || currentScreenName !== 'event-page') return;
+      ci = (ci + 1) % recs.length;
+      const r = recs[ci], pct = xOf(r) / W * 100;
+      txEl.style.opacity = 0;
+      setTimeout(()=>{ show(r, pct); marker.style.left = pct + '%'; txEl.style.opacity = 1; }, 170);
+    }, 3600);
   }
 
   function renderEventFeed(){
@@ -13790,80 +14270,65 @@
         + 'Once your book has a few entries, photos or diary pages, they will show up here as one index you can run down.</div>';
       return;
     }
-    const H = 440;
+    // newest -> oldest. Lay them left (oldest) to right (newest) on a slim strip.
     const newest = recs[0].when.getTime();
     const oldest = recs[recs.length-1].when.getTime();
     const spread = Math.max(1, newest - oldest);
-    const yOf = r => 2 + ((newest - r.when.getTime()) / spread) * (H - 6);
+    const W = 1000;
+    const xOf = r => 4 + ((r.when.getTime() - oldest) / spread) * (W - 8);
 
     host.innerHTML =
-      '<div class="vr">'
-      + '<div class="vr-read">'
-      +   '<div class="vr-read-yr" id="vrYr"></div>'
-      +   '<div class="vr-read-tx" id="vrTx">Run down the index to read your book</div>'
-      +   '<div class="vr-read-sr" id="vrSr"></div>'
-      +   '<div class="vr-read-key">'
-      +     '<span><i class="k-quiet"></i>An entry</span>'
-      +     '<span><i class="k-place"></i>Has a place</span>'
-      +     '<span><i class="k-event"></i>Event</span>'
-      +     '<span><i class="k-diary"></i>Diary page</span>'
-      +     '<span><i class="k-voice"></i>Voiceprint</span>'
-      +   '</div>'
+      '<div class="rib">'
+      + '<div class="rib-read">'
+      +   '<div class="rib-read-yr" id="vrYr"></div>'
+      +   '<div class="rib-read-tx" id="vrTx">Run along the index to read your book</div>'
+      +   '<div class="rib-read-sr" id="vrSr"></div>'
       + '</div>'
-      + '<div class="vr-scale" id="vrScale"></div>'
-      + '<div class="vr-spine">'
-      +   '<div class="vr-cap">' + recs[0].when.getFullYear() + '</div>'
-      +   '<div class="vr-trackwrap">'
-      +     '<div class="vr-track" id="vrTrack"><svg id="vrSvg" viewBox="0 0 100 440" preserveAspectRatio="none"></svg></div>'
-      +     '<div class="vr-marker" id="vrMarker"></div>'
-      +     '<div class="vr-face" id="vrFace"><span></span></div>'
-      +   '</div>'
-      +   '<div class="vr-cap">' + recs[recs.length-1].when.getFullYear() + '</div>'
+      + '<div class="rib-strip" id="vrTrack">'
+      +   '<svg id="vrSvg" viewBox="0 0 1000 44" preserveAspectRatio="none"></svg>'
+      +   '<div class="rib-marker" id="vrMarker"></div>'
+      +   '<div class="rib-face" id="vrFace"><span></span></div>'
+      + '</div>'
+      + '<div class="rib-axis"><span id="ribYearL"></span><span id="ribYearR"></span></div>'
+      + '<div class="rib-key">'
+      +   '<span><i class="k-quiet"></i>Entry</span>'
+      +   '<span><i class="k-place"></i>Place</span>'
+      +   '<span><i class="k-event"></i>Event</span>'
+      +   '<span><i class="k-diary"></i>Diary</span>'
+      +   '<span><i class="k-voice"></i>Voiceprint</span>'
       + '</div>'
       + '</div>';
 
-    // bars: full width, thickness carries the weight
+    // bars: vertical ticks, thickness carries the weight
     const svg = document.getElementById('vrSvg');
     const frag = document.createDocumentFragment();
     recs.forEach(r=>{
       const special = r.voice || r.t === 'event' || r.t === 'diary';
-      const h = r.voice ? 2.4 : (r.t === 'event' || r.t === 'diary') ? 1.7 : r.photos ? 1.15 : 0.55;
+      const w = r.voice ? 3.0 : (r.t === 'event' || r.t === 'diary') ? 2.1 : r.photos ? 1.4 : 0.7;
       const fill = r.voice ? LB_COL.voice
         : r.t === 'event' ? LB_COL.event
         : r.t === 'diary' ? LB_COL.diary
         : r.t === 'place' ? LB_COL.place
         : LB_COL.quiet;
       const el = document.createElementNS('http://www.w3.org/2000/svg','rect');
-      el.setAttribute('x','0'); el.setAttribute('y', yOf(r).toFixed(2));
-      el.setAttribute('width','100'); el.setAttribute('height', h.toFixed(2));
+      el.setAttribute('x', (xOf(r) - w/2).toFixed(2)); el.setAttribute('y','0');
+      el.setAttribute('width', w.toFixed(2)); el.setAttribute('height','44');
       el.setAttribute('fill', fill);
-      el.style.opacity = special ? 0.92 : 0.82;
+      el.style.opacity = special ? 0.92 : 0.8;
       frag.appendChild(el);
     });
     svg.appendChild(frag);
 
-    // year scale
-    const scale = document.getElementById('vrScale');
-    const yStart = recs[recs.length-1].when.getFullYear(), yEnd = recs[0].when.getFullYear();
-    const seen = {};
-    for (let y = yEnd; y >= yStart; y--){
-      const step = Math.max(1, Math.round((yEnd - yStart + 1) / 4));
-      if ((yEnd - y) % step !== 0 || seen[y]) continue;
-      seen[y] = 1;
-      const at = new Date(y, 6, 1).getTime();
-      const pct = ((newest - at) / spread) * 100;
-      if (pct < -2 || pct > 102) continue;
-      const el = document.createElement('span');
-      el.textContent = y; el.style.top = Math.max(0, Math.min(100, pct)) + '%';
-      scale.appendChild(el);
-    }
+    // year captions at the two ends
+    document.getElementById('ribYearL').textContent = recs[recs.length-1].when.getFullYear();
+    document.getElementById('ribYearR').textContent = recs[0].when.getFullYear();
 
     // reading + the face that rides with you
     const picks = lbPicks(recs);
     const track = document.getElementById('vrTrack'), marker = document.getElementById('vrMarker');
     const face = document.getElementById('vrFace');
     const yrEl = document.getElementById('vrYr'), txEl = document.getElementById('vrTx'), srEl = document.getElementById('vrSr');
-    const byY = recs.slice().sort((a,b)=> yOf(a) - yOf(b));
+    const byX = recs.slice().sort((a,b)=> xOf(a) - xOf(b));
     let idle = true, idleT = null, ci = 0;
 
     function show(r, pct, why){
@@ -13874,34 +14339,31 @@
       if (r.by){
         face.style.background = r.t === 'person' ? LB_COL.quiet : LB_COL.place;
         face.querySelector('span').textContent = lbInitial(r.by);
-        let cap = face.querySelector('i.cap');
-        if (!cap){ cap = document.createElement('i'); cap.className = 'cap'; face.appendChild(cap); }
-        cap.textContent = r.by;
         face.classList.add('on');
       } else {
         face.classList.remove('on');
       }
-      if (typeof pct === 'number') face.style.top = pct + '%';
+      if (typeof pct === 'number') face.style.left = pct + '%';
     }
-    function nearest(py){
-      let lo = 0, hi = byY.length - 1;
-      while (lo < hi){ const mid = (lo + hi) >> 1; if (yOf(byY[mid]) < py) lo = mid + 1; else hi = mid; }
-      const a = byY[Math.max(0, lo-1)], b = byY[lo];
-      return Math.abs(yOf(a) - py) < Math.abs(yOf(b) - py) ? a : b;
+    function nearest(px){
+      let lo = 0, hi = byX.length - 1;
+      while (lo < hi){ const mid = (lo + hi) >> 1; if (xOf(byX[mid]) < px) lo = mid + 1; else hi = mid; }
+      const a = byX[Math.max(0, lo-1)], b = byX[lo];
+      return Math.abs(xOf(a) - px) < Math.abs(xOf(b) - px) ? a : b;
     }
-    function at(clientY){
+    function at(clientX){
       const bb = track.getBoundingClientRect();
-      const pct = Math.max(0, Math.min(1, (clientY - bb.top) / bb.height));
-      marker.style.top = (pct * 100) + '%';
-      show(nearest(pct * H), pct * 100);
+      const pct = Math.max(0, Math.min(1, (clientX - bb.left) / bb.width));
+      marker.style.left = (pct * 100) + '%';
+      show(nearest(pct * W), pct * 100);
     }
     track.addEventListener('pointerdown', e=>{
       try{ track.setPointerCapture(e.pointerId); }catch(err){}
-      track.classList.add('live'); idle = false; at(e.clientY);
+      track.classList.add('live'); idle = false; at(e.clientX);
     });
     track.addEventListener('pointermove', e=>{
-      if (e.pointerType === 'mouse' && e.buttons === 0){ idle = false; at(e.clientY); return; }
-      if (track.hasPointerCapture && track.hasPointerCapture(e.pointerId)) at(e.clientY);
+      if (e.pointerType === 'mouse' && e.buttons === 0){ idle = false; at(e.clientX); return; }
+      if (track.hasPointerCapture && track.hasPointerCapture(e.pointerId)) at(e.clientX);
     });
     track.addEventListener('pointerup', ()=>{
       track.classList.remove('live');
@@ -13912,15 +14374,15 @@
     });
 
     if (picks.length){
-      show(picks[0].r, yOf(picks[0].r) / H * 100, picks[0].why);
-      marker.style.top = (yOf(picks[0].r) / H * 100) + '%';
+      show(picks[0].r, xOf(picks[0].r) / W * 100, picks[0].why);
+      marker.style.left = (xOf(picks[0].r) / W * 100) + '%';
       clearInterval(window.__lbDrift);
       window.__lbDrift = setInterval(()=>{
         if (!idle || currentScreenName !== 'ribbon') return;
         ci = (ci + 1) % picks.length;
-        const p = picks[ci], pct = yOf(p.r) / H * 100;
+        const p = picks[ci], pct = xOf(p.r) / W * 100;
         txEl.style.opacity = 0;
-        setTimeout(()=>{ show(p.r, pct, p.why); marker.style.top = pct + '%'; txEl.style.opacity = 1; }, 170);
+        setTimeout(()=>{ show(p.r, pct, p.why); marker.style.left = pct + '%'; txEl.style.opacity = 1; }, 170);
       }, 3800);
     }
   }
