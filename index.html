@@ -97,8 +97,25 @@
   
   .event-form-group { margin-bottom: 20px; }
   .event-form-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+  .event-form-group label .hint { font-weight: 400; color: var(--ink-soft); font-size: 12px; }
   .event-form-group input, .event-form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 10px; font-family: inherit; font-size: 14px; }
   .event-form-group textarea { min-height: 80px; resize: vertical; }
+  .two-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 480px) { .two-field-row { grid-template-columns: 1fr; } }
+
+  .ev-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 22px; }
+  .ev-type-card { text-align: left; border: 1px solid var(--line); border-radius: 12px; padding: 12px 13px; background: var(--page); cursor: pointer; font-family: inherit; display: flex; flex-direction: column; gap: 2px; }
+  .ev-type-card:hover { border-color: var(--ink-soft); }
+  .ev-type-card.sel { border: 2px solid var(--moss); background: var(--oat); }
+  .ev-type-card .etc-ic { width: 20px; height: 20px; color: var(--camel); margin-bottom: 4px; display: inline-block; }
+  .ev-type-card .etc-ic svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .ev-type-card b { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+  .ev-type-card span { font-size: 11.5px; color: var(--ink-soft); line-height: 1.4; }
+
+  .ev-feat-row { display: flex; flex-wrap: wrap; gap: 7px; margin: 4px 0 18px; }
+  .ev-feat-chip { display: inline-flex; align-items: center; gap: 5px; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--page); color: var(--ink-soft); font-size: 12.5px; cursor: pointer; user-select: none; }
+  .ev-feat-chip svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .ev-feat-chip.on { background: var(--moss); color: #fff; border-color: var(--moss); }
   .event-invitees { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
   .event-invitee-tag { background: var(--oat); color: var(--ink); padding: 6px 12px; border-radius: 999px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
   .event-invitee-tag button { background: none; border: none; color: var(--camel); cursor: pointer; font-size: 14px; padding: 0; }
@@ -1625,9 +1642,225 @@
   #screen-waypoints .wpts-match-grid .mg-place.has{background:rgba(255,255,255,.94); color:var(--ink);}
   #screen-waypoints .wpts-match-grid .mg-place.none{background:var(--camel); color:#fff;}
   #screen-waypoints .wpts-match-grid .mg-place.none:hover{background:#8B5F3E;}
+
+  /* ============================================================
+     LOOK BACK — Life Ribbon · Constellation · Voiceprints
+     ============================================================ */
+  .lb-wrap{max-width:900px; margin:0 auto; padding:0 24px 70px;}
+  .lb-head{padding:26px 0 6px;}
+  .lb-crumb{font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--camel); font-weight:700;}
+  .lb-h1{font-family:"Fraunces",serif; font-weight:500; font-size:30px; margin:8px 0 7px; letter-spacing:-.01em;}
+  .lb-lede{color:var(--ink-soft); font-size:14.5px; line-height:1.55; max-width:600px; margin:0 0 26px;}
+  .lb-empty{
+    background:var(--card); border:1px solid var(--line); border-radius:14px; padding:34px 30px;
+    text-align:center; color:var(--ink-soft); font-size:14px; line-height:1.6;
+  }
+  .lb-empty b{display:block; color:var(--ink); font-family:"Fraunces",serif; font-size:19px; font-weight:500; margin-bottom:8px;}
+
+  /* ---- Life Ribbon: index on the right, reading on the left ---- */
+  .vr{
+    --tr-bg:#F4EFE4; --tr-bd:#E2D9C7; --q:#3A342A;
+    --a-place:#7C8F5C; --a-event:#BE7B62; --a-diary:#4A5468; --a-voice:#B0561C; --a-mark:#241F17;
+    display:flex; align-items:stretch; flex-wrap:nowrap;
+    max-width:820px; margin:0 auto; padding:6px 0 2px; position:relative;
+  }
+  .vr-read{flex:1 1 auto; min-width:0; margin:30px 44px 30px 0; display:flex; flex-direction:column; justify-content:center;}
+  .vr-read-yr{font-size:10px; letter-spacing:.18em; color:#B8B1A3; font-weight:700;}
+  .vr-read-tx{
+    font-family:"Fraunces",serif; font-size:27px; font-weight:400; line-height:1.26;
+    margin:13px 0; max-width:440px; letter-spacing:-.012em; transition:opacity .18s; min-height:70px;
+  }
+  .vr-read-sr{font-size:11px; color:var(--ink-soft); opacity:.75;}
+  .vr-read-key{
+    display:flex; gap:16px; flex-wrap:wrap; margin-top:34px; padding-top:18px;
+    border-top:1px solid var(--line); font-size:11px; color:var(--ink-soft);
+  }
+  .vr-read-key span{display:flex; align-items:center; gap:7px;}
+  .vr-read-key i{width:14px; height:2px; border-radius:1px; flex:none;}
+  .k-quiet{background:var(--q); opacity:.8;} .k-place{background:var(--a-place);}
+  .k-event{background:var(--a-event);} .k-diary{background:var(--a-diary);} .k-voice{background:var(--a-voice);}
+
+  .vr-scale{
+    flex:none; width:32px; position:relative; margin:30px 10px 30px 0;
+    font-size:9px; letter-spacing:.06em; color:var(--ink-soft); opacity:.6; font-weight:600; text-align:right;
+  }
+  .vr-scale span{position:absolute; right:0; transform:translateY(-50%); white-space:nowrap;}
+  .vr-spine{flex:none; width:124px; display:flex; flex-direction:column;}
+  .vr-trackwrap{flex:1; position:relative;}
+  .vr-cap{font-size:9px; letter-spacing:.16em; color:var(--ink-soft); opacity:.6; text-align:center; padding:7px 0; font-weight:700;}
+  .vr-track{
+    height:440px; position:relative; background:var(--tr-bg); border:1px solid var(--tr-bd);
+    border-radius:2px; overflow:hidden; cursor:crosshair; touch-action:none;
+  }
+  .vr-track svg{width:100%; height:100%; display:block;}
+  .vr-marker{
+    position:absolute; height:1px; background:var(--ink); top:0; left:-190px; right:0; z-index:2;
+    opacity:0; transition:opacity .14s; pointer-events:none;
+  }
+  .vr-marker::after{content:''; position:absolute; right:0; top:-2px; width:5px; height:5px; border-radius:50%; background:var(--ink);}
+  .vr-trackwrap:hover .vr-marker, .vr-track.live .vr-marker{opacity:.55;}
+  .vr-face{
+    position:absolute; right:calc(100% + 14px); top:0; width:30px; height:30px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; overflow:visible;
+    font-family:"Fraunces",serif; font-size:13px; color:#fff; background:var(--camel);
+    transform:translateY(-50%) scale(.6); opacity:0;
+    transition:top .18s cubic-bezier(.4,0,.2,1), opacity .18s, transform .18s;
+    box-shadow:0 0 0 3px var(--oat); pointer-events:none; z-index:3;
+  }
+  .vr-face.on{opacity:1; transform:translateY(-50%) scale(1);}
+  .vr-face img{width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;}
+  .vr-face i.cap{
+    position:absolute; right:calc(100% + 8px); top:50%; transform:translateY(-50%);
+    font-family:"Inter Tight",sans-serif; font-style:normal; font-size:11px; font-weight:600;
+    color:var(--ink-soft); white-space:nowrap; background:var(--oat); padding:2px 7px; border-radius:100px;
+  }
+  @media (max-width:760px){
+    .vr{max-width:none;}
+    .vr .vr-read{margin:14px 14px 14px 0;}
+    .vr .vr-read-tx{font-size:18px; min-height:56px;}
+    .vr .vr-read-key{gap:11px; margin-top:20px; padding-top:14px; font-size:10px;}
+    .vr .vr-scale{width:22px; margin:14px 6px 14px 0;}
+    .vr .vr-spine{width:62px;}
+    .vr .vr-track{height:360px;}
+    .vr .vr-marker{left:-140px;}
+    .vr-face{width:26px; height:26px; font-size:12px; right:calc(100% + 9px);}
+    .vr-face i.cap{display:none;}
+  }
+
+  /* ---- Constellation ---- */
+  .cn-panel{background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; position:relative;}
+  .cn-bar{display:flex; gap:8px; padding:14px 18px; border-bottom:1px solid var(--line); flex-wrap:wrap;}
+  .cn-chip{
+    border:1px solid var(--line); background:var(--oat); color:var(--ink-soft); font-family:inherit;
+    font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:100px; cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+  }
+  .cn-chip .d{width:7px; height:7px; border-radius:50%;}
+  .cn-chip.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+  #cnCanvas{width:100%; height:430px; display:block; cursor:grab;}
+  .cn-side{
+    position:absolute; top:0; right:0; height:100%; width:250px; background:var(--card);
+    border-left:1px solid var(--line); padding:20px; transform:translateX(100%);
+    transition:transform .26s; overflow-y:auto; z-index:4;
+  }
+  .cn-side.open{transform:translateX(0);}
+  .cn-side .x{position:absolute; top:12px; right:12px; border:none; background:none; font-size:17px; color:var(--ink-soft); cursor:pointer;}
+  .cn-side .kd{font-size:11px; letter-spacing:.07em; text-transform:uppercase; color:var(--camel); font-weight:700;}
+  .cn-side h4{font-family:"Fraunces",serif; font-size:19px; margin:5px 0 0; font-weight:500;}
+  .cn-mem{margin-top:11px; padding:11px 12px; background:var(--oat); border-radius:9px; font-size:12.5px; line-height:1.45;}
+  .cn-mem .w{color:var(--ink-soft); font-size:10.5px; margin-top:4px;}
+  @media (max-width:760px){ .cn-side{width:200px;} #cnCanvas{height:360px;} }
+
+  /* ---- Voiceprint ---- */
+  .vp-list{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px;}
+  .vp-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px 22px;}
+  .vp-card .who{font-family:"Caveat",cursive; font-size:24px; color:var(--camel); font-weight:700;}
+  .vp-card .msg{font-family:"Caveat",cursive; font-size:20px; line-height:1.4; margin:5px 0 14px;}
+  .vp-tag{font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); font-weight:700; margin-bottom:7px; display:flex; align-items:center; gap:6px;}
+  .vp-tag i{width:5px; height:5px; border-radius:50%; background:var(--blush);}
+  .vprint{display:flex; align-items:center; gap:11px; background:#0B0B0A; border-radius:10px; padding:9px 14px 9px 9px;}
+  .vp-btn{width:34px; height:34px; border-radius:50%; background:#fff; border:none; flex:none; display:flex; align-items:center; justify-content:center; color:#0B0B0A; cursor:pointer;}
+  .vp-btn svg{width:12px; height:12px;}
+  .vp-wave{flex:1; height:32px; cursor:pointer;}
+  .vp-wave svg{width:100%; height:100%; display:block;}
+  .vp-dur{font-size:11px; color:#C9C6BC; font-variant-numeric:tabular-nums; width:30px; flex:none;}
+
+  /* ============ LEFT ICON RAIL (signed-in only) ============ */
+  :root{ --rail-w:60px; --rail-w-open:212px; }
+  #elRail{
+    position:fixed; left:0; top:0; height:100vh; width:var(--rail-w);
+    background:#FBFAF8; border-right:1px solid var(--line); z-index:60;
+    display:none; flex-direction:column; padding:14px 0 12px;
+    transition:width .22s cubic-bezier(.4,0,.2,1); overflow:hidden;
+  }
+  body.has-rail #elRail{ display:flex; }
+  #elRail.open{ width:var(--rail-w-open); box-shadow:0 0 40px -10px rgba(46,42,34,.18); }
+  .elr-top{display:flex; align-items:center; gap:10px; padding:0 18px 18px; height:34px;}
+  .elr-mark{width:22px; height:22px; border-radius:6px; background:var(--ink); flex:none; position:relative;}
+  .elr-mark::after{content:''; position:absolute; inset:6px; border:1.5px solid var(--oat); border-radius:50%;}
+  .elr-word{font-weight:700; font-size:15px; letter-spacing:-.01em; white-space:nowrap; opacity:0; transition:opacity .16s; margin-left:-2px;}
+  #elRail.open .elr-word{opacity:1;}
+  .elr-group{padding:6px 10px 0;}
+  .elr-group-label{font-size:10px; letter-spacing:.13em; text-transform:uppercase; color:#A9A499; padding:16px 8px 7px; white-space:nowrap; opacity:0; transition:opacity .16s; font-weight:700;}
+  #elRail.open .elr-group-label{opacity:1;}
+  .elr-divider{height:1px; background:var(--line); margin:12px 14px;}
+  .elr-item{display:flex; align-items:center; gap:12px; width:100%; padding:9px 10px; margin-bottom:2px; border:none; background:none; border-radius:9px; cursor:pointer; color:var(--ink-soft); font-family:inherit; font-size:13.5px; font-weight:500; text-align:left; white-space:nowrap; transition:background .13s, color .13s;}
+  .elr-item:hover{background:var(--oat-deep); color:var(--ink);}
+  .elr-item.active{background:var(--ink); color:#fff;}
+  .elr-item.active .elr-glyph{color:#fff;}
+  .elr-glyph{width:20px; height:20px; flex:none; display:flex; align-items:center; justify-content:center; color:var(--ink-soft);}
+  .elr-glyph svg{width:17px; height:17px;}
+  .elr-item:hover .elr-glyph{color:var(--ink);}
+  .elr-label{opacity:0; transition:opacity .16s;}
+  #elRail.open .elr-label{opacity:1;}
+  .elr-tag{margin-left:auto; font-size:9.5px; font-weight:700; letter-spacing:.06em; color:var(--camel); background:rgba(169,118,79,.12); padding:2px 6px; border-radius:4px; opacity:0; transition:opacity .16s;}
+  #elRail.open .elr-tag{opacity:1;}
+  .elr-item.active .elr-tag{color:#F0D8C4; background:rgba(255,255,255,.14);}
+  .elr-foot{margin-top:auto; padding:0 10px;}
+  .elr-toggle{display:flex; align-items:center; gap:12px; width:100%; padding:9px 10px; border:none; background:none; cursor:pointer; border-radius:9px; color:#A9A499; font-family:inherit; font-size:13px;}
+  .elr-toggle:hover{background:var(--oat-deep); color:var(--ink-soft);}
+  /* push app content right to make room for the collapsed rail */
+  body.has-rail{ padding-left:var(--rail-w); }
+  body.has-rail .nav{ transition:none; }
+  /* on small screens, hide the rail entirely — the app's own nav takes over */
+  @media (max-width:760px){
+    body.has-rail{ padding-left:0; }
+    body.has-rail #elRail{ display:none; }
+  }
+
 </style>
 </head>
 <body>
+<!-- ============ LEFT ICON RAIL (signed-in) ============ -->
+<nav id="elRail" aria-label="Look back">
+  <div class="elr-top">
+    <div class="elr-mark"></div>
+    <span class="elr-word">EarthLive</span>
+  </div>
+
+  <div class="elr-group">
+    <button class="elr-item" data-rail="book" onclick="railGo('book')">
+      <span class="elr-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A1.5 1.5 0 015.5 3H19v18H5.5A1.5 1.5 0 014 19.5z"/><path d="M8 3v18"/></svg></span>
+      <span class="elr-label">My book</span>
+    </button>
+    <button class="elr-item" data-rail="diary" onclick="railGo('diary')">
+      <span class="elr-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></span>
+      <span class="elr-label">Diary</span>
+    </button>
+    <button class="elr-item" data-rail="waypoints" onclick="railGo('waypoints')">
+      <span class="elr-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg></span>
+      <span class="elr-label">Waypoints</span>
+    </button>
+  </div>
+
+  <div class="elr-divider"></div>
+  <div class="elr-group">
+    <div class="elr-group-label">Ways to look back</div>
+    <button class="elr-item" data-rail="ribbon" onclick="railGo('ribbon')">
+      <span class="elr-glyph"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="5" r="1.5"/><circle cx="12" cy="5" r="1"/><circle cx="18" cy="5" r="1.5"/><circle cx="6" cy="10" r="1"/><circle cx="12" cy="10" r="2"/><circle cx="18" cy="10" r="1"/><circle cx="6" cy="15" r="1.8"/><circle cx="12" cy="15" r="1"/><circle cx="18" cy="15" r="1.3"/><circle cx="6" cy="20" r="1"/><circle cx="12" cy="20" r="1.4"/><circle cx="18" cy="20" r="1"/></svg></span>
+      <span class="elr-label">Life Ribbon</span>
+      
+    </button>
+    <button class="elr-item" data-rail="constellation" onclick="railGo('constellation')">
+      <span class="elr-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.6"/><circle cx="5" cy="6" r="1.6"/><circle cx="19" cy="7" r="1.6"/><circle cx="6" cy="18" r="1.6"/><circle cx="18" cy="17" r="1.6"/><path d="M10.2 10.5L6.3 7.2M13.9 10.9l3.6-2.5M10.3 13.6l-3.1 3.1M13.8 13.4l3 2.6"/></svg></span>
+      <span class="elr-label">Constellation</span>
+      
+    </button>
+    <button class="elr-item" data-rail="voiceprints" onclick="railGo('voiceprints')">
+      <span class="elr-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 11v2M8 7.5v9M12 4.5v15M16 8.5v7M20 10.5v3"/></svg></span>
+      <span class="elr-label">Voiceprints</span>
+      
+    </button>
+  </div>
+
+  <div class="elr-foot">
+    <button class="elr-toggle" id="elrToggle" onclick="railToggle()">
+      <span class="elr-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></span>
+      <span class="elr-label">Collapse</span>
+    </button>
+  </div>
+</nav>
+
 <div class="cursor" id="C"></div>
 <div class="cursor-ring" id="CR"></div>
 <noscript>
@@ -2480,29 +2713,92 @@
 <section class="screen" id="screen-create-event">
   <div class="wrap">
     <div class="center-wrap" style="padding-top:40px;">
-      <div class="form-card" style="max-width:520px;">
+      <div class="form-card" style="max-width:560px;">
         <div class="form-eyebrow">New event</div>
-        <h2>Create an event page</h2>
+        <h2>What kind of event is this?</h2>
+        <p style="font-size:13px; color:var(--ink-soft); margin:-14px 0 18px; line-height:1.5;">Pick a type — the form adapts to what actually matters for your occasion.</p>
+
+        <div class="ev-type-grid" id="evTypeGrid">
+          <button type="button" class="ev-type-card sel" data-type="farewell" onclick="evPickType(this)">
+            <span class="etc-ic"><svg viewBox="0 0 24 24"><path d="M3 21h18M6 21V9l7-5 7 5v12M10 21v-6h4v6"/></svg></span>
+            <b>Farewell</b><span>Leaving a job, city, or batch</span>
+          </button>
+          <button type="button" class="ev-type-card" data-type="convocation" onclick="evPickType(this)">
+            <span class="etc-ic"><svg viewBox="0 0 24 24"><path d="M12 3L2 8l10 5 10-5-10-5z"/><path d="M6 10.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-5.5"/></svg></span>
+            <b>Convocation</b><span>Graduation or batch passing out</span>
+          </button>
+          <button type="button" class="ev-type-card" data-type="birthday" onclick="evPickType(this)">
+            <span class="etc-ic"><svg viewBox="0 0 24 24"><path d="M4 21h16M5 21v-7a2 2 0 012-2h10a2 2 0 012 2v7M9 12V7M15 12V7M12 12V4"/><circle cx="12" cy="3" r="1"/></svg></span>
+            <b>Birthday</b><span>Milestone birthdays, surprise parties</span>
+          </button>
+          <button type="button" class="ev-type-card" data-type="wedding" onclick="evPickType(this)">
+            <span class="etc-ic"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/></svg></span>
+            <b>Wedding</b><span>Weddings, receptions, engagements</span>
+          </button>
+          <button type="button" class="ev-type-card" data-type="reunion" onclick="evPickType(this)">
+            <span class="etc-ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0112 0M16 5.5a3.2 3.2 0 010 6M17.5 20a6 6 0 00-2-4.4"/></svg></span>
+            <b>Reunion</b><span>College, school, or work reunion</span>
+          </button>
+          <button type="button" class="ev-type-card" data-type="feast" onclick="evPickType(this)">
+            <span class="etc-ic"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4z"/><path d="M6 1v3M10 1v3M14 1v3"/></svg></span>
+            <b>Feast / party</b><span>Festivals, dinners, celebrations</span>
+          </button>
+          <button type="button" class="ev-type-card" data-type="others" onclick="evPickType(this)">
+            <span class="etc-ic"><svg viewBox="0 0 24 24"><path d="M12 3l1.6 4.8L18 9l-4.4 1.2L12 15l-1.6-4.8L6 9l4.4-1.2z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg></span>
+            <b>Others</b><span>Name your own occasion</span>
+          </button>
+        </div>
+
         <form id="createEventForm" onsubmit="createEventPage(event)">
-          
-          <div class="event-form-group">
-            <label>Event name</label>
-            <input type="text" id="eventName" placeholder="e.g., College Reunion 2026" maxlength="100" required>
+
+          <div class="event-form-group" id="evCustomTitleGroup" style="display:none;">
+            <label>What's the occasion called?</label>
+            <input type="text" id="eventCustomTitle" placeholder="e.g., Retirement send-off, House warming" maxlength="100">
           </div>
 
           <div class="event-form-group">
-            <label>Event date</label>
-            <input type="date" id="eventDate">
+            <label id="eventNameLabel">Farewell for</label>
+            <input type="text" id="eventName" placeholder="e.g., Ravi Shankar" maxlength="100" required>
+          </div>
+
+          <div class="two-field-row">
+            <div class="event-form-group">
+              <label>Event date</label>
+              <input type="date" id="eventDate">
+            </div>
+            <div class="event-form-group">
+              <label id="eventTimeLabel">Time</label>
+              <input type="time" id="eventTime">
+            </div>
           </div>
 
           <div class="event-form-group">
-            <label>Location</label>
+            <label>Venue / location</label>
             <input type="text" id="eventLocation" placeholder="e.g., Bengaluru, India" maxlength="100">
           </div>
 
+          <div class="event-form-group" id="evOrgGroup">
+            <label id="eventOrgLabel">Organisation / batch</label>
+            <input type="text" id="eventOrg" placeholder="e.g., Google India, 2019 cohort" maxlength="100">
+          </div>
+
+          <div class="event-form-group" id="evHonoreeGroup" style="display:none;">
+            <label id="eventHonoreeLabel">Who is it for?</label>
+            <input type="text" id="eventHonoree" placeholder="e.g., Priya and Arjun" maxlength="100">
+          </div>
+
           <div class="event-form-group">
-            <label>Description</label>
-            <textarea id="eventDescription" placeholder="Tell people what this event is about..." maxlength="500"></textarea>
+            <label>A note about the occasion <span class="hint">optional</span></label>
+            <textarea id="eventDescription" placeholder="Share a bit about the person or the event..." maxlength="500"></textarea>
+          </div>
+
+          <div class="ev-feat-row" id="evFeatRow">
+            <span class="ev-feat-chip on" data-feat="wall" onclick="evToggleFeat(this)"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 10-4-4L4 16z"/></svg> Share memories</span>
+            <span class="ev-feat-chip on" data-feat="photos" onclick="evToggleFeat(this)"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg> Add photos</span>
+            <span class="ev-feat-chip on" data-feat="map" onclick="evToggleFeat(this)"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Memory map</span>
+            <span class="ev-feat-chip" data-feat="rsvp" id="evFeatRsvp" onclick="evToggleFeat(this)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="M8 14l2 2 4-4"/></svg> RSVP</span>
+            <span class="ev-feat-chip" data-feat="tribute" id="evFeatTribute" onclick="evToggleFeat(this)"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 01-8 8H7l-4 3v-6a8 8 0 018-8h2a8 8 0 018 3z"/></svg> Write about someone</span>
+            <span class="ev-feat-chip" data-feat="wishes" onclick="evToggleFeat(this)"><svg viewBox="0 0 24 24"><path d="M12 2l2.6 6.9 7.4.6-5.6 4.8 1.8 7.2L12 17.6 5.8 21.5l1.8-7.2L2 9.5l7.4-.6z"/></svg> Wishes wall</span>
           </div>
 
           <p style="font-size:12.5px; color:var(--ink-soft); line-height:1.6; margin:0 0 6px;">You'll invite people on the next screen — with a link, a QR code, and search.</p>
@@ -3282,6 +3578,40 @@
     <div class="wpts-match-strip" id="wptsMatchStrip"></div>
 
     <button class="link-quiet" onclick="showScreen(currentUser ? 'dashboard' : 'landing')">← Back</button>
+  </div>
+</section>
+
+
+<section class="screen" id="screen-ribbon">
+  <div class="lb-wrap">
+    <div class="lb-head">
+      <div class="lb-crumb">Ways to look back</div>
+      <h1 class="lb-h1">Life Ribbon</h1>
+      <p class="lb-lede">An index to your whole book, newest at the top. Every bar is a record you already have. Run down it and the reading follows you.</p>
+    </div>
+    <div id="ribbonBody"></div>
+  </div>
+</section>
+
+<section class="screen" id="screen-constellation">
+  <div class="lb-wrap">
+    <div class="lb-head">
+      <div class="lb-crumb">Ways to look back</div>
+      <h1 class="lb-h1">Constellation</h1>
+      <p class="lb-lede">The same records arranged by who and what instead of when. You sit at the centre; the people who show up most often orbit closest.</p>
+    </div>
+    <div id="constellationBody"></div>
+  </div>
+</section>
+
+<section class="screen" id="screen-voiceprints">
+  <div class="lb-wrap">
+    <div class="lb-head">
+      <div class="lb-crumb">Ways to look back</div>
+      <h1 class="lb-h1">Voiceprints</h1>
+      <p class="lb-lede">Every voice recording left in your book, in one place. Never a plain audio player — always the barcode, so a voice is recognisable as an EarthLive object anywhere it appears.</p>
+    </div>
+    <div id="voiceprintsBody"></div>
   </div>
 </section>
 
@@ -4313,6 +4643,7 @@
       if (saved === 'feed'){ renderForYou(); showScreen('feed'); return; }
       if (saved === 'events'){ renderMyEvents(); showScreen('events'); return; }
       if (saved === 'waypoints'){ showScreen('waypoints'); wptsOpen(); return; }
+      if (saved === 'ribbon' || saved === 'constellation' || saved === 'voiceprints'){ openLookBack(saved); return; }
       if (saved === 'messages'){ openMessages(); return; }
       if (saved === 'account'){ openMyAccount(); return; }
       renderDashboard();
@@ -5251,6 +5582,8 @@
       likes: 0,
       likedByMe: false,
       comments: [],
+      voiceUrl: row.voice_url || null,
+      voiceSeconds: row.voice_seconds || null,
       rawDate: row.created_at,
       date: new Date(row.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
     };
@@ -7349,6 +7682,69 @@
   }
 
 
+  // Theme colours per event type — used on the designed event PDF cover
+  // and accents, so a wedding doesn't look like a farewell. Applies to
+  // every event type, including a custom "others" title.
+  const EVENT_THEME = {
+    farewell:    { rgb:[74,82,64],   label:'A   F A R E W E L L' },
+    convocation: { rgb:[60,74,94],   label:'A   C O N V O C A T I O N' },
+    birthday:    { rgb:[169,118,79], label:'A   B I R T H D A Y' },
+    wedding:     { rgb:[153,53,86],  label:'A   W E D D I N G' },
+    reunion:     { rgb:[74,82,64],   label:'A   R E U N I O N' },
+    feast:       { rgb:[133,79,11],  label:'A   C E L E B R A T I O N' },
+    others:      { rgb:[46,42,34],   label:'A N   O C C A S I O N' }
+  };
+  function evThemeFor(ev){
+    return EVENT_THEME[(ev && ev.event_type) || 'farewell'] || EVENT_THEME.farewell;
+  }
+
+  // Same tile-based world map as dzRenderOsmMap, but for event_entries rows
+  // (which store lat/lng directly, not nested under .city) and coloured by
+  // entry_type instead of book-ownership.
+  async function dzRenderEventMap(entries){
+    const pinned = (entries || []).filter(e => typeof e.lat === 'number' && typeof e.lng === 'number');
+    if (!pinned.length) return null;
+    const zoom = 2, tileSize = 256;
+    const minTX = 0, maxTX = 3, minTY = 1, maxTY = 2;
+    const cols = maxTX - minTX + 1, rows = maxTY - minTY + 1;
+    const canvas = document.createElement('canvas');
+    canvas.width = cols*tileSize; canvas.height = rows*tileSize;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#EDEEE9'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    if ('filter' in ctx) ctx.filter = 'brightness(1.08) contrast(0.92)';
+    const subs = ['a','b','c'];
+    let i = 0;
+    for (let ty = minTY; ty <= maxTY; ty++){
+      for (let tx = minTX; tx <= maxTX; tx++){
+        const s = subs[i++ % subs.length];
+        const url = 'https://' + s + '.tile.openstreetmap.org/' + zoom + '/' + tx + '/' + ty + '.png';
+        try{
+          const durl = await dzFetchImage(url);
+          if (durl){
+            const img = await new Promise(r=>{ const im=new Image(); im.onload=()=>r(im); im.onerror=()=>r(null); im.src=durl; });
+            if (img) ctx.drawImage(img, (tx-minTX)*tileSize, (ty-minTY)*tileSize);
+          }
+        }catch(e){ /* skip this tile */ }
+      }
+    }
+    if ('filter' in ctx) ctx.filter = 'none';
+    const originX = minTX*tileSize, originY = minTY*tileSize;
+    pinned.forEach(e=>{
+      const px = dzLonToWorldX(e.lng, zoom) - originX;
+      const py = dzLatToWorldY(e.lat, zoom) - originY;
+      if (px < -20 || px > canvas.width + 20 || py < -20 || py > canvas.height + 20) return;
+      const color = e.entry_type === 'about' ? '#A9764F' : '#57614A';
+      const halo = ctx.createRadialGradient(px, py, 0, px, py, 26);
+      halo.addColorStop(0, color + '3D'); halo.addColorStop(1, color + '00');
+      ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(px, py, 26, 0, 2*Math.PI); ctx.fill();
+      const s2 = 8;
+      ctx.fillStyle = color; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+      ctx.fillRect(px - s2/2, py - s2/2, s2, s2);
+      ctx.strokeRect(px - s2/2, py - s2/2, s2, s2);
+    });
+    return canvas.toDataURL('image/jpeg', 0.9);
+  }
+
   async function generateDesignedPdf(){
     closePrintModal();
     showToast('Launch offer: free right now \u2014 composing your designed book\u2026');
@@ -7732,60 +8128,185 @@
   }
 
   // --- DESIGNED 3. EVENT (A5 table card with QR) ---------------------------
+  // --- DESIGNED EVENT PDF (all event types: farewell, convocation,
+  // birthday, wedding, reunion, feast, and "others") ------------------------
+  // Structure: A4 cover -> stats page -> signature-seal wall/tribute pages
+  // -> memory map page -> closing A5-style keepsake with QR, all on one
+  // continuous A4 document so it prints and reads like a book.
   async function pdfEventDesigned(JsPDF){
     const ev = curEvent;
     if (!ev){ showToast('Open an event first'); return; }
+    const theme = evThemeFor(ev);
     const members = (curGuests || []).filter(g => g.status === 'joined');
-    const doc = new JsPDF({ orientation:'portrait', unit:'mm', format:'a5' }); // 148 x 210
+    const entries = (curEntries || []).filter(e => e.approved !== false);
+    const wallEntries = entries.filter(e => e.entry_type !== 'about');
+    const aboutEntries = entries.filter(e => e.entry_type === 'about');
+    const pinned = entries.filter(e => typeof e.lat === 'number' && typeof e.lng === 'number');
+    const cityNames = [...new Set(pinned.map(e => e.city).filter(Boolean))];
+    const photoCount = entries.reduce((n,e)=> n + ((e.photos && e.photos.length) || 0), 0);
 
-    doc.setFillColor(74,82,64); doc.rect(0,0,148,210,'F');
-    doc.setFillColor(56,64,48); doc.rect(0,150,148,60,'F');
+    const doc = pdfMakeDoc(JsPDF);
 
-    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(200,165,131);
-    doc.text("Y O U ' R E   P A R T   O F   T H I S", 74, 34, { align:'center' });
-    doc.setFont('times','normal'); doc.setFontSize(23); doc.setTextColor(255,255,255);
-    const nameLines = doc.splitTextToSize(pdfSafe(ev.name) || 'Our event', 120);
-    let ny = 48;
-    nameLines.forEach(ln=>{ doc.text(ln, 74, ny, { align:'center' }); ny += 10; });
-    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(222,226,216);
-    const meta = [
-      ev.event_date ? new Date(ev.event_date + 'T00:00:00').toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short', year:'numeric' }) : null,
-      pdfSafe(ev.location) || null
-    ].filter(Boolean).join('  \u00b7  ');
-    if (meta) doc.text(meta, 74, ny + 2, { align:'center' });
-    doc.setDrawColor(255,255,255); doc.setLineWidth(0.3); doc.line(64, ny + 9, 84, ny + 9);
-
-    let cy = ny + 20;
-    if (pdfSafe(ev.description)){
-      doc.setFont('times','italic'); doc.setFontSize(11); doc.setTextColor(238,240,234);
-      const descLines = doc.splitTextToSize('\u201c' + pdfSafe(ev.description) + '\u201d', 112);
-      descLines.slice(0,4).forEach(ln=>{ doc.text(ln, 74, cy, { align:'center' }); cy += 5.6; });
-      cy += 4;
+    // ---- Cover ----
+    let coverImgUrl = null;
+    if (ev.cover_url) coverImgUrl = await dzCoverFitImage(ev.cover_url, 210, 190, 4);
+    if (coverImgUrl){
+      try{
+        doc.addImage(coverImgUrl, 0, 0, 210, 190, undefined, 'FAST');
+        doc.setFillColor(theme.rgb[0],theme.rgb[1],theme.rgb[2]);
+        if (doc.setGState && doc.GState){
+          doc.setGState(new doc.GState({ opacity: 0.55 }));
+          doc.rect(0,0,210,190,'F');
+          doc.setGState(new doc.GState({ opacity: 1 }));
+        }
+      }catch(e){ doc.setFillColor(theme.rgb[0],theme.rgb[1],theme.rgb[2]); doc.rect(0,0,210,190,'F'); }
+    } else {
+      doc.setFillColor(theme.rgb[0],theme.rgb[1],theme.rgb[2]); doc.rect(0,0,210,190,'F');
     }
-    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(200,207,192);
-    doc.text(members.length + ' guest' + (members.length===1?'':'s') + ' joined \u00b7 hosted by ' + (pdfSafe(curHostName) || 'the host'), 74, cy, { align:'center' });
+    const darker = theme.rgb.map(c=>Math.max(0, Math.round(c*0.78)));
+    doc.setFillColor(darker[0],darker[1],darker[2]); doc.rect(0,190,210,107,'F');
 
-    // QR block
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(230,215,195);
+    doc.text(theme.label, 105, 96, { align:'center' });
+    doc.setFont('times','normal'); doc.setFontSize(30); doc.setTextColor(255,255,255);
+    const nameLines = doc.splitTextToSize(pdfSafe(ev.name) || 'Our event', 160);
+    let ny = 114;
+    nameLines.slice(0,2).forEach(ln=>{ doc.text(ln, 105, ny, { align:'center' }); ny += 11; });
+
+    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(222,222,214);
+    const metaBits = [
+      ev.event_date ? new Date(ev.event_date + 'T00:00:00').toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) : null,
+      ev.event_time || null,
+      pdfSafe(ev.location) || null,
+      pdfSafe(ev.organisation) || pdfSafe(ev.honoree) || null
+    ].filter(Boolean).join('  \u00b7  ');
+    if (metaBits) doc.text(metaBits, 105, ny + 3, { align:'center' });
+    doc.setDrawColor(255,255,255); doc.setLineWidth(0.3); doc.line(95, ny + 10, 115, ny + 10);
+
+    const stats = [
+      [String(members.length), 'GUESTS'],
+      [String(entries.length), 'MEMORIES'],
+      [String(photoCount), 'PHOTOS'],
+      [String(cityNames.length), 'CITIES']
+    ];
+    let sx = 45; const sw = 120 / (stats.length - 1);
+    stats.forEach(([n,l])=>{
+      doc.setFont('times','normal'); doc.setFontSize(18); doc.setTextColor(255,255,255);
+      doc.text(n, sx, ny + 26, { align:'center' });
+      doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(205,200,190);
+      doc.text(l, sx, ny + 32, { align:'center' });
+      sx += sw;
+    });
+
+    // ---- About this event / description page ----
+    if (pdfSafe(ev.description)){
+      doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...CAMEL_C);
+      doc.text('\u2014   A B O U T   T H I S   ' + (theme.label.replace(/\s+/g,' ').replace(/^A[N]?\s+/,'').trim()) + '   \u2014', 105, 30, { align:'center' });
+      doc.setFont('times','italic'); doc.setFontSize(13); doc.setTextColor(...INK_C);
+      let dy = pdfWrapText(doc, '\u201c' + pdfSafe(ev.description) + '\u201d', PDF_M + 12, 55, PDF_W - 24, 7, 13, 'italic', INK_C);
+      if (members.length){
+        dy += 10;
+        doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...SOFT_C);
+        doc.text(members.length + ' guest' + (members.length===1?'':'s') + ' joined \u00b7 hosted by ' + (pdfSafe(curHostName) || 'the host'), 105, dy, { align:'center' });
+      }
+    }
+
+    // ---- Wall / memories pages, each entry signed with its own ink seal ----
+    const newFeedPage = (label)=>{
+      doc.addPage();
+      doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...CAMEL_C);
+      doc.text(label, 105, 18, { align:'center' });
+      return 30;
+    };
+
+    const renderEntryList = async (list, pageLabel)=>{
+      if (!list.length) return;
+      let y = newFeedPage(pageLabel);
+      for (const en of list){
+        const nameLine = pdfSafe(en.author_name) || 'Someone';
+        const subjectLine = en.subject_member ? ('About ' + pdfSafe(en.subject_member)) : null;
+        const wordLine = en.one_word ? ('In one word: ' + pdfSafe(en.one_word)) : null;
+        doc.setFont('times','italic'); doc.setFontSize(12);
+        const msgLines = doc.splitTextToSize('\u201c' + pdfSafe(en.message) + '\u201d', PDF_W - 16);
+        const cityLine = en.city ? pdfSafe(en.city) : null;
+        const extraLines = 0 + (subjectLine?1:0) + (wordLine?1:0);
+        const h = 20 + msgLines.length * 5.4 + extraLines * 5.2 + (en.photos && en.photos.length ? 34 : 0) + 6;
+        if (y + h > 282) y = newFeedPage(pageLabel);
+
+        doc.setFillColor(255,255,255); doc.setDrawColor(232,228,218); doc.setLineWidth(0.35);
+        doc.roundedRect(PDF_M - 4, y - 7, PDF_W + 8, h, 3, 3, 'FD');
+        const pen = dzHexRgb(en.color);
+        doc.setFillColor(pen[0],pen[1],pen[2]); doc.circle(210 - PDF_M - 2, y - 1, 1.6, 'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(12.5); doc.setTextColor(...INK_C);
+        doc.text(nameLine, PDF_M, y);
+        const metaLine = [subjectLine, cityLine].filter(Boolean).join(' \u00b7 ');
+        if (metaLine){
+          doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...CAMEL_C);
+          doc.text(metaLine, PDF_M, y + 5);
+        }
+        let yy = y + 13;
+        if (wordLine){
+          doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...SOFT_C);
+          doc.text(wordLine, PDF_M, yy); yy += 5.5;
+        }
+        doc.setFont('times','italic'); doc.setFontSize(12); doc.setTextColor(58,54,44);
+        msgLines.forEach(ln=>{ doc.text(ln, PDF_M, yy); yy += 5.4; });
+        if (en.photos && en.photos.length){
+          let ix = PDF_M;
+          for (const u of en.photos.slice(0,2)){
+            const durl = await dzFetchImage(u).catch(()=>null);
+            if (durl){
+              try{ doc.addImage(durl, ix, yy + 2, 34, 28, undefined, 'FAST'); }catch(e){}
+            }
+            ix += 38;
+          }
+        }
+        y += h + 8;
+      }
+    };
+
+    if (wallEntries.length) await renderEntryList(wallEntries, '\u2014   S H A R E D   M E M O R I E S   \u2014');
+    if (aboutEntries.length) await renderEntryList(aboutEntries, '\u2014   W R I T T E N   F O R   S O M E O N E   \u2014');
+
+    // ---- Memory map ----
+    if (pinned.length){
+      doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...CAMEL_C);
+      doc.text('\u2014   M E M O R Y   M A P   \u2014', 105, 18, { align:'center' });
+      const mapImg = await dzRenderEventMap(pinned).catch(()=>null);
+      if (mapImg){
+        const mh = PDF_W * 0.6;
+        try{ doc.addImage(mapImg, 'JPEG', PDF_M, 30, PDF_W, mh, undefined, 'FAST'); }catch(e){}
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...SOFT_C);
+        doc.text(cityNames.length + ' cit' + (cityNames.length===1?'y':'ies') + ' \u00b7 ' + pinned.length + ' pinned memor' + (pinned.length===1?'y':'ies'), PDF_M, 30 + mh + 8);
+      }
+    }
+
+    // ---- Closing keepsake card: QR back to the live page ----
+    doc.addPage();
+    doc.setFillColor(theme.rgb[0],theme.rgb[1],theme.rgb[2]); doc.rect(0,0,210,297,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(225,210,195);
+    doc.text("T H I S   K E E P S A K E   K E E P S   G R O W I N G", 105, 110, { align:'center' });
+    doc.setFont('times','normal'); doc.setFontSize(16); doc.setTextColor(255,255,255);
+    doc.text('Scan to visit the living page', 105, 124, { align:'center' });
     let qrData = null;
     if (ev.slug){
       try { qrData = await dzMakeQr(eventUrl(ev.slug)); } catch(e){ qrData = null; }
     }
     if (qrData){
       doc.setFillColor(255,255,255);
-      doc.roundedRect(56, 158, 36, 36, 2.5, 2.5, 'F');
-      try { doc.addImage(qrData, 'PNG', 59, 161, 30, 30); } catch(e){}
-      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(222,226,216);
-      doc.text('Scan to open the event page', 74, 200, { align:'center' });
+      doc.roundedRect(85, 140, 40, 40, 2.5, 2.5, 'F');
+      try { doc.addImage(qrData, 'PNG', 89, 144, 32, 32); } catch(e){}
     } else if (ev.slug){
-      doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(222,226,216);
-      doc.text('Join at:', 74, 168, { align:'center' });
-      doc.setTextColor(200,165,131);
-      doc.text(eventUrl(ev.slug), 74, 174, { align:'center' });
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(230,225,215);
+      doc.text(eventUrl(ev.slug), 105, 150, { align:'center' });
     }
 
     dzCredit(doc);
-    doc.save('earthlive-event-card-' + (ev.name || 'event').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40) + '.pdf');
-    showToast('Your event keepsake card is ready \u2713');
+    doc.save('earthlive-event-' + (ev.name || 'event').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40) + '.pdf');
+    showToast('Your event keepsake PDF is ready \u2713');
   }
 
   function reportEntry(){
@@ -8981,6 +9502,41 @@
     return b;
   }
 
+
+  /* ============ LEFT ICON RAIL controller ============ */
+  function railGo(which){
+    if (which === 'book'){ showScreen('dashboard'); }
+    else if (which === 'diary'){ if(typeof openDiaryEditor==='function'){ openDiaryEditor(null); } if(typeof renderDiary==='function'){ renderDiary(); } showScreen('diary'); }
+    else if (which === 'waypoints'){ showScreen('waypoints'); if(typeof wptsOpen==='function') wptsOpen(); }
+    else if (which === 'ribbon' || which === 'constellation' || which === 'voiceprints'){ if(typeof openLookBack==='function') openLookBack(which); }
+    railSyncActive();
+  }
+  function railToggle(){
+    var r=document.getElementById('elRail'); if(!r) return;
+    r.classList.toggle('open'); railPinned = r.classList.contains('open');
+  }
+  var railPinned = false;
+  function railHoverIn(){ var r=document.getElementById('elRail'); if(r) r.classList.add('open'); }
+  function railHoverOut(){ var r=document.getElementById('elRail'); if(r && !railPinned) r.classList.remove('open'); }
+  // map current screen -> rail key for active highlight
+  function railSyncActive(){
+    var r=document.getElementById('elRail'); if(!r) return;
+    var map = { dashboard:'book', diary:'diary', waypoints:'waypoints', ribbon:'ribbon', constellation:'constellation', voiceprints:'voiceprints' };
+    var key = map[currentScreenName] || null;
+    r.querySelectorAll('.elr-item').forEach(function(b){ b.classList.toggle('active', b.dataset.rail === key); });
+  }
+  // show the rail only when signed in with a profile
+  function railRefreshVisible(){
+    var show = !!(typeof currentUser !== 'undefined' && currentUser && typeof profile !== 'undefined' && profile);
+    document.body.classList.toggle('has-rail', show);
+    if (show) railSyncActive();
+  }
+  (function railInit(){
+    var r=document.getElementById('elRail'); if(!r) return;
+    r.addEventListener('mouseenter', railHoverIn);
+    r.addEventListener('mouseleave', railHoverOut);
+  })();
+
   function refreshNav(){
     const navRight = document.getElementById('navRight');
     const navLeft = document.getElementById('navLeft');
@@ -8988,6 +9544,7 @@
     navRight.innerHTML = '';
     if (navLeft) navLeft.innerHTML = '';
     if (navAvatarSlot) navAvatarSlot.innerHTML = '';
+    try{ railRefreshVisible(); }catch(err){}
 
     if (!currentUser){
       navRight.appendChild(navBtn('about', 'Our story', ()=>showScreen('about')));
@@ -9009,6 +9566,7 @@
       diary.id = 'navDiaryBtn';
       navRight.appendChild(diary);
       navRight.appendChild(navBtn('wpts',  'Waypoints', ()=>{ showScreen('waypoints'); wptsOpen(); }));
+      // Ribbon, Constellation, Voiceprints now live in the left icon rail (not the header)
     }
 
     if (profile && profile.dbId){
@@ -11290,13 +11848,86 @@
   let evInvitedNow = [];
   let evMapInstance = null;
 
+  /* ── Event types: label copy + which fields/features apply ── */
+  const EVENT_TYPES = {
+    farewell:    { label:'Farewell',      nameLabel:'Farewell for',        namePH:'e.g., Ravi Shankar',
+                   orgLabel:'Organisation / batch', orgPH:'e.g., Google India, 2019 cohort', showOrg:true,  showHonoree:false,
+                   feats:['wall','photos','map','tribute'] },
+    convocation: { label:'Convocation',   nameLabel:'Batch or programme name', namePH:'e.g., MBA Batch of 2024',
+                   orgLabel:'Institution', orgPH:'e.g., IIM Ahmedabad', showOrg:true, showHonoree:false,
+                   feats:['wall','photos','map','wishes'] },
+    birthday:    { label:'Birthday',      nameLabel:'Birthday person',     namePH:'e.g., Meera Pillai',
+                   orgLabel:'Occasion', orgPH:'e.g., Turning 30, Surprise party', showOrg:true, showHonoree:false,
+                   feats:['wall','photos','wishes','tribute'] },
+    wedding:     { label:'Wedding',       nameLabel:'Event title',         namePH:"e.g., Priya & Arjun's Wedding",
+                   orgLabel:'', orgPH:'', showOrg:false, showHonoree:true,
+                   honoreeLabel:'Names of the couple', honoreePH:'e.g., Priya Nair & Arjun Menon',
+                   feats:['wall','photos','map','rsvp','wishes'] },
+    reunion:     { label:'Reunion',       nameLabel:'Reunion name',        namePH:'e.g., BITS Pilani — Batch of 2010',
+                   orgLabel:'School / college / organisation', orgPH:"e.g., St Xavier's High School", showOrg:true, showHonoree:false,
+                   feats:['wall','photos','map','rsvp'] },
+    feast:       { label:'Feast / party', nameLabel:'Event name',          namePH:'e.g., Onam Sadya 2025',
+                   orgLabel:'Occasion or theme', orgPH:'e.g., Annual department feast', showOrg:true, showHonoree:false,
+                   feats:['wall','photos','map','rsvp'] },
+    others:      { label:'Others',        nameLabel:'Event name',          namePH:'e.g., House warming',
+                   orgLabel:'Organised by', orgPH:'e.g., The Sharma family', showOrg:true, showHonoree:false,
+                   feats:['wall','photos','map'] }
+  };
+  let evSelectedType = 'farewell';
+  let evActiveFeats = new Set(EVENT_TYPES.farewell.feats);
+
+  function evPickType(el){
+    document.querySelectorAll('#evTypeGrid .ev-type-card').forEach(c=>c.classList.remove('sel'));
+    el.classList.add('sel');
+    evSelectedType = el.dataset.type;
+    const t = EVENT_TYPES[evSelectedType];
+
+    const customGroup = document.getElementById('evCustomTitleGroup');
+    customGroup.style.display = (evSelectedType === 'others') ? '' : 'none';
+
+    document.getElementById('eventNameLabel').textContent = t.nameLabel;
+    document.getElementById('eventName').placeholder = t.namePH;
+
+    const orgGroup = document.getElementById('evOrgGroup');
+    orgGroup.style.display = t.showOrg ? '' : 'none';
+    if (t.showOrg){
+      document.getElementById('eventOrgLabel').textContent = t.orgLabel;
+      document.getElementById('eventOrg').placeholder = t.orgPH;
+    }
+
+    const honoreeGroup = document.getElementById('evHonoreeGroup');
+    honoreeGroup.style.display = t.showHonoree ? '' : 'none';
+    if (t.showHonoree){
+      document.getElementById('eventHonoreeLabel').textContent = t.honoreeLabel;
+      document.getElementById('eventHonoree').placeholder = t.honoreePH;
+    }
+
+    evActiveFeats = new Set(t.feats);
+    document.querySelectorAll('#evFeatRow .ev-feat-chip').forEach(c=>{
+      c.classList.toggle('on', evActiveFeats.has(c.dataset.feat));
+    });
+  }
+
+  function evToggleFeat(el){
+    const f = el.dataset.feat;
+    if (evActiveFeats.has(f)) evActiveFeats.delete(f); else evActiveFeats.add(f);
+    el.classList.toggle('on', evActiveFeats.has(f));
+  }
+
   /* ── Create event ── */
   async function createEventPage(e){
     e.preventDefault();
-    const name = document.getElementById('eventName').value.trim();
+    const type = evSelectedType || 'farewell';
+    const customTitle = document.getElementById('eventCustomTitle').value.trim();
+    let name = document.getElementById('eventName').value.trim();
+    if (type === 'others' && customTitle) name = customTitle;
     const date = document.getElementById('eventDate').value || null;
+    const time_ = document.getElementById('eventTime').value || null;
     const location_ = document.getElementById('eventLocation').value.trim();
+    const org_ = document.getElementById('eventOrg').value.trim();
+    const honoree_ = document.getElementById('eventHonoree').value.trim();
     const description = document.getElementById('eventDescription').value.trim();
+    const features = Array.from(evActiveFeats);
     if (!name){ showToast('Enter an event name'); return; }
 
     // Signed-in path: save to Supabase
@@ -11304,8 +11935,9 @@
       const slug = eventSlugify(name);
       const { data, error } = await db.from('events').insert({
         owner_user_id: currentUser.id,
-        name, event_date: date, location: location_, description, slug,
-        visibility: 'public'
+        name, event_date: date, event_time: time_, location: location_, description, slug,
+        event_type: type, organisation: org_ || null, honoree: honoree_ || null,
+        features, visibility: 'public'
       }).select().single();
       if (error){
         showToast(friendlyError(error));
@@ -11321,7 +11953,8 @@
     // Guest fallback: browser-only event (host features only, not shared)
     const ev = {
       id: 'local_' + Date.now(), local: true,
-      name, event_date: date, location: location_, description,
+      name, event_date: date, event_time: time_, location: location_, description,
+      event_type: type, organisation: org_ || null, honoree: honoree_ || null, features,
       slug: eventSlugify(name), created_at: new Date().toISOString()
     };
     const evts = getLocalEvents(); evts.unshift(ev); saveLocalEvents(evts);
@@ -13073,6 +13706,484 @@
     openCircle(currentCircleId);
   }
 
+
+
+  /* ============================================================
+     LOOK BACK — Life Ribbon · Constellation · Voiceprints
+     Reads the records already in memory (entries, albumPhotos,
+     diaryEntriesCache) plus the owner's events. No new tables;
+     Voiceprints use entries.voice_url when that column exists.
+     ============================================================ */
+  const LB_COL = { quiet:'#3A342A', place:'#7C8F5C', event:'#BE7B62', diary:'#4A5468', voice:'#B0561C', mark:'#241F17' };
+  const LB_LABEL = { person:'An entry', place:'A photo with a place', event:'An event', diary:'A diary page' };
+  const LB_SRC   = { person:'entries', place:'album_photos', event:'events', diary:'diary_entries' };
+  let lbEvents = [];
+
+  function lbInitial(s){ return (s || '?').trim().charAt(0).toUpperCase(); }
+
+  /* Collect every dated record into one list. */
+  function lbCollect(){
+    const out = [];
+    (entries || []).forEach(e=>{
+      if (!e.rawDate) return;
+      if (e.status && e.status !== 'approved') return;
+      out.push({
+        t:'person', when:new Date(e.rawDate),
+        title:(e.word ? '\u201c' + e.word + '\u201d' : (e.message || 'An entry')).slice(0,110),
+        by:e.name || null, byId:e.signerUserId || null,
+        photos:(e.photos || []).length > 0,
+        voice:!!e.voiceUrl, voiceUrl:e.voiceUrl || null,
+        reacts:(e.likes || 0) + ((e.comments || []).length),
+        city:e.city || null, relation:e.relation || null, ref:e
+      });
+    });
+    (albumPhotos || []).forEach(p=>{
+      const d = p.takenAt || p.created_at;
+      if (!d) return;
+      out.push({ t:'place', when:new Date(d), title:p.place || 'A photo with a place',
+                 by:null, photos:true, voice:false, reacts:0, city:p.place || null, ref:p });
+    });
+    (diaryEntriesCache || []).forEach(d=>{
+      const when = d.created_at || d.rawDate;
+      if (!when) return;
+      out.push({ t:'diary', when:new Date(when), title:(d.title || d.body || 'A diary page').slice(0,110),
+                 by:null, photos:(d.photos || []).length > 0, voice:false, reacts:0, ref:d });
+    });
+    (lbEvents || []).forEach(ev=>{
+      if (!ev.event_date) return;
+      out.push({ t:'event', when:new Date(ev.event_date), title:ev.name || 'An event',
+                 by:null, photos:false, voice:false, reacts:0, city:ev.location || null, ref:ev });
+    });
+    return out.filter(r=> r.when && !isNaN(r.when)).sort((a,b)=> b.when - a.when);
+  }
+
+  async function lbLoadEvents(){
+    if (!db || !currentUser) return;
+    try{
+      const { data } = await db.from('events').select('id,name,event_date,location,event_type')
+        .eq('owner_user_id', currentUser.id);
+      lbEvents = data || [];
+    }catch(err){ lbEvents = []; }
+  }
+
+  /* The handful worth calling out — all query results, never hand-picked. */
+  function lbPicks(recs){
+    const picks = [];
+    const push = (r, why)=>{ if (r && !picks.some(p=>p.r===r)) picks.push({ r, why }); };
+    const byOld = recs.slice().sort((a,b)=> a.when - b.when);
+    push(byOld[0], 'the first thing in your book');
+    const people = recs.filter(r=>r.t==='person');
+    push(people.slice().sort((a,b)=> b.reacts - a.reacts)[0], 'the entry people replied to most');
+    push(recs.filter(r=>r.voice)[0], 'a voice you kept');
+    push(recs.filter(r=>r.t==='place').sort((a,b)=> a.when - b.when)[0], 'the first place you pinned');
+    push(recs.filter(r=>r.t==='event').sort((a,b)=> a.when - b.when)[0], 'your first event');
+    return picks.filter(p=>p.r).slice(0,5);
+  }
+
+  /* ---------------- Life Ribbon ---------------- */
+  function renderRibbon(){
+    const host = document.getElementById('ribbonBody');
+    if (!host) return;
+    const recs = lbCollect();
+    if (recs.length < 3){
+      host.innerHTML = '<div class="lb-empty"><b>Your ribbon fills in as you go</b>'
+        + 'Once your book has a few entries, photos or diary pages, they will show up here as one index you can run down.</div>';
+      return;
+    }
+    const H = 440;
+    const newest = recs[0].when.getTime();
+    const oldest = recs[recs.length-1].when.getTime();
+    const spread = Math.max(1, newest - oldest);
+    const yOf = r => 2 + ((newest - r.when.getTime()) / spread) * (H - 6);
+
+    host.innerHTML =
+      '<div class="vr">'
+      + '<div class="vr-read">'
+      +   '<div class="vr-read-yr" id="vrYr"></div>'
+      +   '<div class="vr-read-tx" id="vrTx">Run down the index to read your book</div>'
+      +   '<div class="vr-read-sr" id="vrSr"></div>'
+      +   '<div class="vr-read-key">'
+      +     '<span><i class="k-quiet"></i>An entry</span>'
+      +     '<span><i class="k-place"></i>Has a place</span>'
+      +     '<span><i class="k-event"></i>Event</span>'
+      +     '<span><i class="k-diary"></i>Diary page</span>'
+      +     '<span><i class="k-voice"></i>Voiceprint</span>'
+      +   '</div>'
+      + '</div>'
+      + '<div class="vr-scale" id="vrScale"></div>'
+      + '<div class="vr-spine">'
+      +   '<div class="vr-cap">' + recs[0].when.getFullYear() + '</div>'
+      +   '<div class="vr-trackwrap">'
+      +     '<div class="vr-track" id="vrTrack"><svg id="vrSvg" viewBox="0 0 100 440" preserveAspectRatio="none"></svg></div>'
+      +     '<div class="vr-marker" id="vrMarker"></div>'
+      +     '<div class="vr-face" id="vrFace"><span></span></div>'
+      +   '</div>'
+      +   '<div class="vr-cap">' + recs[recs.length-1].when.getFullYear() + '</div>'
+      + '</div>'
+      + '</div>';
+
+    // bars: full width, thickness carries the weight
+    const svg = document.getElementById('vrSvg');
+    const frag = document.createDocumentFragment();
+    recs.forEach(r=>{
+      const special = r.voice || r.t === 'event' || r.t === 'diary';
+      const h = r.voice ? 2.4 : (r.t === 'event' || r.t === 'diary') ? 1.7 : r.photos ? 1.15 : 0.55;
+      const fill = r.voice ? LB_COL.voice
+        : r.t === 'event' ? LB_COL.event
+        : r.t === 'diary' ? LB_COL.diary
+        : r.t === 'place' ? LB_COL.place
+        : LB_COL.quiet;
+      const el = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      el.setAttribute('x','0'); el.setAttribute('y', yOf(r).toFixed(2));
+      el.setAttribute('width','100'); el.setAttribute('height', h.toFixed(2));
+      el.setAttribute('fill', fill);
+      el.style.opacity = special ? 0.92 : 0.82;
+      frag.appendChild(el);
+    });
+    svg.appendChild(frag);
+
+    // year scale
+    const scale = document.getElementById('vrScale');
+    const yStart = recs[recs.length-1].when.getFullYear(), yEnd = recs[0].when.getFullYear();
+    const seen = {};
+    for (let y = yEnd; y >= yStart; y--){
+      const step = Math.max(1, Math.round((yEnd - yStart + 1) / 4));
+      if ((yEnd - y) % step !== 0 || seen[y]) continue;
+      seen[y] = 1;
+      const at = new Date(y, 6, 1).getTime();
+      const pct = ((newest - at) / spread) * 100;
+      if (pct < -2 || pct > 102) continue;
+      const el = document.createElement('span');
+      el.textContent = y; el.style.top = Math.max(0, Math.min(100, pct)) + '%';
+      scale.appendChild(el);
+    }
+
+    // reading + the face that rides with you
+    const picks = lbPicks(recs);
+    const track = document.getElementById('vrTrack'), marker = document.getElementById('vrMarker');
+    const face = document.getElementById('vrFace');
+    const yrEl = document.getElementById('vrYr'), txEl = document.getElementById('vrTx'), srEl = document.getElementById('vrSr');
+    const byY = recs.slice().sort((a,b)=> yOf(a) - yOf(b));
+    let idle = true, idleT = null, ci = 0;
+
+    function show(r, pct, why){
+      const when = r.when.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+      yrEl.textContent = r.by ? when + '   \u00b7   ' + r.by : when + '   \u00b7   You';
+      txEl.textContent = r.title;
+      srEl.textContent = (why ? why + '  \u2014  ' : '') + LB_SRC[r.t] + (r.reacts ? '  \u00b7  ' + r.reacts + ' reactions' : '');
+      if (r.by){
+        face.style.background = r.t === 'person' ? LB_COL.quiet : LB_COL.place;
+        face.querySelector('span').textContent = lbInitial(r.by);
+        let cap = face.querySelector('i.cap');
+        if (!cap){ cap = document.createElement('i'); cap.className = 'cap'; face.appendChild(cap); }
+        cap.textContent = r.by;
+        face.classList.add('on');
+      } else {
+        face.classList.remove('on');
+      }
+      if (typeof pct === 'number') face.style.top = pct + '%';
+    }
+    function nearest(py){
+      let lo = 0, hi = byY.length - 1;
+      while (lo < hi){ const mid = (lo + hi) >> 1; if (yOf(byY[mid]) < py) lo = mid + 1; else hi = mid; }
+      const a = byY[Math.max(0, lo-1)], b = byY[lo];
+      return Math.abs(yOf(a) - py) < Math.abs(yOf(b) - py) ? a : b;
+    }
+    function at(clientY){
+      const bb = track.getBoundingClientRect();
+      const pct = Math.max(0, Math.min(1, (clientY - bb.top) / bb.height));
+      marker.style.top = (pct * 100) + '%';
+      show(nearest(pct * H), pct * 100);
+    }
+    track.addEventListener('pointerdown', e=>{
+      try{ track.setPointerCapture(e.pointerId); }catch(err){}
+      track.classList.add('live'); idle = false; at(e.clientY);
+    });
+    track.addEventListener('pointermove', e=>{
+      if (e.pointerType === 'mouse' && e.buttons === 0){ idle = false; at(e.clientY); return; }
+      if (track.hasPointerCapture && track.hasPointerCapture(e.pointerId)) at(e.clientY);
+    });
+    track.addEventListener('pointerup', ()=>{
+      track.classList.remove('live');
+      clearTimeout(idleT); idleT = setTimeout(()=>{ idle = true; }, 2400);
+    });
+    track.addEventListener('pointerleave', ()=>{
+      clearTimeout(idleT); idleT = setTimeout(()=>{ idle = true; }, 1200);
+    });
+
+    if (picks.length){
+      show(picks[0].r, yOf(picks[0].r) / H * 100, picks[0].why);
+      marker.style.top = (yOf(picks[0].r) / H * 100) + '%';
+      clearInterval(window.__lbDrift);
+      window.__lbDrift = setInterval(()=>{
+        if (!idle || currentScreenName !== 'ribbon') return;
+        ci = (ci + 1) % picks.length;
+        const p = picks[ci], pct = yOf(p.r) / H * 100;
+        txEl.style.opacity = 0;
+        setTimeout(()=>{ show(p.r, pct, p.why); marker.style.top = pct + '%'; txEl.style.opacity = 1; }, 170);
+      }, 3800);
+    }
+  }
+
+  /* ---------------- Constellation ---------------- */
+  const CN_COL = { self:'#2E2A22', person:'#A9764F', place:'#57614A', event:'#C08078', year:'#3C4A5E' };
+  let cnNodes = [], cnLinks = [], cnFilter = 'all', cnHover = null, cnSel = null, cnDrag = null, cnRaf = null;
+
+  function cnBuild(){
+    const recs = lbCollect();
+    const nodes = [{ id:'__self', lb:'You', t:'self', r:24, fixed:true }];
+    const links = [], seen = {}, mem = {};
+    const add = (id, lb, t)=>{
+      if (seen[id]){ seen[id].w++; return seen[id]; }
+      const n = { id, lb, t, w:1, r:11 };
+      seen[id] = n; nodes.push(n); links.push(['__self', id]);
+      return n;
+    };
+    recs.forEach(r=>{
+      const line = { t:r.title, w:r.when.toLocaleDateString('en-IN',{ day:'numeric', month:'short', year:'numeric' }) };
+      const touched = [];
+      if (r.by){ const n = add('p:'+r.by, r.by, 'person'); touched.push(n.id); }
+      if (r.city){ const n = add('c:'+r.city, r.city, 'place'); touched.push(n.id); }
+      if (r.t === 'event'){ const n = add('e:'+r.title, r.title, 'event'); touched.push(n.id); }
+      const yr = String(r.when.getFullYear());
+      const yn = add('y:'+yr, yr, 'year'); touched.push(yn.id);
+      touched.forEach(id=>{ (mem[id] = mem[id] || []).push(line); });
+      for (let i=0;i<touched.length;i++) for (let j=i+1;j<touched.length;j++){
+        const key = touched[i] + '|' + touched[j];
+        if (!seen['L'+key]){ seen['L'+key] = 1; links.push([touched[i], touched[j]]); }
+      }
+    });
+    nodes.forEach(n=>{ if (n.t !== 'self') n.r = Math.min(19, 10 + Math.sqrt(n.w) * 2); });
+    // keep it readable: the strongest 26 connections around you
+    const keep = nodes.filter(n=>n.t !== 'self').sort((a,b)=> b.w - a.w).slice(0, 26);
+    const ok = {}; keep.forEach(n=> ok[n.id] = 1); ok['__self'] = 1;
+    cnNodes = [nodes[0]].concat(keep);
+    cnLinks = links.filter(([a,b])=> ok[a] && ok[b]);
+    return mem;
+  }
+
+  function renderConstellation(){
+    const host = document.getElementById('constellationBody');
+    if (!host) return;
+    const mem = cnBuild();
+    if (cnNodes.length < 4){
+      host.innerHTML = '<div class="lb-empty"><b>Not much to connect yet</b>'
+        + 'Once a few people have signed your book, or you have pinned some places, this is where you will see how they link together.</div>';
+      return;
+    }
+    host.innerHTML =
+      '<div class="cn-panel">'
+      + '<div class="cn-bar">'
+      +   '<button type="button" class="cn-chip active" data-f="all">All</button>'
+      +   '<button type="button" class="cn-chip" data-f="person"><span class="d" style="background:#A9764F"></span>People</button>'
+      +   '<button type="button" class="cn-chip" data-f="place"><span class="d" style="background:#57614A"></span>Places</button>'
+      +   '<button type="button" class="cn-chip" data-f="event"><span class="d" style="background:#C08078"></span>Events</button>'
+      +   '<button type="button" class="cn-chip" data-f="year"><span class="d" style="background:#3C4A5E"></span>Years</button>'
+      + '</div>'
+      + '<canvas id="cnCanvas"></canvas>'
+      + '<div class="cn-side" id="cnSide"><button type="button" class="x" id="cnClose">\u2715</button>'
+      +   '<div class="kd" id="cnKind"></div><h4 id="cnName"></h4><div id="cnMems"></div></div>'
+      + '</div>';
+
+    const cv = document.getElementById('cnCanvas'), ctx = cv.getContext('2d');
+    const RR = { person:104, place:150, event:150, year:196 };
+    function resize(){
+      const b = cv.getBoundingClientRect();
+      cv.width = b.width * devicePixelRatio; cv.height = b.height * devicePixelRatio;
+      ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    }
+    function init(){
+      const b = cv.getBoundingClientRect(), by = {};
+      cnNodes.forEach(n=>{ if (n.t !== 'self') (by[n.t] = by[n.t] || []).push(n); });
+      Object.keys(by).forEach(t=>{
+        const g = by[t], rad = RR[t] || 170, off = { person:-0.5, place:0.9, event:2.6, year:4.3 }[t] || 0;
+        g.forEach((n,i)=>{
+          const a = off + (i / g.length) * Math.PI * 2;
+          n.x = b.width/2 + Math.cos(a)*rad; n.y = b.height/2 + Math.sin(a)*rad;
+          n.vx = 0; n.vy = 0; n.rad = rad; n.a0 = a;
+        });
+      });
+      const s = cnNodes[0]; s.x = b.width/2; s.y = b.height/2;
+    }
+    const vis = n => cnFilter === 'all' || n.t === 'self' || n.t === cnFilter;
+    function step(){
+      const b = cv.getBoundingClientRect(), cx = b.width/2, cy = b.height/2, tm = Date.now()/1000;
+      for (let i=0;i<cnNodes.length;i++) for (let j=i+1;j<cnNodes.length;j++){
+        const a = cnNodes[i], bn = cnNodes[j];
+        let dx = a.x - bn.x, dy = a.y - bn.y;
+        const d = Math.hypot(dx,dy) || 0.01, md = a.r + bn.r + 28;
+        if (d < md){ const f = (md-d)/d*0.03; dx*=f; dy*=f;
+          if (!a.fixed && a !== cnDrag){ a.vx += dx; a.vy += dy; }
+          if (!bn.fixed && bn !== cnDrag){ bn.vx -= dx; bn.vy -= dy; } }
+      }
+      cnNodes.forEach(n=>{
+        if (n.fixed){ n.x = cx; n.y = cy; return; }
+        if (n === cnDrag) return;
+        const sp = { person:0.05, place:0.035, event:0.028, year:0.02 }[n.t] || 0.03;
+        const a = n.a0 + tm*sp, tx = cx + Math.cos(a)*n.rad, ty = cy + Math.sin(a)*n.rad;
+        n.vx += (tx-n.x)*0.02; n.vy += (ty-n.y)*0.02; n.vx *= 0.86; n.vy *= 0.86;
+        n.x += n.vx; n.y += n.vy;
+      });
+    }
+    function draw(){
+      const b = cv.getBoundingClientRect();
+      ctx.clearRect(0,0,b.width,b.height);
+      cnLinks.forEach(([A,B])=>{
+        const a = cnNodes.find(n=>n.id===A), bn = cnNodes.find(n=>n.id===B);
+        if (!a || !bn || !vis(a) || !vis(bn)) return;
+        ctx.strokeStyle = 'rgba(46,42,34,0.12)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(bn.x,bn.y); ctx.stroke();
+      });
+      cnNodes.forEach(n=>{
+        if (!vis(n)) return;
+        if (n.t !== 'self'){
+          const tc = 5 + Math.min(10, n.w) * 2;
+          ctx.strokeStyle = CN_COL[n.t]; ctx.globalAlpha = 0.5; ctx.lineWidth = 1.2;
+          for (let k=0;k<tc;k++){
+            const a = (k/tc)*Math.PI*2, i0 = n.r+5, o0 = n.r+5+(k%3===0?6:3);
+            ctx.beginPath(); ctx.moveTo(n.x+Math.cos(a)*i0, n.y+Math.sin(a)*i0);
+            ctx.lineTo(n.x+Math.cos(a)*o0, n.y+Math.sin(a)*o0); ctx.stroke();
+          }
+          ctx.globalAlpha = 1;
+        }
+        ctx.beginPath(); ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+        ctx.fillStyle = CN_COL[n.t]; ctx.globalAlpha = n === cnHover ? 1 : 0.92; ctx.fill(); ctx.globalAlpha = 1;
+        if (n === cnSel){ ctx.strokeStyle = '#2E2A22'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.arc(n.x,n.y,n.r+4,0,Math.PI*2); ctx.stroke(); }
+        if (n.t === 'self'){ ctx.fillStyle = '#fff'; ctx.font = '600 12px "Inter Tight"';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('You', n.x, n.y); }
+      });
+      ctx.font = '600 11px "Inter Tight"'; ctx.fillStyle = '#2E2A22';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+      cnNodes.forEach(n=>{ if (n.t === 'self' || !vis(n)) return;
+        ctx.fillText(n.lb.length > 16 ? n.lb.slice(0,15) + '\u2026' : n.lb, n.x, n.y + n.r + 14); });
+    }
+    const nodeAt = (x,y)=> cnNodes.find(n=> vis(n) && Math.hypot(n.x-x, n.y-y) < n.r + 4);
+    const pos = e => { const b = cv.getBoundingClientRect(); return { x:e.clientX-b.left, y:e.clientY-b.top }; };
+    cv.addEventListener('mousemove', e=>{ const p = pos(e); cnHover = nodeAt(p.x,p.y);
+      cv.style.cursor = cnHover ? 'pointer' : 'grab';
+      if (cnDrag){ cnDrag.x = p.x; cnDrag.y = p.y; cnDrag.vx = 0; cnDrag.vy = 0; } });
+    cv.addEventListener('mousedown', e=>{ const p = pos(e), n = nodeAt(p.x,p.y); if (n && !n.fixed) cnDrag = n; });
+    window.addEventListener('mouseup', ()=>{ cnDrag = null; });
+    cv.addEventListener('click', e=>{
+      const p = pos(e), n = nodeAt(p.x,p.y);
+      if (!n || n.t === 'self') return;
+      cnSel = n;
+      document.getElementById('cnKind').textContent = n.t;
+      document.getElementById('cnName').textContent = n.lb;
+      const list = (mem[n.id] || []).slice(0,8);
+      document.getElementById('cnMems').innerHTML = list.length
+        ? list.map(m=>'<div class="cn-mem">' + m.t + '<div class="w">' + m.w + '</div></div>').join('')
+        : '<div class="cn-mem">Nothing linked yet.</div>';
+      document.getElementById('cnSide').classList.add('open');
+    });
+    document.getElementById('cnClose').addEventListener('click', ()=>{
+      document.getElementById('cnSide').classList.remove('open'); cnSel = null; });
+    host.querySelectorAll('.cn-chip').forEach(c=> c.addEventListener('click', ()=>{
+      host.querySelectorAll('.cn-chip').forEach(x=>x.classList.remove('active'));
+      c.classList.add('active'); cnFilter = c.dataset.f; }));
+
+    resize(); init();
+    cancelAnimationFrame(cnRaf);
+    (function loop(){ if (currentScreenName === 'constellation'){ step(); draw(); } cnRaf = requestAnimationFrame(loop); })();
+    window.addEventListener('resize', ()=>{ if (currentScreenName === 'constellation'){ resize(); init(); } });
+  }
+
+  /* ---------------- Voiceprints ---------------- */
+  function vpSeeded(seed){
+    let h = 0; for (let i=0;i<seed.length;i++) h = (h*31 + seed.charCodeAt(i)) >>> 0;
+    return ()=>{ h ^= h << 13; h >>>= 0; h ^= h >> 17; h ^= h << 5; h >>>= 0; return (h % 1000)/1000; };
+  }
+  function vpAttach(el){
+    const seed = el.dataset.seed || 'v', dur = parseFloat(el.dataset.dur) || 20;
+    const rand = vpSeeded(seed), svg = el.querySelector('.vp-wave svg'), N = 74;
+    let cur = 0; const bars = [];
+    for (let i=0;i<N;i++){
+      const w = 1.1 + rand()*1.6, gap = 0.6 + rand()*0.9, sp = rand();
+      bars.push({ x:cur, w, h: sp > 0.86 ? 30 + rand()*4 : 6 + rand()*22 });
+      cur += w + gap;
+    }
+    const sc = 216 / cur;
+    bars.forEach((b,i)=>{
+      const r = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      r.setAttribute('x',(2 + b.x*sc).toFixed(2)); r.setAttribute('width', Math.max(1, b.w*sc).toFixed(2));
+      r.setAttribute('y',((34-b.h)/2).toFixed(2)); r.setAttribute('height', b.h.toFixed(2));
+      r.setAttribute('fill','#4A4A47'); r.dataset.i = i; r.dataset.h = b.h.toFixed(2);
+      svg.appendChild(r);
+    });
+    const btn = el.querySelector('.vp-btn'), durEl = el.querySelector('.vp-dur'), wave = el.querySelector('.vp-wave');
+    const src = el.dataset.src || '';
+    let audio = null, on = false, p = 0, raf = null, last = null;
+    function paint(){
+      const head = Math.floor(p * N);
+      svg.querySelectorAll('rect').forEach(r=>{
+        const i = +r.dataset.i, bh = +r.dataset.h;
+        r.setAttribute('fill', i < head ? '#FFFFFF' : '#4A4A47');
+        let h = bh;
+        if (on && Math.abs(i - head) < 4) h = Math.max(3, Math.min(30, bh + Math.sin(Date.now()/70 + i*1.7)*5));
+        r.setAttribute('height', h.toFixed(2)); r.setAttribute('y', ((34-h)/2).toFixed(2));
+      });
+      const rem = Math.max(0, (audio && audio.duration ? audio.duration : dur) * (1 - p));
+      durEl.textContent = Math.floor(rem/60) + ':' + String(Math.floor(rem % 60)).padStart(2,'0');
+    }
+    function icon(){
+      btn.innerHTML = on
+        ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    }
+    function tick(ts){
+      if (audio){ p = audio.duration ? audio.currentTime / audio.duration : 0; }
+      else { if (!last) last = ts; p += (ts - last)/1000/dur; last = ts; if (p >= 1){ p = 1; on = false; icon(); } }
+      paint(); if (on) raf = requestAnimationFrame(tick);
+    }
+    btn.addEventListener('click', ()=>{
+      if (src && !audio){
+        audio = new Audio(src);
+        audio.addEventListener('ended', ()=>{ on = false; icon(); p = 1; paint(); });
+      }
+      on = !on; last = null; icon();
+      if (audio){ on ? audio.play().catch(()=>{}) : audio.pause(); }
+      if (on) raf = requestAnimationFrame(tick); else cancelAnimationFrame(raf);
+    });
+    wave.addEventListener('click', e=>{
+      const b = wave.getBoundingClientRect();
+      p = Math.min(1, Math.max(0, (e.clientX - b.left)/b.width));
+      if (audio && audio.duration) audio.currentTime = p * audio.duration;
+      paint();
+    });
+    paint();
+  }
+  function renderVoiceprints(){
+    const host = document.getElementById('voiceprintsBody');
+    if (!host) return;
+    const withVoice = (entries || []).filter(e=> e.voiceUrl);
+    if (!withVoice.length){
+      host.innerHTML = '<div class="lb-empty"><b>No Voiceprints yet</b>'
+        + 'When someone leaves a voice recording in your book it will show up here \u2014 drawn as a barcode, not a plain player. '
+        + 'Add a <code>voice_url</code> column to <code>entries</code> to switch this on.</div>';
+      return;
+    }
+    host.innerHTML = '<div class="vp-list">' + withVoice.map((e,i)=>
+      '<div class="vp-card">'
+      + '<div class="who">\u2014 ' + (e.name || 'Someone') + '</div>'
+      + '<div class="msg">' + (e.message || e.word || '') + '</div>'
+      + '<div class="vp-tag"><i></i>Voiceprint</div>'
+      + '<div class="vprint" data-seed="' + (e.id || ('v'+i)) + '" data-dur="' + (e.voiceSeconds || 20) + '" data-src="' + e.voiceUrl + '">'
+      +   '<button type="button" class="vp-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>'
+      +   '<div class="vp-wave"><svg viewBox="0 0 220 34" preserveAspectRatio="none"></svg></div>'
+      +   '<div class="vp-dur">0:00</div>'
+      + '</div>'
+      + '</div>').join('') + '</div>';
+    host.querySelectorAll('.vprint').forEach(vpAttach);
+  }
+
+  async function openLookBack(name){
+    await lbLoadEvents();
+    showScreen(name);
+    if (name === 'ribbon') renderRibbon();
+    if (name === 'constellation') renderConstellation();
+    if (name === 'voiceprints') renderVoiceprints();
+  }
 
 </script>
 <div class="tour-scrim" id="tourScrim"></div>
