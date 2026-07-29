@@ -2661,8 +2661,12 @@
           <label>Attach photos <span class="hint">optional, up to 6</span></label>
           <div class="upload-box" id="photoUploadBox">
             <input type="file" accept="image/*" id="fPhoto" multiple onchange="handlePhotoUpload(event)">
+            <input type="file" accept="image/*" id="fPhotoCamera" capture="environment" style="display:none;" onchange="handlePhotoUpload(event)">
             <span class="uplabel">Click to upload, or drop images here</span>
           </div>
+          <button type="button" class="btn-small" style="margin-top:8px;" onclick="document.getElementById('fPhotoCamera').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;display:inline-block;vertical-align:-2px;margin-right:4px;"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg>Take photo
+          </button>
           <div class="upload-thumbs" id="photoThumbs"></div>
           <div class="upload-count" id="photoCount" style="display:none;"></div>
         </div>
@@ -3013,7 +3017,9 @@
         </div>
         <div style="display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap;">
           <input type="file" accept="image/*" id="evPhotoInput" multiple style="display:none;" onchange="evHandlePhotos(event)">
+          <input type="file" accept="image/*" id="evCameraInput" capture="environment" style="display:none;" onchange="evHandlePhotos(event)">
           <button type="button" class="ev-chip" id="evPhotoBtn" onclick="document.getElementById('evPhotoInput').click()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span> Add photos</button>
+          <button type="button" class="ev-chip" id="evCameraBtn" onclick="document.getElementById('evCameraInput').click()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span> Take photo</button>
           <button type="button" class="ev-chip" id="evPostCityBtn" onclick="toggleEvPostCity()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span> Add a city</button>
           <button type="button" class="ev-chip" onclick="document.getElementById('evTagTray').classList.toggle('open')">@ Tag members</button>
           <button type="button" class="btn-small" style="margin-left:auto;" onclick="evAddPost()">Post to the page</button>
@@ -3439,7 +3445,7 @@
   </div>
 </section>
 
-<section class="screen" id="screen-tour"><div style="position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);padding:12px 20px;"><button class="link-quiet" style="padding:0;" onclick="showScreen('landing')">&#8592; Back to home</button></div><iframe id="tourFrame" title="" scrolling="no" style="width:100%;border:0;display:block;min-height:320px;background:#fff;" srcdoc="<!DOCTYPE html>
+<section class="screen" id="screen-tour"><iframe id="tourFrame" title="" scrolling="no" style="width:100%;border:0;display:block;min-height:320px;background:#fff;" srcdoc="<!DOCTYPE html>
 <html lang=&quot;en&quot;>
 <head>
 <meta charset=&quot;UTF-8&quot;>
@@ -3464,7 +3470,7 @@
   .step{position:relative; display:flex; justify-content:center; align-items:center; gap:0; padding:clamp(38px,6vw,88px) 0;}
   .step.flip{flex-direction:row-reverse;}
   .step .device{flex:none;}
-  .cap{flex:none; background:var(--black); color:#fff; border-radius:22px; padding:clamp(24px,2.6vw,36px); width:min(400px,42vw); z-index:3; position:relative; box-shadow:0 34px 70px -34px rgba(0,0,0,.5); margin-left:-64px;}
+  .cap{flex:none; background:var(--black); color:#fff; border-radius:22px; padding:clamp(14px,1.6vw,22px) clamp(24px,2.6vw,36px); width:min(500px,52vw); z-index:3; position:relative; box-shadow:0 34px 70px -34px rgba(0,0,0,.5); margin-left:-64px;}
   .step.flip .cap{margin-left:0; margin-right:-64px;}
   .cap h3{font-size:clamp(20px,2.4vw,25px); font-weight:700; margin:0 0 12px; letter-spacing:-.01em;}
   .cap p{font-size:15px; line-height:1.62; color:#cfcbc2; margin:0;}
@@ -3496,7 +3502,7 @@
   @media(max-width:820px){
     .step, .step.flip{flex-direction:column; gap:0; padding:44px 0;}
     .step .device{justify-content:center;}
-    .cap, .step.flip .cap{width:min(420px,88vw); margin:-52px auto 0;}
+    .cap, .step.flip .cap{width:min(520px,92vw); margin:-52px auto 0;}
     .kicker{letter-spacing:.22em;} .cta-card{text-align:center;} .cta-card p{margin:0 auto;}
   }
 
@@ -3828,12 +3834,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     </div>
 
     <div class="wpts-drop" id="wptsDrop" onclick="document.getElementById('wptsFileInput').click()">
-      <input type="file" accept="image/*" id="wptsFileInput" multiple capture="environment" style="display:none;" onchange="wptsHandleFiles(event.target.files); event.target.value='';">
+      <input type="file" accept="image/*" id="wptsFileInput" multiple style="display:none;" onchange="wptsHandleFiles(event.target.files); event.target.value='';">
+      <input type="file" accept="image/*" id="wptsCameraInput" capture="environment" style="display:none;" onchange="wptsHandleFiles(event.target.files); event.target.value='';">
       <span class="wpts-drop-ic"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span>
       <b>Drop photos here, or tap to add</b>
       <span class="wpts-drop-sub">Anything with location data pins itself on the map — no tagging needed</span>
       <div class="wpts-drop-btns">
         <button type="button" class="wpts-btn primary" onclick="event.stopPropagation(); document.getElementById('wptsFileInput').click();"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7"/></svg> Upload photos</button>
+        <button type="button" class="wpts-btn" onclick="event.stopPropagation(); document.getElementById('wptsCameraInput').click();"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg> Take photo</button>
       </div>
     </div>
 
@@ -3944,6 +3952,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         </div>
         <div class="thread-msgs" id="circleMsgs"></div>
         <div class="thread-input">
+          <input type="file" accept="image/*" id="circleAttachInput" style="display:none;" onchange="circleHandleAttach(event.target.files); event.target.value='';">
+          <input type="file" accept="image/*" id="circleCameraInput" capture="environment" style="display:none;" onchange="circleHandleAttach(event.target.files); event.target.value='';">
+          <button class="msg-mic" onclick="document.getElementById('circleAttachInput').click()" aria-label="Attach photo" style="flex:none;" title="Attach photo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+          </button>
+          <button class="msg-mic" onclick="document.getElementById('circleCameraInput').click()" aria-label="Take photo" style="flex:none;" title="Take photo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg>
+          </button>
           <input type="text" id="circleMsgInput" placeholder="Add to the circle…" maxlength="2000"
                  onkeydown="if(event.key==='Enter'){event.preventDefault(); sendCircleMessage();}">
           <button class="btn-small" style="flex:none;" onclick="sendCircleMessage()">Send</button>
@@ -3960,6 +3976,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         <div class="request-bar" id="requestBar" style="display:none;"></div>
         <div class="thread-msgs" id="threadMsgs"></div>
         <div class="thread-input" id="threadInputRow">
+          <input type="file" accept="image/*" id="msgAttachInput" style="display:none;" onchange="msgHandleAttach(event.target.files); event.target.value='';">
+          <input type="file" accept="image/*" id="msgCameraInput" capture="environment" style="display:none;" onchange="msgHandleAttach(event.target.files); event.target.value='';">
+          <button class="msg-mic" onclick="document.getElementById('msgAttachInput').click()" aria-label="Attach photo" style="flex:none;" title="Attach photo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+          </button>
+          <button class="msg-mic" onclick="document.getElementById('msgCameraInput').click()" aria-label="Take photo" style="flex:none;" title="Take photo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg>
+          </button>
           <input type="text" id="msgInput" placeholder="Write a message…" maxlength="2000"
                  onkeydown="if(event.key==='Enter'){event.preventDefault(); sendMessage();}">
           <button class="msg-mic" id="msgMicBtn" onclick="msgVoiceToggle()" aria-label="Record voice note" style="flex:none;">
@@ -5720,6 +5744,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       if (m.voice_url){
         return `<div class="msg-bubble voice ${mine}">${msgVoiceBubbleHtml(m.voice_url, m.voice_seconds)}</div>`;
       }
+      if (m.image_url){
+        const caption = m.body ? `<div style="margin-top:6px;font-size:13px;">${linkify(m.body)}</div>` : '';
+        return `<div class="msg-bubble ${mine}" style="padding:6px;"><img src="${m.image_url}" alt="Photo" style="max-width:220px;width:100%;border-radius:9px;display:block;cursor:pointer;" onclick="openLightbox('${m.image_url}')">${caption}</div>`;
+      }
       return `<div class="msg-bubble ${mine}">${linkify(m.body)}</div>`;
     }).join('') || '<p style="font-size:13px; color:var(--ink-soft); text-align:center;">No messages yet.</p>';
     box.scrollTop = box.scrollHeight;
@@ -5827,22 +5855,40 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     _threadAudio.onended = ()=>{ btn.innerHTML = playIcon; };
   }
 
-  async function sendMessage(){
+  async function sendMessage(imageUrl){
     const input = document.getElementById('msgInput');
     const body = input.value.trim();
-    if (!body || !currentConversationId) return;
+    if (!body && !imageUrl) return;
+    if (!currentConversationId) return;
     input.value = '';
-    const { error } = await db.from('messages').insert({
+    const row = {
       conversation_id: currentConversationId,
       sender_profile_id: profile.dbId,
-      body
-    });
+      body: body || null
+    };
+    if (imageUrl) row.image_url = imageUrl;
+    const { error } = await db.from('messages').insert(row);
     if (error){
       showToast('Could not send: ' + error.message);
-      input.value = body;
+      if (body) input.value = body;
       return;
     }
     openThread(currentConversationId);
+  }
+
+  async function msgHandleAttach(files){
+    if (!files || !files.length) return;
+    if (!currentConversationId){ showToast('Open a conversation first'); return; }
+    const file = files[0];
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      showToast('Sending photo…');
+      const url = await uploadImage(e.target.result, 'entry-photos',
+        'msg_' + currentUser.id + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,8));
+      if (!url){ showToast('Could not upload photo'); return; }
+      await sendMessage(url);
+    };
+    reader.readAsDataURL(file);
   }
 
   async function startConversationWithVisitor(){
@@ -9040,7 +9086,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   const ICON_PATHS = {
     pin:      '<path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
     camera:   '<path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/>',
-    comment:  '<path d="M21 12a8 8 0 01-8 8H7l-4 3v-6a8 8 0 018-8h2a8 8 0 018 3z"/>',
+    comment:  '<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>',
     lock:     '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',
     calendar: '<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
     envelope: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 8l9 6 9-6"/>',
@@ -9519,8 +9565,13 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const patch = city
       ? { lat: city.lat, lng: city.lng, place_name: city.name }
       : { lat: null, lng: null, place_name: null };
-    const { error } = await db.from('album_photos').update(patch).eq('id', wptsLocPhotoId);
+    const { data: updatedRows, error } = await db.from('album_photos')
+      .update(patch)
+      .eq('id', wptsLocPhotoId)
+      .eq('profile_id', profile.dbId)
+      .select('id');
     if (error){ showToast(friendlyError(error)); return; }
+    if (!updatedRows || !updatedRows.length){ showToast('Could not save location — please try again'); return; }
     // update local state
     const ph = albumPhotos.find(p=>p.id === wptsLocPhotoId);
     if (ph){ ph.lat = patch.lat; ph.lng = patch.lng; ph.place = patch.place_name; }
@@ -13081,7 +13132,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (!files.length) return;
     files.forEach(f=>{
       const r = new FileReader();
-      r.onload = ()=>{ evPostPhotos.push(r.result); done++; if (done===files.length) document.getElementById('evPhotoBtn').innerHTML = icon('camera') + ' ' + files.length + ' photo' + (files.length>1?'s':'') + ' \u2713'; };
+      r.onload = ()=>{ evPostPhotos.push(r.result); done++; if (done===files.length){ const lbl = icon('camera') + ' ' + files.length + ' photo' + (files.length>1?'s':'') + ' \u2713'; document.getElementById('evPhotoBtn').innerHTML = lbl; document.getElementById('evCameraBtn').innerHTML = lbl; } };
       r.readAsDataURL(f);
     });
   }
@@ -13155,7 +13206,9 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     document.getElementById('evComposerText').value = '';
     evPostPhotos = []; evPendingTags = []; evPostSelectedCity = null;
     document.getElementById('evPhotoBtn').innerHTML = icon('camera') + ' Add photos';
+    document.getElementById('evCameraBtn').innerHTML = icon('camera') + ' Take photo';
     document.getElementById('evPhotoInput').value = '';
+    document.getElementById('evCameraInput').value = '';
     document.getElementById('evTagTray').classList.remove('open');
     document.getElementById('evPostCity').value = '';
     document.getElementById('evPostCityWrap').style.display = 'none';
@@ -14385,10 +14438,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     } else {
       msgsEl.innerHTML = msgs.map(m=>{
         const mine = currentUser && m.sender_user_id === currentUser.id;
+        const bodyHtml = m.image_url
+          ? '<img src="' + m.image_url + '" alt="Photo" style="max-width:200px;width:100%;border-radius:8px;display:block;cursor:pointer;margin-bottom:4px;" onclick="openLightbox(\'' + m.image_url + '\')">' +
+            (m.body ? '<p class="cm-body">' + escapeHtml(m.body) + '</p>' : '')
+          : '<p class="cm-body">' + escapeHtml(m.body || '') + '</p>';
         return '<div class="circle-msg' + (mine ? ' mine' : '') + '" style="border-left-color:' + circleInkFor(m.sender_user_id) + ';">' +
-          '<p class="cm-body">' + escapeHtml(m.body) + '</p>' +
+          bodyHtml +
           '<p class="cm-who">' + (mine ? 'You' : escapeHtml(m.sender_name || 'someone')) +
-          ' \u00b7 ' + timeAgo(m.created_at) + '</p></div>';
+          ' · ' + timeAgo(m.created_at) + '</p></div>';
       }).join('');
       msgsEl.scrollTop = msgsEl.scrollHeight;
     }
@@ -14415,6 +14472,29 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     });
     if (error){ inp.value = body; showToast('Could not send: ' + error.message); return; }
     openCircle(currentCircleId);
+  }
+
+  async function circleHandleAttach(files){
+    if (!files || !files.length) return;
+    if (!currentCircleId){ showToast('Open a circle first'); return; }
+    const file = files[0];
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      showToast('Sending photo…');
+      const url = await uploadImage(e.target.result, 'entry-photos',
+        'circle_' + currentUser.id + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,8));
+      if (!url){ showToast('Could not upload photo'); return; }
+      const { error } = await db.from('circle_messages').insert({
+        circle_id: currentCircleId,
+        sender_user_id: currentUser.id,
+        sender_name: profile.name,
+        body: null,
+        image_url: url
+      });
+      if (error){ showToast('Could not send: ' + error.message); return; }
+      openCircle(currentCircleId);
+    };
+    reader.readAsDataURL(file);
   }
 
 
