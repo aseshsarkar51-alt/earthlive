@@ -1803,6 +1803,8 @@
   .vp-wave{flex:1; height:32px; cursor:pointer;}
   .vp-wave svg{width:100%; height:100%; display:block;}
   .vp-dur{font-size:11px; color:#C9C6BC; font-variant-numeric:tabular-nums; width:30px; flex:none;}
+  .vp-del{display:block; margin-top:12px; background:none; border:none; font-family:inherit; font-size:11.5px; color:var(--ink-soft); cursor:pointer; padding:0; text-align:right; width:100%;}
+  .vp-del:hover{color:var(--blush);}
 
   /* ============ LEFT ICON RAIL (signed-in only) ============ */
   :root{ --rail-w:60px; --rail-w-open:212px; }
@@ -1956,6 +1958,38 @@
 
 <div class="cursor" id="C"></div>
 <div class="cursor-ring" id="CR"></div>
+<script>
+(function(){
+  var mx=0,my=0,lx=0,ly=0;
+  var C=document.getElementById('C');
+  var CR=document.getElementById('CR');
+  if(!C||!CR) return;
+  document.addEventListener('mousemove',function(e){
+    mx=e.clientX; my=e.clientY;
+    C.style.transform='translate('+mx+'px,'+my+'px) translate(-50%,-50%)';
+  });
+  (function loop(){
+    lx+=(mx-lx)*.12; ly+=(my-ly)*.12;
+    CR.style.transform='translate('+lx+'px,'+ly+'px) translate(-50%,-50%)';
+    requestAnimationFrame(loop);
+  })();
+  document.addEventListener('mouseover',function(e){
+    if(e.target.matches('button,a,.btn-small,.panel,.details-card')){CR.style.width='44px';CR.style.height='44px';}
+  });
+  document.addEventListener('mouseout',function(e){
+    if(e.target.matches('button,a,.btn-small,.panel,.details-card')){CR.style.width='32px';CR.style.height='32px';}
+  });
+  // Hide when mouse enters tour iframe
+  document.addEventListener('mouseover',function(e){
+    var frame=document.getElementById('tourFrame');
+    if(frame && e.target===frame){C.style.opacity='0';CR.style.opacity='0';document.documentElement.style.cursor='auto';}
+  });
+  document.addEventListener('mouseout',function(e){
+    var frame=document.getElementById('tourFrame');
+    if(frame && e.target===frame){C.style.opacity='1';CR.style.opacity='1';document.documentElement.style.cursor='none';}
+  });
+})();
+</script>
 <noscript>
   <div style="max-width:520px; margin:80px auto; padding:0 24px; font-family:'Inter Tight',sans-serif; color:#2E2A22; text-align:center;">
     <h1 style="font-size:26px;">EarthLive needs JavaScript</h1>
@@ -2371,8 +2405,12 @@
             </div>
 
             <div class="d-tools">
+              <input type="file" accept="image/*" id="diaryCameraInput" capture="environment" style="display:none;" onchange="diaryHandlePhotos(event)">
               <button type="button" class="ev-chip" onclick="document.getElementById('diaryPhotoInput').click()">
-                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span> Photos
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span> Upload photo
+              </button>
+              <button type="button" class="ev-chip" onclick="document.getElementById('diaryCameraInput').click()">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span> Take photo
               </button>
               <button type="button" class="ev-chip" id="diaryCancelBtn" style="display:none;" onclick="openDiaryEditor(null)">Cancel edit</button>
               <button type="button" class="btn-small" style="margin-left:auto;" onclick="saveDiaryEntry()">Save entry</button>
@@ -2659,14 +2697,16 @@
         </div>
         <div class="field">
           <label>Attach photos <span class="hint">optional, up to 6</span></label>
-          <div class="upload-box" id="photoUploadBox">
-            <input type="file" accept="image/*" id="fPhoto" multiple onchange="handlePhotoUpload(event)">
-            <input type="file" accept="image/*" id="fPhotoCamera" capture="environment" style="display:none;" onchange="handlePhotoUpload(event)">
-            <span class="uplabel">Click to upload, or drop images here</span>
+          <input type="file" accept="image/*" id="fPhoto" multiple style="display:none;" onchange="handlePhotoUpload(event)">
+          <input type="file" accept="image/*" id="fPhotoCamera" capture="environment" style="display:none;" onchange="handlePhotoUpload(event)">
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+            <button type="button" class="ev-chip" onclick="document.getElementById('fPhoto').click()">
+              <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span> Upload photo
+            </button>
+            <button type="button" class="ev-chip" onclick="document.getElementById('fPhotoCamera').click()">
+              <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span> Take photo
+            </button>
           </div>
-          <button type="button" class="btn-small" style="margin-top:8px;" onclick="document.getElementById('fPhotoCamera').click()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;display:inline-block;vertical-align:-2px;margin-right:4px;"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg>Take photo
-          </button>
           <div class="upload-thumbs" id="photoThumbs"></div>
           <div class="upload-count" id="photoCount" style="display:none;"></div>
         </div>
@@ -3445,7 +3485,7 @@
   </div>
 </section>
 
-<section class="screen" id="screen-tour"><iframe id="tourFrame" title="" scrolling="no" style="width:100%;border:0;display:block;min-height:320px;background:#fff;" srcdoc="<!DOCTYPE html>
+<section class="screen" id="screen-tour"><iframe id="tourFrame" title="" scrolling="no" style="width:100%;border:0;display:block;background:#fff;overflow:hidden;" srcdoc="<!DOCTYPE html>
 <html lang=&quot;en&quot;>
 <head>
 <meta charset=&quot;UTF-8&quot;>
@@ -3457,7 +3497,9 @@
   :root{--ink:#26221C; --ink-soft:#6E6A60; --line:#EAE7E1; --camel:#A9764F; --card:#FFFFFF; --black:#0B0B0A; --page:#FFFFFF;}
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
-  body{margin:0; background:var(--page); color:var(--ink); font-family:&quot;Inter Tight&quot;,system-ui,sans-serif; -webkit-font-smoothing:antialiased; line-height:1.5;}
+  body{margin:0; background:var(--page); color:var(--ink); font-family:&quot;Inter Tight&quot;,system-ui,sans-serif; -webkit-font-smoothing:antialiased; line-height:1.5; cursor:auto !important;}
+  *{cursor:auto !important;}
+  a,button,[onclick]{cursor:pointer !important;}
   .wrap{max-width:1120px; margin:0 auto; padding:0 clamp(22px,5vw,64px);}
   .top{display:flex; align-items:center; justify-content:space-between; padding:26px 0;}
   .brand{display:flex; align-items:center; gap:9px; font-weight:600; font-size:16px; letter-spacing:-.01em;}
@@ -3489,13 +3531,13 @@
   .vp{display:flex; align-items:center; gap:9px; width:150px; flex:none; background:#0B0B0A; border-radius:9px; padding:7px 10px;}
   .vpplay{width:22px; height:22px; border-radius:50%; background:#fff; flex:none; display:flex; align-items:center; justify-content:center;}
   .vpplay svg{width:9px; height:9px;} .vpbc{flex:1; height:20px;} .vpbc svg{width:100%; height:100%;}
-  .cta{padding:clamp(30px,6vw,70px) 0 clamp(60px,9vw,110px); text-align:center;}
+  .cta{padding:clamp(20px,4vw,40px) 0 clamp(20px,4vw,40px); text-align:center;}
   .cta-card{background:var(--black); color:#fff; border-radius:26px; padding:clamp(44px,7vw,86px) clamp(28px,5vw,64px); text-align:left; max-width:1000px; margin:0 auto;}
   .cta-card h2{font-size:clamp(22px,3.2vw,30px); font-weight:700; line-height:1.28; margin:0 0 22px; letter-spacing:-.01em;}
   .cta-card p{font-size:16px; line-height:1.65; color:#cfcbc2; margin:0; max-width:640px;}
   .cta .go{display:inline-block; margin-top:34px; font-size:15px; font-weight:600; padding:15px 40px; border-radius:999px; background:var(--black); color:#fff; text-decoration:none; transition:transform .15s;}
   .cta .go:hover{transform:translateY(-2px);}
-  .foot{border-top:1px solid var(--line); padding:26px 0; text-align:center; font-size:13px; color:var(--ink-soft);} .foot b{color:var(--ink); font-weight:600;}
+  .foot{border-top:1px solid var(--line); padding:14px 0 10px; text-align:center; font-size:13px; color:var(--ink-soft);} .foot b{color:var(--ink); font-weight:600;}
   .rv{opacity:0; transform:translateY(22px); transition:opacity .7s cubic-bezier(.2,.6,.2,1), transform .7s cubic-bezier(.2,.6,.2,1);}
   .rv.in{opacity:1; transform:none;}
   @media(prefers-reduced-motion:reduce){ .rv{opacity:1; transform:none; transition:none;} }
@@ -6969,7 +7011,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       <div class="entry-actions">
         ${likeControl}
         <button class="action-btn" onclick="event.stopPropagation(); openEntryModal(${i}, true)" aria-label="Comments">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-8 8H4l2.3-2.9A8 8 0 1 1 21 12z"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
           ${comments || ''}
         </button>
         <button class="action-btn" onclick="event.stopPropagation(); shareEntry(${i})" aria-label="Share">
@@ -9568,10 +9610,16 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const { data: updatedRows, error } = await db.from('album_photos')
       .update(patch)
       .eq('id', wptsLocPhotoId)
-      .eq('profile_id', profile.dbId)
       .select('id');
     if (error){ showToast(friendlyError(error)); return; }
-    if (!updatedRows || !updatedRows.length){ showToast('Could not save location — please try again'); return; }
+    if (!updatedRows || !updatedRows.length){
+      // RLS may be blocking — try with explicit user_id filter instead
+      const { error: e2 } = await db.from('album_photos')
+        .update(patch)
+        .eq('id', wptsLocPhotoId)
+        .eq('signer_user_id', currentUser.id);
+      if (e2){ showToast(friendlyError(e2)); return; }
+    }
     // update local state
     const ph = albumPhotos.find(p=>p.id === wptsLocPhotoId);
     if (ph){ ph.lat = patch.lat; ph.lng = patch.lng; ph.place = patch.place_name; }
@@ -9669,7 +9717,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         ${photos}
         <div class="wp-foot">
           <button class="wp-btn ${e.likedByMe ? 'liked' : ''}" onclick="toggleVisitorWallLike('${e.id}')">${e.likedByMe ? '\u2665' : '\u2661'} ${e.likes || 0}</button>
-          <button class="wp-btn" onclick="toggleWallComments('${e.id}')">\ud83d\udcac ${cmts}</button>
+          <button class="wp-btn" onclick="toggleWallComments('${e.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;display:inline-block;vertical-align:-1px;margin-right:3px;"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> ${cmts}</button>
           <button class="wp-btn" onclick="shareVisitorBook()">\u2197 Share</button>
         </div>
         <div class="wp-comments" id="wpc-${e.id}">
@@ -11068,7 +11116,19 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     }catch(e){ return null; }
   }
 
-  async function albumHandleFiles(fileList){
+  // Asks browser for device GPS. Resolves {latitude,longitude} or null.
+  function getDeviceLocation(timeout){
+    return new Promise(function(resolve){
+      if (!navigator.geolocation){ resolve(null); return; }
+      navigator.geolocation.getCurrentPosition(
+        function(pos){ resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }); },
+        function(){ resolve(null); },
+        { timeout: timeout || 8000, maximumAge: 60000, enableHighAccuracy: true }
+      );
+    });
+  }
+
+    async function albumHandleFiles(fileList){
     if (!db || !currentUser){ showToast('Sign in to add photos'); return; }
     if (!profile || !profile.dbId){ showToast('Save your book first'); return; }
     const files = Array.from(fileList || []).filter(f => f.type && f.type.startsWith('image/'));
@@ -11087,16 +11147,23 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       if (!url) continue;
 
       let place = null;
-      if (gps && typeof gps.latitude === 'number'){
-        place = await reverseGeocodeCoords(gps.latitude, gps.longitude);
+      let finalLat = gps ? gps.latitude : null;
+      let finalLng = gps ? gps.longitude : null;
+
+      if (typeof finalLat === 'number'){
+        place = await reverseGeocodeCoords(finalLat, finalLng);
+      } else {
+        // No EXIF GPS — try live device location (works when taken via camera on mobile)
+        var devLoc = await getDeviceLocation(6000);
+        if (devLoc){ finalLat = devLoc.latitude; finalLng = devLoc.longitude; place = await reverseGeocodeCoords(finalLat, finalLng); }
       }
 
       const row = {
         profile_id: profile.dbId,
         signer_user_id: currentUser.id,
         url,
-        lat: gps ? gps.latitude : null,
-        lng: gps ? gps.longitude : null,
+        lat: finalLat,
+        lng: finalLng,
         place_name: place,
         taken_at: takenAt ? new Date(takenAt).toISOString() : null
       };
@@ -11117,8 +11184,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     // location, proactively prompt them to add one \u2014 many phone photos
     // (especially anything that passed through WhatsApp) have EXIF stripped.
     const first = albumPhotos[0];
-    if (first && typeof first.lat !== 'number' && currentScreenName === 'waypoints'){
-      setTimeout(()=>openWptsLoc(first.id), 500);
+    if (first && typeof first.lat === 'number' && currentScreenName === 'waypoints'){
+      showToast('Pinned to ' + (first.place || 'your location') + ' ✓');
+    } else if (first && typeof first.lat !== 'number' && currentScreenName === 'waypoints'){
+      setTimeout(function(){ openWptsLoc(first.id); }, 600);
     }
   }
 
@@ -11202,15 +11271,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       <span style="margin-top:8px; font-style:italic;">e.g. \u201c${escapeHtml(t.questions[0].label)}\u201d</span>
     </div>`).join('');
 
-  // Cursor Implementation
-  var mx=0, my=0, lx=0, ly=0;
-  var C = document.getElementById('C');
-  var CR = document.getElementById('CR');
-  
-  document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;C.style.transform='translate('+mx+'px,'+my+'px) translate(-50%,-50%)';});
-  (function loop(){lx+=(mx-lx)*.12;ly+=(my-ly)*.12;CR.style.transform='translate('+lx+'px,'+ly+'px) translate(-50%,-50%)';requestAnimationFrame(loop);})();
-  document.addEventListener('mouseover',function(e){if(e.target.matches('button,a,.btn-small,.panel,.details-card')){CR.style.width='44px';CR.style.height='44px';}});
-  document.addEventListener('mouseout',function(e){if(e.target.matches('button,a,.btn-small,.panel,.details-card')){CR.style.width='32px';CR.style.height='32px';}});
+  // Cursor Implementation moved to inline script after cursor divs
 
   var mapTimelineData = { owner: null, visitor: null };
 
@@ -14976,8 +15037,26 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       +   '<div class="vp-wave"><svg viewBox="0 0 220 34" preserveAspectRatio="none"></svg></div>'
       +   '<div class="vp-dur">0:00</div>'
       + '</div>'
+      + '<button type="button" class="vp-del" onclick="deleteVoiceprint('' + e.id + '')">'
+      +   '\u2715 Remove voiceprint'
+      + '</button>'
       + '</div>').join('') + '</div>';
     host.querySelectorAll('.vprint').forEach(vpAttach);
+  }
+
+  async function deleteVoiceprint(entryId){
+    if (!entryId || !db) return;
+    if (!confirm('Remove this voiceprint? The signature and message from this person will stay on your book — only the voice recording is removed from here.')) return;
+    const { error } = await db.from('entries')
+      .update({ voice_url: null, voice_seconds: null })
+      .eq('id', entryId)
+      .eq('profile_id', profile.dbId);
+    if (error){ showToast(friendlyError(error)); return; }
+    // update local entries array so re-render is instant
+    const e = (entries || []).find(x => x.id === entryId);
+    if (e){ e.voiceUrl = null; e.voiceSeconds = null; }
+    renderVoiceprints();
+    showToast('Voiceprint removed \u2713');
   }
 
   async function openLookBack(name){
