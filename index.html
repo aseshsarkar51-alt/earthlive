@@ -654,6 +654,9 @@
     background:var(--card); border:1px solid var(--line); border-radius:16px;
     display:flex; flex-direction:column; height:60vh; min-height:380px; overflow:hidden;
   }
+  .enc-badge{display:inline-flex; align-items:center; gap:4px; font-size:10.5px; padding:2px 8px 2px 6px; border-radius:999px; margin-left:8px; font-weight:600; vertical-align:middle;}
+  .enc-badge.on{background:var(--oat); color:var(--moss);}
+  .enc-badge.off{background:var(--oat); color:var(--ink-soft);}
   .thread-head{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
     padding:14px 18px; border-bottom:1px solid var(--line);
@@ -4083,6 +4086,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         <div class="thread-head">
           <span>
             <strong id="circleName"></strong>
+            <span id="circleEncBadge" class="enc-badge"></span>
             <div class="circle-members" id="circleMembers"></div>
           </span>
           <button class="btn-small" onclick="openCircle(currentCircleId)">Refresh</button>
@@ -4108,6 +4112,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       <div class="thread-box">
         <div class="thread-head">
           <strong id="threadName"></strong>
+          <span id="threadEncBadge" class="enc-badge"></span>
           <button class="btn-small" onclick="openThread(currentConversationId)">Refresh</button>
         </div>
         <div class="request-bar" id="requestBar" style="display:none;"></div>
@@ -5874,8 +5879,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
     let threadSharedKey = null;
     const myPriv = await e2eGetMyPrivateKey();
-    if (myPriv && other && other.extras && other.extras.msg_pubkey){
+    const bothHaveKeys = !!(myPriv && other && other.extras && other.extras.msg_pubkey);
+    if (bothHaveKeys){
       try { threadSharedKey = await e2eDeriveSharedKey(myPriv, other.extras.msg_pubkey); } catch(e){ threadSharedKey = null; }
+    }
+    const encBadge = document.getElementById('threadEncBadge');
+    if (encBadge){
+      encBadge.className = 'enc-badge ' + (threadSharedKey ? 'on' : 'off');
+      encBadge.innerHTML = threadSharedKey ? '\ud83d\udd12 Encrypted' : '\ud83d\udd13 Not encrypted';
     }
     const decryptedMsgs = [];
     for (const m of (msgs || [])){
@@ -12571,6 +12582,12 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     } else if (!e2eMasterKey){
       e2eBanner = '<div class="d-e2e-banner"><span>\ud83d\udd12 Your diary is locked for this session.</span>' +
         '<button type="button" onclick="e2eUnlockAndRerender()">Unlock</button></div>';
+    } else if (!e2eBackupReminderDismissed){
+      e2eBanner = '<div class="d-e2e-banner"><span>\ud83d\udd12 Encrypted. Keep your passphrase and recovery code somewhere safe \u2014 nobody, including us, can recover them. Worth downloading a PDF backup now and then too.</span>' +
+        '<span style="display:flex; gap:6px; flex:none;">' +
+          '<button type="button" onclick="openPrintModal(\'diary\'); e2eDismissBackupReminder();">Download PDF</button>' +
+          '<button type="button" onclick="e2eDismissBackupReminder();">Got it</button>' +
+        '</span></div>';
     }
 
     if (!entries.length){
@@ -12775,6 +12792,11 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   // are permanently unreadable. There is no third way in, by design.
   // =====================================================================
   let e2eMasterKey = null; // in-memory only for this session, never persisted
+  let e2eBackupReminderDismissed = false; // resets each page load — gentle, not naggy, but not silenced forever either
+  function e2eDismissBackupReminder(){
+    e2eBackupReminderDismissed = true;
+    renderDiary();
+  }
 
   function e2eBufToB64(buf){ return btoa(String.fromCharCode(...new Uint8Array(buf))); }
   function e2eB64ToBuf(b64){ return Uint8Array.from(atob(b64), c => c.charCodeAt(0)); }
@@ -12939,7 +12961,27 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (!useRecovery) return false;
     const code = prompt('Enter your recovery code:');
     if (!code) return false;
-    return await e2eUnlockWithRecoveryCode(code);
+    const recovered = await e2eUnlockWithRecoveryCode(code);
+    if (recovered) return true;
+    const wantsReset = confirm('That recovery code didn\u2019t work either.\n\nYour existing encrypted entries can\u2019t be recovered without one of those two \u2014 that\u2019s permanent, by design.\n\nYou can still start fresh with a new passphrase for everything you write from here on. Your old entries stay in your account, still encrypted, but unreadable until you provide the original passphrase or code (if you ever find them). Reset and start fresh now?');
+    if (!wantsReset) return false;
+    return await e2eResetEncryption();
+  }
+
+  // For someone genuinely locked out of both the passphrase and recovery
+  // code. Does NOT touch old encrypted entries (they stay as unreadable
+  // ciphertext, permanently, unless the original passphrase/code turns
+  // up later) — it only sets up a fresh key so writing can continue.
+  async function e2eResetEncryption(){
+    const pass = prompt('Choose a new diary passphrase:');
+    if (!pass || !pass.trim()) return false;
+    const recovery = await e2eSetupWithPassphrase(pass);
+    if (!recovery) return false;
+    e2eMyPrivateKey = null; // old messaging key is gone too — it was wrapped by the old master key
+    await e2eEnsureMessagingKeypair();
+    alert('New passphrase set. Save this new recovery code somewhere safe \u2014 shown only once:\n\n' + recovery + '\n\nYour older encrypted entries are still there, just unreadable unless the original passphrase or code ever turns up.');
+    showToast('Encryption reset \u2014 you can write again');
+    return true;
   }
 
   // Explicit, user-initiated action — the only place encryption gets turned on.
@@ -15005,6 +15047,13 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       (memberProfiles || []).forEach(p => { if (p.extras && p.extras.msg_pubkey) pubkeyByUser[p.user_id] = p.extras.msg_pubkey; });
     }
     const myPriv = await e2eGetMyPrivateKey();
+    const circleAllHaveKeys = !!myPriv && !!(profile.extras && profile.extras.msg_pubkey) &&
+      memberIds.every(id => id === currentUser.id ? true : !!pubkeyByUser[id]);
+    const circleEncBadge = document.getElementById('circleEncBadge');
+    if (circleEncBadge){
+      circleEncBadge.className = 'enc-badge ' + (circleAllHaveKeys ? 'on' : 'off');
+      circleEncBadge.innerHTML = circleAllHaveKeys ? '\ud83d\udd12 Encrypted' : '\ud83d\udd13 Not encrypted';
+    }
     const decryptedCircleMsgs = [];
     for (const m of (msgs || [])){
       if (m.key_wraps && m.key_wraps[currentUser.id] && myPriv && pubkeyByUser[m.sender_user_id]){
@@ -15847,7 +15896,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
           <div class="hp-card-title" style="font-size:13.5px;">Let my close circle know when I'm having a hard week</div>
           <div class="hp-card-sub">Never shows them what you wrote — only that a hello would help</div>
         </div>
-        <button type="button" class="hp-toggle" id="hpConsentToggle" onclick="this.classList.toggle('on')" aria-label="Toggle circle nudge"><i></i></button>
+        <button type="button" class="hp-toggle${(profile.extras && profile.extras.happiness_circle_nudge_enabled) ? ' on' : ''}" id="hpConsentToggle" onclick="hpToggleConsent(this)" aria-label="Toggle circle nudge"><i></i></button>
       </div>
       <div class="hp-card">
         <div class="hp-circle-head">
@@ -15864,9 +15913,13 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
           <div class="hp-card-title" style="font-size:13.5px;">Quiet mode</div>
           <div class="hp-card-sub">Pause check-in nudges for 2 weeks</div>
         </div>
-        <button type="button" class="hp-toggle" id="hpQuietToggle" onclick="this.classList.toggle('on')" aria-label="Toggle quiet mode"><i></i></button>
+        <button type="button" class="hp-toggle${(profile.extras && profile.extras.happiness_quiet_until && new Date(profile.extras.happiness_quiet_until) > new Date()) ? ' on' : ''}" id="hpQuietToggle" onclick="hpToggleQuiet(this)" aria-label="Toggle quiet mode"><i></i></button>
       </div>`;
     hpRenderCircleList();
+
+    if (delta !== null && delta <= -15){
+      hpMaybeSendCircleNudge(delta);
+    }
   }
 
   // Support circle: who gets a gentle, detail-free nudge if the consent
@@ -15894,6 +15947,64 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         <button type="button" class="hp-circle-remove" onclick="hpRemoveCircleMember(${i})" aria-label="Remove ${p.name}">×</button>
       </div>`
     ).join('');
+  }
+  async function hpSaveExtras(patch){
+    const extras = { ...(profile.extras || {}), ...patch };
+    profile.extras = extras;
+    if (db && profile.dbId){
+      const { error } = await db.from('profiles').update({ extras }).eq('id', profile.dbId);
+      if (error) showToast('Could not save: ' + error.message);
+    }
+  }
+
+  function hpToggleConsent(btn){
+    const on = btn.classList.toggle('on');
+    hpSaveExtras({ happiness_circle_nudge_enabled: on });
+  }
+
+  function hpToggleQuiet(btn){
+    const on = btn.classList.toggle('on');
+    // "On" pauses nudges for 2 weeks from now; turning it back off clears the pause immediately.
+    hpSaveExtras({ happiness_quiet_until: on ? new Date(Date.now() + 14*24*60*60*1000).toISOString() : null });
+  }
+
+  // The actual mechanism behind "let my close circle know when I'm having
+  // a hard week": checks the consent toggle, quiet mode, and a 7-day
+  // cooldown (so it's once per rough stretch, not once per rough day),
+  // then sends each support-circle person a single real 1:1 message
+  // through the existing messaging system — never your score, never your
+  // entries, just the one line shown in the setup card.
+  async function hpMaybeSendCircleNudge(delta){
+    if (!profile.extras || !profile.extras.happiness_circle_nudge_enabled) return;
+    if (profile.extras.happiness_quiet_until && new Date(profile.extras.happiness_quiet_until) > new Date()) return;
+    const lastSent = profile.extras.happiness_last_nudge_sent ? new Date(profile.extras.happiness_last_nudge_sent) : null;
+    if (lastSent && (Date.now() - lastSent.getTime()) < 7*24*60*60*1000) return;
+    const circle = (profile.extras.happiness_support_circle || []).filter(p => p.user_id);
+    if (!circle.length) return;
+    if (!db || !currentUser || !profile.dbId) return;
+
+    for (const person of circle){
+      const { data: theirProfile } = await db.from('profiles').select('id').eq('user_id', person.user_id).maybeSingle();
+      if (!theirProfile) continue;
+      let { data: conv } = await db.from('conversations').select('id')
+        .or(`and(requester_profile_id.eq.${profile.dbId},recipient_profile_id.eq.${theirProfile.id}),and(requester_profile_id.eq.${theirProfile.id},recipient_profile_id.eq.${profile.dbId})`)
+        .maybeSingle();
+      if (!conv){
+        const { data: newConv } = await db.from('conversations').insert({
+          requester_profile_id: profile.dbId,
+          recipient_profile_id: theirProfile.id,
+          status: 'pending'
+        }).select().single();
+        conv = newConv;
+      }
+      if (!conv) continue;
+      await db.from('messages').insert({
+        conversation_id: conv.id,
+        sender_profile_id: profile.dbId,
+        body: (profile.name || 'A friend') + ' might appreciate hearing from you \u2014 sent automatically by EarthLive\u2019s Happiness check-in, no details shared.'
+      });
+    }
+    await hpSaveExtras({ happiness_last_nudge_sent: new Date().toISOString() });
   }
   async function hpSaveCircle(){
     const extras = { ...(profile.extras || {}), happiness_support_circle: hpSupportCircle };
