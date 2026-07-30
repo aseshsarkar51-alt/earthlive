@@ -1471,6 +1471,8 @@
   .d-note-box textarea{width:100%; padding:10px 12px; border:1px solid var(--camel); border-radius:9px; font-family:inherit; font-size:13.5px; line-height:1.6; resize:vertical; min-height:64px; outline:none;}
   .d-note-actions{display:flex; gap:8px; margin-top:8px;}
   .d-empty{text-align:center; padding:38px 16px; color:var(--ink-soft); font-size:13.5px;}
+  .d-e2e-banner{display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--oat); border:1px solid var(--line); border-radius:10px; padding:11px 14px; margin-bottom:14px; font-size:12.5px; color:var(--ink-soft);}
+  .d-e2e-banner button{font-size:12px; color:var(--ink); background:none; border:1px solid var(--line); border-radius:999px; padding:6px 13px; cursor:pointer; font-family:inherit; flex:none;}
   /* FOR YOU */
   .fy-item{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; box-shadow:var(--shadow); margin-bottom:12px;}
   .fy-mutual{cursor:pointer; padding:14px 18px; border-left:3px solid var(--moss); transition:border-color .15s, background .15s;}
@@ -1607,6 +1609,15 @@
   #screen-waypoints .wpts-btn:hover{color:var(--ink);}
   #screen-waypoints .wpts-btn.primary{color:var(--ink); font-weight:600;}
   #screen-waypoints .wpts-btn svg{width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+  .wpts-folder-bar{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;}
+  .wpts-folder{display:flex; align-items:center; gap:7px; padding:8px 13px; border:1px solid var(--line); border-radius:999px; font-size:12.5px; color:var(--ink-soft); cursor:pointer; background:var(--card); position:relative;}
+  .wpts-folder.active{border-color:var(--ink); color:var(--ink); font-weight:600;}
+  .wpts-folder-count{color:var(--ink-soft); font-size:11px;}
+  .wpts-folder-actions{display:none; gap:4px; margin-left:2px;}
+  .wpts-folder:hover .wpts-folder-actions{display:flex;}
+  .wpts-folder-actions button{background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:11px; padding:0;}
+  .wpts-folder-actions button:hover{color:var(--ink);}
+  .wpts-folder-new{border-style:dashed; color:var(--camel);}
 
   /* Waypoints: people search + face-match map */
   #screen-waypoints .wpts-people{position:relative; margin:0 0 14px;}
@@ -3876,7 +3887,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       <p>To run EarthLive: showing your book to people you share it with, delivering signatures to book owners for approval, keeping your diary private to you, and running event pages for their members. We do not sell your personal data. We do not show your private pages to anyone but you.</p>
       <h3>Who can see what</h3>
       <p>Public books are visible to anyone with the link and may appear in search. Private books show only your name, bio, and photos — the entries are visible only to you. Signatures never appear publicly until the book owner approves them.</p>
-      <p><b>Your diary is private by default and visible only to you.</b> An entry becomes visible to someone else only when you explicitly choose it: sharing an entry with one person makes it readable by that person alone, and adding an entry to your book makes it visible to whoever can see your book. You can change an entry back to private at any time, which removes it from your book. Nobody at EarthLive reads your diary.</p>
+      <p><b>Your diary is private by default and visible only to you.</b> An entry becomes visible to someone else only when you explicitly choose it: sharing an entry with one person makes it readable by that person alone, and adding an entry to your book makes it visible to whoever can see your book. You can change an entry back to private at any time, which removes it from your book. As a matter of policy and access control, nobody at EarthLive reads your diary.</p>
+      <h3>Optional end-to-end encryption</h3>
+      <p>You can turn on encryption for private diary entries and, separately, for messages once the other person has also turned it on. When encryption is on, your content is scrambled on your own device using a passphrase only you hold, before it is ever sent to our servers — this is a technical guarantee, not just a policy: EarthLive cannot read this content even if we wanted to, because we never have the key.</p>
+      <p><b>This comes with a real risk we want you to understand clearly:</b> if you lose both your passphrase and the one-time recovery code shown when you set it up, that content becomes permanently unreadable — including to us. We have no way to reset or recover it, by design. Diary entries you share with someone else, event pages, and Waypoints are not covered by this feature and remain protected the way the rest of this policy describes.</p>
       <p>Event pages are visible only to approved members. The event host approves every person who joins, and can remove members or posts. People who aren't members see only the event name and member count.</p>
       <h3>Your choices</h3>
       <p>You can edit or delete your book, decline or remove any signature, delete any diary entry, leave or delete events, switch between public and private at any time, and request deletion of your account and data by writing to hello@earthlive.in. We will act on verified requests within 30 days.</p>
@@ -3910,6 +3924,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       <p>You own what you write and upload. By posting, you give EarthLive a licence to store and display it as needed to run the service. Only upload photos and words you have the right to share — no impersonation, and no posting other people's private information.</p>
       <h3>What's not allowed</h3>
       <p>Harassment, bullying, hate speech, threats, sexual content involving minors, spam, malware, or using the service to harm anyone. Page owners control their own pages and may decline or remove any signature. We may remove content or suspend accounts that break these rules.</p>
+      <h3>Optional encryption</h3>
+      <p>If you turn on encryption for your diary or messages, you are responsible for keeping your passphrase and recovery code safe. If both are lost, that content is permanently unreadable, and EarthLive cannot recover it under any circumstances \u2014 this is a deliberate, technical limitation of how the feature works, not a policy we can override on request.</p>
       <h3>Our service</h3>
       <p>EarthLive is provided "as is." We work hard to keep it available and your data safe, but we can't guarantee uninterrupted service, and we're not liable for content posted by users. We may update features and these terms; continued use means acceptance of updates.</p>
       <h3>Contact</h3>
@@ -3959,6 +3975,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         <h3 style="margin:0;">Album</h3>
         <span id="wptsAlbumCount" style="font-size:12.5px; color:var(--ink-soft);"></span>
       </div>
+      <div class="wpts-folder-bar" id="wptsAlbumFolders"></div>
       <div class="wpts-match-grid on" id="wptsAllGrid"></div>
     </div>
 
@@ -5817,7 +5834,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   async function openThread(convId){
     currentConversationId = convId;
     const { data: conv, error } = await db.from('conversations')
-      .select('*, requester:profiles!conversations_requester_profile_id_fkey(id,name,username,ink,avatar_url), recipient:profiles!conversations_recipient_profile_id_fkey(id,name,username,ink,avatar_url)')
+      .select('*, requester:profiles!conversations_requester_profile_id_fkey(id,name,username,ink,avatar_url,extras), recipient:profiles!conversations_recipient_profile_id_fkey(id,name,username,ink,avatar_url,extras)')
       .eq('id', convId).single();
     if (error || !conv){ showToast('Could not open conversation'); return; }
     currentConversation = conv;
@@ -5855,11 +5872,27 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       .eq('conversation_id', convId)
       .order('created_at', { ascending:true });
 
+    let threadSharedKey = null;
+    const myPriv = await e2eGetMyPrivateKey();
+    if (myPriv && other && other.extras && other.extras.msg_pubkey){
+      try { threadSharedKey = await e2eDeriveSharedKey(myPriv, other.extras.msg_pubkey); } catch(e){ threadSharedKey = null; }
+    }
+    const decryptedMsgs = [];
+    for (const m of (msgs || [])){
+      if (e2eIsEncrypted(m.body) && threadSharedKey){
+        try { m.body = await e2eDecryptWithKey(threadSharedKey, m.body); }
+        catch(e){ m.body = '\ud83d\udd12 Could not decrypt this message'; }
+      } else if (e2eIsEncrypted(m.body)){
+        m.body = '\ud83d\udd12 Unlock your diary to read encrypted messages';
+      }
+      decryptedMsgs.push(m);
+    }
+
     // Mark this conversation as read for me, then update the badge
     db.rpc('mark_conversation_read', { conv: convId }).then(()=>refreshMsgBadge()).catch(()=>{});
 
     const box = document.getElementById('threadMsgs');
-    box.innerHTML = (msgs || []).map(m=>{
+    box.innerHTML = (decryptedMsgs || []).map(m=>{
       const mine = m.sender_profile_id === profile.dbId ? 'mine' : '';
       const unsend = mine ? `<div class="msg-unsend" onclick="deleteMessage('${m.id}')">Unsend</div>` : '';
       if (m.voice_url){
@@ -5877,12 +5910,28 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     db.rpc('mark_conversation_read', { conv: convId }).then(()=>refreshMsgBadge());
   }
 
+  // Deleting a message row alone leaves the actual uploaded file (photo or
+  // voice note) sitting in Supabase Storage — this removes it too, so
+  // "unsend" actually removes everything, not just the visible message.
+  async function deleteStorageFileFromUrl(url){
+    if (!url || !db) return;
+    const m = url.match(/\/object\/public\/([^/]+)\/(.+)$/);
+    if (!m) return;
+    const [, bucket, path] = m;
+    try { await db.storage.from(bucket).remove([decodeURIComponent(path)]); } catch(e){ /* best effort */ }
+  }
+
   async function deleteMessage(messageId){
     if (!confirm('Unsend this message?\n\nIt will be removed for everyone in this conversation.')) return;
+    const { data: msgRow } = await db.from('messages').select('image_url, voice_url').eq('id', messageId).maybeSingle();
     const { error } = await db.from('messages').delete()
       .eq('id', messageId)
       .eq('sender_profile_id', profile.dbId); // only ever your own message
     if (error){ showToast('Could not unsend: ' + error.message); return; }
+    if (msgRow){
+      if (msgRow.image_url) deleteStorageFileFromUrl(msgRow.image_url);
+      if (msgRow.voice_url) deleteStorageFileFromUrl(msgRow.voice_url);
+    }
     showToast('Message unsent');
     openThread(currentConversationId);
   }
@@ -5992,10 +6041,23 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (!body && !imageUrl) return;
     if (!currentConversationId) return;
     input.value = '';
+
+    let savedBody = body || null;
+    if (savedBody){
+      const other = otherParty(currentConversation);
+      const myPriv = await e2eGetMyPrivateKey();
+      if (myPriv && other && other.extras && other.extras.msg_pubkey){
+        try {
+          const sharedKey = await e2eDeriveSharedKey(myPriv, other.extras.msg_pubkey);
+          savedBody = await e2eEncryptWithKey(sharedKey, savedBody);
+        } catch(e){ /* fall through and send in plain text rather than block the send */ }
+      }
+    }
+
     const row = {
       conversation_id: currentConversationId,
       sender_profile_id: profile.dbId,
-      body: body || null
+      body: savedBody
     };
     if (imageUrl) row.image_url = imageUrl;
     const { error } = await db.from('messages').insert(row);
@@ -10449,16 +10511,19 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     wptsSyncVisPill();
   }
   function wptsRenderScreen(){
-    const photos = albumPhotos || [];
+    const photos = (currentAlbumId === null ? (albumPhotos || []) : (albumPhotos || []).filter(p => p.albumId === currentAlbumId));
+    renderWptsAlbumFolders();
     const grid = document.getElementById('wptsAllGrid');
     const stats = document.getElementById('wptsStats');
     const people = document.getElementById('wptsPeopleSec');
     const albumSec = document.getElementById('wptsAlbumSec');
     if (!grid) return;
 
-    // No photos yet: hide the album + stats sections. The dropzone stays
-    // visible on its own so the user can always add photos.
-    if (!photos.length){
+    // No photos yet AT ALL: hide the album + stats sections entirely. The
+    // dropzone stays visible on its own so the user can always add photos.
+    // (A specific empty album still shows the section, with folders visible,
+    // just an empty grid — filtering shouldn't hide the whole feature.)
+    if (!(albumPhotos || []).length){
       if (albumSec) albumSec.style.display = 'none';
       if (stats) stats.style.display = 'none';
       if (people) people.style.display = 'none';
@@ -11170,15 +11235,26 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
 /* ═══════════════ MY ALBUM (drag-drop / mobile upload, auto-pinned from photo EXIF) ═══════════════ */
 
-  let albumPhotos = []; // {id, url, lat, lng, place, takenAt}
+  let albumPhotos = []; // {id, url, lat, lng, place, takenAt, albumId}
   let albumMapInstance = null;
+  let wptsAlbums = [];         // {id, name, photoCount}
+  let currentAlbumId = null;  // null = "All Photos"
 
   function dbRowToAlbumPhoto(r){
-    return { id:r.id, url:r.url, lat:r.lat, lng:r.lng, place:r.place_name, takenAt:r.taken_at };
+    return { id:r.id, url:r.url, lat:r.lat, lng:r.lng, place:r.place_name, takenAt:r.taken_at, albumId:r.album_id || null };
+  }
+
+  async function loadWptsAlbums(){
+    if (!db || !profile || !profile.dbId) return;
+    const { data, error } = await db.from('albums').select('*')
+      .eq('profile_id', profile.dbId).order('created_at', { ascending:true });
+    if (error){ wptsAlbums = []; return; } // table not created yet — folders just won't show
+    wptsAlbums = data || [];
   }
 
   async function loadAlbumFromDb(){
     if (!db || !profile || !profile.dbId) return;
+    await loadWptsAlbums();
     const { data, error } = await db.from('album_photos').select('*')
       .eq('profile_id', profile.dbId).order('created_at', { ascending:false });
     if (error){
@@ -11189,6 +11265,71 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     albumPhotos = (data || []).map(dbRowToAlbumPhoto);
     renderAlbumGrid();
     renderAlbumMap();
+  }
+
+  function wptsAlbumPhotoCount(albumId){
+    return albumPhotos.filter(p => p.albumId === albumId).length;
+  }
+
+  function renderWptsAlbumFolders(){
+    const bar = document.getElementById('wptsAlbumFolders');
+    if (!bar) return;
+    const allCount = albumPhotos.length;
+    let html = '<div class="wpts-folder' + (currentAlbumId === null ? ' active' : '') + '" onclick="wptsSelectAlbum(null)">' +
+      '<span class="wpts-folder-name">All photos</span><span class="wpts-folder-count">' + allCount + '</span></div>';
+    wptsAlbums.forEach(a=>{
+      const count = wptsAlbumPhotoCount(a.id);
+      html += '<div class="wpts-folder' + (currentAlbumId === a.id ? ' active' : '') + '" onclick="wptsSelectAlbum(\'' + a.id + '\')">' +
+        '<span class="wpts-folder-name">' + escapeHtml(a.name) + '</span><span class="wpts-folder-count">' + count + '</span>' +
+        '<span class="wpts-folder-actions">' +
+          '<button type="button" onclick="event.stopPropagation(); wptsRenameAlbum(\'' + a.id + '\')" aria-label="Rename album">\u270e</button>' +
+          '<button type="button" onclick="event.stopPropagation(); wptsDeleteAlbum(\'' + a.id + '\')" aria-label="Delete album">\u2715</button>' +
+        '</span></div>';
+    });
+    html += '<div class="wpts-folder wpts-folder-new" onclick="wptsCreateAlbum()">+ New album</div>';
+    bar.innerHTML = html;
+  }
+
+  function wptsSelectAlbum(albumId){
+    currentAlbumId = albumId;
+    renderWptsAlbumFolders();
+    wptsRenderScreen();
+  }
+
+  async function wptsCreateAlbum(){
+    const name = prompt('Name this album (like a folder for a set of photos):');
+    if (!name || !name.trim()) return;
+    if (!db || !profile || !profile.dbId){ showToast('Sign in and save your book first'); return; }
+    const { data, error } = await db.from('albums').insert({ profile_id: profile.dbId, name: name.trim() }).select().single();
+    if (error){ showToast(friendlyError(error)); return; }
+    wptsAlbums.push(data);
+    renderWptsAlbumFolders();
+    showToast('Album created \u2713');
+  }
+
+  async function wptsRenameAlbum(albumId){
+    const current = wptsAlbums.find(a => a.id === albumId);
+    const name = prompt('Rename album:', current ? current.name : '');
+    if (!name || !name.trim()) return;
+    const { error } = await db.from('albums').update({ name: name.trim() }).eq('id', albumId);
+    if (error){ showToast(friendlyError(error)); return; }
+    if (current) current.name = name.trim();
+    renderWptsAlbumFolders();
+  }
+
+  async function wptsDeleteAlbum(albumId){
+    const current = wptsAlbums.find(a => a.id === albumId);
+    if (!confirm('Delete \u201c' + (current ? current.name : 'this album') + '\u201d?\n\nPhotos inside stay in your account \u2014 they just move back to \u201cAll photos.\u201d')) return;
+    // Photos keep their album_id unless explicitly moved — but the folder itself goes away
+    const { error: eA } = await db.from('album_photos').update({ album_id: null }).eq('album_id', albumId);
+    const { error } = await db.from('albums').delete().eq('id', albumId);
+    if (error){ showToast(friendlyError(error)); return; }
+    albumPhotos.forEach(p => { if (p.albumId === albumId) p.albumId = null; });
+    wptsAlbums = wptsAlbums.filter(a => a.id !== albumId);
+    if (currentAlbumId === albumId) currentAlbumId = null;
+    renderWptsAlbumFolders();
+    wptsRenderScreen();
+    showToast('Album deleted');
   }
 
   function initAlbumDropzone(){
@@ -11263,9 +11404,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         lat: gps ? gps.latitude : null,
         lng: gps ? gps.longitude : null,
         place_name: place,
-        taken_at: takenAt ? new Date(takenAt).toISOString() : null
+        taken_at: takenAt ? new Date(takenAt).toISOString() : null,
+        album_id: currentAlbumId || null
       };
-      const { data, error } = await db.from('album_photos').insert(row).select().single();
+      let { data, error } = await db.from('album_photos').insert(row).select().single();
+      if (error && /album_id/i.test(error.message || '') && /column|schema cache/i.test(error.message || '')){
+        const { album_id, ...rowNoAlbum } = row;
+        ({ data, error } = await db.from('album_photos').insert(rowNoAlbum).select().single());
+      }
       if (error){
         console.error('[EarthLive] album insert failed:', error.message);
         showToast('Could not save that photo');
@@ -12399,6 +12545,18 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       return;
     }
     const entries = data || [];
+    const hasEncrypted = entries.some(e => e2eIsEncrypted(e.title) || e2eIsEncrypted(e.body));
+    if (profile.extras && profile.extras.diary_e2e_enabled && e2eMasterKey){
+      for (const e of entries){
+        if (e2eIsEncrypted(e.title)){ try { e.title = await e2eDecryptText(e.title); } catch(err){ e.title = '\ud83d\udd12 Locked'; } }
+        if (e2eIsEncrypted(e.body)){ try { e.body = await e2eDecryptText(e.body); } catch(err){ e.body = '\ud83d\udd12 Could not decrypt \u2014 wrong key?'; } }
+      }
+    } else if (hasEncrypted){
+      for (const e of entries){
+        if (e2eIsEncrypted(e.title)) e.title = '\ud83d\udd12 Locked';
+        if (e2eIsEncrypted(e.body)) e.body = '\ud83d\udd12 Unlock your diary to read this entry.';
+      }
+    }
     diaryEntriesCache = entries;          // the calendar reads its dots from this
     renderDiaryCal();                     // refresh dots whenever the diary reloads
     const tag = document.getElementById('diaryCountTag');
@@ -12406,13 +12564,22 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       ? entries.length + (entries.length === 1 ? ' entry' : ' entries')
       : 'nothing yet';
 
+    let e2eBanner = '';
+    if (!profile.extras || !profile.extras.diary_e2e_enabled){
+      e2eBanner = '<div class="d-e2e-banner"><span>Diary entries are stored as plain text right now.</span>' +
+        '<button type="button" onclick="e2eOfferSetup()">\ud83d\udd12 Turn on encryption</button></div>';
+    } else if (!e2eMasterKey){
+      e2eBanner = '<div class="d-e2e-banner"><span>\ud83d\udd12 Your diary is locked for this session.</span>' +
+        '<button type="button" onclick="e2eUnlockAndRerender()">Unlock</button></div>';
+    }
+
     if (!entries.length){
-      list.innerHTML = '<div class="d-empty"><b style="color:var(--ink);">Nothing here yet.</b><br>' +
+      list.innerHTML = e2eBanner + '<div class="d-empty"><b style="color:var(--ink);">Nothing here yet.</b><br>' +
         'Write on the left — nobody else will ever see it.</div>';
       return;
     }
 
-    list.innerHTML = entries.map(e=>{
+    list.innerHTML = e2eBanner + entries.map(e=>{
       const sealed = isSealed(e);
       const preview = (e.body || '').trim() || '(no text)';
       let visTag = '';
@@ -12558,6 +12725,16 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
           document.getElementById('dWriteTitle').textContent = 'Write';
           return;
         }
+        if (e2eIsEncrypted(data.title) || e2eIsEncrypted(data.body)){
+          const unlocked = e2eMasterKey || await e2eEnsureUnlocked();
+          if (!unlocked){
+            showToast('Diary is locked \u2014 unlock it to edit this entry');
+            diaryEditingId = null;
+            return;
+          }
+          if (e2eIsEncrypted(data.title)){ try { data.title = await e2eDecryptText(data.title); } catch(e){ data.title = ''; } }
+          if (e2eIsEncrypted(data.body)){ try { data.body = await e2eDecryptText(data.body); } catch(e){ data.body = ''; } }
+        }
         document.getElementById('diaryTitle').value = data.title || '';
         document.getElementById('diaryBody').value = data.body || '';
         diaryPhotos = Array.isArray(data.photos) ? data.photos.slice() : [];
@@ -12581,6 +12758,213 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     document.getElementById('diarySharePersonBox').style.display = (v === 'shared_person') ? 'block' : 'none';
   }
 
+  // =====================================================================
+  // Diary encryption (E2E) — scoped to diary entries only for now.
+  // Signed messages (two different people) need public-key crypto and
+  // aren't covered here — see the conversation notes on why that's a
+  // separate, harder piece of work.
+  //
+  // Architecture: a random AES-256 masterKey actually encrypts your diary
+  // text. That masterKey is never sent to Supabase in the clear — it's
+  // "wrapped" (encrypted) by a key derived from your passphrase via
+  // PBKDF2, and only the wrapped version is stored. This means changing
+  // your passphrase later doesn't require re-encrypting every entry, and
+  // the one-time recovery code (the raw masterKey, shown once at setup)
+  // is a second, independent way to unlock — if the passphrase is lost.
+  // If BOTH the passphrase and the recovery code are lost, the entries
+  // are permanently unreadable. There is no third way in, by design.
+  // =====================================================================
+  let e2eMasterKey = null; // in-memory only for this session, never persisted
+
+  function e2eBufToB64(buf){ return btoa(String.fromCharCode(...new Uint8Array(buf))); }
+  function e2eB64ToBuf(b64){ return Uint8Array.from(atob(b64), c => c.charCodeAt(0)); }
+
+  async function e2eDeriveWrappingKey(passphrase, saltB64){
+    const salt = e2eB64ToBuf(saltB64);
+    const baseKey = await crypto.subtle.importKey(
+      'raw', new TextEncoder().encode(passphrase), 'PBKDF2', false, ['deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+      { name:'PBKDF2', salt, iterations:210000, hash:'SHA-256' },
+      baseKey, { name:'AES-GCM', length:256 }, false, ['wrapKey','unwrapKey']
+    );
+  }
+
+  async function e2eSetupWithPassphrase(passphrase){
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const saltB64 = e2eBufToB64(salt);
+    const wrappingKey = await e2eDeriveWrappingKey(passphrase, saltB64);
+    const masterKey = await crypto.subtle.generateKey({ name:'AES-GCM', length:256 }, true, ['encrypt','decrypt']);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const wrapped = await crypto.subtle.wrapKey('raw', masterKey, wrappingKey, { name:'AES-GCM', iv });
+    const wrappedStr = e2eBufToB64(iv) + ':' + e2eBufToB64(wrapped);
+    const rawKey = await crypto.subtle.exportKey('raw', masterKey);
+    const recoveryCode = e2eBufToB64(rawKey); // shown to the user ONCE — this IS the key, not a password
+
+    const extras = { ...(profile.extras || {}), diary_e2e_salt: saltB64, diary_e2e_wrapped_key: wrappedStr, diary_e2e_enabled: true };
+    profile.extras = extras;
+    if (db && profile.dbId){
+      const { error } = await db.from('profiles').update({ extras }).eq('id', profile.dbId);
+      if (error){ showToast('Could not save encryption setup: ' + error.message); return null; }
+    }
+    e2eMasterKey = masterKey;
+    return recoveryCode;
+  }
+
+  async function e2eUnlockWithPassphrase(passphrase){
+    try {
+      const saltB64 = profile.extras.diary_e2e_salt;
+      const wrappingKey = await e2eDeriveWrappingKey(passphrase, saltB64);
+      const [ivB64, dataB64] = profile.extras.diary_e2e_wrapped_key.split(':');
+      const iv = e2eB64ToBuf(ivB64);
+      const wrapped = e2eB64ToBuf(dataB64);
+      e2eMasterKey = await crypto.subtle.unwrapKey(
+        'raw', wrapped, wrappingKey, { name:'AES-GCM', iv }, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']
+      );
+      return true;
+    } catch (e){ return false; } // wrong passphrase — AES-GCM fails to authenticate
+  }
+
+  async function e2eUnlockWithRecoveryCode(code){
+    try {
+      const raw = e2eB64ToBuf(code.trim());
+      e2eMasterKey = await crypto.subtle.importKey('raw', raw, { name:'AES-GCM' }, false, ['encrypt','decrypt']);
+      return true;
+    } catch (e){ return false; }
+  }
+
+  async function e2eEncryptWithKey(key, text){
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const enc = await crypto.subtle.encrypt({ name:'AES-GCM', iv }, key, new TextEncoder().encode(text));
+    return 'e2e:v1:' + e2eBufToB64(iv) + ':' + e2eBufToB64(enc);
+  }
+  async function e2eDecryptWithKey(key, stored){
+    const parts = stored.split(':');
+    const iv = e2eB64ToBuf(parts[2]);
+    const data = e2eB64ToBuf(parts[3]);
+    const dec = await crypto.subtle.decrypt({ name:'AES-GCM', iv }, key, data);
+    return new TextDecoder().decode(dec);
+  }
+  async function e2eEncryptText(text){ return e2eEncryptWithKey(e2eMasterKey, text); }
+  async function e2eDecryptText(stored){ return e2eDecryptWithKey(e2eMasterKey, stored); }
+  function e2eIsEncrypted(str){ return typeof str === 'string' && str.indexOf('e2e:v1:') === 0; }
+
+  // -----------------------------------------------------------------
+  // Messaging E2E (1:1 and Circle) — public-key crypto (ECDH), because
+  // unlike the diary, two or more DIFFERENT people need to read the same
+  // content. Each user gets an ECDH keypair; the private half is wrapped
+  // by the SAME diary master key (so no third passphrase to remember \u2014
+  // this deliberately means messaging encryption requires diary
+  // encryption to already be set up). The public half is stored in plain
+  // in profiles.extras \u2014 public keys are, by definition, safe to share.
+  //
+  // 1:1 messages: sender and recipient derive the SAME shared secret via
+  // ECDH (that's the property that makes Diffie-Hellman work) \u2014 sender
+  // using (my private key, their public key), recipient using (their
+  // private key, my public key). Same AES key, computed independently by
+  // each side, never transmitted.
+  //
+  // Circle messages (3+ people): no single shared secret works for a
+  // group. Standard fix: generate one random AES key per message, encrypt
+  // the message with it, then wrap that random key once per member using
+  // ECDH with each member's public key. Needs a new key_wraps jsonb
+  // column on circle_messages \u2014 see e2e-circle-migration.sql.
+  // -----------------------------------------------------------------
+
+  async function e2eEnsureMessagingKeypair(){
+    if (profile.extras && profile.extras.msg_pubkey && profile.extras.msg_privkey_wrapped){
+      return true; // already set up
+    }
+    if (!e2eMasterKey){
+      showToast('Set up diary encryption first \u2014 message encryption reuses the same key');
+      return false;
+    }
+    const keyPair = await crypto.subtle.generateKey(
+      { name:'ECDH', namedCurve:'P-256' }, true, ['deriveKey']
+    );
+    const pubJwk = await crypto.subtle.exportKey('jwk', keyPair.publicKey);
+    const privJwk = await crypto.subtle.exportKey('jwk', keyPair.privateKey);
+    const wrappedPriv = await e2eEncryptWithKey(e2eMasterKey, JSON.stringify(privJwk));
+    const extras = { ...(profile.extras || {}), msg_pubkey: pubJwk, msg_privkey_wrapped: wrappedPriv };
+    profile.extras = extras;
+    if (db && profile.dbId){
+      const { error } = await db.from('profiles').update({ extras }).eq('id', profile.dbId);
+      if (error){ showToast('Could not save messaging keys: ' + error.message); return false; }
+    }
+    return true;
+  }
+
+  let e2eMyPrivateKey = null; // imported CryptoKey, cached for this session once unwrapped
+  async function e2eGetMyPrivateKey(){
+    if (e2eMyPrivateKey) return e2eMyPrivateKey;
+    if (!e2eMasterKey || !profile.extras || !profile.extras.msg_privkey_wrapped) return null;
+    const privJwkStr = await e2eDecryptWithKey(e2eMasterKey, profile.extras.msg_privkey_wrapped);
+    e2eMyPrivateKey = await crypto.subtle.importKey(
+      'jwk', JSON.parse(privJwkStr), { name:'ECDH', namedCurve:'P-256' }, false, ['deriveKey']
+    );
+    return e2eMyPrivateKey;
+  }
+
+  async function e2eDeriveSharedKey(myPrivateKey, theirPubJwk){
+    const theirPublicKey = await crypto.subtle.importKey(
+      'jwk', theirPubJwk, { name:'ECDH', namedCurve:'P-256' }, false, []
+    );
+    return crypto.subtle.deriveKey(
+      { name:'ECDH', public: theirPublicKey },
+      myPrivateKey, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']
+    );
+  }
+
+  // Wraps a raw AES message-key for one recipient (used for circle messages)
+  async function e2eWrapMessageKeyFor(msgKey, myPrivateKey, recipientPubJwk){
+    const sharedKey = await e2eDeriveSharedKey(myPrivateKey, recipientPubJwk);
+    const raw = await crypto.subtle.exportKey('raw', msgKey);
+    return e2eEncryptWithKey(sharedKey, e2eBufToB64(raw));
+  }
+  async function e2eUnwrapMessageKey(wrappedStr, myPrivateKey, senderPubJwk){
+    const sharedKey = await e2eDeriveSharedKey(myPrivateKey, senderPubJwk);
+    const rawB64 = await e2eDecryptWithKey(sharedKey, wrappedStr);
+    return crypto.subtle.importKey('raw', e2eB64ToBuf(rawB64), { name:'AES-GCM' }, false, ['encrypt','decrypt']);
+  }
+
+  // Ensures a usable key is in memory before an encrypt/decrypt operation,
+  // for a diary that's already been set up. Returns true if ready.
+  async function e2eEnsureUnlocked(){
+    if (e2eMasterKey) return true;
+    const pass = prompt('Unlock your diary \u2014 enter your passphrase:');
+    if (!pass) return false;
+    const ok = await e2eUnlockWithPassphrase(pass);
+    if (ok) return true;
+    const useRecovery = confirm('That passphrase didn\u2019t work. Try your recovery code instead?');
+    if (!useRecovery) return false;
+    const code = prompt('Enter your recovery code:');
+    if (!code) return false;
+    return await e2eUnlockWithRecoveryCode(code);
+  }
+
+  // Explicit, user-initiated action — the only place encryption gets turned on.
+  async function e2eOfferSetup(){
+    if (profile.extras && profile.extras.diary_e2e_enabled){
+      showToast('Diary encryption is already on');
+      return;
+    }
+    const wants = confirm('Turn on private encryption for your diary?\n\nOnce set up, new entries are unreadable without your passphrase \u2014 including by you, if it\u2019s lost, unless you save the one-time recovery code shown right after setup.\n\nEntries you\u2019ve already written stay as they are and won\u2019t be encrypted retroactively.');
+    if (!wants) return;
+    const pass = prompt('Choose a diary passphrase. This is separate from your login \u2014 write it down somewhere safe:');
+    if (!pass) return;
+    const recovery = await e2eSetupWithPassphrase(pass);
+    if (!recovery) return;
+    await e2eEnsureMessagingKeypair();
+    alert('Save this recovery code somewhere safe \u2014 it\u2019s shown only once and is the only backup if you forget your passphrase:\n\n' + recovery);
+    showToast('Diary and message encryption turned on');
+    renderDiary();
+  }
+
+  async function e2eUnlockAndRerender(){
+    const ok = await e2eEnsureUnlocked();
+    if (ok) renderDiary();
+  }
+
   async function saveDiaryEntry(){
     if (!db || !currentUser){ showToast('Sign in to save diary entries'); return; }
     const title = document.getElementById('diaryTitle').value.trim();
@@ -12600,10 +12984,24 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       }
     }
 
+    let savedTitle = title || null;
+    let savedBody = body || '';
+    if (profile.extras && profile.extras.diary_e2e_enabled && visibility === 'private'){
+      const unlocked = await e2eEnsureUnlocked();
+      if (!unlocked){ showToast('Diary is locked \u2014 not saved'); return; }
+      if (savedTitle) savedTitle = await e2eEncryptText(savedTitle);
+      if (savedBody) savedBody = await e2eEncryptText(savedBody);
+    }
+    // Entries shared with someone else (visibility === 'shared_person') are
+    // deliberately NOT encrypted here — they'd be unreadable by the
+    // recipient, who doesn't have your key. Same limitation as signed
+    // messages: real two-person encryption needs public-key crypto, which
+    // isn't part of this diary-only pass.
+
     const payload = {
       author_user_id: currentUser.id,
-      title: title || null,
-      body: body || '',
+      title: savedTitle,
+      body: savedBody,
       photos: photoUrls,
       visibility,
       shared_with_user_id: visibility === 'shared_person' ? diarySharedWithUserId : null,
@@ -14598,10 +14996,32 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     document.getElementById('circleMembers').innerHTML =
       currentCircleMembers.map(m=>escapeHtml(m.name || '@' + m.username)).join(' \u00b7 ');
     if (error){ msgsEl.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Could not load messages.</p>'; return; }
-    if (!msgs || !msgs.length){
+
+    // Fetch each member's messaging public key for group decryption
+    const memberIds = currentCircleMembers.map(m => m.user_id).filter(Boolean);
+    let pubkeyByUser = {};
+    if (memberIds.length){
+      const { data: memberProfiles } = await db.from('profiles').select('user_id, extras').in('user_id', memberIds);
+      (memberProfiles || []).forEach(p => { if (p.extras && p.extras.msg_pubkey) pubkeyByUser[p.user_id] = p.extras.msg_pubkey; });
+    }
+    const myPriv = await e2eGetMyPrivateKey();
+    const decryptedCircleMsgs = [];
+    for (const m of (msgs || [])){
+      if (m.key_wraps && m.key_wraps[currentUser.id] && myPriv && pubkeyByUser[m.sender_user_id]){
+        try {
+          const msgKey = await e2eUnwrapMessageKey(m.key_wraps[currentUser.id], myPriv, pubkeyByUser[m.sender_user_id]);
+          m.body = await e2eDecryptWithKey(msgKey, m.body);
+        } catch(e){ m.body = '\ud83d\udd12 Could not decrypt this message'; }
+      } else if (m.key_wraps){
+        m.body = '\ud83d\udd12 Unlock your diary to read encrypted messages';
+      }
+      decryptedCircleMsgs.push(m);
+    }
+
+    if (!decryptedCircleMsgs.length){
       msgsEl.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Nothing here yet \u2014 write the first line.</p>';
     } else {
-      msgsEl.innerHTML = msgs.map(m=>{
+      msgsEl.innerHTML = decryptedCircleMsgs.map(m=>{
         const mine = currentUser && m.sender_user_id === currentUser.id;
         const unsend = mine ? '<div class="msg-unsend" onclick="deleteCircleMessage(\'' + m.id + '\')">Unsend</div>' : '';
         const bodyHtml = m.image_url
@@ -14620,10 +15040,12 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
   async function deleteCircleMessage(messageId){
     if (!confirm('Unsend this message?\n\nIt will be removed for everyone in this circle.')) return;
+    const { data: msgRow } = await db.from('circle_messages').select('image_url').eq('id', messageId).maybeSingle();
     const { error } = await db.from('circle_messages').delete()
       .eq('id', messageId)
       .eq('sender_user_id', currentUser.id); // only ever your own message
     if (error){ showToast('Could not unsend: ' + error.message); return; }
+    if (msgRow && msgRow.image_url) deleteStorageFileFromUrl(msgRow.image_url);
     showToast('Message unsent');
     openCircle(currentCircleId);
   }
@@ -14640,12 +15062,38 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const body = inp.value.trim();
     if (!body || !currentCircleId) return;
     inp.value = '';
-    const { error } = await db.from('circle_messages').insert({
+
+    let savedBody = body;
+    let keyWraps = null;
+    const myPriv = await e2eGetMyPrivateKey();
+    if (myPriv && currentCircleMembers && currentCircleMembers.length){
+      const memberIds = currentCircleMembers.map(m => m.user_id).filter(Boolean);
+      const { data: memberProfiles } = await db.from('profiles').select('user_id, extras').in('user_id', memberIds);
+      const pubkeyByUser = {};
+      (memberProfiles || []).forEach(p => { if (p.extras && p.extras.msg_pubkey) pubkeyByUser[p.user_id] = p.extras.msg_pubkey; });
+      // Only encrypt if every member (including me) has a public key set up
+      const allHaveKeys = memberIds.every(id => id === currentUser.id ? true : !!pubkeyByUser[id]);
+      if (allHaveKeys && profile.extras && profile.extras.msg_pubkey){
+        try {
+          const msgKey = await crypto.subtle.generateKey({ name:'AES-GCM', length:256 }, true, ['encrypt','decrypt']);
+          savedBody = await e2eEncryptWithKey(msgKey, body);
+          keyWraps = {};
+          for (const id of memberIds){
+            const pub = id === currentUser.id ? profile.extras.msg_pubkey : pubkeyByUser[id];
+            keyWraps[id] = await e2eWrapMessageKeyFor(msgKey, myPriv, pub);
+          }
+        } catch(e){ savedBody = body; keyWraps = null; }
+      }
+    }
+
+    const row = {
       circle_id: currentCircleId,
       sender_user_id: currentUser.id,
       sender_name: profile.name,
-      body
-    });
+      body: savedBody
+    };
+    if (keyWraps) row.key_wraps = keyWraps;
+    const { error } = await db.from('circle_messages').insert(row);
     if (error){ inp.value = body; showToast('Could not send: ' + error.message); return; }
     openCircle(currentCircleId);
   }
@@ -15351,7 +15799,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       const squares = MOOD_ORDER.map(id => {
         const mo2 = moodOf(id);
         const color = mo2 ? mo2.bg : '#ccc';
-        return '<div class="hp-waffle-sq" style="background:' + color + '"></div>'.repeat(counts[id]);
+        return ('<div class="hp-waffle-sq" style="background:' + color + '"></div>').repeat(counts[id]);
       }).join('');
       waffleHtml += `
         <div class="hp-waffle-month">
@@ -15404,7 +15852,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       <div class="hp-card">
         <div class="hp-circle-head">
           <div class="hp-card-title">Your support circle</div>
-          <button type="button" class="hp-add-btn" onclick="hpAddCircleMember()">+ Add</button>
+        </div>
+        <div style="position:relative; margin-bottom:10px;">
+          <input type="text" id="hpCircleSearch" placeholder="Search someone to add\u2026" autocomplete="off" oninput="hpCircleSearchTyped()" style="width:100%; padding:9px 12px; border:1px solid var(--line); border-radius:8px; font-size:13.5px; font-family:inherit;">
+          <div class="ev-ta" id="hpCircleResults"></div>
         </div>
         <div id="hpCircleList"></div>
       </div>
@@ -15419,19 +15870,19 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   }
 
   // Support circle: who gets a gentle, detail-free nudge if the consent
-  // toggle above is on. Stored client-side for now (hpSupportCircle) —
-  // wiring this to real friend/profile records is the next step once the
-  // rest of Happiness is backed by real sentiment scoring.
-  let hpSupportCircle = [
-    { name: 'Riya S.' },
-    { name: 'Kabir M.' }
-  ];
+  // toggle above is on. Persisted in profile.extras.happiness_support_circle
+  // so it survives logout/refresh, same place the encryption keys live.
+  let hpSupportCircle = [];
+
   function hpInitials(name){
     return name.trim().split(/\s+/).map(p => p[0]).join('').slice(0,2).toUpperCase();
   }
   function hpRenderCircleList(){
     const el = document.getElementById('hpCircleList');
     if (!el) return;
+    if (profile && profile.extras && Array.isArray(profile.extras.happiness_support_circle)){
+      hpSupportCircle = profile.extras.happiness_support_circle.slice();
+    }
     if (!hpSupportCircle.length){
       el.innerHTML = '<div class="hp-circle-empty">No one added yet.</div>';
       return;
@@ -15444,14 +15895,54 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       </div>`
     ).join('');
   }
-  function hpAddCircleMember(){
-    const name = prompt("Add to your support circle — first name and last initial is enough:");
-    if (!name || !name.trim()) return;
-    hpSupportCircle.push({ name: name.trim() });
+  async function hpSaveCircle(){
+    const extras = { ...(profile.extras || {}), happiness_support_circle: hpSupportCircle };
+    profile.extras = extras;
+    if (db && profile.dbId){
+      const { error } = await db.from('profiles').update({ extras }).eq('id', profile.dbId);
+      if (error) showToast('Could not save: ' + error.message);
+    }
+  }
+
+  let hpCircleSearchTimer = null;
+  function hpCircleSearchTyped(){
+    clearTimeout(hpCircleSearchTimer);
+    hpCircleSearchTimer = setTimeout(hpCircleSearch, 300);
+  }
+  async function hpCircleSearch(){
+    const q = document.getElementById('hpCircleSearch').value.trim();
+    const box = document.getElementById('hpCircleResults');
+    if (!q || q.length < 2 || !db){ box.classList.remove('open'); return; }
+    const safe = q.replace(/^@/,'').replace(/[%,()]/g,'').trim();
+    const { data, error } = await db.from('profiles').select('user_id, name, username, ink')
+      .eq('visibility','public')
+      .or('name.ilike.%' + safe + '%,username.ilike.%' + safe + '%').limit(6);
+    if (error){ box.classList.remove('open'); return; }
+    const already = new Set(hpSupportCircle.map(p => p.user_id));
+    const rows = (data || []).filter(r => r.user_id !== currentUser.id && !already.has(r.user_id));
+    if (!rows.length){
+      box.innerHTML = '<div class="ev-ta-none">No matching people found.</div>';
+      box.classList.add('open'); return;
+    }
+    box.innerHTML = rows.map(r=>{
+      const initials = r.name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+      return '<div class="ev-ta-item" onclick="hpPickCircleMember(\'' + r.user_id + '\',\'' + r.name.replace(/'/g,"\\'") + '\')">' +
+        '<div class="ev-avatar" style="width:30px; height:30px; font-size:11px; background:' + (r.ink || 'var(--moss)') + ';">' + escapeHtml(initials) + '</div>' +
+        '<div style="flex:1;"><b>' + escapeHtml(r.name) + '</b>' + (r.username ? '<div style="font-size:12px; color:var(--ink-soft);">@' + escapeHtml(r.username) + '</div>' : '') + '</div>' +
+        '</div>';
+    }).join('');
+    box.classList.add('open');
+  }
+  function hpPickCircleMember(userId, name){
+    hpSupportCircle.push({ user_id: userId, name });
+    hpSaveCircle();
     hpRenderCircleList();
+    document.getElementById('hpCircleSearch').value = '';
+    document.getElementById('hpCircleResults').classList.remove('open');
   }
   function hpRemoveCircleMember(i){
     hpSupportCircle.splice(i, 1);
+    hpSaveCircle();
     hpRenderCircleList();
   }
 
