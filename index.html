@@ -1519,6 +1519,15 @@
   .ev-pending-pill{background:#FBF6F0; border:1px solid var(--camel); color:var(--camel); font-size:10.5px; font-weight:700; padding:2px 9px; border-radius:999px;}
   .ev-chip{font-size:12.5px; padding:7px 13px; border-radius:999px; border:1px solid var(--line); background:var(--page); cursor:pointer; font-family:inherit; color:var(--ink-soft);}
   .ev-chip:hover{border-color:var(--ink);}
+  .ev-rsvp-btn{font-size:13.5px; font-weight:600; padding:9px 16px; border-radius:999px; border:1.5px solid var(--line); background:var(--page); cursor:pointer; font-family:inherit; color:var(--ink-soft);}
+  .ev-rsvp-btn:hover{border-color:var(--ink); color:var(--ink);}
+  .ev-rsvp-btn.on[data-choice="going"]{background:var(--moss); border-color:var(--moss); color:#fff;}
+  .ev-rsvp-btn.on[data-choice="maybe"]{background:var(--camel); border-color:var(--camel); color:#fff;}
+  .ev-rsvp-btn.on[data-choice="cant_go"]{background:var(--blush); border-color:var(--blush); color:#fff;}
+  .ev-wish{background:var(--card); border:1px solid var(--line); border-left:3px solid var(--camel); border-radius:0 10px 10px 0; padding:13px 15px; margin-bottom:10px;}
+  .ev-wish-name{font-size:12.5px; font-weight:700; margin-bottom:3px;}
+  .ev-wish-text{font-size:14px; line-height:1.55;}
+  .ev-wish-meta{font-size:11px; color:var(--ink-soft); margin-top:6px;}
   .ev-tagtray{display:none; gap:6px; margin-top:10px; flex-wrap:wrap;}
   .ev-tagtray.open{display:flex;}
   .ev-tagpick{font-size:12px; padding:5px 11px; border-radius:999px; border:1px solid var(--line); background:var(--oat); cursor:pointer; font-family:inherit;}
@@ -3184,6 +3193,33 @@
 
       <!-- 7. ABOUT ENTRIES FEED (what people wrote about each other) -->
       <div id="evAboutFeed"></div>
+
+      <!-- 7b. RSVP (only shown when the host turned this feature on) -->
+      <div class="card-ev" id="evRsvpCard" style="display:none;">
+        <label class="ev-label">RSVP</label>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;" id="evRsvpButtons">
+          <button type="button" class="ev-rsvp-btn" data-choice="going" onclick="evSetRsvp('going')">✓ Going</button>
+          <button type="button" class="ev-rsvp-btn" data-choice="maybe" onclick="evSetRsvp('maybe')">? Maybe</button>
+          <button type="button" class="ev-rsvp-btn" data-choice="cant_go" onclick="evSetRsvp('cant_go')">✕ Can't go</button>
+        </div>
+        <div id="evRsvpSummary" style="font-size:12.5px; color:var(--ink-soft); line-height:1.7;"></div>
+      </div>
+
+      <!-- 7c. WISHES WALL — collapsed tab, only shown when turned on -->
+      <div class="card-ev" id="evWishesCard" style="display:none; padding:0; overflow:hidden;">
+        <button type="button" id="evWishesToggle" onclick="toggleWishesForm()" style="width:100%; display:flex; align-items:center; justify-content:space-between; background:none; border:none; padding:17px 18px; font-family:inherit; font-size:15px; font-weight:700; color:var(--ink); cursor:pointer;">
+          <span><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2l2.6 6.9 7.4.6-5.6 4.8 1.8 7.2L12 17.6 5.8 21.5l1.8-7.2L2 9.5l7.4-.6z"/></svg></span> Leave a wish</span>
+          <span id="evWishesArrow" style="color:var(--camel); transition:transform .2s;">▾</span>
+        </button>
+        <div id="evWishesForm" style="display:none; padding:0 18px 18px;">
+          <div class="field" style="margin-bottom:13px;">
+            <label style="font-size:13px;">Your wish</label>
+            <textarea id="evWishesMsg" placeholder="Write your wish…" maxlength="500" style="width:100%; min-height:80px; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px; resize:vertical;"></textarea>
+          </div>
+          <button type="button" class="btn btn-primary" style="width:100%;" onclick="evSubmitWish()">Add to the wishes wall</button>
+        </div>
+      </div>
+      <div id="evWishesFeed"></div>
 
       <!-- 8. NON-MEMBER LOCK -->
       <div id="evLockScreen" style="display:none; background:var(--card); border:1.5px dashed var(--camel); border-radius:14px; padding:32px 22px; text-align:center; font-size:14px; line-height:1.8; margin-top:14px;">
@@ -13522,6 +13558,11 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     // form starts collapsed — it's a tab at the end of the page
     document.getElementById('evAboutForm').style.display = 'none';
     document.getElementById('evAboutArrow').style.transform = '';
+    document.getElementById('evRsvpCard').style.display = 'none';
+    document.getElementById('evWishesCard').style.display = 'none';
+    document.getElementById('evWishesForm').style.display = 'none';
+    document.getElementById('evWishesArrow').style.transform = '';
+    document.getElementById('evWishesFeed').innerHTML = '';
     document.getElementById('evMapCard').style.display = 'none';
     document.getElementById('evLockScreen').style.display = isIn ? 'none' : 'block';
     document.getElementById('evFeed').innerHTML = '';
@@ -13983,9 +14024,115 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     showToast('Added to the event page ✓');
   }
 
+  /* ── RSVP (host turns this on per-event; stored as a special event_entries row,
+     one per guest — entry_type:'rsvp', message holds the choice) ── */
+  function evRenderRsvp(){
+    const card = document.getElementById('evRsvpCard');
+    const on = !!(curEvent.features && curEvent.features.includes('rsvp'));
+    const isIn = (curRole === 'owner' || curRole === 'member');
+    card.style.display = (on && isIn) ? 'block' : 'none';
+    if (!on || !isIn) return;
+    const rsvps = curEntries.filter(e=>e.entry_type==='rsvp');
+    const mine = currentUser ? rsvps.find(r=>r.author_user_id===currentUser.id) : null;
+    document.querySelectorAll('#evRsvpButtons .ev-rsvp-btn').forEach(b=>{
+      b.classList.toggle('on', !!mine && mine.message === b.getAttribute('data-choice'));
+    });
+    const counts = { going:0, maybe:0, cant_go:0 };
+    const names = { going:[], maybe:[], cant_go:[] };
+    rsvps.forEach(r=>{
+      if (counts[r.message] === undefined) return;
+      counts[r.message]++;
+      names[r.message].push(r.author_name || 'Someone');
+    });
+    const nameList = (arr) => arr.length ? ' — ' + arr.slice(0,5).map(escapeHtml).join(', ') + (arr.length>5 ? ' +' + (arr.length-5) + ' more' : '') : '';
+    document.getElementById('evRsvpSummary').innerHTML =
+      '<div><b>' + counts.going + '</b> going' + nameList(names.going) + '</div>' +
+      '<div><b>' + counts.maybe + '</b> maybe' + nameList(names.maybe) + '</div>' +
+      '<div><b>' + counts.cant_go + '</b> can’t go' + nameList(names.cant_go) + '</div>';
+  }
+
+  async function evSetRsvp(choice){
+    if (!db || !currentUser || curEvent.local){ showToast('Sign in to RSVP'); return; }
+    if (curRole !== 'owner' && curRole !== 'member'){ showToast('Only members can RSVP'); return; }
+    const existing = curEntries.find(e=>e.entry_type==='rsvp' && e.author_user_id===currentUser.id);
+    if (existing && existing.message === choice){
+      // tapping your current choice again clears it
+      const { error } = await db.from('event_entries').delete().eq('id', existing.id);
+      if (error){ showToast(friendlyError(error)); return; }
+      curEntries = curEntries.filter(e=>e.id !== existing.id);
+      evRenderRsvp();
+      showToast('RSVP cleared');
+      return;
+    }
+    if (existing){
+      const { error } = await db.from('event_entries').update({ message: choice }).eq('id', existing.id);
+      if (error){ showToast(friendlyError(error)); return; }
+      existing.message = choice;
+    } else {
+      const { data, error } = await db.from('event_entries').insert({
+        event_id: curEvent.id, author_user_id: currentUser.id,
+        author_name: myEventName(), message: choice,
+        entry_type: 'rsvp', approved: true, color: myEventInk()
+      }).select().single();
+      if (error){ showToast(friendlyError(error)); return; }
+      curEntries.push(data);
+    }
+    evRenderRsvp();
+    showToast('RSVP saved ✓');
+  }
+
+  /* ── Wishes wall (host turns this on per-event; stored as event_entries
+     rows with entry_type:'wishes', shown in their own feed) ── */
+  function toggleWishesForm(){
+    const form = document.getElementById('evWishesForm');
+    const arrow = document.getElementById('evWishesArrow');
+    const open = form.style.display !== 'none';
+    form.style.display = open ? 'none' : 'block';
+    arrow.style.transform = open ? '' : 'rotate(180deg)';
+    if (!open) form.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  async function evSubmitWish(){
+    const msg = document.getElementById('evWishesMsg').value.trim();
+    if (!msg){ showToast('Write a wish first'); return; }
+    if (curEvent.local || !db || !currentUser){ showToast('Sign in to post on shared events'); return; }
+    const { data, error } = await db.from('event_entries').insert({
+      event_id: curEvent.id, author_user_id: currentUser.id,
+      author_name: myEventName(), message: msg,
+      entry_type: 'wishes', approved: true, color: myEventInk()
+    }).select().single();
+    if (error){ showToast(friendlyError(error)); console.error(error); return; }
+    curEntries.push(data);
+    document.getElementById('evWishesMsg').value = '';
+    toggleWishesForm();
+    evRenderWishes();
+    showToast('Wish added ✓');
+  }
+
+  function evRenderWishes(){
+    const feedCard = document.getElementById('evWishesCard');
+    const on = !!(curEvent.features && curEvent.features.includes('wishes'));
+    const isIn = (curRole === 'owner' || curRole === 'member');
+    feedCard.style.display = (on && isIn) ? 'block' : 'none';
+    const feed = document.getElementById('evWishesFeed');
+    if (!on){ feed.innerHTML = ''; return; }
+    const wishes = curEntries.filter(e=>e.entry_type==='wishes');
+    if (!wishes.length){
+      feed.innerHTML = isIn ? '<div style="background:var(--card); border:1.5px dashed var(--oat-deep); border-radius:14px; padding:20px 18px; text-align:center; color:var(--ink-soft); font-size:13px; margin-bottom:14px;">No wishes yet — be the first to leave one</div>' : '';
+      return;
+    }
+    feed.innerHTML = wishes.map(w=>{
+      const own = currentUser && w.author_user_id === currentUser.id;
+      const canDelete = own || curRole==='owner';
+      return '<div class="ev-wish"><div class="ev-wish-name">' + personLink(w.author_name||'Member', { userId: w.author_user_id }) + '</div>' +
+        '<div class="ev-wish-text">' + escapeHtml(w.message) + '</div>' +
+        '<div class="ev-wish-meta">' + evTimeAgo(w.created_at) + (canDelete ? ' · <a href="javascript:void(0)" onclick="evDeleteEntry(\'' + w.id + '\')" style="color:#A65A3C;">Delete</a>' : '') + '</div></div>';
+    }).join('');
+  }
+
   /* ── Load + render entries ── */
   async function loadEventEntries(){
-    if (curEvent.local || !db){ renderEventFeed(); renderEventAboutFeed(); renderEventMap(); return; }
+    if (curEvent.local || !db){ renderEventFeed(); renderEventAboutFeed(); renderEventMap(); evRenderRsvp(); evRenderWishes(); return; }
     const { data, error } = await db.from('event_entries').select('*')
       .eq('event_id', curEvent.id).order('created_at', {ascending:false});
     if (error){ console.error('[EarthLive] event entries load failed:', error); }
@@ -14010,7 +14157,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       e._likes = lc[e.id] || 0;
       e._liked = !!lm[e.id];
     });
-    renderEventFeed(); renderEventAboutFeed(); renderEventMap(); renderEventTimeline();
+    renderEventFeed(); renderEventAboutFeed(); renderEventMap(); renderEventTimeline(); evRenderRsvp(); evRenderWishes();
   }
 
   /* ── Event likes ── */
