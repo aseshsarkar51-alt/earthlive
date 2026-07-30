@@ -1698,6 +1698,58 @@
   }
   .lb-empty b{display:block; color:var(--ink); font-family:"Fraunces",serif; font-size:19px; font-weight:500; margin-bottom:8px;}
 
+  /* ---- Happiness: mood + word tone read for the week ---- */
+  .hp-top{display:flex; gap:28px; align-items:flex-end; margin-bottom:20px; flex-wrap:wrap;}
+  .hp-score-lbl{font-size:11px; color:var(--ink-soft); margin-bottom:4px;}
+  .hp-score{font-family:"Fraunces",serif; font-size:40px; color:var(--ink); line-height:1;}
+  .hp-delta{font-size:11px; color:var(--moss); margin-top:4px;}
+  .hp-delta.down{color:var(--blush);}
+  .hp-tone-lbl{font-size:11px; color:var(--ink-soft); margin-bottom:2px;}
+  .hp-tone{font-family:"Fraunces",serif; font-size:17px; color:var(--ink);}
+  .hp-trend{display:block; width:100%; height:auto; margin-bottom:22px;}
+  .hp-words-lbl{font-size:11px; color:var(--ink-soft); margin-bottom:10px;}
+  .hp-word-row{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
+  .hp-word-name{font-size:12.5px; color:var(--ink); width:64px; flex:none;}
+  .hp-word-track{flex:1; height:5px; background:var(--oat-deep); border-radius:3px; overflow:hidden;}
+  .hp-word-fill{height:100%; background:var(--moss);}
+  .hp-word-fill.down{background:var(--blush);}
+  .hp-card{border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-top:14px;}
+  .hp-card-tag{display:flex; align-items:center; gap:6px; font-size:10.5px; color:var(--ink-soft); margin-bottom:9px;}
+  .hp-card-title{font-family:"Fraunces",serif; font-size:14.5px; color:var(--ink); margin-bottom:5px;}
+  .hp-card-sub{font-size:12px; color:var(--ink-soft); line-height:1.5;}
+  .hp-card-btns{display:flex; gap:8px; margin-top:14px;}
+  .hp-card-btns button{flex:1; text-align:center; font-size:12px; color:var(--ink); background:none; border:1px solid var(--line); border-radius:999px; padding:9px 0; cursor:pointer; font-family:inherit;}
+  .hp-consent{display:flex; align-items:flex-start; justify-content:space-between; gap:14px;}
+  .hp-toggle{flex:none; width:32px; height:18px; border-radius:9px; background:var(--line); position:relative; margin-top:2px; cursor:pointer; border:none; padding:0;}
+  .hp-toggle i{position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:#fff; transition:transform .15s;}
+  .hp-toggle.on{background:var(--moss);}
+  .hp-toggle.on i{transform:translateX(14px);}
+  .hp-circle-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .hp-circle-head .hp-card-title{margin-bottom:0;}
+  .hp-add-btn{font-size:12px; color:var(--ink); background:none; border:1px solid var(--line); border-radius:999px; padding:7px 14px; cursor:pointer; font-family:inherit;}
+  .hp-circle-row{display:flex; align-items:center; gap:10px; padding:8px 0;}
+  .hp-circle-avatar{width:32px; height:32px; border-radius:50%; background:var(--oat-deep); color:var(--ink); font-size:11.5px; font-weight:600; display:flex; align-items:center; justify-content:center; flex:none;}
+  .hp-circle-name{flex:1; font-size:13px; color:var(--ink);}
+  .hp-circle-remove{background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:15px; padding:4px; line-height:1;}
+  .hp-circle-remove:hover{color:var(--ink);}
+  .hp-circle-empty{font-size:12px; color:var(--ink-soft); padding:6px 0;}
+  .hp-waffle-month{margin-bottom:16px;}
+  .hp-waffle-lbl{font-size:12px; color:var(--ink-soft); margin-bottom:6px;}
+  .hp-waffle-lbl b{color:var(--ink); font-weight:600;}
+  .hp-waffle-row{display:flex; flex-wrap:wrap; gap:2px; max-width:340px;}
+  .hp-waffle-sq{width:9px; height:9px; flex:none;}
+  .hp-waffle-legend{display:flex; flex-wrap:wrap; gap:12px; padding-top:12px; margin-top:4px; border-top:1px solid var(--oat-deep);}
+  .hp-waffle-legend span{display:flex; align-items:center; gap:5px; font-size:11px; color:var(--ink-soft);}
+  .hp-waffle-legend i{width:8px; height:8px; display:inline-block;}
+  .hp-tone-month-row{display:flex; align-items:center; gap:10px; margin-bottom:8px;}
+  .hp-tone-month-lbl{font-size:11.5px; color:var(--ink-soft); width:34px; flex:none;}
+  .hp-tone-bar-track{flex:1; height:14px; background:var(--oat-deep); border-radius:3px; position:relative; overflow:hidden;}
+  .hp-tone-bar-fill{position:absolute; top:0; bottom:0; border-radius:3px;}
+  .hp-tone-bar-fill.pos{background:var(--moss); left:50%;}
+  .hp-tone-bar-fill.neg{background:var(--blush); right:50%;}
+  .hp-tone-mid{position:absolute; left:50%; top:0; bottom:0; width:1px; background:var(--card);}
+  .hp-tone-note{font-size:11px; color:var(--ink-soft); line-height:1.5; margin-top:12px; padding-top:12px; border-top:1px solid var(--oat-deep);}
+
   /* ---- Life Ribbon: vertical index on the right, reading on the left ---- */
   .vr{
     --tr-bg:#F4EFE4; --tr-bd:#E2D9C7; --q:#3A342A;
@@ -1943,6 +1995,11 @@
     <button class="elr-item" data-rail="constellation" onclick="railGo('constellation')">
       <span class="elr-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.6"/><circle cx="5" cy="6" r="1.6"/><circle cx="19" cy="7" r="1.6"/><circle cx="6" cy="18" r="1.6"/><circle cx="18" cy="17" r="1.6"/><path d="M10.2 10.5L6.3 7.2M13.9 10.9l3.6-2.5M10.3 13.6l-3.1 3.1M13.8 13.4l3 2.6"/></svg></span>
       <span class="elr-label">Constellation</span>
+      
+    </button>
+    <button class="elr-item" data-rail="happiness" onclick="railGo('happiness')">
+      <span class="elr-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20c4-3 8-6.5 8-11a5 5 0 00-8-4 5 5 0 00-8 4c0 4.5 4 8 8 11z"/></svg></span>
+      <span class="elr-label">Happiness</span>
       
     </button>
     <button class="elr-item" data-rail="voiceprints" onclick="railGo('voiceprints')">
@@ -3961,6 +4018,17 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       <p class="lb-lede">The same records arranged by who and what instead of when. You sit at the centre; the people who show up most often orbit closest.</p>
     </div>
     <div id="constellationBody"></div>
+  </div>
+</section>
+
+<section class="screen" id="screen-happiness">
+  <div class="lb-wrap">
+    <div class="lb-head">
+      <div class="lb-crumb">Ways to look back</div>
+      <h1 class="lb-h1">Happiness</h1>
+      <p class="lb-lede">A quiet read of your mood log and the words in and around your entries. Never a diagnosis — just a reflection, kept private unless you choose otherwise.</p>
+    </div>
+    <div id="happinessBody"></div>
   </div>
 </section>
 
@@ -10232,7 +10300,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (which === 'book'){ showScreen('dashboard'); }
     else if (which === 'diary'){ if(typeof openDiaryEditor==='function'){ openDiaryEditor(null); } if(typeof renderDiary==='function'){ renderDiary(); } showScreen('diary'); }
     else if (which === 'waypoints'){ showScreen('waypoints'); if(typeof wptsOpen==='function') wptsOpen(); }
-    else if (which === 'ribbon' || which === 'constellation' || which === 'voiceprints'){ if(typeof openLookBack==='function') openLookBack(which); }
+    else if (which === 'ribbon' || which === 'constellation' || which === 'voiceprints' || which === 'happiness'){ if(typeof openLookBack==='function') openLookBack(which); }
     railSyncActive();
   }
   function railToggle(){
@@ -10245,7 +10313,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   // map current screen -> rail key for active highlight
   function railSyncActive(){
     var r=document.getElementById('elRail'); if(!r) return;
-    var map = { dashboard:'book', diary:'diary', waypoints:'waypoints', ribbon:'ribbon', constellation:'constellation', voiceprints:'voiceprints' };
+    var map = { dashboard:'book', diary:'diary', waypoints:'waypoints', ribbon:'ribbon', constellation:'constellation', voiceprints:'voiceprints', happiness:'happiness' };
     var key = map[currentScreenName] || null;
     r.querySelectorAll('.elr-item').forEach(function(b){ b.classList.toggle('active', b.dataset.rail === key); });
   }
@@ -15094,6 +15162,297 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (name === 'ribbon') renderRibbon();
     if (name === 'constellation') renderConstellation();
     if (name === 'voiceprints') renderVoiceprints();
+    if (name === 'happiness') renderHappiness();
+  }
+
+  // Happiness: computed from the real mood log (moodByDate). Word-tone and the
+  // sentiment-on-text scoring described in the conditions list aren't wired
+  // up yet — those need a text-analysis pass this front end doesn't do on
+  // its own. The score/trend below are real; "words that shaped it" and the
+  // private nudge card are shown with placeholder content until that's built.
+  // ---------------------------------------------------------------------
+  // Tone: a second, independent score from actual word sentiment, not
+  // mood taps. Runs a small AFINN-style lexicon (word -> weight, -5..5)
+  // over diary entries and messages people have left you. Purely
+  // client-side and lexicon-based — no external NLP API, so it's honest
+  // about being simple word-matching, not deep language understanding.
+  // Only scores entries already loaded into the page this session
+  // (diaryEntriesCache, modalEntrySource) — there's no backend job
+  // scoring your full history yet, so this reflects whatever you've
+  // opened recently, not everything you've ever written.
+  // ---------------------------------------------------------------------
+  const SENTIMENT_LEXICON = {
+    grateful:4, gratitude:4, thankful:3, blessed:3, happy:3, happiness:3, joy:4, joyful:4,
+    love:3, loved:3, loving:3, excited:3, excitement:3, hope:2, hopeful:3, proud:3, pride:2,
+    calm:2, peace:2, peaceful:2, relaxed:2, relief:2, relieved:2, warm:2, warmth:2,
+    beautiful:2, wonderful:3, amazing:3, great:2, good:1, nice:1, better:1, best:2,
+    smile:2, smiled:2, laugh:2, laughed:2, laughing:2, fun:2, comfort:2, comforting:2,
+    hug:2, hugged:2, kind:2, kindness:2, gentle:1, sweet:1, cozy:1, safe:1,
+    lucky:2, fortunate:2, glad:2, delighted:3, cheerful:2, bright:1, light:1,
+    miss:-1, missed:-1, missing:-1, sad:-3, sadness:-3, cry:-2, cried:-2, crying:-2,
+    lonely:-3, loneliness:-3, alone:-1, tired:-2, exhausted:-3, exhaustion:-3, drained:-2,
+    anxious:-3, anxiety:-3, worried:-2, worry:-2, stressed:-3, stress:-2, overwhelmed:-3,
+    scared:-2, afraid:-2, fear:-2, angry:-3, anger:-3, mad:-2, upset:-2, frustrated:-2,
+    hurt:-2, pain:-2, painful:-2, ache:-1, aching:-1, hard:-1, difficult:-2, struggle:-2,
+    struggling:-2, heavy:-1, dark:-1, hopeless:-4, empty:-2, numb:-2, broken:-2,
+    regret:-2, guilt:-2, guilty:-2, ashamed:-2, shame:-2, disappointed:-2, disappointment:-2,
+    grief:-3, grieving:-3, loss:-2, lost:-1, worst:-2, bad:-1, terrible:-3, awful:-3,
+    sorry:-1, apologize:-1, goodbye:-1, farewell:-1
+  };
+  function scoreText(text){
+    if (!text) return { score:0, matches:0 };
+    const words = String(text).toLowerCase().match(/[a-z']+/g) || [];
+    let sum = 0, matches = 0;
+    words.forEach(w => {
+      if (SENTIMENT_LEXICON[w] !== undefined){ sum += SENTIMENT_LEXICON[w]; matches++; }
+    });
+    return { score: sum, matches };
+  }
+  function computeToneData(){
+    const monthBuckets = {}; // 'YYYY-MM' -> {sum, n}
+    const wordTotals = {};   // word -> total signed weight contributed
+    let totalEntries = 0;
+
+    function ingest(text, dateStr){
+      if (!text || !dateStr) return;
+      const words = String(text).toLowerCase().match(/[a-z']+/g) || [];
+      let sum = 0, matches = 0;
+      words.forEach(w => {
+        const wt = SENTIMENT_LEXICON[w];
+        if (wt !== undefined){
+          sum += wt; matches++;
+          wordTotals[w] = (wordTotals[w] || 0) + wt;
+        }
+      });
+      if (!matches) return;
+      totalEntries++;
+      const entryScore = Math.max(-100, Math.min(100, sum * 18));
+      const d = new Date(dateStr);
+      if (isNaN(d)) return;
+      const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+      if (!monthBuckets[key]) monthBuckets[key] = { sum:0, n:0, month:d.getMonth(), year:d.getFullYear() };
+      monthBuckets[key].sum += entryScore;
+      monthBuckets[key].n++;
+    }
+
+    (typeof diaryEntriesCache !== 'undefined' ? diaryEntriesCache : []).forEach(e => ingest(e.body, e.created_at));
+    (typeof modalEntrySource !== 'undefined' ? modalEntrySource : []).forEach(e => ingest(e.message, e.created_at));
+
+    const months = Object.keys(monthBuckets).sort().slice(-4).map(k => {
+      const b = monthBuckets[k];
+      return { key:k, month:b.month, year:b.year, avg: Math.round(b.sum / b.n), n: b.n };
+    });
+    const topWords = Object.entries(wordTotals)
+      .sort((a,b) => Math.abs(b[1]) - Math.abs(a[1]))
+      .slice(0, 5)
+      .map(([word, weight]) => ({ word, weight }));
+
+    return { months, topWords, totalEntries };
+  }
+  function renderToneCard(){
+    const data = computeToneData();
+    if (!data.totalEntries){
+      return `<div class="hp-card">
+        <div class="hp-card-title">Tone</div>
+        <div class="hp-card-sub">Based on the actual words in your diary and the messages people leave you — separate from your mood log above. Nothing scored yet: open your diary or your page to load some entries first.</div>
+      </div>`;
+    }
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const rows = data.months.map(m => {
+      const pct = Math.abs(m.avg) / 2; // half-bar max at |100| -> 50% width
+      const fill = m.avg >= 0
+        ? `<div class="hp-tone-bar-fill pos" style="width:${pct}%"></div>`
+        : `<div class="hp-tone-bar-fill neg" style="width:${pct}%"></div>`;
+      return `<div class="hp-tone-month-row">
+        <span class="hp-tone-month-lbl">${monthNames[m.month]}</span>
+        <div class="hp-tone-bar-track">${fill}<div class="hp-tone-mid"></div></div>
+      </div>`;
+    }).join('');
+    const words = data.topWords.map(w =>
+      `<span style="font-size:11px; color:${w.weight >= 0 ? 'var(--moss)' : 'var(--blush)'}; margin-right:10px;">${w.word}</span>`
+    ).join('');
+    return `<div class="hp-card">
+      <div class="hp-card-title">Tone</div>
+      <div class="hp-card-sub" style="margin-bottom:14px;">From the words in your diary and page messages — bars right of centre lean positive, left lean heavier</div>
+      ${rows}
+      ${words ? `<div class="hp-tone-note">Words carrying the most weight: ${words}</div>` : ''}
+    </div>`;
+  }
+
+  function renderHappiness(){
+    const body = document.getElementById('happinessBody');
+    if (!body) return;
+    const MOOD_SCORE = { great:95, calm:78, okay:58, tired:40, sad:28, notgood:15 };
+    const today = new Date();
+    function scoreForRange(startDaysAgo, endDaysAgo){
+      let sum = 0, n = 0;
+      for (let i = endDaysAgo; i <= startDaysAgo; i++){
+        const d = new Date(today); d.setDate(d.getDate() - i);
+        const mood = moodByDate[calKey(d)];
+        if (mood && MOOD_SCORE[mood] !== undefined){ sum += MOOD_SCORE[mood]; n++; }
+      }
+      return n ? Math.round(sum / n) : null;
+    }
+    const thisWeek = scoreForRange(6, 0);
+    const lastWeek = scoreForRange(13, 7);
+
+    if (thisWeek === null){
+      body.innerHTML = '<div class="lb-empty"><b>Nothing logged this week yet</b>Happiness reads your daily mood log. Once you\'ve tapped a mood a few times this week, it\'ll show up here.</div>';
+      return;
+    }
+
+    const delta = lastWeek !== null ? thisWeek - lastWeek : null;
+    const deltaHtml = delta === null ? ''
+      : delta >= 0 ? `<div class="hp-delta">↗ up ${delta} from last week</div>`
+      : `<div class="hp-delta down">↘ down ${Math.abs(delta)} from last week</div>`;
+    const tone = thisWeek >= 80 ? 'Bright' : thisWeek >= 60 ? 'Hopeful' : thisWeek >= 40 ? 'Steady' : thisWeek >= 25 ? 'Heavy' : 'Quiet';
+
+    // 7-day sparkline from real daily scores; days with no entry are skipped from the line
+    const points = [];
+    for (let i = 6; i >= 0; i--){
+      const d = new Date(today); d.setDate(d.getDate() - i);
+      const mood = moodByDate[calKey(d)];
+      points.push(mood ? MOOD_SCORE[mood] : null);
+    }
+    const w = 340, h = 60, pad = 6;
+    const known = points.filter(p => p !== null);
+    const lo = known.length ? Math.min(...known) - 5 : 0;
+    const hi = known.length ? Math.max(...known) + 5 : 100;
+    let pathD = '', started = false;
+    points.forEach((p, i) => {
+      if (p === null) return;
+      const x = pad + (i / 6) * (w - pad * 2);
+      const y = h - pad - ((p - lo) / Math.max(1, hi - lo)) * (h - pad * 2);
+      pathD += (started ? ' L ' : 'M ') + x.toFixed(1) + ' ' + y.toFixed(1);
+      started = true;
+    });
+    const trendSvg = started
+      ? `<svg class="hp-trend" viewBox="0 0 ${w} ${h}"><path d="${pathD}" fill="none" stroke="var(--moss)" stroke-width="1.6"/></svg>`
+      : '';
+
+    // Waffle: same moodByDate feed as the score above, grouped by month.
+    // Squares are sorted by mood category (not by calendar date) so the
+    // shape reads as a proportion of the month, not a schedule.
+    const MOOD_ORDER = ['great','calm','okay','tired','sad','notgood'];
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    let waffleHtml = '';
+    for (let m = 3; m >= 0; m--){
+      const ref = new Date(today.getFullYear(), today.getMonth() - m, 1);
+      const y = ref.getFullYear(), mo = ref.getMonth();
+      const daysInMonth = new Date(y, mo + 1, 0).getDate();
+      const counts = { great:0, calm:0, okay:0, tired:0, sad:0, notgood:0 };
+      let logged = 0;
+      for (let d = 1; d <= daysInMonth; d++){
+        const key = calKey(new Date(y, mo, d));
+        const mood = moodByDate[key];
+        if (mood && counts[mood] !== undefined){ counts[mood]++; logged++; }
+      }
+      if (!logged) continue;
+      const squares = MOOD_ORDER.map(id => {
+        const mo2 = moodOf(id);
+        const color = mo2 ? mo2.bg : '#ccc';
+        return '<div class="hp-waffle-sq" style="background:' + color + '"></div>'.repeat(counts[id]);
+      }).join('');
+      waffleHtml += `
+        <div class="hp-waffle-month">
+          <div class="hp-waffle-lbl">${monthNames[mo]} · <b>${logged} day${logged === 1 ? '' : 's'} logged</b></div>
+          <div class="hp-waffle-row">${squares}</div>
+        </div>`;
+    }
+    const waffleLegend = MOODS.map(m =>
+      `<span><i style="background:${m.bg}"></i>${m.label}</span>`
+    ).join('');
+    const waffleSection = waffleHtml
+      ? `<div class="hp-card">
+          <div class="hp-card-title" style="margin-bottom:14px;">Your months, squared off</div>
+          ${waffleHtml}
+          <div class="hp-waffle-legend">${waffleLegend}</div>
+        </div>`
+      : '';
+
+    body.innerHTML = `
+      <div class="hp-top">
+        <div>
+          <div class="hp-score-lbl">This week</div>
+          <div class="hp-score">${thisWeek}</div>
+          ${deltaHtml}
+        </div>
+        <div>
+          <div class="hp-tone-lbl">Reads mostly as</div>
+          <div class="hp-tone">${tone}</div>
+        </div>
+      </div>
+      ${trendSvg}
+      ${waffleSection}
+      ${renderToneCard()}
+      <div class="hp-card">
+        <div class="hp-card-tag">🔒 Only visible to you</div>
+        <div class="hp-card-title">${delta !== null && delta < -8 ? "This week's entries have felt a little heavier" : "Here's how this week has felt"}</div>
+        <div class="hp-card-sub">Want to write a bit more, or look back at a lighter memory?</div>
+        <div class="hp-card-btns">
+          <button type="button" onclick="showScreen('ribbon')">Show a memory</button>
+        </div>
+      </div>
+      <div class="hp-card hp-consent">
+        <div>
+          <div class="hp-card-tag" style="margin-bottom:6px;">Off by default</div>
+          <div class="hp-card-title" style="font-size:13.5px;">Let my close circle know when I'm having a hard week</div>
+          <div class="hp-card-sub">Never shows them what you wrote — only that a hello would help</div>
+        </div>
+        <button type="button" class="hp-toggle" id="hpConsentToggle" onclick="this.classList.toggle('on')" aria-label="Toggle circle nudge"><i></i></button>
+      </div>
+      <div class="hp-card">
+        <div class="hp-circle-head">
+          <div class="hp-card-title">Your support circle</div>
+          <button type="button" class="hp-add-btn" onclick="hpAddCircleMember()">+ Add</button>
+        </div>
+        <div id="hpCircleList"></div>
+      </div>
+      <div class="hp-card hp-consent">
+        <div>
+          <div class="hp-card-title" style="font-size:13.5px;">Quiet mode</div>
+          <div class="hp-card-sub">Pause check-in nudges for 2 weeks</div>
+        </div>
+        <button type="button" class="hp-toggle" id="hpQuietToggle" onclick="this.classList.toggle('on')" aria-label="Toggle quiet mode"><i></i></button>
+      </div>`;
+    hpRenderCircleList();
+  }
+
+  // Support circle: who gets a gentle, detail-free nudge if the consent
+  // toggle above is on. Stored client-side for now (hpSupportCircle) —
+  // wiring this to real friend/profile records is the next step once the
+  // rest of Happiness is backed by real sentiment scoring.
+  let hpSupportCircle = [
+    { name: 'Riya S.' },
+    { name: 'Kabir M.' }
+  ];
+  function hpInitials(name){
+    return name.trim().split(/\s+/).map(p => p[0]).join('').slice(0,2).toUpperCase();
+  }
+  function hpRenderCircleList(){
+    const el = document.getElementById('hpCircleList');
+    if (!el) return;
+    if (!hpSupportCircle.length){
+      el.innerHTML = '<div class="hp-circle-empty">No one added yet.</div>';
+      return;
+    }
+    el.innerHTML = hpSupportCircle.map((p, i) =>
+      `<div class="hp-circle-row">
+        <div class="hp-circle-avatar">${hpInitials(p.name)}</div>
+        <div class="hp-circle-name">${p.name}</div>
+        <button type="button" class="hp-circle-remove" onclick="hpRemoveCircleMember(${i})" aria-label="Remove ${p.name}">×</button>
+      </div>`
+    ).join('');
+  }
+  function hpAddCircleMember(){
+    const name = prompt("Add to your support circle — first name and last initial is enough:");
+    if (!name || !name.trim()) return;
+    hpSupportCircle.push({ name: name.trim() });
+    hpRenderCircleList();
+  }
+  function hpRemoveCircleMember(i){
+    hpSupportCircle.splice(i, 1);
+    hpRenderCircleList();
   }
 
 </script>
