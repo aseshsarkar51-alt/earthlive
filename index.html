@@ -9047,7 +9047,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const members = (curGuests || []).filter(g => g.status === 'joined');
     const entries = (curEntries || []).filter(e => e.approved !== false);
     const wallEntries = entries.filter(e => e.entry_type !== 'about');
-    const aboutEntries = entries.filter(e => e.entry_type === 'about');
+    const aboutEntries = entries.filter(e => e.entry_type === 'about' && !evIsRsvpEntry(e) && !evIsWishEntry(e));
     const pinned = entries.filter(e => typeof e.lat === 'number' && typeof e.lng === 'number');
     const cityNames = [...new Set(pinned.map(e => e.city).filter(Boolean))];
     const photoCount = entries.reduce((n,e)=> n + ((e.photos && e.photos.length) || 0), 0);
@@ -14024,15 +14024,26 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     showToast('Added to the event page ✓');
   }
 
-  /* ── RSVP (host turns this on per-event; stored as a special event_entries row,
-     one per guest — entry_type:'rsvp', message holds the choice) ── */
+  /* ── RSVP + Wishes wall ──
+     The event_entries table has a DB check constraint limiting entry_type to
+     'post' / 'about' — there's no migration access from here to add new
+     values, so RSVP responses and wishes are stored as entry_type:'about'
+     rows tagged with a reserved subject_member sentinel that a real "who are
+     you writing about" value could never match. evIsRsvpEntry/evIsWishEntry
+     are the single source of truth for recognising them, so every place that
+     reads "about" entries (the live feed, the PDF export) filters them out. */
+  const EV_RSVP_SENTINEL = '__EARTHLIVE_RSVP__';
+  const EV_WISH_SENTINEL = '__EARTHLIVE_WISH__';
+  function evIsRsvpEntry(e){ return e.entry_type === 'about' && e.subject_member === EV_RSVP_SENTINEL; }
+  function evIsWishEntry(e){ return e.entry_type === 'about' && e.subject_member === EV_WISH_SENTINEL; }
+
   function evRenderRsvp(){
     const card = document.getElementById('evRsvpCard');
     const on = !!(curEvent.features && curEvent.features.includes('rsvp'));
     const isIn = (curRole === 'owner' || curRole === 'member');
     card.style.display = (on && isIn) ? 'block' : 'none';
     if (!on || !isIn) return;
-    const rsvps = curEntries.filter(e=>e.entry_type==='rsvp');
+    const rsvps = curEntries.filter(evIsRsvpEntry);
     const mine = currentUser ? rsvps.find(r=>r.author_user_id===currentUser.id) : null;
     document.querySelectorAll('#evRsvpButtons .ev-rsvp-btn').forEach(b=>{
       b.classList.toggle('on', !!mine && mine.message === b.getAttribute('data-choice'));
@@ -14054,7 +14065,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   async function evSetRsvp(choice){
     if (!db || !currentUser || curEvent.local){ showToast('Sign in to RSVP'); return; }
     if (curRole !== 'owner' && curRole !== 'member'){ showToast('Only members can RSVP'); return; }
-    const existing = curEntries.find(e=>e.entry_type==='rsvp' && e.author_user_id===currentUser.id);
+    const existing = curEntries.find(e=>evIsRsvpEntry(e) && e.author_user_id===currentUser.id);
     if (existing && existing.message === choice){
       // tapping your current choice again clears it
       const { error } = await db.from('event_entries').delete().eq('id', existing.id);
@@ -14072,9 +14083,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       const { data, error } = await db.from('event_entries').insert({
         event_id: curEvent.id, author_user_id: currentUser.id,
         author_name: myEventName(), message: choice,
-        entry_type: 'rsvp', approved: true, color: myEventInk()
+        entry_type: 'about', subject_member: EV_RSVP_SENTINEL,
+        approved: true, color: myEventInk()
       }).select().single();
-      if (error){ showToast(friendlyError(error)); return; }
+      if (error){ showToast(friendlyError(error)); console.error('[EarthLive] rsvp save failed:', error); return; }
       curEntries.push(data);
     }
     evRenderRsvp();
@@ -14099,9 +14111,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const { data, error } = await db.from('event_entries').insert({
       event_id: curEvent.id, author_user_id: currentUser.id,
       author_name: myEventName(), message: msg,
-      entry_type: 'wishes', approved: true, color: myEventInk()
+      entry_type: 'about', subject_member: EV_WISH_SENTINEL,
+      approved: true, color: myEventInk()
     }).select().single();
-    if (error){ showToast(friendlyError(error)); console.error(error); return; }
+    if (error){ showToast(friendlyError(error)); console.error('[EarthLive] wish save failed:', error); return; }
     curEntries.push(data);
     document.getElementById('evWishesMsg').value = '';
     toggleWishesForm();
@@ -14116,7 +14129,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     feedCard.style.display = (on && isIn) ? 'block' : 'none';
     const feed = document.getElementById('evWishesFeed');
     if (!on){ feed.innerHTML = ''; return; }
-    const wishes = curEntries.filter(e=>e.entry_type==='wishes');
+    const wishes = curEntries.filter(evIsWishEntry);
     if (!wishes.length){
       feed.innerHTML = isIn ? '<div style="background:var(--card); border:1.5px dashed var(--oat-deep); border-radius:14px; padding:20px 18px; text-align:center; color:var(--ink-soft); font-size:13px; margin-bottom:14px;">No wishes yet — be the first to leave one</div>' : '';
       return;
@@ -14303,7 +14316,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (!card || !host) return;
     // every contribution with an author + time
     const recs = (curEntries || [])
-      .filter(e => e.created_at)
+      .filter(e => e.created_at && !evIsRsvpEntry(e) && !evIsWishEntry(e))
       .map(e => ({
         when: new Date(e.created_at),
         by: e.author_name || 'Member',
@@ -14428,7 +14441,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   }
 
   function renderEventAboutFeed(){
-    const abouts = curEntries.filter(e=>e.entry_type==='about');
+    const abouts = curEntries.filter(e=>e.entry_type==='about' && !evIsRsvpEntry(e) && !evIsWishEntry(e));
     const colors = ['var(--moss)','var(--camel)','var(--navy-ink)','#6B4C6B'];
     document.getElementById('evAboutFeed').innerHTML = abouts.map((a,i)=>{
       const own = currentUser && a.author_user_id === currentUser.id;
