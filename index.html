@@ -1551,6 +1551,18 @@
   .ev-comment-body b{font-size:12.5px;}
   .ev-comment-row{display:flex; gap:8px; margin-top:8px;}
   .ev-comment-row input{flex:1; padding:8px 11px; border:1px solid var(--line); border-radius:9px; font-size:13px; font-family:inherit;}
+  .wp-comment-top{margin-bottom:2px;}
+  .wp-reply-btn{background:none; border:none; color:var(--ink-soft); font-size:11px; text-decoration:underline; padding:0; cursor:pointer;}
+  .wp-reply-btn:hover{color:var(--ink);}
+  .wp-replies{margin-top:8px; padding-top:8px; border-top:1px solid var(--line);}
+  .wp-reply{background:var(--oat); padding:8px 10px; border-radius:8px; margin-bottom:6px; border-left:3px solid var(--camel); font-size:12.5px;}
+  .wp-reply b{font-size:11.5px; color:var(--camel);}
+  .wp-reply-meta{display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;}
+  .wp-reply-del{background:none; border:none; color:var(--blush); font-size:11px; text-decoration:underline; padding:0; cursor:pointer;}
+  .wp-reply-form{display:none; margin-top:8px; padding-top:8px; border-top:1px solid var(--line);}
+  .wp-reply-form.show{display:block;}
+  .wp-reply-form textarea{width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:8px; font-size:12.5px; font-family:inherit; background:var(--page); color:var(--ink); margin-bottom:6px; min-height:40px; resize:vertical;}
+  .wp-reply-form button{font-size:12px; padding:6px 14px;}
   .ev-about-card{border-left:3px solid var(--moss); background:var(--oat); border-radius:0 10px 10px 0; padding:13px 15px; margin-bottom:10px;}
   .ev-about-line{font-size:12.5px; color:var(--ink-soft); margin-bottom:5px;}
   .ev-about-line b{color:var(--ink);}
@@ -4381,6 +4393,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     {name:'Nagpur', lat:21.15, lng:79.09},
     {name:'Nainital', lat:29.38, lng:79.46},
     {name:'Nashik', lat:19.99, lng:73.78},
+    {name:'Mumbai', lat:19.08, lng:72.88},
     {name:'Navi Mumbai', lat:19.03, lng:73.02},
     {name:'New Delhi', lat:28.61, lng:77.21},
     {name:'Noida', lat:28.58, lng:77.36},
@@ -4427,7 +4440,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     {name:'Visakhapatnam', lat:17.69, lng:83.22},
     {name:'Wardha', lat:20.75, lng:78.59},
     {name:'Warangal', lat:17.97, lng:79.58},
-    {name:'Wellingt on', lat:31.78, lng:77.17},
+    {name:'Wellington', lat:31.78, lng:77.17},
     {name:'Yamunanagar', lat:29.14, lng:77.29},
     {name:'Yerwada', lat:18.56, lng:73.85},
     {name:' Zona', lat:27.52, lng:74.61},
@@ -7599,15 +7612,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       ? (pageProfile.username || pageProfile.code)
       : 'page';
     const url = 'https://earthlive.in/?u=' + slug + '#entry-' + (entry.id || i);
-    if (navigator.share){
-      navigator.share({ title:'A note on EarthLive', text:`See what ${entry.name} wrote`, url }).catch(()=>{});
-    } else {
-      try{
-        navigator.clipboard.writeText(url).then(()=>showToast('Entry link copied'));
-      }catch(err){
-        showToast('Copy this link: ' + url);
-      }
-    }
+    shareWithFallback({ title:'A note on EarthLive', text:`See what ${entry.name} wrote`, url }, 'Entry link copied');
   }
 
   async function postComment(){
@@ -9825,6 +9830,92 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
   }
 
+  /* ── Wall comment replies: threaded replies on wall-post comments ──
+     Reuses the same `comments` table (parent_id) that entry-modal replies
+     already use — this just adds the missing UI + wiring for wall posts. */
+  function wallCommentHtml(entryId, c, cIdx, scope){
+    const replies = c.replies || [];
+    const repliesHtml = replies.length
+      ? '<div class="wp-replies">' + replies.map(r=>
+          '<div class="wp-reply"><div class="wp-reply-meta"><b>' + personLink(r.name, { userId: r.userId }) + '</b>' +
+          (scope === 'own' ? '<button type="button" class="wp-reply-del" onclick="deleteWallReply(\'' + entryId + '\',\'' + c.id + '\',\'' + r.id + '\',\'' + scope + '\')">remove</button>' : '') +
+          '</div><div class="wp-reply-text">' + escapeHtml(r.text || '') + '</div></div>'
+        ).join('') + '</div>'
+      : '';
+    return '<div class="ev-comment wp-comment">' +
+      '<div class="ev-avatar" style="background:var(--oat-deep); color:var(--ink);">' +
+      escapeHtml((c.name||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()) +
+      '</div><div class="ev-comment-body">' +
+      '<div class="wp-comment-top"><b>' + personLink(c.name, { userId: c.userId }) + '</b> ' + escapeHtml(c.text||'') + '</div>' +
+      '<button type="button" class="wp-reply-btn" onclick="toggleWallReplyForm(\'' + entryId + '\',' + cIdx + ',\'' + scope + '\')">reply</button>' +
+      repliesHtml +
+      '<div class="wp-reply-form" id="wp-reply-form-' + scope + '-' + entryId + '-' + cIdx + '">' +
+        '<textarea id="wp-reply-text-' + scope + '-' + entryId + '-' + cIdx + '" placeholder="Reply to ' + escapeHtml(c.name || '') + '..." maxlength="300"></textarea>' +
+        '<button type="button" class="btn-small" onclick="postWallReply(\'' + entryId + '\',' + cIdx + ',\'' + scope + '\')">Post reply</button>' +
+        '<button type="button" class="btn-small" style="background:none; border:1px solid var(--line); color:var(--ink); margin-left:6px;" onclick="toggleWallReplyForm(\'' + entryId + '\',' + cIdx + ',\'' + scope + '\')">Cancel</button>' +
+      '</div>' +
+      '</div></div>';
+  }
+
+  function toggleWallReplyForm(entryId, cIdx, scope){
+    const form = document.getElementById('wp-reply-form-' + scope + '-' + entryId + '-' + cIdx);
+    if (form) form.classList.toggle('show');
+  }
+
+  async function postWallReply(entryId, cIdx, scope){
+    if (db && !currentUser){ showToast('Sign in to reply'); return; }
+    const textEl = document.getElementById('wp-reply-text-' + scope + '-' + entryId + '-' + cIdx);
+    const text = textEl ? textEl.value.trim() : '';
+    if (!text){ showToast('Write a reply first'); return; }
+    const arr = (scope === 'own') ? entries : (currentVisitorEntries || []);
+    const e = arr.find(x=>x.id === entryId);
+    if (!e) return;
+    const parent = (e.comments || [])[cIdx];
+    if (!parent) return;
+    parent.replies = parent.replies || [];
+    const name = (profile && profile.name) ||
+      (currentUser && currentUser.email ? currentUser.email.split('@')[0] : 'Someone');
+    if (db && isDbEntry(e)){
+      const { data, error } = await db.from('comments').insert({
+        entry_id: e.id,
+        author_user_id: currentUser ? currentUser.id : null,
+        name,
+        body: text,
+        parent_id: parent.id
+      }).select().single();
+      if (error){ showToast(friendlyError(error)); return; }
+      parent.replies.push({ id: data.id, name, text, userId: currentUser ? currentUser.id : null });
+    } else {
+      parent.replies.push({ id: makeId(), name, text });
+    }
+    if (scope === 'own'){
+      renderWall();
+    } else {
+      renderVisitorWall(
+        (currentVisitorEntries || []).filter(x=>isApproved(x) && isWallPostOf(x, currentVisitorProfile)),
+        currentVisitorProfile
+      );
+    }
+    const box = document.getElementById('wpc-' + entryId);
+    if (box) box.classList.add('open');
+    showToast('Reply posted');
+  }
+
+  async function deleteWallReply(entryId, commentId, replyId, scope){
+    if (scope !== 'own') return; // only the wall owner can moderate replies on their own posts
+    if (!confirm('Delete this reply?')) return;
+    const e = entries.find(x=>x.id === entryId);
+    if (!e) return;
+    if (db && isDbEntry(e) && String(replyId).includes('-')){
+      const { error } = await db.from('comments').delete().eq('id', replyId);
+      if (error){ showToast('Could not remove: ' + error.message); return; }
+    }
+    const parent = (e.comments || []).find(c => c.id === commentId);
+    if (parent) parent.replies = (parent.replies || []).filter(r => r.id !== replyId);
+    renderWall();
+    showToast('Reply removed');
+  }
+
   /* Their wall, as a visitor sees it: read + like + comment, but no editing. */
   function renderVisitorWall(posts, profileObj){
     const section = document.getElementById('visitorWallSection');
@@ -9877,11 +9968,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
           <button class="wp-btn" onclick="shareVisitorBook()">\u2197 Share</button>
         </div>
         <div class="wp-comments" id="wpc-${e.id}">
-          ${(e.comments || []).map(c=>
-            '<div class="ev-comment"><div class="ev-avatar" style="background:var(--oat-deep); color:var(--ink);">' +
-            escapeHtml((c.name||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()) +
-            '</div><div class="ev-comment-body"><b>' + personLink(c.name, { userId: c.userId }) + '</b> ' + escapeHtml(c.text||'') + '</div></div>'
-          ).join('') || '<p style="font-size:12px; color:var(--ink-soft);">No comments yet.</p>'}
+          ${(e.comments || []).map((c, cIdx)=>wallCommentHtml(e.id, c, cIdx, 'visitor')).join('')
+            || '<p style="font-size:12px; color:var(--ink-soft);">No comments yet.</p>'}
           ${wallCommentFormHtml(e.id, 'visitor')}
         </div>
       </div>`;
@@ -9914,16 +10002,37 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     }
   }
 
+  /* \u2500\u2500 Share, with a real fallback \u2500\u2500
+     navigator.share() rejects (not just "unsupported") on plenty of real
+     desktop setups \u2014 no share target registered, not a secure/top-level
+     context, etc. The old code swallowed that rejection with .catch(()=>{}),
+     so the button looked like it did nothing. Now any failure other than
+     the user deliberately cancelling the native sheet falls back to
+     copying the link, so there's always visible feedback. */
+  function shareWithFallback(shareData, fallbackMsg){
+    const url = shareData.url;
+    const doFallback = () => {
+      try{
+        navigator.clipboard.writeText(url).then(()=>showToast(fallbackMsg || 'Link copied \u2014 share it anywhere'));
+      }catch(e){
+        showToast('Copy this link: ' + url);
+      }
+    };
+    if (navigator.share){
+      navigator.share(shareData).catch(err=>{
+        if (err && err.name === 'AbortError') return; // user cancelled the share sheet \u2014 nothing to do
+        doFallback();
+      });
+    } else {
+      doFallback();
+    }
+  }
+
   function shareVisitorBook(){
     if (!currentVisitorProfile) return;
     const link = 'earthlive.in/?u=' + (currentVisitorProfile.username || currentVisitorProfile.code);
     const url = 'https://' + link;
-    if (navigator.share){
-      navigator.share({ title: currentVisitorProfile.name + '\u2019s memory book', url }).catch(()=>{});
-    } else {
-      try { navigator.clipboard.writeText(url); } catch(e){}
-      showToast('Link copied');
-    }
+    shareWithFallback({ title: currentVisitorProfile.name + '\u2019s memory book', url }, 'Link copied');
   }
 
   function exitVisitorPreview(){
@@ -9951,12 +10060,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       text: `Add to my memory book on EarthLive`,
       url
     };
-    if (navigator.share){
-      navigator.share(shareData).catch(()=>{});
-    } else {
-      copyInvite();
-      showToast('Link copied \u2014 share it anywhere');
-    }
+    shareWithFallback(shareData, 'Link copied \u2014 share it anywhere');
   }
 
   function toggleAcctQr(){
@@ -11841,11 +11945,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
           </div>
         </div>
         <div class="wp-comments" id="wpc-${e.id}">
-          ${(e.comments || []).map(c=>
-            '<div class="ev-comment"><div class="ev-avatar" style="background:var(--oat-deep); color:var(--ink);">' +
-            escapeHtml((c.name||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()) +
-            '</div><div class="ev-comment-body"><b>' + personLink(c.name, { userId: c.userId }) + '</b> ' + escapeHtml(c.text||'') + '</div></div>'
-          ).join('') || '<p style="font-size:12px; color:var(--ink-soft);">No comments yet.</p>'}
+          ${(e.comments || []).map((c, cIdx)=>wallCommentHtml(e.id, c, cIdx, 'own')).join('')
+            || '<p style="font-size:12px; color:var(--ink-soft);">No comments yet.</p>'}
           ${wallCommentFormHtml(e.id, 'own')}
         </div>
       </div>`;
@@ -13938,11 +14039,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   function evShareEvent(){
     const url = eventUrl(curEvent.slug);
     const shareData = { title: curEvent.name, text: 'Join "' + curEvent.name + '" on EarthLive', url };
-    if (navigator.share){ navigator.share(shareData).catch(()=>{}); }
-    else {
-      try{ navigator.clipboard.writeText(url); }catch(e){}
-      showToast('Event link copied — share it anywhere');
-    }
+    shareWithFallback(shareData, 'Event link copied — share it anywhere');
   }
 
   function evTimeAgo(ts){
