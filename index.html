@@ -4106,7 +4106,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       <h3>What's not allowed</h3>
       <p>Harassment, bullying, hate speech, threats, sexual content involving minors, spam, malware, or using the service to harm anyone. Page owners control their own pages and may decline or remove any signature. We may remove content or suspend accounts that break these rules.</p>
       <h3>Optional encryption</h3>
-      <p>If you turn on encryption for your diary or messages, you are responsible for keeping your passphrase and recovery code safe. If both are lost, that content is permanently unreadable, and EarthLive cannot recover it under any circumstances \u2014 this is a deliberate, technical limitation of how the feature works, not a policy we can override on request.</p>
+      <p>If you turn on encryption for your diary or messages, you are responsible for keeping your passphrase and recovery code safe. If both are lost, that content is permanently unreadable, and EarthLive cannot recover it under any circumstances &mdash; this is a deliberate, technical limitation of how the feature works, not a policy we can override on request.</p>
       <h3>Our service</h3>
       <p>EarthLive is provided "as is." We work hard to keep it available and your data safe, but we can't guarantee uninterrupted service, and we're not liable for content posted by users. We may update features and these terms; continued use means acceptance of updates.</p>
       <h3>Contact</h3>
@@ -10063,6 +10063,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     document.getElementById('visitorBio').textContent = profileObj.bio;
     renderSeal('visitorSeal', profileObj);
     renderCover('visitor', profileObj);
+    const vCoverBox = document.getElementById('visitorCoverBox');
+    if (vCoverBox) vCoverBox.style.display = profileObj.cover ? '' : 'none';
     renderSocialLinks('visitorLinks', profileObj);
     renderDetails('visitorDetailsCard', profileObj, false);
     updateFollowUi(profileObj);
