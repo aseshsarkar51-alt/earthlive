@@ -8,12 +8,12 @@
 <meta name="keywords" content="digital memory book, online guestbook, digital slam book, memory book app, keepsake book maker, digital yearbook, guestbook app, memory jar app, printable memory book PDF">
 <link rel="canonical" href="https://earthlive.in/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="EarthLive — Digital Memory Book & Online Guestbook">
+<meta property="og:title" content="EarthLive — Memory Book">
 <meta property="og:description" content="Everyone's got something to say about you. Create a free digital memory book, send it to your people, and watch it fill up — export it as a printable PDF keepsake anytime.">
 <meta property="og:url" content="https://earthlive.in/">
 <meta property="og:site_name" content="EarthLive">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="EarthLive — Digital Memory Book & Online Guestbook">
+<meta name="twitter:title" content="EarthLive — Memory Book">
 <meta name="twitter:description" content="A free digital memory book and online guestbook — like a digital slam book that never stops filling up. Create a page and let your people add their memories.">
 <script type="application/ld+json">
 {
@@ -5238,7 +5238,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
             const u = pendingLinkUsername;
             pendingLinkUsername = null;
             try{ sessionStorage.removeItem('elPendingLinkUsername'); }catch(e){}
-            openProfileByUsername(u);
+            openProfileByUsername(u, true);
             return;
           }
           if (pendingEventSlug){
@@ -5268,7 +5268,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
               const u = pendingLinkUsername;
               pendingLinkUsername = null;
               try{ sessionStorage.removeItem('elPendingLinkUsername'); }catch(e){}
-              openProfileByUsername(u);
+              openProfileByUsername(u, true);
               return;
             }
             if (pendingEventSlug){
@@ -6480,7 +6480,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     } catch(err){ /* localStorage unavailable — referral just won't be tracked */ }
   })();
 
-  async function openProfileByUsername(username){
+  async function openProfileByUsername(username, viaDirectLink){
     if (!db) return false;
     const { data, error } = await db.from('profiles').select('*')
       .eq('username', username.toLowerCase())
@@ -6498,6 +6498,12 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     }
     const theirEntries = await fetchEntriesForProfile(p.dbId);
     previewProfile(p, theirEntries, currentUser ? 'search' : 'landing');
+    // Someone who followed a shared link (WhatsApp, etc.) came here
+    // specifically to write something — on mobile especially, the "Sign
+    // this page" button on the preview is easy to miss. Take them straight
+    // to the composer; Cancel still lands back on the normal profile
+    // preview (previewProfile above already set up all of that state).
+    if (viaDirectLink) signCurrentVisitorProfile();
     return true;
   }
 
@@ -6524,10 +6530,12 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     }
     if (!pendingLinkUsername) return false;
     const u = pendingLinkUsername;
-    // Guests can READ a public book without an account \u2014 this is the whole point of
-    // sharing a link. Signing in is only required to actually sign the book.
+    // Guests can READ (and sign, with just a name + email) a public book
+    // without an account \u2014 this is the whole point of sharing a link.
+    // Since this is a direct incoming share link, skip straight to the
+    // composer instead of the read-only preview.
     pendingLinkUsername = null;
-    openProfileByUsername(u);
+    openProfileByUsername(u, true);
     return true;
   }
 
