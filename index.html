@@ -4020,19 +4020,18 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       </div>
     </div>
 
-    <div id="wptsAlbumSec" style="display:none; margin-top:22px;">
-      <div class="entries-head" style="align-items:baseline; margin-bottom:12px;">
-        <h3 style="margin:0;">Album</h3>
-        <span id="wptsAlbumCount" style="font-size:12.5px; color:var(--ink-soft);"></span>
-      </div>
-      <div class="wpts-folder-bar" id="wptsAlbumFolders"></div>
-      <div class="wpts-match-grid on" id="wptsAllGrid"></div>
-    </div>
-
     <div class="wpts-stat-row" id="wptsStats" style="display:none;">
       <div><b id="wptsStatPlaces">0</b><span>places</span></div>
       <div><b id="wptsStatPhotos">0</b><span>photos</span></div>
       <div><b id="wptsStatPinned">0</b><span>pinned</span></div>
+    </div>
+
+    <div id="wptsAlbumSec" style="display:none; margin-top:22px;">
+      <div class="entries-head" style="align-items:baseline; margin-bottom:12px;">
+        <h3 style="margin:0;">Album</h3>
+      </div>
+      <div class="wpts-folder-bar" id="wptsAlbumFolders"></div>
+      <div class="wpts-match-grid on" id="wptsAllGrid"></div>
     </div>
 
     <div class="wpts-people">
@@ -10684,8 +10683,6 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     // We have photos: reveal the album grid + stats.
     if (people) people.style.display = '';
     if (albumSec) albumSec.style.display = '';
-    const cnt = document.getElementById('wptsAlbumCount');
-    if (cnt) cnt.textContent = photos.length + (photos.length===1 ? ' photo' : ' photos');
 
     const pinned = photos.filter(p => typeof p.lat === 'number' && typeof p.lng === 'number');
     const places = new Set(photos.map(p => p.place).filter(Boolean)).size;
