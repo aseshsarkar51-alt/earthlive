@@ -1215,6 +1215,15 @@
   .hl-card h3{font-family:'Fraunces',serif; font-size:17px; font-weight:500; margin:0 0 6px; letter-spacing:-0.01em;}
   .hl-card p{font-size:13.5px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;}
   .hl-meta{font-size:11.5px; color:var(--ink-soft); opacity:.85;}
+  .hl-card-stat{display:inline-block; margin-top:8px; font-family:"Inter Tight",sans-serif; font-size:11px; font-weight:600; color:var(--camel); background:var(--oat); border-radius:999px; padding:3px 10px;}
+  .hl-stats{display:flex; gap:28px; flex-wrap:wrap; justify-content:center; margin:22px 0 8px; padding:18px 10px; background:var(--oat); border-radius:12px;}
+  .hl-stat{text-align:center; min-width:90px;}
+  .hl-stat b{display:block; font-family:'Fraunces',serif; font-size:24px; font-weight:500; color:var(--ink); line-height:1.2;}
+  .hl-stat span{display:block; font-size:11px; color:var(--ink-soft); margin-top:3px; line-height:1.4;}
+  .hl-chart-wrap{margin:26px 0 6px; text-align:center;}
+  .hl-chart-cap{font-size:11px; color:var(--ink-soft); margin-top:8px; font-style:italic;}
+  .hl-tip{background:var(--oat); border-left:3px solid var(--camel); border-radius:0 10px 10px 0; padding:14px 18px; margin:30px 0 0; font-size:13.5px; line-height:1.6; color:var(--ink);}
+  .hl-tip b{color:var(--camel); font-family:"Inter Tight",sans-serif; font-size:11px; letter-spacing:.12em; text-transform:uppercase; display:block; margin-bottom:6px; font-weight:600;}
 
   /* ---------- SIGNATURE SEARCH (minimal underline) ---------- */
   .sig-search{display:flex; align-items:center; gap:8px; background:none; border:none; border-bottom:1px solid var(--line); border-radius:0; padding:4px 2px 7px; margin-bottom:12px; transition:border-color .18s;}
@@ -1371,7 +1380,7 @@
   /* diary calendar */
   /* ── mood tracker ── */
   .mood-card{border-bottom:1px solid var(--line); padding:20px 22px 22px; background:#FCFBF7;}
-  .mood-q{font-size:13.5px; font-weight:700; margin:0 0 2px;}
+  .mood-q{font-size:13.5px; font-weight:700; margin:0 0 12px;}
   .mood-hint{font-size:11.5px; color:var(--ink-soft); margin:0 0 10px;}
   .mood-row{display:flex; gap:10px; flex-wrap:wrap;}
   .mood-opt{text-align:center; background:none; border:none; padding:0; cursor:pointer; font-family:inherit;}
@@ -2196,7 +2205,7 @@
         <button onclick="showScreen('privacy')">Privacy Policy</button>
         <button onclick="showScreen('terms')">Terms of Use</button>
         <button onclick="showScreen('research')">Research note</button>
-        <button onclick="showScreen('happiness')">The Happiness Library</button>
+        <button onclick="showScreen('happiness-library')">The Happiness Library</button>
       </div>
       <div style="font-size:12px; margin-top:12px;">© 2026 <b style="color:var(--ink);">EarthLive</b> · Made for people who miss passing notes.</div>
       <p style="margin:18px 0 0; font-size:12px; color:var(--ink-soft);">© 2026 EarthLive · earthlive.in · All rights reserved. "EarthLive" and the EarthLive seal are trademarks of their owner.</p>
@@ -2450,9 +2459,9 @@
 <section class="screen" id="screen-diary">
   <div class="wrap">
     <div style="max-width:1040px; margin:0 auto; padding:36px 24px 60px;">
-      <div class="form-eyebrow">My private space</div>
+      <div class="form-eyebrow">My diary</div>
       <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-        <h2 style="font-family:'Fraunces',serif; font-size:32px; margin:0 0 4px; font-weight:500; letter-spacing:-0.01em;">My diary</h2>
+        <h2 style="font-family:'Fraunces',serif; font-size:32px; margin:0 0 4px; font-weight:500; letter-spacing:-0.01em;">My private space</h2>
         <button type="button" class="cal-toggle" onclick="openPrintModal('diary')" style="flex:none;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg> Print diary</button>
       </div>
 
@@ -3912,7 +3921,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 </section>
 
 <!-- ============ THE HAPPINESS LIBRARY ============ -->
-<section class="screen" id="screen-happiness">
+<section class="screen" id="screen-happiness-library">
   <div class="wrap">
     <div id="hlGridView">
       <div style="max-width:640px; margin:36px auto 0; padding:0 20px;">
@@ -11313,6 +11322,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         { head: 'The research', body: "Psychologists Constantine Sedikides and Tim Wildschut have spent over fifteen years studying nostalgia experimentally: one group recalls a nostalgic memory, a comparison group recalls an ordinary one, and researchers measure the psychological aftermath. The nostalgic group consistently reports higher self-esteem, more meaning in life, and stronger social connectedness — effects that replicate across the US, UK, and China. One proposed mechanism is authenticity: nostalgic memories tend to feature us at our most genuine, surrounded by people who knew us well, restoring a sense of being true to ourselves." },
         { head: 'Why it matters here', body: "A memory book only works as a wellbeing tool if the memories in it get revisited, not just archived. This is the research case for actually opening your diary and waypoints later, not only writing to them once." }
       ],
+      stats: [ { n: '15+', l: 'years of experiments' }, { n: '3', l: 'countries replicated (US, UK, China)' } ],
+      chart: '<svg viewBox="0 0 360 150" width="100%" style="max-width:340px;"><line x1="150" y1="10" x2="150" y2="130" style="stroke:var(--line); stroke-width:1; stroke-dasharray:3,3;"/><text x="150" y="144" text-anchor="middle" style="font-size:9px; fill:var(--ink-soft); font-family:\'Inter Tight\',sans-serif;">ordinary memory (baseline)</text><rect x="150" y="18" width="130" height="20" rx="4" style="fill:var(--camel); opacity:.85;"/><text x="10" y="32" style="font-size:11px; fill:var(--ink); font-family:\'Inter Tight\',sans-serif;">Self-esteem</text><rect x="150" y="58" width="150" height="20" rx="4" style="fill:var(--camel); opacity:.85;"/><text x="10" y="72" style="font-size:11px; fill:var(--ink); font-family:\'Inter Tight\',sans-serif;">Meaning in life</text><rect x="150" y="98" width="115" height="20" rx="4" style="fill:var(--camel); opacity:.85;"/><text x="10" y="112" style="font-size:11px; fill:var(--ink); font-family:\'Inter Tight\',sans-serif;">Connectedness</text></svg>',
+      chartCap: 'Illustrative — shows the direction reported across studies (nostalgic recall higher than an ordinary memory on all three), not exact magnitudes.',
+      tip: "Set a monthly reminder to reopen an old diary entry or waypoint. The benefit comes from revisiting a memory, not just recording it.",
       source: "Sedikides, C., & Wildschut, T. (2022). Nostalgia confers psychological wellbeing by increasing authenticity. Journal of Experimental Social Psychology."
     },
     {
@@ -11327,6 +11340,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         { head: 'The research', body: "Psychologists Robert Emmons and Michael McCullough split participants into three groups: one recorded five things they were grateful for each week, one recorded five daily hassles, and one recorded five neutral events. Only the gratitude group showed a consistent lift — reporting around 25% higher happiness and greater life satisfaction overall. The effect wasn't limited to mood: the gratitude group also exercised more, reported fewer physical symptoms, and felt more optimistic about the week ahead." },
         { head: 'Why it matters here', body: "This is the research case for a diary entry being a small, specific moment rather than a big reflective essay — “the way she laughed when the cake collapsed” does more for you than “today was a good day.”" }
       ],
+      stats: [ { n: '25%', l: 'higher happiness reported' }, { n: '10', l: 'weeks studied' } ],
+      chart: '<svg viewBox="0 0 360 110" width="100%" style="max-width:340px;"><line x1="150" y1="10" x2="150" y2="95" style="stroke:var(--line); stroke-width:1;"/><rect x="150" y="18" width="160" height="26" rx="4" style="fill:var(--camel);"/><text x="318" y="36" style="font-size:12px; fill:var(--ink); font-family:\'Fraunces\',serif; font-weight:500;">125</text><text x="10" y="36" style="font-size:11px; fill:var(--ink); font-family:\'Inter Tight\',sans-serif;">Gratitude journal</text><rect x="150" y="58" width="128" height="26" rx="4" style="fill:var(--oat-deep);"/><text x="296" y="76" style="font-size:12px; fill:var(--ink); font-family:\'Fraunces\',serif; font-weight:500;">100</text><text x="10" y="76" style="font-size:11px; fill:var(--ink); font-family:\'Inter Tight\',sans-serif;">Comparison groups</text></svg>',
+      chartCap: 'Relative happiness rating, comparison groups indexed to 100 — the 25% figure as reported in the study.',
+      tip: "Next time you write a diary entry, name one small, specific moment instead of summarizing the whole day.",
       source: "Emmons, R. A., & McCullough, M. E. (2003). Counting blessings versus burdens: An experimental investigation of gratitude and subjective well-being in daily life. Journal of Personality and Social Psychology, 84(2), 377-389."
     },
     {
@@ -11341,6 +11358,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         { head: 'The research', body: "The Harvard Study of Adult Development has followed more than 700 original participants — later expanded to include spouses and children, over 2,500 people in total — since 1938, tracking their health, careers, and relationships every few years. Its current director, psychiatrist Robert Waldinger, calls it the clearest message the study has produced across 85 years: good relationships keep us happier and healthier. People with warmer connections to family, friends, and community lived longer and showed lower rates of chronic disease and cognitive decline, outperforming social class, IQ, and even genetics as predictors." },
         { head: 'Why it matters here', body: "An EarthLive book is, structurally, an archive of your close ties — signatures, wall posts, wishes, messages. The research suggests that maintaining and revisiting those ties isn't sentimental extra credit; it's one of the best-evidenced things you can do for a long, happy life." }
       ],
+      stats: [ { n: '85+', l: 'years running' }, { n: '2,500+', l: 'people studied' } ],
+      chart: '<svg viewBox="0 0 360 110" width="100%" style="max-width:340px;"><line x1="30" y1="55" x2="330" y2="55" style="stroke:var(--camel); stroke-width:3; stroke-linecap:round;"/><circle cx="30" cy="55" r="7" style="fill:var(--camel);"/><circle cx="330" cy="55" r="7" style="fill:var(--camel);"/><text x="30" y="80" text-anchor="middle" style="font-size:12px; fill:var(--ink); font-family:\'Fraunces\',serif; font-weight:500;">1938</text><text x="330" y="80" text-anchor="middle" style="font-size:12px; fill:var(--ink); font-family:\'Fraunces\',serif; font-weight:500;">Today</text><text x="180" y="30" text-anchor="middle" style="font-size:11px; fill:var(--ink-soft); font-family:\'Inter Tight\',sans-serif;">3 generations · 2,500+ participants tracked</text></svg>',
+      chartCap: 'The Harvard Study of Adult Development, still following its original families 85+ years later.',
+      tip: "Send a wall post or wish to someone specific this week — not a general update, an addressed one.",
       source: "Waldinger, R., & Schulz, M. (2023). The Good Life: Lessons from the World's Longest Scientific Study of Happiness. Based on the Harvard Study of Adult Development (1938–present)."
     },
     {
@@ -11355,6 +11376,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         { head: 'The research', body: "In experiments by Alixandra Barasch, Kristin Diehl, Jackie Silverman, and Gal Zauberman, people who could freely photograph an experience later recognized more visual detail from it than people without a camera — the act of framing a shot focuses attention. But the effect flips when photo-taking is driven by the intention to share: people taking photos for an audience enjoyed the moment less and remembered it less clearly than people taking photos purely to keep for themselves." },
         { head: 'Why it matters here', body: "This is the research case for waypoints and a private album that isn't primarily built around an audience — a photo you took because you wanted to remember it tends to serve your memory better than one you took to post." }
       ],
+      stats: [ { n: '2', l: 'linked photo-taking studies' }, { n: '1', l: 'clear rule: for you beats for an audience' } ],
+      chart: '<svg viewBox="0 0 360 110" width="100%" style="max-width:340px;"><line x1="150" y1="10" x2="150" y2="95" style="stroke:var(--line); stroke-width:1;"/><rect x="150" y="18" width="140" height="26" rx="4" style="fill:var(--camel);"/><text x="10" y="36" style="font-size:11px; fill:var(--ink); font-family:\'Inter Tight\',sans-serif;">Photographed, for yourself</text><rect x="150" y="58" width="80" height="26" rx="4" style="fill:var(--oat-deep);"/><text x="10" y="76" style="font-size:11px; fill:var(--ink); font-family:\'Inter Tight\',sans-serif;">Photographed, to share</text></svg>',
+      chartCap: 'Illustrative — direction of the recognition and enjoyment effect reported in the study, not exact figures.',
+      tip: "When you add a waypoint photo, notice if you're keeping it for yourself first. Share it after, if you still want to.",
       source: "Barasch, A., Diehl, K., Silverman, J., & Zauberman, G. (2017). Photographic memory: The effects of volitional photo taking on memory for visual and auditory aspects of an experience. Psychological Science, 28(8), 1056-1066."
     }
   ];
@@ -11367,7 +11392,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         '<div class="hl-cat">' + escapeHtml(a.category) + '</div>' +
         '<h3>' + escapeHtml(a.title) + '</h3>' +
         '<p>' + escapeHtml(a.teaser) + '</p>' +
-        '<span class="hl-meta">' + escapeHtml(a.meta) + '</span>' +
+        '<span class="hl-meta">' + escapeHtml(a.meta) + '</span><br>' +
+        '<span class="hl-card-stat">' + escapeHtml(a.stats[0].n + ' ' + a.stats[0].l) + '</span>' +
       '</button>'
     )).join('');
   }
@@ -11379,9 +11405,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     body.innerHTML =
       '<h2>' + escapeHtml(a.title) + '</h2>' +
       '<p class="rn-standfirst">' + escapeHtml(a.standfirst) + '</p>' +
+      '<div class="hl-stats">' +
+        a.stats.map(s => '<div class="hl-stat"><b>' + escapeHtml(s.n) + '</b><span>' + escapeHtml(s.l) + '</span></div>').join('') +
+      '</div>' +
       '<div class="rn-essay">' +
         a.sections.map(s => '<p class="rn-sechead">' + escapeHtml(s.head) + '</p><p>' + escapeHtml(s.body) + '</p>').join('') +
       '</div>' +
+      '<div class="hl-chart-wrap">' + a.chart + '<p class="hl-chart-cap">' + escapeHtml(a.chartCap) + '</p></div>' +
+      '<div class="hl-tip"><b>Try this in your book</b>' + escapeHtml(a.tip) + '</div>' +
       '<div class="rn-sign"><span class="dot"></span><p>The Happiness Library · earthlive.in</p></div>' +
       '<div class="rn-sources"><p>Source</p><span>' + escapeHtml(a.source) + '</span></div>' +
       '<div class="cta-row" style="margin-top:38px; justify-content:center;">' +
@@ -11434,7 +11465,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (name === 'tour'){
       syncTourHeight();
     }
-    if (name === 'happiness'){
+    if (name === 'happiness-library'){
       hlBackToGrid();
       renderHlGrid();
     }
