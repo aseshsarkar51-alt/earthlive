@@ -1263,6 +1263,10 @@
   .wp-name{font-weight:700; font-size:15px;}
   .wp-meta{font-size:12.5px; color:var(--ink-soft); margin-top:1px;}
   .wp-body{font-size:14.5px; line-height:1.7; margin:12px 0 0; white-space:pre-wrap; color:var(--ink);}
+  .wp-voice{margin-top:10px;}
+  .wp-voice .msg-voice .mv-play{background:var(--oat-deep);}
+  .wp-voice .msg-voice .mv-play svg{fill:var(--ink);}
+  .wp-voice .msg-voice .mv-dur{color:var(--ink-soft);}
   .wp-photos{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;}
   .wp-photos.count-1{grid-template-columns:1fr;}
   .wp-photos.count-3{grid-template-columns:1fr 1fr 1fr;}
@@ -2343,9 +2347,23 @@
         <input type="text" id="wallCity" placeholder="Add a city — pins it on your map…" autocomplete="off" oninput="wallCityTyped()">
         <div class="ev-ta" id="wallCitySuggest"></div>
       </div>
+      <div class="wc-city" id="wcVoiceWrap" style="display:none;">
+        <div class="vrec" id="wallVrec">
+          <button type="button" class="vrec-btn" id="wallVrecBtn" onclick="wallVoiceToggle()" aria-label="Record voice">
+            <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 003-3V6a3 3 0 00-6 0v5a3 3 0 003 3z"/><path d="M18 11a6 6 0 01-12 0M12 17v4M8 21h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <div class="vrec-mid">
+            <div class="vrec-label" id="wallVrecLabel">Tap to record</div>
+            <div class="vrec-sub" id="wallVrecSub">Adds a voice note — and fills in the text above</div>
+          </div>
+          <span class="vrec-time" id="wallVrecTime" style="display:none;">0:00</span>
+        </div>
+        <div id="wallVclip" style="display:none; margin-top:10px;"></div>
+      </div>
       <div class="wc-actions">
         <input type="file" accept="image/*" id="wallPhotoInput" multiple style="display:none;" onchange="wallHandlePhotos(event)">
         <button type="button" class="ev-chip" onclick="document.getElementById('wallPhotoInput').click()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span> Photos</button>
+        <button type="button" class="ev-chip" onclick="toggleWallVoice()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 003-3V6a3 3 0 00-6 0v5a3 3 0 003 3z"/><path d="M18 11a6 6 0 01-12 0M12 17v4M8 21h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span> Voice</button>
         <button type="button" class="ev-chip" onclick="toggleWallCity()"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span> Add a city</button>
         <button type="button" class="btn-small" style="margin-left:auto;" onclick="postToWall()">Post to my wall</button>
       </div>
@@ -2425,7 +2443,7 @@
 <section class="screen" id="screen-diary">
   <div class="wrap">
     <div style="max-width:1040px; margin:0 auto; padding:36px 24px 60px;">
-      <div class="form-eyebrow">Your private space</div>
+      <div class="form-eyebrow">My private space</div>
       <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
         <h2 style="font-family:'Fraunces',serif; font-size:32px; margin:0 0 4px; font-weight:500; letter-spacing:-0.01em;">My diary</h2>
         <button type="button" class="cal-toggle" onclick="openPrintModal('diary')" style="flex:none;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg> Print diary</button>
@@ -4002,7 +4020,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   <div class="wpts-main">
     <p class="wpts-eyebrow">My waypoints</p>
     <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
-      <h1 style="margin-bottom:6px;">Everywhere you've been</h1>
+      <h1 style="margin-bottom:6px;">Everywhere I've been</h1>
       <span style="display:flex; gap:8px; flex:none; align-items:center;">
       <button type="button" class="wpts-vis" id="wptsVisPill" onclick="wptsToggleVisibility()"><span class="vdot"></span><span id="wptsVisLabel">Album: Private</span></button>
       <button type="button" class="wpts-btn" style="flex:none;" onclick="openPrintModal('waypoints')"><svg viewBox="0 0 24 24"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 01-2-2v-4a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg> Print waypoints</button>
@@ -4119,12 +4137,18 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
           <button class="btn-small" onclick="msgTab==='circles' ? renderCircleList() : renderConvList()">Refresh</button>
         </span>
       </div>
+      <div class="sig-search" id="msgSearchBox">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
+        <input type="text" id="msgSearchInput" placeholder="Search messages…" autocomplete="off" oninput="msgSearchTyped()">
+        <button type="button" id="msgSearchClear" style="display:none; background:none; border:none; cursor:pointer; color:var(--ink-soft); font-size:12px; padding:2px 4px;" onclick="clearMsgSearch()" aria-label="Clear search">✕</button>
+      </div>
       <div class="msg-tabs">
         <button type="button" class="msg-tab on" id="tabDirect" onclick="setMsgTab('direct')">Direct</button>
         <button type="button" class="msg-tab" id="tabCircles" onclick="setMsgTab('circles')">Circles</button>
       </div>
       <div id="convList"></div>
       <div id="circleList" style="display:none;"></div>
+      <div id="msgSearchResults" style="display:none;"></div>
     </div>
     <div id="circleThreadView" style="display:none;">
       <button class="link-quiet" style="margin-bottom:14px;" onclick="backFromCircle()">← All messages</button>
@@ -5883,6 +5907,127 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     });
   }
 
+  /* ---- search across all direct messages, like WhatsApp's chat search ---- */
+  let msgSearchTimer = null;
+  function msgSearchTyped(){
+    clearTimeout(msgSearchTimer);
+    msgSearchTimer = setTimeout(runMsgSearch, 350);
+  }
+
+  function clearMsgSearch(){
+    const input = document.getElementById('msgSearchInput');
+    if (input) input.value = '';
+    runMsgSearch();
+  }
+
+  function clearMsgSearchAndOpen(convId){
+    const input = document.getElementById('msgSearchInput');
+    if (input) input.value = '';
+    const clearBtn = document.getElementById('msgSearchClear');
+    if (clearBtn) clearBtn.style.display = 'none';
+    const resultsBox = document.getElementById('msgSearchResults');
+    if (resultsBox){ resultsBox.style.display = 'none'; resultsBox.innerHTML = ''; }
+    const tabsEl = document.querySelector('#convListView .msg-tabs');
+    if (tabsEl) tabsEl.style.display = '';
+    const convListEl = document.getElementById('convList');
+    if (convListEl) convListEl.style.display = '';
+    openThread(convId);
+  }
+
+  async function runMsgSearch(){
+    const input = document.getElementById('msgSearchInput');
+    const q = (input.value || '').trim().toLowerCase();
+    const resultsBox = document.getElementById('msgSearchResults');
+    const clearBtn = document.getElementById('msgSearchClear');
+    const convListEl = document.getElementById('convList');
+    const circleListEl = document.getElementById('circleList');
+    const tabsEl = document.querySelector('#convListView .msg-tabs');
+    if (clearBtn) clearBtn.style.display = q ? '' : 'none';
+
+    if (!q){
+      resultsBox.style.display = 'none';
+      resultsBox.innerHTML = '';
+      if (tabsEl) tabsEl.style.display = '';
+      if (convListEl) convListEl.style.display = msgTab === 'direct' ? '' : 'none';
+      if (circleListEl) circleListEl.style.display = msgTab === 'circles' ? '' : 'none';
+      return;
+    }
+
+    if (tabsEl) tabsEl.style.display = 'none';
+    if (convListEl) convListEl.style.display = 'none';
+    if (circleListEl) circleListEl.style.display = 'none';
+    resultsBox.style.display = 'block';
+    resultsBox.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Searching…</p>';
+
+    if (!db || !profile || !profile.dbId){
+      resultsBox.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Sign in to search messages.</p>';
+      return;
+    }
+
+    const { data: convs, error } = await db.from('conversations')
+      .select('*, requester:profiles!conversations_requester_profile_id_fkey(id,name,username,ink,avatar_url,extras), recipient:profiles!conversations_recipient_profile_id_fkey(id,name,username,ink,avatar_url,extras)')
+      .or('requester_profile_id.eq.' + profile.dbId + ',recipient_profile_id.eq.' + profile.dbId)
+      .eq('status', 'accepted');
+
+    if (error || !convs || !convs.length){
+      resultsBox.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">No messages found.</p>';
+      return;
+    }
+
+    const myPriv = await e2eGetMyPrivateKey();
+    const matches = [];
+
+    for (const c of convs){
+      const other = otherParty(c) || { name:'A private page', username:'' };
+      let sharedKey = null;
+      if (myPriv && other && other.extras && other.extras.msg_pubkey){
+        try { sharedKey = await e2eDeriveSharedKey(myPriv, other.extras.msg_pubkey); } catch(e){ sharedKey = null; }
+      }
+      const { data: msgs } = await db.from('messages').select('id, body, created_at, sender_profile_id')
+        .eq('conversation_id', c.id)
+        .order('created_at', { ascending:false })
+        .limit(300);
+      for (const m of (msgs || [])){
+        if (!m.body) continue;
+        let body = m.body;
+        if (e2eIsEncrypted(body)){
+          if (!sharedKey) continue; // can't read this thread's messages here — skip from search
+          try { body = await e2eDecryptWithKey(sharedKey, body); } catch(e){ continue; }
+        }
+        if (body.toLowerCase().includes(q)){
+          matches.push({ convId: c.id, other, body, created_at: m.created_at, mine: m.sender_profile_id === profile.dbId });
+        }
+      }
+    }
+
+    // Still showing the same query? (user may have kept typing while this ran)
+    if ((document.getElementById('msgSearchInput').value || '').trim().toLowerCase() !== q) return;
+
+    if (!matches.length){
+      resultsBox.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">No messages match “' + escapeHtml(input.value.trim()) + '”.</p>';
+      return;
+    }
+
+    matches.sort((a,b)=> new Date(b.created_at) - new Date(a.created_at));
+
+    resultsBox.innerHTML = matches.map(m=>{
+      const lower = m.body.toLowerCase();
+      const idx = lower.indexOf(q);
+      const start = Math.max(0, idx - 24);
+      const snippet = (start > 0 ? '…' : '') + escapeHtml(m.body.slice(start, idx)) +
+        '<mark>' + escapeHtml(m.body.slice(idx, idx + q.length)) + '</mark>' +
+        escapeHtml(m.body.slice(idx + q.length, idx + q.length + 60)) +
+        (m.body.length > idx + q.length + 60 ? '…' : '');
+      return '<div class="conv-item" onclick="clearMsgSearchAndOpen(\'' + m.convId + '\')">' +
+        '<div class="conv-info" style="flex:1;">' +
+        '<strong>' + escapeHtml(m.other.name || 'Someone') + '</strong>' +
+        '<span style="display:block; font-size:12.5px; color:var(--ink-soft); margin-top:2px;">' + (m.mine ? 'You: ' : '') + snippet + '</span>' +
+        '</div>' +
+        '<span style="font-size:11px; color:var(--ink-soft); flex:none;">' + timeAgo(m.created_at) + '</span>' +
+        '</div>';
+    }).join('');
+  }
+
   async function openThread(convId){
     currentConversationId = convId;
     const { data: conv, error } = await db.from('conversations')
@@ -5954,13 +6099,13 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       const mine = m.sender_profile_id === profile.dbId ? 'mine' : '';
       const unsend = mine ? `<div class="msg-unsend" onclick="deleteMessage('${m.id}')">Unsend</div>` : '';
       if (m.voice_url){
-        return `<div class="msg-bubble voice ${mine}">${msgVoiceBubbleHtml(m.voice_url, m.voice_seconds)}${unsend}</div>`;
+        return `<div class="msg-bubble voice ${mine}" id="msgrow-${m.id}">${msgVoiceBubbleHtml(m.voice_url, m.voice_seconds)}${unsend}</div>`;
       }
       if (m.image_url){
         const caption = m.body ? `<div style="margin-top:6px;font-size:13px;">${linkify(m.body)}</div>` : '';
-        return `<div class="msg-bubble ${mine}" style="padding:6px;"><img src="${m.image_url}" alt="Photo" style="max-width:220px;width:100%;border-radius:9px;display:block;cursor:pointer;" onclick="openLightbox('${m.image_url}')">${caption}${unsend}</div>`;
+        return `<div class="msg-bubble ${mine}" id="msgrow-${m.id}" style="padding:6px;"><img src="${m.image_url}" alt="Photo" style="max-width:220px;width:100%;border-radius:9px;display:block;cursor:pointer;" onclick="openLightbox('${m.image_url}')">${caption}${unsend}</div>`;
       }
-      return `<div class="msg-bubble ${mine}">${linkify(m.body)}${unsend}</div>`;
+      return `<div class="msg-bubble ${mine}" id="msgrow-${m.id}">${linkify(m.body)}${unsend}</div>`;
     }).join('') || '<p style="font-size:13px; color:var(--ink-soft); text-align:center;">No messages yet.</p>';
     box.scrollTop = box.scrollHeight;
 
@@ -5981,17 +6126,21 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
   async function deleteMessage(messageId){
     if (!confirm('Unsend this message?\n\nIt will be removed for everyone in this conversation.')) return;
+    // Instant feedback: pull the bubble off the screen right away, don't
+    // wait on the round trip — matches the "gone immediately" feel of WhatsApp unsend.
+    const row = document.getElementById('msgrow-' + messageId);
+    if (row) row.remove();
     const { data: msgRow } = await db.from('messages').select('image_url, voice_url').eq('id', messageId).maybeSingle();
     const { error } = await db.from('messages').delete()
       .eq('id', messageId)
       .eq('sender_profile_id', profile.dbId); // only ever your own message
-    if (error){ showToast('Could not unsend: ' + error.message); return; }
+    if (error){ showToast('Could not unsend: ' + error.message); openThread(currentConversationId); return; }
     if (msgRow){
       if (msgRow.image_url) deleteStorageFileFromUrl(msgRow.image_url);
       if (msgRow.voice_url) deleteStorageFileFromUrl(msgRow.voice_url);
     }
     showToast('Message unsent');
-    openThread(currentConversationId);
+    refreshMsgBadge();
   }
 
   async function decideConversation(accept){
@@ -9983,6 +10132,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
             '<img src="' + u + '" alt="" loading="lazy" onclick="window.open(\'' + u + '\',\'_blank\')">'
           ).join('') + '</div>'
         : '';
+      const voice = e.voice_url ? '<div class="wp-voice">' + msgVoiceBubbleHtml(e.voice_url, e.voice_seconds) + '</div>' : '';
       const cmts = (e.comments || []).length;
       return `
       <div class="wall-post" style="border-left-color:${ink};">
@@ -9994,6 +10144,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
           </div>
         </div>
         <div class="wp-body">${escapeHtml(e.message || '')}</div>
+        ${voice}
         ${photos}
         <div class="wp-foot">
           <button class="wp-btn ${e.likedByMe ? 'liked' : ''}" onclick="toggleVisitorWallLike('${e.id}')">${e.likedByMe ? '\u2665' : '\u2661'} ${e.likes || 0}</button>
@@ -11753,6 +11904,85 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (w.style.display === 'block') document.getElementById('wallCity').focus();
   }
 
+  /* ---- voice post on the wall composer: record + auto voice-to-text ---- */
+  let wallVoiceCtl = null, wallVoiceClip = null;
+  let wallSpeechRec = null, wallSpeechFinal = '';
+
+  function toggleWallVoice(){
+    const w = document.getElementById('wcVoiceWrap');
+    w.style.display = (w.style.display === 'none' || !w.style.display) ? 'block' : 'none';
+  }
+
+  function wallStartSpeechRecognition(){
+    wallSpeechFinal = '';
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR){ wallSpeechRec = null; return; } // no on-device voice-to-text in this browser — recording still works fine
+    try{
+      wallSpeechRec = new SR();
+      wallSpeechRec.continuous = true;
+      wallSpeechRec.interimResults = false;
+      wallSpeechRec.lang = navigator.language || 'en-US';
+      wallSpeechRec.onresult = (ev)=>{
+        let text = '';
+        for (let i = ev.resultIndex; i < ev.results.length; i++){
+          if (ev.results[i].isFinal) text += ev.results[i][0].transcript;
+        }
+        if (text.trim()) wallSpeechFinal += (wallSpeechFinal ? ' ' : '') + text.trim();
+      };
+      wallSpeechRec.onerror = ()=>{};
+      wallSpeechRec.start();
+    }catch(e){ wallSpeechRec = null; }
+  }
+
+  function wallStopSpeechRecognition(){
+    if (wallSpeechRec){ try{ wallSpeechRec.stop(); }catch(e){} }
+    setTimeout(()=>{
+      if (wallSpeechFinal){
+        const ta = document.getElementById('wallText');
+        if (ta) ta.value = ta.value.trim() ? (ta.value.trim() + '\n' + wallSpeechFinal) : wallSpeechFinal;
+        showToast('Voice transcribed into text ✓');
+      }
+      wallSpeechRec = null;
+    }, 400); // give the recognizer's last onresult a moment to land after stop()
+  }
+
+  function wallVoiceToggle(){
+    const btn = document.getElementById('wallVrecBtn');
+    const label = document.getElementById('wallVrecLabel');
+    const sub = document.getElementById('wallVrecSub');
+    const time = document.getElementById('wallVrecTime');
+    if (!wallVoiceCtl){
+      wallVoiceCtl = createVoiceController({
+        onStart(){
+          btn.classList.add('rec');
+          label.textContent = 'Recording… tap to stop';
+          sub.textContent = 'Speak now';
+          time.style.display = '';
+          time.textContent = '0:00';
+          wallStartSpeechRecognition();
+        },
+        onTick(t){ time.textContent = t; },
+        onStop(res){
+          btn.classList.remove('rec');
+          label.textContent = 'Re-record';
+          sub.textContent = 'Or keep the clip below';
+          time.style.display = 'none';
+          wallVoiceClip = { blob: res.blob, seconds: res.seconds };
+          renderVoiceClipInto('wallVclip', res.blob, res.seconds, ()=>{ wallVoiceClip = null; });
+          wallStopSpeechRecognition();
+        },
+        onCancel(){
+          btn.classList.remove('rec');
+          label.textContent = 'Tap to record';
+          sub.textContent = 'Adds a voice note — and fills in the text above';
+          time.style.display = 'none';
+          wallStopSpeechRecognition();
+        }
+      });
+    }
+    wallVoiceCtl.toggle();
+  }
+
   function wallHandlePhotos(e){
     const files = Array.from(e.target.files || []);
     const room = 4 - wallPhotos.length;
@@ -11826,8 +12056,9 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (!db || !currentUser){ showToast('Sign in to post'); return; }
     if (!profile || !profile.dbId){ showToast('Save your book first'); return; }
     const text = document.getElementById('wallText').value.trim();
-    if (!text){ showToast('Write something first'); return; }
-    if (!enforceWordLimit(text, 'Your post', 1000)) return;
+    const hasVoice = !!(wallVoiceClip && wallVoiceClip.blob);
+    if (!text && !hasVoice){ showToast('Write something or record a voice note first'); return; }
+    if (text && !enforceWordLimit(text, 'Your post', 1000)) return;
 
     showToast(wallEditingId ? 'Saving\u2026' : 'Posting\u2026');
 
@@ -11838,6 +12069,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       if (url) photoUrls.push(url);
     }
 
+    // upload the voice clip, if one was recorded
+    let voiceUrl = null, voiceSeconds = null;
+    if (hasVoice){
+      const uploaded = await uploadAudioBlob(wallVoiceClip.blob, wallVoiceClip.seconds);
+      if (uploaded){ voiceUrl = uploaded.url; voiceSeconds = uploaded.seconds; }
+      else showToast('Could not attach the voice note \u2014 posting without it');
+    }
+
     const cityText = document.getElementById('wallCity').value.trim();
     const match = wallSelectedCity || (cityText ? CITIES.find(c=>c.name.toLowerCase() === cityText.toLowerCase()) : null);
     // IMPORTANT: the memory map reads city.lat / city.lng \u2014 store the whole object, not a string.
@@ -11845,11 +12084,9 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (cityText && !cityObj) showToast('City not recognised \u2014 posting without a map pin');
 
     if (wallEditingId){
-      const { error } = await db.from('entries').update({
-        message: text,
-        photos: photoUrls,
-        city: cityObj
-      }).eq('id', wallEditingId);
+      const patch = { message: text, photos: photoUrls, city: cityObj };
+      if (voiceUrl){ patch.voice_url = voiceUrl; patch.voice_seconds = voiceSeconds; } // only overwrite if a new clip was recorded
+      const { error } = await db.from('entries').update(patch).eq('id', wallEditingId);
       if (error){ showToast(friendlyError(error)); return; }
       showToast('Post updated \u2713');
     } else {
@@ -11863,6 +12100,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         message: text,
         photos: photoUrls,
         city: cityObj,
+        voice_url: voiceUrl,
+        voice_seconds: voiceSeconds,
         color: (profile && profile.ink) || null,
         status: 'approved',  // your own post \u2014 no approval needed
         answers: []
@@ -11885,9 +12124,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     wallEditingId = null;
     wallPhotos = [];
     wallSelectedCity = null;
+    wallVoiceClip = null;
     const t = document.getElementById('wallText'); if (t) t.value = '';
     const c = document.getElementById('wallCity'); if (c) c.value = '';
     const cw = document.getElementById('wcCityWrap'); if (cw) cw.style.display = 'none';
+    const vw = document.getElementById('wcVoiceWrap'); if (vw) vw.style.display = 'none';
+    const vc = document.getElementById('wallVclip'); if (vc){ vc.style.display = 'none'; vc.innerHTML = ''; }
+    const vlabel = document.getElementById('wallVrecLabel'); if (vlabel) vlabel.textContent = 'Tap to record';
+    const vsub = document.getElementById('wallVrecSub'); if (vsub) vsub.textContent = 'Adds a voice note \u2014 and fills in the text above';
     const pi = document.getElementById('wallPhotoInput'); if (pi) pi.value = '';
     renderWallThumbs();
     const btn = document.querySelector('#wallComposer .btn-small');
@@ -11900,6 +12144,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     wallEditingId = id;
     document.getElementById('wallText').value = e.message || '';
     wallPhotos = Array.isArray(e.photos) ? e.photos.slice() : [];
+    wallVoiceClip = null;
+    const vc = document.getElementById('wallVclip'); if (vc){ vc.style.display = 'none'; vc.innerHTML = ''; }
     renderWallThumbs();
     if (e.city && e.city.name){
       document.getElementById('wcCityWrap').style.display = 'block';
@@ -11954,6 +12200,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       const photos = (e.photos && e.photos.length)
         ? '<div class="wp-photos count-' + n + '">' + e.photos.map(u=>'<img src="' + u + '" alt="" loading="lazy" onclick="window.open(\'' + u + '\',\'_blank\')">').join('') + '</div>'
         : '';
+      const voice = e.voice_url ? '<div class="wp-voice">' + msgVoiceBubbleHtml(e.voice_url, e.voice_seconds) + '</div>' : '';
       const cmts = (e.comments || []).length;
       return `
       <div class="wall-post" id="wp-${e.id}" style="border-left-color:${ink};">
@@ -11965,6 +12212,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
           </div>
         </div>
         <div class="wp-body">${escapeHtml(e.message || '')}</div>
+        ${voice}
         ${photos}
         <div class="wp-foot">
           <button class="wp-btn ${e.likedByMe ? 'liked' : ''}" onclick="toggleWallLike('${e.id}')">${e.likedByMe ? '\u2665' : '\u2661'} ${e.likes || 0}</button>
@@ -15329,7 +15577,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
           ? '<img src="' + m.image_url + '" alt="Photo" style="max-width:200px;width:100%;border-radius:8px;display:block;cursor:pointer;margin-bottom:4px;" onclick="openLightbox(\'' + m.image_url + '\')">' +
             (m.body ? '<p class="cm-body">' + escapeHtml(m.body) + '</p>' : '')
           : '<p class="cm-body">' + escapeHtml(m.body || '') + '</p>';
-        return '<div class="circle-msg' + (mine ? ' mine' : '') + '" style="border-left-color:' + circleInkFor(m.sender_user_id) + ';">' +
+        return '<div class="circle-msg' + (mine ? ' mine' : '') + '" id="circlemsgrow-' + m.id + '" style="border-left-color:' + circleInkFor(m.sender_user_id) + ';">' +
           bodyHtml +
           '<p class="cm-who">' + (mine ? 'You' : escapeHtml(m.sender_name || 'someone')) +
           ' · ' + timeAgo(m.created_at) + '</p>' + unsend + '</div>';
@@ -15341,14 +15589,15 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
   async function deleteCircleMessage(messageId){
     if (!confirm('Unsend this message?\n\nIt will be removed for everyone in this circle.')) return;
+    const row = document.getElementById('circlemsgrow-' + messageId);
+    if (row) row.remove();
     const { data: msgRow } = await db.from('circle_messages').select('image_url').eq('id', messageId).maybeSingle();
     const { error } = await db.from('circle_messages').delete()
       .eq('id', messageId)
       .eq('sender_user_id', currentUser.id); // only ever your own message
-    if (error){ showToast('Could not unsend: ' + error.message); return; }
+    if (error){ showToast('Could not unsend: ' + error.message); openCircle(currentCircleId); return; }
     if (msgRow && msgRow.image_url) deleteStorageFileFromUrl(msgRow.image_url);
     showToast('Message unsent');
-    openCircle(currentCircleId);
   }
 
   function backFromCircle(){
