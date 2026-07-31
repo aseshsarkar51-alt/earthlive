@@ -769,6 +769,7 @@
   }
   .pending-card .entry-top{margin-bottom:8px;}
   .pending-card .entry-msg{font-size:18px; margin-bottom:12px;}
+  .ot-tag{margin:0 0 6px; font-size:12.5px; color:var(--camel); font-weight:600;}
   .pending-actions{display:flex; gap:10px;}
   .btn-decline{color:var(--blush); border-color:var(--blush);}
   .btn-decline:hover{background:var(--blush); color:var(--page);}
@@ -2648,6 +2649,7 @@
           <img id="acctQrImg" alt="QR code for your book link">
           <p>Anyone can scan this to open your book directly.</p>
         </div>
+        <p id="acctReferralLine" style="font-size:12px; color:var(--ink-soft); margin:12px 0 0; display:none;"></p>
       </div>
 
       <!-- Privacy -->
@@ -6357,6 +6359,19 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   let pendingLinkUsername = new URLSearchParams(location.search).get('u');
   var pendingEventSlug = new URLSearchParams(location.search).get('e');
 
+  /* ---------- REFERRAL TRACKING (earthlive.in/?...&ref=username) ----------
+     Lightweight viral-loop visibility: shared invite/event links already
+     carry a ref=<sharer's username> param (see myBookLink()/eventUrl()). If
+     someone arrives with one, remember it in localStorage through however
+     long it takes them to decide to make their own book, then attribute it
+     on signup in createProfile(). No new table — stored in profiles.extras. */
+  (function captureReferral(){
+    try {
+      const ref = new URLSearchParams(location.search).get('ref');
+      if (ref) localStorage.setItem('el_ref', ref);
+    } catch(err){ /* localStorage unavailable — referral just won't be tracked */ }
+  })();
+
   async function openProfileByUsername(username){
     if (!db) return false;
     const { data, error } = await db.from('profiles').select('*')
@@ -7060,6 +7075,19 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         const avatarUrl = await uploadImage(avatarDataUrl, 'avatars', currentUser.id + '/avatar');
         const coverUrl  = await uploadImage(coverDataUrl, 'covers', currentUser.id + '/cover');
 
+        // Referral attribution: only on a genuine first-time signup (not an
+        // edit of an existing page), and never crediting someone with
+        // referring themselves.
+        let referralExtras = {};
+        if (!editMode){
+          try {
+            const pendingRef = localStorage.getItem('el_ref');
+            if (pendingRef && pendingRef !== username){
+              referralExtras = { referred_by: pendingRef };
+            }
+          } catch(err){ /* localStorage unavailable */ }
+        }
+
         const row = {
           user_id: currentUser.id,
           username,
@@ -7072,7 +7100,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
           template_id: selectedTemplateId,
           questions: getChosenQuestions(),
           links: collectLinks(),
-          extras: (profile && profile.extras) || {}
+          extras: { ...((profile && profile.extras) || {}), ...referralExtras }
         };
 
         const { data, error } = await db.from('profiles')
@@ -7102,6 +7130,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         if (!profile.avatar && localAvatar) profile.avatar = localAvatar;
         if (!profile.cover && localCover) profile.cover = localCover;
         if (!wasEdit) entries = [];
+        if (referralExtras.referred_by){ try { localStorage.removeItem('el_ref'); } catch(err){} }
         editMode = false;
         resetCreateFormUI();
         refreshNav(); // nav was built before this profile existed — rebuild now so My book / My diary show up
@@ -7212,31 +7241,81 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     renderOnThisDay();
   }
 
-  /* On this day: resurface approved memories written in a previous year, on today's month/day. */
-  function renderOnThisDay(){
+  /* On this day: resurface memories from a previous year, on today's month/day \u2014
+     across the wall/signatures, diary, and waypoints photos. This is the app's
+     core re-engagement hook: the whole point of a memory book is revisiting,
+     not just recording, so this runs every time the dashboard loads. */
+  function otdIsSameDayPrevYear(dateStr, today){
+    const d = new Date(dateStr);
+    if (isNaN(d)) return false;
+    return d.getMonth() === today.getMonth() && d.getDate() === today.getDate() && d.getFullYear() < today.getFullYear();
+  }
+  function otdYearsAgoLabel(dateStr, today){
+    const years = today.getFullYear() - new Date(dateStr).getFullYear();
+    return years === 1 ? '1 year ago' : years + ' years ago';
+  }
+  async function otdOpenDiary(id){
+    showScreen('diary');
+    await renderDiary();
+    openDiaryModal(id);
+  }
+  async function renderOnThisDay(){
     const panel = document.getElementById('onThisDayPanel');
     const list = document.getElementById('onThisDayList');
     if (!panel || !list) return;
     const today = new Date();
-    const matches = entries.filter(e=>{
-      if (!isApproved(e) || !e.rawDate) return false;
-      const d = new Date(e.rawDate);
-      if (isNaN(d)) return false;
-      return d.getMonth() === today.getMonth() && d.getDate() === today.getDate() && d.getFullYear() < today.getFullYear();
-    }).sort((a,b)=> new Date(b.rawDate) - new Date(a.rawDate));
 
-    if (!matches.length){ panel.style.display = 'none'; return; }
+    const wallMatches = entries
+      .filter(e => isApproved(e) && e.rawDate && otdIsSameDayPrevYear(e.rawDate, today))
+      .map(e => ({
+        date: e.rawDate,
+        html: `<div class="pending-card" style="cursor:pointer;" onclick="openEntryModal(${entries.indexOf(e)})">
+          <p class="ot-tag">${otdYearsAgoLabel(e.rawDate, today)} today \u00b7 wall</p>
+          <p class="entry-msg" style="color:${e.color || 'var(--ink)'}">"${linkify((e.message||'').slice(0,120))}${(e.message||'').length>120?'\u2026':''}"</p>
+          <span class="entry-name">\u2014 ${escapeHtml(e.name)}</span>
+        </div>`
+      }));
+
+    let diaryMatches = [], photoMatches = [];
+    if (db && currentUser && profile){
+      try {
+        const { data: diaryRows } = await db.from('diary_entries').select('id, created_at')
+          .eq('author_user_id', currentUser.id);
+        diaryMatches = (diaryRows || [])
+          .filter(d => otdIsSameDayPrevYear(d.created_at, today))
+          .map(d => ({
+            date: d.created_at,
+            html: `<div class="pending-card" style="cursor:pointer;" onclick="otdOpenDiary('${d.id}')">
+              <p class="ot-tag">${otdYearsAgoLabel(d.created_at, today)} today \u00b7 diary</p>
+              <p class="entry-msg">A diary entry from this day \u2014 open to read it.</p>
+            </div>`
+          }));
+      } catch(err){ /* best effort, diary table may be unreachable offline */ }
+
+      try {
+        const { data: photoRows } = await db.from('album_photos').select('id, url, taken_at, created_at, place_name')
+          .eq('profile_id', profile.dbId);
+        photoMatches = (photoRows || [])
+          .filter(p => otdIsSameDayPrevYear(p.taken_at || p.created_at, today))
+          .map(p => ({
+            date: p.taken_at || p.created_at,
+            html: `<div class="pending-card" style="cursor:pointer; padding:0; overflow:hidden;" onclick="showScreen('waypoints')">
+              <img src="${p.url}" alt="" style="width:100%; height:120px; object-fit:cover; display:block;">
+              <div style="padding:10px 14px;">
+                <p class="ot-tag" style="margin:0;">${otdYearsAgoLabel(p.taken_at||p.created_at, today)} today${p.place_name ? ' \u00b7 ' + escapeHtml(p.place_name) : ' \u00b7 waypoints'}</p>
+              </div>
+            </div>`
+          }));
+      } catch(err){ /* best effort */ }
+    }
+
+    const all = [...wallMatches, ...diaryMatches, ...photoMatches]
+      .sort((a,b)=> new Date(b.date) - new Date(a.date))
+      .slice(0, 6);
+
+    if (!all.length){ panel.style.display = 'none'; return; }
     panel.style.display = 'block';
-    list.innerHTML = matches.map(e=>{
-      const years = today.getFullYear() - new Date(e.rawDate).getFullYear();
-      const yearsLabel = years === 1 ? '1 year ago' : years + ' years ago';
-      const idx = entries.indexOf(e);
-      return `<div class="pending-card" style="cursor:pointer;" onclick="openEntryModal(${idx})">
-        <p style="margin:0 0 6px; font-size:12.5px; color:var(--camel); font-weight:600;">${yearsLabel} today</p>
-        <p class="entry-msg" style="color:${e.color || 'var(--ink)'}">"${linkify((e.message||'').slice(0,120))}${(e.message||'').length>120?'\u2026':''}"</p>
-        <span class="entry-name">\u2014 ${escapeHtml(e.name)}</span>
-      </div>`;
-    }).join('');
+    list.innerHTML = all.map(m=>m.html).join('');
   }
 
   function renderPendingPanel(pending){
@@ -10261,7 +10340,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
   function myBookLink(){
     if (!profile) return 'earthlive.in';
-    return 'earthlive.in/?u=' + (profile.username || profile.code);
+    const handle = profile.username || profile.code;
+    return 'earthlive.in/?u=' + handle + '&ref=' + handle;
   }
 
   function copyInvite(){
@@ -10281,6 +10361,25 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       url
     };
     shareWithFallback(shareData, 'Link copied \u2014 share it anywhere');
+  }
+
+  /* Simple viral-loop visibility: how many people made their OWN book after
+     visiting via one of this person's shared links (see captureReferral()
+     and the referred_by attribution in createProfile()). */
+  async function renderReferralCount(){
+    const el = document.getElementById('acctReferralLine');
+    if (!el) return;
+    if (!db || !profile || !profile.username){ el.style.display = 'none'; return; }
+    try {
+      const { count } = await db.from('profiles').select('id', {count:'exact', head:true})
+        .eq('extras->>referred_by', profile.username);
+      if (count > 0){
+        el.textContent = count + (count === 1 ? ' person started' : ' people started') + ' their own book after visiting yours.';
+        el.style.display = 'block';
+      } else {
+        el.style.display = 'none';
+      }
+    } catch(err){ el.style.display = 'none'; }
   }
 
   function toggleAcctQr(){
@@ -10459,6 +10558,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   async function renderAccount(){
     if (!profile) return;
     document.getElementById('acctInviteLink').textContent = myBookLink();
+    renderReferralCount();
     const langTxt = document.getElementById('acctLangText');
     if (langTxt) langTxt.textContent = langDisplay(getMyLanguage());
     document.getElementById('acctEmail').textContent =
@@ -10746,11 +10846,12 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     (navLeft || navRight).appendChild(navBtn('find', 'Find', ()=>showScreen('search')));
     navRight.appendChild(navBtn('feed', 'For me', ()=>{ renderForYou(); showScreen('feed'); },
       '<span class="nav-evbadge" id="navForYouBadge" style="display:none;"></span>'));
-    navRight.appendChild(navBtn('events', 'Events', ()=>{ renderMyEvents(); showScreen('events'); },
+    navRight.appendChild(navBtn('events', 'Events', ()=>{ renderMyEvents(); showScreen('events'); markEventsActivitySeen(); },
       '<span class="nav-evbadge" id="navEventsBadge" style="display:none;"></span>'));
 
     if (profile){
-      navRight.appendChild(navBtn('book',  'Book',  ()=>showScreen('dashboard')));
+      navRight.appendChild(navBtn('book',  'Book',  ()=>showScreen('dashboard'),
+        '<span class="nav-evbadge" id="navBookBadge" style="display:none;"></span>'));
       const diary = navBtn('diary', 'Diary', ()=>{ openDiaryEditor(null); renderDiary(); showScreen('diary'); });
       diary.id = 'navDiaryBtn';
       navRight.appendChild(diary);
@@ -10761,6 +10862,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (profile && profile.dbId){
       const badge = pendingMsgCount > 0 ? '<span class="nav-badge">' + pendingMsgCount + '</span>' : '';
       navRight.appendChild(navBtn('msgs', 'Messages', openMessages, badge));
+      refreshBookBadge();
     }
 
     // Avatar menu: My account · Theme · About · Sign out (no icons)
@@ -13648,7 +13750,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     return name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40)
       + '-' + Math.random().toString(36).slice(2,6);
   }
-  function eventUrl(slug){ return 'https://earthlive.in/?e=' + slug; }
+  function eventUrl(slug){
+    const ref = profile && (profile.username || profile.code);
+    return 'https://earthlive.in/?e=' + slug + (ref ? '&ref=' + ref : '');
+  }
 
   /* ── State for the currently open event ── */
   let curEvent = null;        // event row
@@ -15148,7 +15253,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     showToast('Event link copied');
   }
 
-  /* ── Nav badge: pending join requests (as host) + invitations (as invitee) ── */
+  /* ── Nav badge: pending join requests (as host) + invitations (as invitee)
+     + new RSVPs/wishes on events I host since I last opened Events ── */
   async function refreshEventsBadge(){
     const badge = document.getElementById('navEventsBadge');
     if (!badge) return;
@@ -15157,15 +15263,43 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     // requests waiting on events I host
     const { data: own } = await db.from('events').select('id').eq('owner_user_id', currentUser.id);
     if (own && own.length){
+      const ownIds = own.map(o=>o.id);
       const { count } = await db.from('event_guests').select('id', {count:'exact', head:true})
-        .in('event_id', own.map(o=>o.id)).eq('status','requested');
+        .in('event_id', ownIds).eq('status','requested');
       total += (count || 0);
+
+      const seenAt = (profile && profile.extras && profile.extras.activity_events_seen_at) || '1970-01-01T00:00:00.000Z';
+      const { count: activityCount } = await db.from('event_entries').select('id', {count:'exact', head:true})
+        .in('event_id', ownIds)
+        .eq('entry_type', 'about')
+        .in('subject_member', [EV_RSVP_SENTINEL, EV_WISH_SENTINEL])
+        .gt('created_at', seenAt);
+      total += (activityCount || 0);
     }
     // invitations waiting for ME
     const { count: invCount } = await db.from('event_guests').select('id', {count:'exact', head:true})
       .eq('user_id', currentUser.id).eq('status','invited');
     total += (invCount || 0);
     if (total > 0){ badge.textContent = total; badge.style.display = 'inline-flex'; }
+    else badge.style.display = 'none';
+  }
+
+  /* Mark RSVP/wish activity as seen the moment the owner opens Events, so the
+     badge clears like a normal notification rather than counting forever. */
+  async function markEventsActivitySeen(){
+    if (!profile) return;
+    try { await hpSaveExtras({ activity_events_seen_at: new Date().toISOString() }); } catch(err){ /* best effort */ }
+    refreshEventsBadge();
+  }
+
+  /* ── Nav badge: signatures awaiting your approval on your own book ── */
+  async function refreshBookBadge(){
+    const badge = document.getElementById('navBookBadge');
+    if (!badge) return;
+    if (!db || !currentUser || !profile || !profile.dbId){ badge.style.display = 'none'; return; }
+    const { count } = await db.from('entries').select('id', {count:'exact', head:true})
+      .eq('profile_id', profile.dbId).eq('status', 'pending');
+    if (count > 0){ badge.textContent = count; badge.style.display = 'inline-flex'; }
     else badge.style.display = 'none';
   }
 
