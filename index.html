@@ -1209,6 +1209,12 @@
   .rn-sources{border-top:1px solid var(--line); margin-top:48px; padding-top:20px;}
   .rn-sources p{font-family:"Inter Tight",sans-serif; font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 10px;}
   .rn-sources span{display:block; font-family:"Inter Tight",sans-serif; font-size:11.5px; color:var(--ink-soft); line-height:1.9;}
+  .hl-card{display:block; width:100%; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 20px; cursor:pointer; transition:border-color .15s; text-align:left;}
+  .hl-card:hover{border-color:var(--camel);}
+  .hl-cat{font-family:"Inter Tight",sans-serif; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--camel); font-weight:600; margin:0 0 8px;}
+  .hl-card h3{font-family:'Fraunces',serif; font-size:17px; font-weight:500; margin:0 0 6px; letter-spacing:-0.01em;}
+  .hl-card p{font-size:13.5px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px;}
+  .hl-meta{font-size:11.5px; color:var(--ink-soft); opacity:.85;}
 
   /* ---------- SIGNATURE SEARCH (minimal underline) ---------- */
   .sig-search{display:flex; align-items:center; gap:8px; background:none; border:none; border-bottom:1px solid var(--line); border-radius:0; padding:4px 2px 7px; margin-bottom:12px; transition:border-color .18s;}
@@ -2190,6 +2196,7 @@
         <button onclick="showScreen('privacy')">Privacy Policy</button>
         <button onclick="showScreen('terms')">Terms of Use</button>
         <button onclick="showScreen('research')">Research note</button>
+        <button onclick="showScreen('happiness')">The Happiness Library</button>
       </div>
       <div style="font-size:12px; margin-top:12px;">© 2026 <b style="color:var(--ink);">EarthLive</b> · Made for people who miss passing notes.</div>
       <p style="margin:18px 0 0; font-size:12px; color:var(--ink-soft);">© 2026 EarthLive · earthlive.in · All rights reserved. "EarthLive" and the EarthLive seal are trademarks of their owner.</p>
@@ -3900,6 +3907,26 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       <div class="cta-row" style="margin-top:38px; justify-content:center;">
         <button class="link-quiet" onclick="showScreen('about')">← Back to our story</button>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE HAPPINESS LIBRARY ============ -->
+<section class="screen" id="screen-happiness">
+  <div class="wrap">
+    <div id="hlGridView">
+      <div style="max-width:640px; margin:36px auto 0; padding:0 20px;">
+        <div class="form-eyebrow">Research, in plain language</div>
+        <h2 style="font-family:'Fraunces',serif; font-size:32px; margin:0 0 8px; font-weight:500; letter-spacing:-0.01em;">The Happiness Library</h2>
+        <p style="color:var(--ink-soft); font-size:14px; line-height:1.7; margin:0 0 6px;">Short write-ups of published research on memory, connection, and wellbeing — the science behind why EarthLive works. New piece added monthly.</p>
+      </div>
+      <div id="hlGrid" style="max-width:640px; margin:24px auto 10px; padding:0 20px; display:grid; gap:14px;"></div>
+      <div class="cta-row" style="max-width:640px; margin:10px auto 80px; padding:0 20px; justify-content:flex-start;">
+        <button class="link-quiet" onclick="showScreen(currentUser ? 'dashboard' : 'landing')">← Back</button>
+      </div>
+    </div>
+    <div id="hlArticleView" style="display:none;">
+      <div class="rn-paper" id="hlArticleBody"></div>
     </div>
   </div>
 </section>
@@ -11272,6 +11299,105 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     });
   })();
 
+  // ---- The Happiness Library: monthly, plain-language research write-ups ----
+  const HL_ARTICLES = [
+    {
+      id: 'nostalgia',
+      category: 'Memory & nostalgia',
+      title: "Why looking back can lift you up",
+      teaser: "Revisiting old memories increases feelings of connection, meaning, and self-continuity — not just wistfulness.",
+      meta: "Sedikides & Wildschut, 2022 · 4 min read",
+      standfirst: "For decades nostalgia was treated as a mild form of homesickness. The evidence says otherwise.",
+      sections: [
+        { head: 'TL;DR', body: "Nostalgia isn't sadness in disguise. Across dozens of studies, deliberately recalling a fond memory reliably increases self-esteem, a sense of meaning in life, and feeling connected to the people in it — with no reliable downside." },
+        { head: 'The research', body: "Psychologists Constantine Sedikides and Tim Wildschut have spent over fifteen years studying nostalgia experimentally: one group recalls a nostalgic memory, a comparison group recalls an ordinary one, and researchers measure the psychological aftermath. The nostalgic group consistently reports higher self-esteem, more meaning in life, and stronger social connectedness — effects that replicate across the US, UK, and China. One proposed mechanism is authenticity: nostalgic memories tend to feature us at our most genuine, surrounded by people who knew us well, restoring a sense of being true to ourselves." },
+        { head: 'Why it matters here', body: "A memory book only works as a wellbeing tool if the memories in it get revisited, not just archived. This is the research case for actually opening your diary and waypoints later, not only writing to them once." }
+      ],
+      source: "Sedikides, C., & Wildschut, T. (2022). Nostalgia confers psychological wellbeing by increasing authenticity. Journal of Experimental Social Psychology."
+    },
+    {
+      id: 'gratitude',
+      category: 'Habits & practice',
+      title: "The five-minute habit tied to a 25% happiness boost",
+      teaser: "People who wrote down five things they were grateful for each week reported markedly higher life satisfaction after ten weeks.",
+      meta: "Emmons & McCullough, 2003 · 3 min read",
+      standfirst: "One of the most replicated findings in positive psychology started with a simple weekly list.",
+      sections: [
+        { head: 'TL;DR', body: "In a ten-week study, people who wrote down five things they were grateful for once a week ended up happier, more optimistic, and physically healthier than people who logged hassles or neutral events instead." },
+        { head: 'The research', body: "Psychologists Robert Emmons and Michael McCullough split participants into three groups: one recorded five things they were grateful for each week, one recorded five daily hassles, and one recorded five neutral events. Only the gratitude group showed a consistent lift — reporting around 25% higher happiness and greater life satisfaction overall. The effect wasn't limited to mood: the gratitude group also exercised more, reported fewer physical symptoms, and felt more optimistic about the week ahead." },
+        { head: 'Why it matters here', body: "This is the research case for a diary entry being a small, specific moment rather than a big reflective essay — “the way she laughed when the cake collapsed” does more for you than “today was a good day.”" }
+      ],
+      source: "Emmons, R. A., & McCullough, M. E. (2003). Counting blessings versus burdens: An experimental investigation of gratitude and subjective well-being in daily life. Journal of Personality and Social Psychology, 84(2), 377-389."
+    },
+    {
+      id: 'connection',
+      category: 'Relationships',
+      title: "The world's longest happiness study has one answer",
+      teaser: "Eighty-five years of data point to one consistent predictor of a long, happy life: the strength of your close relationships.",
+      meta: "Harvard Study of Adult Development · 5 min read",
+      standfirst: "Started in 1938 and still running, it's the longest study of adult life ever conducted.",
+      sections: [
+        { head: 'TL;DR', body: "Neither wealth, fame, nor career success predicted long-term happiness and health as reliably as the quality of people's close relationships. Strong ties protected people from cognitive and physical decline even when the relationships had ups and downs." },
+        { head: 'The research', body: "The Harvard Study of Adult Development has followed more than 700 original participants — later expanded to include spouses and children, over 2,500 people in total — since 1938, tracking their health, careers, and relationships every few years. Its current director, psychiatrist Robert Waldinger, calls it the clearest message the study has produced across 85 years: good relationships keep us happier and healthier. People with warmer connections to family, friends, and community lived longer and showed lower rates of chronic disease and cognitive decline, outperforming social class, IQ, and even genetics as predictors." },
+        { head: 'Why it matters here', body: "An EarthLive book is, structurally, an archive of your close ties — signatures, wall posts, wishes, messages. The research suggests that maintaining and revisiting those ties isn't sentimental extra credit; it's one of the best-evidenced things you can do for a long, happy life." }
+      ],
+      source: "Waldinger, R., & Schulz, M. (2023). The Good Life: Lessons from the World's Longest Scientific Study of Happiness. Based on the Harvard Study of Adult Development (1938–present)."
+    },
+    {
+      id: 'photos',
+      category: 'Memory & nostalgia',
+      title: "Why the photos you take just for yourself feel better later",
+      teaser: "Photos taken to remember an experience are recalled more vividly than photos taken to share, which is why a private album matters.",
+      meta: "Barasch, Diehl, Silverman & Zauberman, 2017 · 4 min read",
+      standfirst: "The camera changes what you notice — and who you take the photo for changes what you remember.",
+      sections: [
+        { head: 'TL;DR', body: "Taking a photo sharpens your memory of the thing you photographed, but only if you're taking it for yourself. When the goal shifts to sharing, the enjoyment and the memory both take a hit." },
+        { head: 'The research', body: "In experiments by Alixandra Barasch, Kristin Diehl, Jackie Silverman, and Gal Zauberman, people who could freely photograph an experience later recognized more visual detail from it than people without a camera — the act of framing a shot focuses attention. But the effect flips when photo-taking is driven by the intention to share: people taking photos for an audience enjoyed the moment less and remembered it less clearly than people taking photos purely to keep for themselves." },
+        { head: 'Why it matters here', body: "This is the research case for waypoints and a private album that isn't primarily built around an audience — a photo you took because you wanted to remember it tends to serve your memory better than one you took to post." }
+      ],
+      source: "Barasch, A., Diehl, K., Silverman, J., & Zauberman, G. (2017). Photographic memory: The effects of volitional photo taking on memory for visual and auditory aspects of an experience. Psychological Science, 28(8), 1056-1066."
+    }
+  ];
+
+  function renderHlGrid(){
+    const grid = document.getElementById('hlGrid');
+    if (!grid) return;
+    grid.innerHTML = HL_ARTICLES.map(a => (
+      '<button class="hl-card" onclick="hlOpenArticle(\'' + a.id + '\')">' +
+        '<div class="hl-cat">' + escapeHtml(a.category) + '</div>' +
+        '<h3>' + escapeHtml(a.title) + '</h3>' +
+        '<p>' + escapeHtml(a.teaser) + '</p>' +
+        '<span class="hl-meta">' + escapeHtml(a.meta) + '</span>' +
+      '</button>'
+    )).join('');
+  }
+
+  function hlOpenArticle(id){
+    const a = HL_ARTICLES.find(x => x.id === id);
+    if (!a) return;
+    const body = document.getElementById('hlArticleBody');
+    body.innerHTML =
+      '<h2>' + escapeHtml(a.title) + '</h2>' +
+      '<p class="rn-standfirst">' + escapeHtml(a.standfirst) + '</p>' +
+      '<div class="rn-essay">' +
+        a.sections.map(s => '<p class="rn-sechead">' + escapeHtml(s.head) + '</p><p>' + escapeHtml(s.body) + '</p>').join('') +
+      '</div>' +
+      '<div class="rn-sign"><span class="dot"></span><p>The Happiness Library · earthlive.in</p></div>' +
+      '<div class="rn-sources"><p>Source</p><span>' + escapeHtml(a.source) + '</span></div>' +
+      '<div class="cta-row" style="margin-top:38px; justify-content:center;">' +
+        '<button class="link-quiet" onclick="hlBackToGrid()">← Back to the library</button>' +
+      '</div>';
+    document.getElementById('hlGridView').style.display = 'none';
+    document.getElementById('hlArticleView').style.display = '';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function hlBackToGrid(){
+    document.getElementById('hlArticleView').style.display = 'none';
+    document.getElementById('hlGridView').style.display = '';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
   let currentScreenName = 'landing';
   let navFromPopstate = false;
 
@@ -11307,6 +11433,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     }
     if (name === 'tour'){
       syncTourHeight();
+    }
+    if (name === 'happiness'){
+      hlBackToGrid();
+      renderHlGrid();
     }
     refreshNav();
     window.scrollTo({top:0, behavior:'smooth'});
