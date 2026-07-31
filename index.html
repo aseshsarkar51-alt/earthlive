@@ -5237,6 +5237,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
           if (pendingLinkUsername){
             const u = pendingLinkUsername;
             pendingLinkUsername = null;
+            try{ sessionStorage.removeItem('elPendingLinkUsername'); }catch(e){}
             openProfileByUsername(u);
             return;
           }
@@ -5266,6 +5267,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
             if (pendingLinkUsername){
               const u = pendingLinkUsername;
               pendingLinkUsername = null;
+              try{ sessionStorage.removeItem('elPendingLinkUsername'); }catch(e){}
               openProfileByUsername(u);
               return;
             }
@@ -6438,6 +6440,18 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   /* ---------- INVITE LINK ROUTING (earthlive.in/?u=username) ---------- */
   let pendingLinkUsername = new URLSearchParams(location.search).get('u');
   var pendingEventSlug = new URLSearchParams(location.search).get('e');
+  // Same reasoning as the event slug below: someone who opens a shared
+  // profile link, reads the page, then signs in (Google OAuth — full page
+  // redirect) to leave a signature needs this to survive the round trip
+  // too, or they land on their own dashboard instead of back on the
+  // profile they were reading.
+  try {
+    if (pendingLinkUsername) sessionStorage.setItem('elPendingLinkUsername', pendingLinkUsername);
+    else {
+      const savedUser = sessionStorage.getItem('elPendingLinkUsername');
+      if (savedUser) pendingLinkUsername = savedUser;
+    }
+  } catch(e){}
   // Persist the event slug across a full-page OAuth redirect. Google
   // sign-in navigates away to accounts.google.com and back — the JS
   // context (and this variable) is wiped by that page reload, and the
