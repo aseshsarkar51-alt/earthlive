@@ -2854,10 +2854,10 @@
 
       <div id="visitorWptsSection" style="display:none; margin-bottom:34px;">
         <div class="entries-head" style="align-items:baseline;">
-          <h3 style="margin:0;">Waypoints</h3>
+          <h3 style="margin:0;">Photos</h3>
           <span id="visitorWptsCount" style="font-size:12.5px; color:var(--ink-soft);"></span>
         </div>
-        <p style="font-size:13px; color:var(--ink-soft); margin:0 0 14px;">Photos from their album.</p>
+        <p style="font-size:13px; color:var(--ink-soft); margin:0 0 14px;">Public photos from their album.</p>
         <div class="wpts-match-grid on" id="visitorWptsGrid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:7px;"></div>
       </div>
 
@@ -13263,13 +13263,13 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   const EVENT_TYPES = {
     farewell:    { label:'Farewell',      nameLabel:'Farewell for',        namePH:'e.g., Ravi Shankar',
                    orgLabel:'Organisation / batch', orgPH:'e.g., Google India, 2019 cohort', showOrg:true,  showHonoree:false,
-                   feats:['wall','photos','map','tribute'] },
+                   feats:['wall','photos','map','tribute','rsvp'] },
     convocation: { label:'Convocation',   nameLabel:'Batch or programme name', namePH:'e.g., MBA Batch of 2024',
                    orgLabel:'Institution', orgPH:'e.g., IIM Ahmedabad', showOrg:true, showHonoree:false,
-                   feats:['wall','photos','map','wishes'] },
+                   feats:['wall','photos','map','wishes','rsvp'] },
     birthday:    { label:'Birthday',      nameLabel:'Birthday person',     namePH:'e.g., Meera Pillai',
                    orgLabel:'Occasion', orgPH:'e.g., Turning 30, Surprise party', showOrg:true, showHonoree:false,
-                   feats:['wall','photos','wishes','tribute'] },
+                   feats:['wall','photos','wishes','tribute','rsvp'] },
     wedding:     { label:'Wedding',       nameLabel:'Event title',         namePH:"e.g., Priya & Arjun's Wedding",
                    orgLabel:'', orgPH:'', showOrg:false, showHonoree:true,
                    honoreeLabel:'Names of the couple', honoreePH:'e.g., Priya Nair & Arjun Menon',
@@ -13282,7 +13282,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
                    feats:['wall','photos','map','rsvp'] },
     others:      { label:'Others',        nameLabel:'Event name',          namePH:'e.g., House warming',
                    orgLabel:'Organised by', orgPH:'e.g., The Sharma family', showOrg:true, showHonoree:false,
-                   feats:['wall','photos','map'] }
+                   feats:['wall','photos','map','rsvp'] }
   };
   let evSelectedType = 'farewell';
   let evActiveFeats = new Set(EVENT_TYPES.farewell.feats);
