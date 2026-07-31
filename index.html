@@ -9835,10 +9835,9 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (!section) return;
     section.style.display = 'none';
     if (!db || !profileObj || !profileObj.dbId) return;
-    // Only public albums on public books are visible to strangers. Owner sees
-    // their own via the Waypoints screen; on the visitor view of their own
-    // book we skip too (that's what "preview" is for).
-    if (profile && profileObj.dbId === profile.dbId) return;
+    // Only public albums on public books are visible to strangers. Shown here
+    // even when previewing your own page — preview mode should match exactly
+    // what a real visitor sees.
     if (!profileObj.albumPublic || profileObj.visibility !== 'public') return;
 
     const { data, error } = await db.from('album_photos')
