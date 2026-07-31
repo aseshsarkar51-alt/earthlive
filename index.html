@@ -1585,7 +1585,7 @@
 
   /* ---------- WAYPOINTS (album) — merged from waypoints_page.html, scoped ---------- */
   #screen-waypoints .wpts-main{padding:34px 24px 60px; max-width:1000px; margin:0 auto;}
-  #screen-waypoints .wpts-eyebrow{font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--camel); font-weight:600; margin:0 0 6px;}
+  #screen-waypoints .wpts-eyebrow{font-size:12px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); font-weight:600; margin:0 0 6px;}
   #screen-waypoints h1{font-family:"Fraunces",serif; font-weight:500; font-size:30px; margin:0 0 6px; letter-spacing:-0.01em; line-height:1.15;}
   #screen-waypoints .wpts-stat-row{display:flex; gap:22px; margin-bottom:22px; flex-wrap:wrap;}
   #screen-waypoints .wpts-stat-row div{display:flex; flex-direction:column;}
@@ -2427,7 +2427,7 @@
     <div style="max-width:1040px; margin:0 auto; padding:36px 24px 60px;">
       <div class="form-eyebrow">Your private space</div>
       <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-        <h2 style="font-size:30px; margin:0 0 4px; font-weight:700;">My diary</h2>
+        <h2 style="font-family:'Fraunces',serif; font-size:32px; margin:0 0 4px; font-weight:500; letter-spacing:-0.01em;">My diary</h2>
         <button type="button" class="cal-toggle" onclick="openPrintModal('diary')" style="flex:none;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg> Print diary</button>
       </div>
 
@@ -2445,8 +2445,8 @@
           </div>
           <div class="d-pane-body">
             <div class="d-datestamp" id="diaryEditorDate">Today</div>
-            <input type="text" id="diaryTitle" class="d-title-input" placeholder="Give this entry a title…" maxlength="120">
-            <textarea id="diaryBody" class="d-body-input" placeholder="Write what you want to remember…"></textarea>
+            <input type="text" id="diaryTitle" class="d-title-input" placeholder="Title" maxlength="120">
+            <textarea id="diaryBody" class="d-body-input" placeholder="Write…"></textarea>
 
             <div id="diaryPhotoThumbs" class="diary-thumbs"></div>
             <input type="file" accept="image/*" id="diaryPhotoInput" multiple style="display:none;" onchange="diaryHandlePhotos(event)">
@@ -3263,7 +3263,7 @@
       <div style="display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:8px;">
         <div>
           <div class="form-eyebrow">Your events</div>
-          <h2 style="font-size:28px; margin:0; font-weight:700;">My Events</h2>
+          <h2 style="font-family:'Fraunces',serif; font-size:32px; margin:0; font-weight:500; letter-spacing:-0.01em;">My Events</h2>
         </div>
         <button class="btn-small" onclick="showScreen('create-event')">＋ Create an event</button>
       </div>
@@ -4013,11 +4013,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       <input type="file" accept="image/*" id="wptsFileInput" multiple style="display:none;" onchange="wptsHandleFiles(event.target.files); event.target.value='';">
       <input type="file" accept="image/*" id="wptsCameraInput" capture="environment" style="display:none;" onchange="wptsHandleFiles(event.target.files); event.target.value='';">
       <span class="wpts-drop-ic"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span>
-      <b>Drop photos here, or tap to add</b>
-      <span class="wpts-drop-sub">Photos with location data pin themselves — no tagging needed</span>
+      <b>Drop photos, or tap to add</b>
       <div class="wpts-drop-btns">
-        <button type="button" class="wpts-btn primary" onclick="event.stopPropagation(); document.getElementById('wptsFileInput').click();"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7"/></svg> Upload photos</button>
-        <button type="button" class="wpts-btn" onclick="event.stopPropagation(); document.getElementById('wptsCameraInput').click();"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg> Take photo</button>
+        <button type="button" class="wpts-btn primary" onclick="event.stopPropagation(); document.getElementById('wptsFileInput').click();"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7"/></svg> Upload</button>
+        <button type="button" class="wpts-btn" onclick="event.stopPropagation(); document.getElementById('wptsCameraInput').click();"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg> Camera</button>
       </div>
     </div>
 
