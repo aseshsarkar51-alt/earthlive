@@ -2859,7 +2859,6 @@
         <button class="btn btn-ghost" id="followBtn" style="display:none;" onclick="toggleFollow()">Follow</button>
         <button class="btn btn-ghost" id="msgBtn" style="display:none;" onclick="startConversationWithVisitor()">Message</button>
         <button class="btn btn-primary" onclick="signCurrentVisitorProfile()">Sign this page</button>
-        <button class="btn btn-ghost" id="visitorPrintBtn" style="display:none; align-items:center; gap:6px;" onclick="openPrintModal('book', {visitor:true})" title="Turn every signature on this page into a keepsake PDF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg> Print</button>
         <button class="btn btn-ghost" onclick="exitVisitorPreview()">Back</button>
         <button class="link-quiet" id="blockBtn" style="display:none;" onclick="blockThisPage()">Block</button>
       </div>
@@ -2908,10 +2907,7 @@
           <h3 style="margin:0;">Photos</h3>
           <span id="visitorWptsCount" style="font-size:12.5px; color:var(--ink-soft);"></span>
         </div>
-        <p style="font-size:13px; color:var(--ink-soft); margin:0 0 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
-          <span>Public photos from their album.</span>
-          <button type="button" class="wpts-btn" style="flex:none;" onclick="openPrintModal('waypoints', {visitor:true})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 01-2-2v-4a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg> Print photos</button>
-        </p>
+        <p style="font-size:13px; color:var(--ink-soft); margin:0 0 14px;">Public photos from their album.</p>
         <div class="wpts-match-grid on" id="visitorWptsGrid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:7px;"></div>
       </div>
 
@@ -8181,24 +8177,18 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
      Collects existing content, composes pages, generates a PDF.
      ============================================================ */
   let printContext = 'book';
-  let printAsVisitor = false;
 
   function applyInkToPrintBtn(){
     // Print is now a quiet outlined pill next to Share — no ink repaint needed.
   }
 
-  function openPrintModal(kind, opts){
+  function openPrintModal(kind){
     printContext = kind;
-    printAsVisitor = !!(opts && opts.visitor);
     const titles = {
-      book:  printAsVisitor
-        ? ['Print this page', 'Every signature and wall post on this page, as a keepsake PDF.', 'All signatures, clean layout']
-        : ['Print my book', 'Every approved signature, sealed notes listed with their open dates.', 'All signatures, clean layout'],
+      book:  ['Print my book', 'Every approved signature, sealed notes listed with their open dates.', 'All signatures, clean layout'],
       diary: ['Print my diary', 'Your private entries, dated, with moods \u2014 for your eyes only.', 'All entries with dates and moods'],
       event: ['Print event keepsake', 'Details, description and guest list as a one-page summary.', 'Event summary with guest list'],
-      waypoints: printAsVisitor
-        ? ['Print these photos', 'Every public photo on this page, grouped by place, with dates.', 'All photos grouped by place']
-        : ['Print my waypoints', 'Every pinned photo, grouped by place, with dates \u2014 your travels as an album.', 'All photos grouped by place']
+      waypoints: ['Print my waypoints', 'Every pinned photo, grouped by place, with dates \u2014 your travels as an album.', 'All photos grouped by place']
     };
     const t = titles[kind] || titles.book;
     document.getElementById('printModalTitle').textContent = t[0];
@@ -8256,23 +8246,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     let JsPDF;
     try { JsPDF = await ensureJsPdf(); }
     catch(e){ showToast('Could not load the PDF tool \u2014 check your connection'); return; }
-    const useVisitor = printAsVisitor && currentVisitorProfile;
-    const savedProfile = profile, savedEntries = entries, savedAlbum = albumPhotos;
-    if (useVisitor){
-      profile = currentVisitorProfile;
-      entries = currentVisitorEntries || [];
-      albumPhotos = currentVisitorAlbumPhotos || [];
-    }
     try {
-      if (printContext === 'diary'){ await pdfDiary(JsPDF); return; }
-      if (printContext === 'event'){ await pdfEvent(JsPDF); return; }
-      if (printContext === 'waypoints'){ await pdfWaypoints(JsPDF, false); return; }
-      await pdfBook(JsPDF);
+      if (printContext === 'diary') return pdfDiary(JsPDF);
+      if (printContext === 'event') return pdfEvent(JsPDF);
+      if (printContext === 'waypoints') return await pdfWaypoints(JsPDF, false);
+      return await pdfBook(JsPDF);
     } catch(err){
       console.error('[EarthLive] PDF failed:', err);
       showToast('Something went wrong composing the PDF');
-    } finally {
-      if (useVisitor){ profile = savedProfile; entries = savedEntries; albumPhotos = savedAlbum; }
     }
   }
 
@@ -9002,23 +8983,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     let JsPDF;
     try{ JsPDF = await ensureJsPdf(); }
     catch(e){ showToast('Could not load the PDF tool \u2014 check your connection'); return; }
-    const useVisitor = printAsVisitor && currentVisitorProfile;
-    const savedProfile = profile, savedEntries = entries, savedAlbum = albumPhotos;
-    if (useVisitor){
-      profile = currentVisitorProfile;
-      entries = currentVisitorEntries || [];
-      albumPhotos = currentVisitorAlbumPhotos || [];
-    }
     try{
-      if (printContext === 'diary'){ await pdfDiaryDesigned(JsPDF); return; }
-      if (printContext === 'event'){ await pdfEventDesigned(JsPDF); return; }
-      if (printContext === 'waypoints'){ await pdfWaypoints(JsPDF, true); return; }
-      await pdfBookDesigned(JsPDF);
+      if (printContext === 'diary') return await pdfDiaryDesigned(JsPDF);
+      if (printContext === 'event') return await pdfEventDesigned(JsPDF);
+      if (printContext === 'waypoints') return await pdfWaypoints(JsPDF, true);
+      return await pdfBookDesigned(JsPDF);
     }catch(err){
       console.error('[EarthLive] designed PDF failed:', err);
       showToast('Something went wrong composing the designed PDF');
-    } finally {
-      if (useVisitor){ profile = savedProfile; entries = savedEntries; albumPhotos = savedAlbum; }
     }
   }
 
@@ -10057,7 +10029,6 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   let currentVisitorProfile = null;
   let currentVisitorEntries = null;
   let currentVisitorIsOwn = false;
-  let currentVisitorAlbumPhotos = [];
 
   function previewAsVisitor(){
     previewProfile(profile, entries, 'dashboard');
@@ -10091,8 +10062,6 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     document.getElementById('visitorLockedView').style.display = isPrivate ? 'block' : 'none';
     document.getElementById('lockText').textContent =
       `Only ${profileObj.name} can see who's signed.`;
-    const vPrintBtn = document.getElementById('visitorPrintBtn');
-    if (vPrintBtn) vPrintBtn.style.display = isPrivate ? 'none' : 'inline-flex';
 
     if (!isPrivate){
       const approved   = entriesArr.filter(isApproved);
@@ -10190,7 +10159,6 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const section = document.getElementById('visitorWptsSection');
     if (!section) return;
     section.style.display = 'none';
-    currentVisitorAlbumPhotos = [];
     if (!db || !profileObj || !profileObj.dbId) return;
     // Only public albums on public books are visible to strangers. Shown here
     // even when previewing your own page — preview mode should match exactly
@@ -10208,7 +10176,6 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       place:r.place_name, takenAt:r.taken_at
     }));
     const pinned = photos.filter(p => typeof p.lat === 'number' && typeof p.lng === 'number');
-    currentVisitorAlbumPhotos = photos;
 
     section.style.display = 'block';
     document.getElementById('visitorWptsCount').textContent =
