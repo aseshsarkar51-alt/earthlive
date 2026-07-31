@@ -1528,7 +1528,11 @@
   @media (max-width:600px){.ev-cover{height:220px;}}
   .ev-cover .ev-cover-changebtn{position:absolute; right:12px; bottom:12px; z-index:2; background:rgba(30,28,24,.65); color:#fff; border:none; border-radius:999px; padding:7px 14px; font-size:12.5px; cursor:pointer;}
   .ev-cover .ev-cover-changebtn:hover{background:rgba(30,28,24,.85);}
-  .ev-badge{position:absolute; top:14px; right:14px; background:rgba(255,255,255,.92); border-radius:999px; padding:6px 13px; font-size:12px; font-weight:700; color:var(--moss);}
+  /* Left corner on purpose — the signed-in avatar always lives top-right in
+     the shared nav bar above; keeping this badge on the opposite corner
+     stops the two from crowding into the same tap target on narrow/mobile
+     screens (where the avatar menu was previously hard to tap). */
+  .ev-badge{position:absolute; top:14px; left:14px; background:rgba(255,255,255,.92); border-radius:999px; padding:6px 13px; font-size:12px; font-weight:700; color:var(--moss);}
   .ev-head{background:var(--card); border:1px solid var(--line); border-top:none; border-radius:0 0 16px 16px; padding:22px; box-shadow:var(--shadow); margin-bottom:14px;}
   .ev-sub{font-size:13.5px; color:var(--ink-soft); line-height:1.7;}
   .ev-members-row{display:flex; align-items:center; margin-top:14px;}
@@ -5239,6 +5243,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
           if (pendingEventSlug){
             const s = pendingEventSlug;
             pendingEventSlug = null;
+            try{ sessionStorage.removeItem('elPendingEventSlug'); }catch(e){}
             openEventBySlug(s);
             return;
           }
@@ -5267,6 +5272,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
             if (pendingEventSlug){
               const s = pendingEventSlug;
               pendingEventSlug = null;
+              try{ sessionStorage.removeItem('elPendingEventSlug'); }catch(e){}
               openEventBySlug(s);
               return;
             }
@@ -6432,6 +6438,20 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   /* ---------- INVITE LINK ROUTING (earthlive.in/?u=username) ---------- */
   let pendingLinkUsername = new URLSearchParams(location.search).get('u');
   var pendingEventSlug = new URLSearchParams(location.search).get('e');
+  // Persist the event slug across a full-page OAuth redirect. Google
+  // sign-in navigates away to accounts.google.com and back — the JS
+  // context (and this variable) is wiped by that page reload, and the
+  // returned URL doesn't reliably keep the original ?e= query param. A
+  // sessionStorage copy survives the round trip regardless, so someone who
+  // scans an event QR code and signs in for the first time lands back on
+  // the event join screen instead of the home/dashboard screen.
+  try {
+    if (pendingEventSlug) sessionStorage.setItem('elPendingEventSlug', pendingEventSlug);
+    else {
+      const savedSlug = sessionStorage.getItem('elPendingEventSlug');
+      if (savedSlug) pendingEventSlug = savedSlug;
+    }
+  } catch(e){}
 
   /* ---------- REFERRAL TRACKING (earthlive.in/?...&ref=username) ----------
      Lightweight viral-loop visibility: shared invite/event links already
