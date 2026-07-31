@@ -13287,7 +13287,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         '<button type="button" onclick="e2eOfferSetup()">\ud83d\udd12 Turn on encryption</button></div>';
     } else if (!e2eMasterKey){
       e2eBanner = '<div class="d-e2e-banner"><span>\ud83d\udd12 Your diary is locked for this session.</span>' +
-        '<button type="button" onclick="e2eUnlockAndRerender()">Unlock</button></div>';
+        '<span style="display:flex; gap:6px; flex:none; align-items:center;">' +
+          '<button type="button" onclick="e2eUnlockAndRerender()">Unlock</button>' +
+          '<button type="button" class="link-quiet" style="font-size:12px;" onclick="e2eForgotPassphrase()">Forgot your passphrase?</button>' +
+        '</span></div>';
     } else if (!e2eBackupReminderDismissed){
       e2eBanner = '<div class="d-e2e-banner"><span>\ud83d\udd12 Encrypted. Keep your passphrase and recovery code somewhere safe \u2014 nobody, including us, can recover them. Worth downloading a PDF backup now and then too.</span>' +
         '<span style="display:flex; gap:6px; flex:none;">' +
@@ -13672,6 +13675,20 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const wantsReset = confirm('That recovery code didn\u2019t work either.\n\nYour existing encrypted entries can\u2019t be recovered without one of those two \u2014 that\u2019s permanent, by design.\n\nYou can still start fresh with a new passphrase for everything you write from here on. Your old entries stay in your account, still encrypted, but unreadable until you provide the original passphrase or code (if you ever find them). Reset and start fresh now?');
     if (!wantsReset) return false;
     return await e2eResetEncryption();
+  }
+
+  // Reachable directly from the diary lock banner, without first typing a
+  // wrong passphrase — jumps straight to recovery code / reset so people
+  // who genuinely don't remember their passphrase aren't stuck guessing.
+  async function e2eForgotPassphrase(){
+    const code = prompt('Enter your recovery code (shown once, when you first turned on encryption):');
+    if (!code) return;
+    const recovered = await e2eUnlockWithRecoveryCode(code);
+    if (recovered){ showToast('Unlocked'); renderDiary(); return; }
+    const wantsReset = confirm('That recovery code didn’t work.\n\nYour existing encrypted entries can’t be recovered without your original passphrase or recovery code — that’s permanent, by design.\n\nYou can still start fresh with a new passphrase for everything you write from here on. Your old entries stay in your account, still encrypted, but unreadable until you provide the original passphrase or code (if you ever find them). Reset and start fresh now?');
+    if (!wantsReset) return;
+    const ok = await e2eResetEncryption();
+    if (ok) renderDiary();
   }
 
   // For someone genuinely locked out of both the passphrase and recovery
