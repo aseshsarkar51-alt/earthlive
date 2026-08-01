@@ -4433,6 +4433,22 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   </div>
 </div>
 
+<!-- Shown immediately when someone arrives via a shared profile link, on
+     top of the profile preview — names whose page it is up front (so the
+     ask reads as a deliberate invite, not a random wall) and offers a
+     one-tap path to sign in and write, while "Just looking" dismisses it
+     and leaves the profile visible underneath for anyone who just wants
+     to read. -->
+<div class="modal-overlay" id="signPromptOverlay" onclick="if(event.target===this) closeSignPrompt()">
+  <div class="entry-modal" style="max-width:380px; text-align:center; padding:34px 28px 28px;">
+    <button class="modal-close" onclick="closeSignPrompt()" aria-label="Close">✕</button>
+    <p style="font-size:17px; font-weight:600; margin:6px 0 8px;" id="signPromptTitle">Sign this page</p>
+    <p style="font-size:14px; color:var(--ink-soft); margin:0 0 20px;" id="signPromptSub">Add your name and a memory — it takes a minute.</p>
+    <button class="btn btn-primary" style="width:100%; margin-bottom:8px;" onclick="closeSignPrompt(); signCurrentVisitorProfile();">Sign in to write</button>
+    <button class="btn btn-ghost" style="width:100%;" onclick="closeSignPrompt()">Just looking</button>
+  </div>
+</div>
+
 <!-- ===== PRINT MODAL (book / diary / event) ===== -->
 <div class="modal-overlay" id="printModalOverlay" onclick="if(event.target===this) closePrintModal()">
   <div class="entry-modal" style="max-width:400px; padding:28px 24px 22px;">
@@ -6517,17 +6533,19 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     }
     const theirEntries = await fetchEntriesForProfile(p.dbId);
     previewProfile(p, theirEntries, currentUser ? 'search' : 'landing');
-    // Someone who followed a shared link (WhatsApp, etc.) and is ALREADY
-    // signed in came here specifically to write something — on mobile
-    // especially, the "Sign this page" button on the preview is easy to
-    // miss, so take them straight to the composer; Cancel still lands
-    // back on the normal profile preview (previewProfile above already
-    // set up all of that state).
-    // Signed-out visitors are left on the preview instead of being
-    // auto-redirected into a sign-in screen before they've even read the
-    // page — writing now requires signing in (see signCurrentVisitorProfile),
-    // so that jump only happens once they deliberately tap "Sign this page".
-    if (viaDirectLink && currentUser) signCurrentVisitorProfile();
+    // Someone who followed a shared link (WhatsApp, etc.) came here
+    // specifically to write something, so don't leave them to stumble on
+    // a "Sign this page" button on their own — on mobile especially it's
+    // easy to miss. If they're already signed in, take them straight to
+    // the composer. If they're signed out, pop up a small, named prompt
+    // ("Sign Riya's page") right over the profile the instant it loads —
+    // that one line of context is what keeps the ask from reading as a
+    // random, unexplained wall, while the profile stays visible
+    // underneath for anyone who dismisses it and just wants to read.
+    if (viaDirectLink){
+      if (currentUser) signCurrentVisitorProfile();
+      else openSignPrompt();
+    }
     return true;
   }
 
@@ -10151,6 +10169,25 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       return;
     }
     openFillForm(currentVisitorProfile, currentVisitorEntries, currentVisitorIsOwn, visitorReturnScreen);
+  }
+
+  // The named popup shown over a profile preview right after a signed-out
+  // visitor arrives via a shared link (see openProfileByUsername). Reuses
+  // signCurrentVisitorProfile() for the actual sign-in redirect, so it
+  // gets the same pendingLinkUsername + authContextName handling for free.
+  function openSignPrompt(){
+    if (!currentVisitorProfile) return;
+    const name = currentVisitorProfile.name || 'This person';
+    const t = document.getElementById('signPromptTitle');
+    const s = document.getElementById('signPromptSub');
+    if (t) t.textContent = 'Sign ' + name + '’s page';
+    if (s) s.textContent = 'Add your name and a memory for ' + name + ' — takes a minute.';
+    const overlay = document.getElementById('signPromptOverlay');
+    if (overlay) overlay.classList.add('open');
+  }
+  function closeSignPrompt(){
+    const overlay = document.getElementById('signPromptOverlay');
+    if (overlay) overlay.classList.remove('open');
   }
 
   function previewProfile(profileObj, entriesArr, returnScreen){
