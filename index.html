@@ -1564,6 +1564,9 @@
   .ev-pending-pill{background:#FBF6F0; border:1px solid var(--camel); color:var(--camel); font-size:10.5px; font-weight:700; padding:2px 9px; border-radius:999px;}
   .ev-chip{font-size:12.5px; padding:7px 13px; border-radius:999px; border:1px solid var(--line); background:var(--page); cursor:pointer; font-family:inherit; color:var(--ink-soft);}
   .ev-chip:hover{border-color:var(--ink);}
+  .ev-chip#diaryVoiceBtn.recording{background:#FBEFEC; border-color:var(--blush); color:var(--blush);}
+  .ev-chip#diaryVoiceBtn.recording .ic{animation:diaryPulse 1.1s ease-in-out infinite;}
+  @keyframes diaryPulse{0%,100%{opacity:1;} 50%{opacity:.35;}}
   .ev-rsvp-btn{font-size:13.5px; font-weight:600; padding:9px 16px; border-radius:999px; border:1.5px solid var(--line); background:var(--page); cursor:pointer; font-family:inherit; color:var(--ink-soft);}
   .ev-rsvp-btn:hover{border-color:var(--ink); color:var(--ink);}
   .ev-rsvp-btn.on[data-choice="going"]{background:var(--moss); border-color:var(--moss); color:#fff;}
@@ -2562,6 +2565,9 @@
             <div class="d-tools">
               <button type="button" class="ev-chip" onclick="document.getElementById('diaryPhotoInput').click()">
                 <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12" r="3.2"/></svg></span> Photos
+              </button>
+              <button type="button" class="ev-chip" id="diaryVoiceBtn" onclick="diaryToggleVoice()">
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span> <span id="diaryVoiceBtnLabel">Voice</span>
               </button>
               <button type="button" class="ev-chip" id="diaryCancelBtn" style="display:none;" onclick="openDiaryEditor(null)">Cancel edit</button>
               <button type="button" class="btn-small" style="margin-left:auto;" onclick="saveDiaryEntry()">Save entry</button>
@@ -13217,6 +13223,72 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   let diarySharedWithName = null;
   let diaryPhotos = [];   // data-URLs (new) or https URLs (already uploaded)
 
+  /* ── Diary voice-to-text ── */
+  let diaryRecognition = null;
+  let diaryRecognizing = false;
+  let diaryVoiceBaseText = '';
+
+  function diarySetVoiceUI(on){
+    const btn = document.getElementById('diaryVoiceBtn');
+    const label = document.getElementById('diaryVoiceBtnLabel');
+    if (!btn) return;
+    btn.classList.toggle('recording', on);
+    if (label) label.textContent = on ? 'Listening…' : 'Voice';
+  }
+
+  function diaryStopVoice(){
+    if (diaryRecognition && diaryRecognizing){
+      try { diaryRecognition.stop(); } catch(e){}
+    }
+  }
+
+  function diaryToggleVoice(){
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR){
+      showToast ? showToast('Voice typing isn’t supported in this browser — try Chrome') : alert('Voice typing isn’t supported in this browser — try Chrome');
+      return;
+    }
+    if (diaryRecognizing){
+      diaryStopVoice();
+      return;
+    }
+    const body = document.getElementById('diaryBody');
+    diaryVoiceBaseText = body.value;
+
+    diaryRecognition = new SR();
+    diaryRecognition.lang = (navigator.language || 'en-US');
+    diaryRecognition.continuous = true;
+    diaryRecognition.interimResults = true;
+
+    diaryRecognition.onstart = function(){
+      diaryRecognizing = true;
+      diarySetVoiceUI(true);
+    };
+    diaryRecognition.onresult = function(e){
+      let finalTxt = '', interimTxt = '';
+      for (let i = 0; i < e.results.length; i++){
+        const r = e.results[i];
+        if (r.isFinal) finalTxt += r[0].transcript;
+        else interimTxt += r[0].transcript;
+      }
+      const needsSep = diaryVoiceBaseText && !/\s$/.test(diaryVoiceBaseText) && (finalTxt || interimTxt);
+      body.value = diaryVoiceBaseText + (needsSep ? ' ' : '') + finalTxt + interimTxt;
+    };
+    diaryRecognition.onerror = function(e){
+      diaryRecognizing = false;
+      diarySetVoiceUI(false);
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed'){
+        showToast ? showToast('Mic access blocked — allow microphone permission to use voice typing') : alert('Mic access blocked — allow microphone permission to use voice typing');
+      }
+    };
+    diaryRecognition.onend = function(){
+      diaryVoiceBaseText = body.value;
+      diaryRecognizing = false;
+      diarySetVoiceUI(false);
+    };
+    try { diaryRecognition.start(); } catch(err){ diarySetVoiceUI(false); }
+  }
+
   function diaryHandlePhotos(e){
     const files = Array.from(e.target.files || []);
     const room = 4 - diaryPhotos.length;
@@ -13703,6 +13775,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
   /* ── Editor (left pane) ── */
   async function openDiaryEditor(entryId){
+    diaryStopVoice();
     diaryEditingId = entryId;
     diarySharedWithUserId = null;
     diarySharedWithName = null;
@@ -14011,6 +14084,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   }
 
   async function saveDiaryEntry(){
+    diaryStopVoice();
     if (!db || !currentUser){ showToast('Sign in to save diary entries'); return; }
     const title = document.getElementById('diaryTitle').value.trim();
     const body = document.getElementById('diaryBody').value.trim();
