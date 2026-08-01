@@ -14129,27 +14129,43 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   // (the file may take ~30–60s to actually go live while GitHub Pages
   // rebuilds — see the polling in openEventPage before we switch evLink
   // over to this URL).
-  async function publishEventShareCard(ev){
-    if (!db || !ev || ev.local || !ev.slug) return false;
-    try{
-      const { data: sessionData } = await db.auth.getSession();
-      const token = sessionData && sessionData.session && sessionData.session.access_token;
-      if (!token) return false;
-      const ref = profile && (profile.username || profile.code);
-      const res = await fetch('https://uehnlopsazcwguhrqtnh.supabase.co/functions/v1/publish-event-share', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ eventId: ev.id, ref: ref || null })
-      });
-      if (!res.ok){
-        console.error('[EarthLive] share card publish failed:', res.status, await res.text().catch(()=>''));
+  //
+  // openEventPage() and renderEventHeader() can both ask to (re)publish
+  // within the same render pass (e.g. on first opening the page). Two
+  // concurrent calls each do their own GitHub "read sha, then write" —
+  // whichever commits second gets rejected because the sha it read is now
+  // stale, logging a spurious "GitHub commit failed". Coalesce concurrent
+  // calls for the same event into a single in-flight request so only one
+  // GitHub commit happens at a time.
+  const _pendingSharePublish = {};
+  function publishEventShareCard(ev){
+    if (!db || !ev || ev.local || !ev.slug) return Promise.resolve(false);
+    if (_pendingSharePublish[ev.id]) return _pendingSharePublish[ev.id];
+    const p = (async ()=>{
+      try{
+        const { data: sessionData } = await db.auth.getSession();
+        const token = sessionData && sessionData.session && sessionData.session.access_token;
+        if (!token) return false;
+        const ref = profile && (profile.username || profile.code);
+        const res = await fetch('https://uehnlopsazcwguhrqtnh.supabase.co/functions/v1/publish-event-share', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ eventId: ev.id, ref: ref || null })
+        });
+        if (!res.ok){
+          console.error('[EarthLive] share card publish failed:', res.status, await res.text().catch(()=>''));
+          return false;
+        }
+        return true;
+      }catch(err){
+        console.error('[EarthLive] share card publish failed:', err);
         return false;
+      }finally{
+        delete _pendingSharePublish[ev.id];
       }
-      return true;
-    }catch(err){
-      console.error('[EarthLive] share card publish failed:', err);
-      return false;
-    }
+    })();
+    _pendingSharePublish[ev.id] = p;
+    return p;
   }
 
   // GitHub Pages needs a bit to rebuild after the commit lands, so poll
