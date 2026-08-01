@@ -16582,47 +16582,210 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   // for initials or a fallback label, so it never leaks into the UI as-is.
   function anCleanName(s){ return (s||'?').replace(/\s*\(@[^)]*\)\s*$/,'').trim() || '?'; }
 
+  /* ---------------- Anchor People (curated) ----------------
+     Backed by the SAME data as the Happiness screen's support circle
+     (profile.extras.happiness_support_circle) — pinning someone here adds
+     them to that circle, so both screens manage one list instead of two.
+     Constellation keeps its own separate, auto-computed-by-frequency view;
+     this screen is deliberately about choosing, not inferring, which is
+     the whole reason it stays a separate tab instead of folding in. */
+  let anEditMode = false;
+  let anCircleSearchTimer = null;
+
+  function anToggleEdit(){
+    anEditMode = !anEditMode;
+    renderAnchor();
+  }
+
+  // Best-effort: has this person also pinned ME as one of their anchors?
+  // Reads another profile's `extras` column, which may be restricted by
+  // row-level security — if so this just comes back empty and the "anchors
+  // you too" tag never shows. Never throws, never blocks the rest of the
+  // screen from rendering.
+  async function anComputeAnchoredBackIds(userIds){
+    const back = new Set();
+    if (!db || !currentUser || !userIds.length) return back;
+    try{
+      const { data } = await db.from('profiles').select('user_id, extras').in('user_id', userIds);
+      (data || []).forEach(pr=>{
+        const circle = (pr.extras && Array.isArray(pr.extras.happiness_support_circle)) ? pr.extras.happiness_support_circle : [];
+        if (circle.some(p => p.user_id === currentUser.id)) back.add(pr.user_id);
+      });
+    } catch(e){ /* fails quiet — a nicety, never core */ }
+    return back;
+  }
+
+  // A single, no-reply-needed tap: sends one short line through the same
+  // conversations/messages system the Happiness nudge already uses, no
+  // compose box involved. Throttled to once per person per day from this
+  // browser (localStorage) purely so it can't be spammed by repeat taps.
+  async function anPing(userId, name, btn){
+    if (!db || !currentUser || !profile || !profile.dbId) return;
+    const key = 'el_ping_' + userId;
+    try{
+      const last = localStorage.getItem(key);
+      if (last && (Date.now() - new Date(last).getTime()) < 24*60*60*1000){
+        showToast('Already sent today');
+        return;
+      }
+    } catch(e){}
+    if (btn) btn.disabled = true;
+    try{
+      const { data: theirProfile } = await db.from('profiles').select('id').eq('user_id', userId).maybeSingle();
+      if (!theirProfile){ showToast('Could not find their page'); if (btn) btn.disabled = false; return; }
+      let { data: conv } = await db.from('conversations').select('id')
+        .or(`and(requester_profile_id.eq.${profile.dbId},recipient_profile_id.eq.${theirProfile.id}),and(requester_profile_id.eq.${theirProfile.id},recipient_profile_id.eq.${profile.dbId})`)
+        .maybeSingle();
+      if (!conv){
+        const { data: newConv } = await db.from('conversations').insert({
+          requester_profile_id: profile.dbId,
+          recipient_profile_id: theirProfile.id,
+          status: 'pending'
+        }).select().single();
+        conv = newConv;
+      }
+      if (!conv){ if (btn) btn.disabled = false; return; }
+      await db.from('messages').insert({
+        conversation_id: conv.id,
+        sender_profile_id: profile.dbId,
+        body: '💛 Thinking of you — no reply needed.'
+      });
+      try{ localStorage.setItem(key, new Date().toISOString()); }catch(e){}
+      showToast('Sent — no reply needed');
+      if (btn){ btn.innerHTML = '✓'; btn.title = 'Sent today'; }
+    } catch(e){
+      showToast('Could not send — try again later');
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  function anRemoveCircleMember(userId){
+    hpSupportCircle = hpSupportCircle.filter(p => p.user_id !== userId);
+    hpSaveCircle();
+    renderAnchor();
+  }
+
+  function anPickCircleMember(userId, name){
+    if (hpSupportCircle.some(p => p.user_id === userId)) return;
+    hpSupportCircle.push({ user_id:userId, name });
+    hpSaveCircle();
+    const inp = document.getElementById('anCircleSearch');
+    if (inp) inp.value = '';
+    const box = document.getElementById('anCircleResults');
+    if (box) box.classList.remove('open');
+    renderAnchor();
+  }
+
+  function anCircleSearchTyped(){
+    clearTimeout(anCircleSearchTimer);
+    anCircleSearchTimer = setTimeout(anCircleSearch, 300);
+  }
+
+  async function anCircleSearch(){
+    const inputEl = document.getElementById('anCircleSearch');
+    const box = document.getElementById('anCircleResults');
+    if (!inputEl || !box) return;
+    const q = inputEl.value.trim();
+    if (!q || q.length < 2 || !db){ box.classList.remove('open'); return; }
+    const safe = q.replace(/^@/,'').replace(/[%,()]/g,'').trim();
+    const { data, error } = await db.from('profiles').select('user_id, name, username, ink')
+      .eq('visibility','public')
+      .or('name.ilike.%' + safe + '%,username.ilike.%' + safe + '%').limit(6);
+    if (error){ box.classList.remove('open'); return; }
+    const already = new Set(hpSupportCircle.map(p => p.user_id));
+    const rows = (data || []).filter(r => r.user_id !== currentUser.id && !already.has(r.user_id));
+    if (!rows.length){
+      box.innerHTML = '<div class="ev-ta-none">No matching people found.</div>';
+      box.classList.add('open'); return;
+    }
+    box.innerHTML = rows.map(r=>{
+      const initials = r.name.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+      return '<div class="ev-ta-item" onclick="anPickCircleMember(\'' + r.user_id + '\',\'' + r.name.replace(/'/g,"\\'") + '\')">' +
+        '<div class="ev-avatar" style="width:30px; height:30px; font-size:11px; background:' + (r.ink || 'var(--moss)') + ';">' + escapeHtml(initials) + '</div>' +
+        '<div style="flex:1;"><b>' + escapeHtml(r.name) + '</b>' + (r.username ? '<div style="font-size:12px; color:var(--ink-soft);">@' + escapeHtml(r.username) + '</div>' : '') + '</div>' +
+        '</div>';
+    }).join('');
+    box.classList.add('open');
+  }
+
   async function renderAnchor(){
     const host = document.getElementById('anchorBody');
     if (!host) return;
-    cnBuild();
-    const people = cnNodes.filter(n=>n.t==='person').sort((a,b)=> b.w - a.w).slice(0,12);
-    if (!people.length){
-      host.innerHTML = '<div class="lb-empty"><b>No one here yet</b>'
-        + 'Once a few people sign your book, the closest few will show up here — no ranking, no count.</div>';
+    if (profile && profile.extras && Array.isArray(profile.extras.happiness_support_circle)){
+      hpSupportCircle = profile.extras.happiness_support_circle.slice();
+    }
+
+    const header =
+      '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">'
+      + '<div style="font-size:11px; color:var(--ink-soft); letter-spacing:0.04em;">YOUR ANCHOR PEOPLE</div>'
+      + '<button type="button" onclick="anToggleEdit()" style="font-size:11px; color:var(--moss); border:1px solid var(--line); border-radius:999px; padding:5px 12px; background:none;">' + (anEditMode ? 'Done' : 'Edit anchors') + '</button>'
+      + '</div>';
+
+    if (!hpSupportCircle.length){
+      // Nothing pinned yet — fall back to the old auto-computed list as
+      // suggestions, each with a one-tap way to actually pin them.
+      cnBuild();
+      const suggestions = cnNodes.filter(n=>n.t==='person' && n.byId).sort((a,b)=> b.w - a.w).slice(0,6);
+      host.innerHTML = header
+        + '<div class="lb-empty" style="margin-bottom:' + (suggestions.length ? '18px' : '0') + ';"><b>No one pinned yet</b>'
+        + 'Pin the people you actually want to anchor to — not just whoever writes most.</div>'
+        + (suggestions.length ? (
+            '<div style="font-size:11px; color:var(--ink-soft); margin-bottom:10px;">Suggested, from who’s already written to you</div>'
+            + '<div style="display:flex; flex-wrap:wrap; gap:10px;">'
+            + suggestions.map(p=>{
+                const name = anCleanName(p.lb);
+                const initials = name.split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
+                return '<button type="button" onclick="anPickCircleMember(\'' + p.byId + '\',\'' + name.replace(/'/g,"\\'") + '\')" style="display:flex; align-items:center; gap:7px; border:1px solid var(--line); border-radius:999px; padding:6px 12px 6px 6px; background:none; font-size:12.5px; color:var(--ink);">'
+                  + '<span style="width:22px; height:22px; border-radius:50%; background:var(--oat-deep); display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700;">' + escapeHtml(initials) + '</span>'
+                  + escapeHtml(name) + ' <span style="color:var(--moss);">+ Pin</span></button>';
+              }).join('')
+            + '</div>'
+          ) : '');
       return;
     }
-    await cnComputeMutualIds();
-    // For anyone with a linked account, prefer their real username + avatar
-    // over the free-text name on the entry — cleaner, and matches what the
-    // rest of the app shows for members.
+
+    const userIds = hpSupportCircle.map(p=>p.user_id).filter(Boolean);
     let profMap = {};
-    const byIds = [...new Set(people.map(p=>p.byId).filter(Boolean))];
-    if (byIds.length && db){
+    if (userIds.length && db){
       try{
-        const { data: profs } = await db.from('profiles').select('user_id, username, avatar_url').in('user_id', byIds);
+        const { data: profs } = await db.from('profiles').select('user_id, username, avatar_url').in('user_id', userIds);
         (profs || []).forEach(pr=>{ profMap[pr.user_id] = pr; });
-      } catch(e){ /* falls back to the entry's own name below */ }
+      } catch(e){}
     }
-    host.innerHTML =
-      '<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:18px;">'
-      + people.map(p=>{
-          const prof = p.byId ? profMap[p.byId] : null;
-          const cleanName = anCleanName(p.lb);
-          const initials = cleanName.split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
-          const label = (prof && prof.username) ? '@' + prof.username : cleanName;
-          const avatarUrl = prof && prof.avatar_url;
-          const mutual = p.byId && cnMutualIds.has(p.byId);
-          const avatarInner = avatarUrl
-            ? '<div style="width:56px; height:56px; margin:0 auto 8px; border-radius:50%; background-image:url(\'' + escapeHtml(avatarUrl) + '\'); background-size:cover; background-position:center;"></div>'
-            : '<div style="width:56px; height:56px; margin:0 auto 8px; border-radius:50%; background:var(--oat-deep); color:var(--ink); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px;">' + escapeHtml(initials) + '</div>';
-          return '<div style="text-align:center;">'
-            + avatarInner
-            + '<div style="font-size:12.5px; color:var(--ink); font-weight:600;">' + escapeHtml(label) + '</div>'
-            + (mutual ? '<div style="font-size:10.5px; color:var(--moss); margin-top:2px;">writes back too</div>' : '')
-            + '</div>';
-        }).join('')
-      + '</div>';
+    const anchoredBack = await anComputeAnchoredBackIds(userIds);
+
+    const grid = hpSupportCircle.map(p=>{
+      const prof = profMap[p.user_id];
+      const cleanName = anCleanName(p.name);
+      const label = (prof && prof.username) ? '@' + prof.username : cleanName;
+      const initials = cleanName.split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
+      const avatarUrl = prof && prof.avatar_url;
+      const back = anchoredBack.has(p.user_id);
+      const ringStyle = back ? 'border:2.5px solid var(--moss);' : 'border:1.5px dashed var(--line);';
+      const avatarInner = avatarUrl
+        ? '<div style="width:56px; height:56px; margin:0 auto 6px; border-radius:50%; background-image:url(\'' + escapeHtml(avatarUrl) + '\'); background-size:cover; background-position:center; ' + ringStyle + '"></div>'
+        : '<div style="width:56px; height:56px; margin:0 auto 6px; border-radius:50%; background:var(--oat-deep); color:var(--ink); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; ' + ringStyle + '">' + escapeHtml(initials) + '</div>';
+      return '<div style="text-align:center; width:88px;">'
+        + avatarInner
+        + '<div style="font-size:12px; color:var(--ink); font-weight:600;">' + escapeHtml(label) + '</div>'
+        + '<div style="font-size:9.5px; color:' + (back ? 'var(--moss)' : 'var(--ink-soft)') + '; margin-top:1px;">' + (back ? 'anchors you too' : 'pinned by you') + '</div>'
+        + (anEditMode
+            ? '<button type="button" onclick="anRemoveCircleMember(\'' + p.user_id + '\')" style="margin-top:8px; font-size:10.5px; color:var(--ink-soft); background:none; border:1px solid var(--line); border-radius:999px; padding:3px 9px;">Unpin</button>'
+            : '<button type="button" onclick="anPing(\'' + p.user_id + '\',\'' + escapeHtml(cleanName) + '\', this)" title="Send a quiet, no-reply-needed hello" style="margin-top:8px; width:30px; height:30px; border-radius:50%; background:none; border:1px solid var(--line); font-size:13px; color:var(--moss);">💛</button>')
+        + '</div>';
+    }).join('');
+
+    const editUi = anEditMode
+      ? '<div style="position:relative; margin-top:20px; max-width:320px;">'
+        + '<input type="text" id="anCircleSearch" placeholder="Pin someone else…" autocomplete="off" oninput="anCircleSearchTyped()" style="width:100%; padding:9px 12px; border:1px solid var(--line); border-radius:8px; font-size:13.5px; font-family:inherit;">'
+        + '<div class="ev-ta" id="anCircleResults"></div>'
+        + '</div>'
+      : '';
+
+    host.innerHTML = header
+      + '<div style="display:flex; flex-wrap:wrap; gap:22px;">' + grid + '</div>'
+      + '<div style="margin-top:18px; padding-top:14px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-soft); line-height:1.6;">Tap 💛 to send a quiet "thinking of you" — no reply expected, nothing posted anywhere. This same list is also who gets the Happiness check-in nudges.</div>'
+      + editUi;
   }
 
   /* ---------------- Voiceprints ---------------- */
