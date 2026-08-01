@@ -4015,6 +4015,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         <p style="color:var(--ink-soft); font-size:14px; line-height:1.7; margin:0 0 6px;">Short write-ups of published research on memory, connection, and wellbeing — the science behind why EarthLive works. New piece added monthly.</p>
       </div>
       <div id="hlGrid" style="max-width:640px; margin:24px auto 10px; padding:0 20px; display:grid; gap:14px;"></div>
+      <div id="hlResourceShelf" style="max-width:640px; margin:20px auto 0; padding:0 20px;"></div>
       <div class="cta-row" style="max-width:640px; margin:10px auto 80px; padding:0 20px; justify-content:flex-start;">
         <button class="link-quiet" onclick="showScreen(currentUser ? 'dashboard' : 'landing')">← Back</button>
       </div>
@@ -4256,6 +4257,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       <p class="lb-lede">Not a followers list — a small, unranked set of the people closest to you right now. Nothing here is scored or counted on purpose.</p>
     </div>
     <div id="anchorBody"></div>
+    <div id="anResourceShelf" style="margin-top:32px;"></div>
   </div>
 </section>
 
@@ -11621,6 +11623,48 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     }
   ];
 
+  // ---------------------------------------------------------------------
+  // External resources shelf: a small, deliberately minimal set of freely
+  // available, open-access research (all hosted on PubMed Central, which
+  // only carries free full text) and a couple of well-known books on
+  // happiness, relationships, family, and memory. Nothing here is written
+  // by EarthLive or about EarthLive — it's just a pointer outward for
+  // anyone who wants to read further. Shown on both the Happiness Library
+  // and Anchor People screens from this one list, so there's one thing to
+  // keep accurate rather than two.
+  // ---------------------------------------------------------------------
+  const EXTERNAL_RESOURCES = [
+    { kind:'paper', tag:'Memory', title:'Remembering the good times: relationship nostalgia and satisfaction', byline:'Personal Relationships · open access, PMC', url:'https://pmc.ncbi.nlm.nih.gov/articles/PMC6245572/' },
+    { kind:'paper', tag:'Happiness', title:'Nostalgia and well-being in daily life', byline:'Open access · PMC', url:'https://pmc.ncbi.nlm.nih.gov/articles/PMC7513922/' },
+    { kind:'paper', tag:'Relationships', title:'Adult friendship and wellbeing: a systematic review', byline:'Open access · PMC', url:'https://pmc.ncbi.nlm.nih.gov/articles/PMC9902704/' },
+    { kind:'paper', tag:'Connection', title:'Distinct aspects of human connection and subjective wellbeing', byline:'Open access · PMC', url:'https://pmc.ncbi.nlm.nih.gov/articles/PMC9835396/' },
+    { kind:'paper', tag:'Family', title:'Happy Family Kitchen II: a family wellbeing intervention', byline:'Open access · PMC', url:'https://pmc.ncbi.nlm.nih.gov/articles/PMC4966601/' },
+    { kind:'paper', tag:'Happiness', title:'When happiness is both joy and purpose', byline:'Open access · PMC', url:'https://pmc.ncbi.nlm.nih.gov/articles/PMC9546977/' },
+    { kind:'book', tag:'Community', title:'Bowling Alone', byline:'Robert D. Putnam', url:'https://en.wikipedia.org/wiki/Bowling_Alone' },
+    { kind:'book', tag:'Relationships', title:'The Good Life', byline:'Waldinger & Schulz — based on the Harvard Study of Adult Development', url:null }
+  ];
+
+  function renderResourceShelf(containerId){
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    const TAG_COLOR = { Memory:'var(--camel)', Happiness:'var(--moss)', Relationships:'var(--blush)', Connection:'var(--navy-ink)', Family:'var(--moss-deep)', Community:'var(--camel)' };
+    el.innerHTML =
+      '<div style="font-size:11px; color:var(--ink-soft); letter-spacing:0.04em; margin-bottom:4px;">FURTHER READING</div>'
+      + '<div style="font-size:11.5px; color:var(--ink-soft); margin-bottom:12px; max-width:480px; line-height:1.5;">Free, open research and a couple of books on happiness, relationships, family, and memory — nothing to do with EarthLive itself, just worth reading if you want to go further.</div>'
+      + '<div style="display:flex; gap:12px; overflow-x:auto; padding-bottom:6px;">'
+      + EXTERNAL_RESOURCES.map(r=>{
+          const color = TAG_COLOR[r.tag] || 'var(--moss)';
+          const inner =
+            '<div style="width:100px; height:56px; border-radius:8px; background:' + color + '; display:flex; align-items:center; justify-content:center; color:#fff; font-size:9.5px; font-weight:700; letter-spacing:0.04em; text-align:center; padding:6px;">' + escapeHtml(r.tag.toUpperCase()) + '</div>'
+            + '<div style="font-size:11.5px; color:var(--ink); font-weight:600; margin-top:6px; line-height:1.3;">' + escapeHtml(r.title) + '</div>'
+            + '<div style="font-size:10px; color:var(--ink-soft); margin-top:2px;">' + escapeHtml(r.byline) + '</div>';
+          return r.url
+            ? '<a href="' + escapeHtml(r.url) + '" target="_blank" rel="noopener noreferrer" style="flex:0 0 140px; text-decoration:none;">' + inner + '</a>'
+            : '<div style="flex:0 0 140px;">' + inner + '</div>';
+        }).join('')
+      + '</div>';
+  }
+
   function renderHlGrid(){
     const grid = document.getElementById('hlGrid');
     if (!grid) return;
@@ -11633,6 +11677,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         '<span class="hl-card-stat">' + escapeHtml(a.stats[0].n + ' ' + a.stats[0].l) + '</span>' +
       '</button>'
     )).join('');
+    renderResourceShelf('hlResourceShelf');
   }
 
   function hlOpenArticle(id){
@@ -16711,6 +16756,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   async function renderAnchor(){
     const host = document.getElementById('anchorBody');
     if (!host) return;
+    renderResourceShelf('anResourceShelf');
     if (profile && profile.extras && Array.isArray(profile.extras.happiness_support_circle)){
       hpSupportCircle = profile.extras.happiness_support_circle.slice();
     }
