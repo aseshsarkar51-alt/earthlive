@@ -2306,6 +2306,14 @@
             <button type="button" class="switch" id="visSwitch" onclick="toggleCreateVisibility()"></button>
           </div>
         </div>
+        <div class="field" id="createTermsRow">
+          <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; font-weight:400;">
+            <input type="checkbox" id="cAgreeTerms" style="margin-top:3px; width:16px; height:16px; flex:none; accent-color:var(--ink);">
+            <span style="font-size:13px; color:var(--ink-soft); line-height:1.5;">
+              I agree to the <a href="#" onclick="event.preventDefault(); openTermsModal();" style="color:var(--ink); text-decoration:underline;">Terms &amp; Conditions</a> — this space is meant to be used respectfully and age-appropriately, and I won't intentionally write anything hurtful about a real person.
+            </span>
+          </label>
+        </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary" id="createSubmitBtn">Create my book →</button>
           <button type="button" class="link-quiet" onclick="cancelCreateForm()">Cancel</button>
@@ -2314,6 +2322,23 @@
     </div>
   </div>
 </section>
+
+<!-- Shown the first time someone creates a page: a short, plain-language
+     summary of what "respectful and age-appropriate" means here. Reachable
+     any time afterwards from the link inside the agreement checkbox. -->
+<div class="modal-overlay" id="termsModalOverlay" onclick="if(event.target===this) closeTermsModal()">
+  <div class="entry-modal" style="max-width:460px; padding:32px 28px 26px;">
+    <button class="modal-close" onclick="closeTermsModal()" aria-label="Close">✕</button>
+    <p style="font-size:17px; font-weight:600; margin:2px 0 14px;">Terms & Conditions</p>
+    <div style="font-size:13.5px; color:var(--ink-soft); line-height:1.65;">
+      <p style="margin:0 0 12px;">EarthLive is a space for real memories between real people. By creating a page, you agree to:</p>
+      <p style="margin:0 0 10px;"><strong style="color:var(--ink);">Be age-appropriate.</strong> Keep what you post — on your own page and on anyone else's — suitable for a general audience. If you're under the age where you'd need a parent or guardian's permission to agree to terms like these, please have them create the page with you.</p>
+      <p style="margin:0 0 10px;"><strong style="color:var(--ink);">Be kind, on purpose.</strong> Don't intentionally write anything hurtful, harassing, or humiliating about a real person, whether it's on your page or someone else's.</p>
+      <p style="margin:0;">Page owners can delete entries and block visitors at any time. Reported entries are reviewed and removed if they break these terms.</p>
+    </div>
+    <button class="btn btn-primary" style="width:100%; margin-top:18px;" onclick="closeTermsModal()">Got it</button>
+  </div>
+</div>
 
 <!-- ============ DASHBOARD (owner) ============ -->
 <section class="screen style-a" id="screen-dashboard">
@@ -7092,6 +7117,9 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     document.getElementById('createEyebrow').textContent = 'Editing';
     document.getElementById('createHeading').textContent = 'Update your page';
     document.getElementById('createSubmitBtn').textContent = 'Save changes';
+    // Already agreed once, at first creation — don't ask again on every edit.
+    const termsRow = document.getElementById('createTermsRow');
+    if (termsRow) termsRow.style.display = 'none';
   }
 
   function openEditProfile(){
@@ -7113,9 +7141,22 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     showScreen('create');
   }
 
+  function openTermsModal(){
+    const overlay = document.getElementById('termsModalOverlay');
+    if (overlay) overlay.classList.add('open');
+  }
+  function closeTermsModal(){
+    const overlay = document.getElementById('termsModalOverlay');
+    if (overlay) overlay.classList.remove('open');
+  }
+
   function resetCreateFormUI(){
     document.getElementById('createForm').reset();
     document.getElementById('usernameStatus').style.display = 'none';
+    // Agreeing to the terms is a one-time, first-creation step — someone
+    // editing their existing page already agreed when they made it.
+    const termsRow = document.getElementById('createTermsRow');
+    if (termsRow) termsRow.style.display = '';
     avatarDataUrl = null;
     document.getElementById('avatarPreview').style.display = 'none';
     coverDataUrl = null;
@@ -7210,6 +7251,18 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       document.getElementById('cUsername').focus();
       showToast('Pick a valid username first');
       return;
+    }
+
+    // Required once, at first creation only — an existing owner editing
+    // their page already agreed to this when they made it (see
+    // populateEditForm, which hides this row in edit mode).
+    if (!editMode){
+      const agree = document.getElementById('cAgreeTerms');
+      if (agree && !agree.checked){
+        agree.focus();
+        showToast('Please agree to the Terms & Conditions to continue');
+        return;
+      }
     }
 
     const submitBtn = document.getElementById('createSubmitBtn');
