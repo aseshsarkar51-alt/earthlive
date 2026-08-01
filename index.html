@@ -1523,7 +1523,6 @@
   .fy-seal{display:inline-flex; align-items:center; gap:5px; background:#FBF6F0; border:1px solid var(--blush); color:var(--blush); font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; margin-bottom:10px;}
   .fy-letter-body{font-size:14px; line-height:1.75; color:var(--ink); white-space:pre-wrap;}
   .entry-from-diary{display:inline-block; background:var(--oat); border:1px solid var(--line); color:var(--moss); font-size:10.5px; font-weight:700; letter-spacing:.05em; padding:2px 9px; border-radius:999px; margin-left:6px;}
-   */
   .ev-cover{position:relative; isolation:isolate; contain:layout paint; border-radius:16px 16px 0 0; overflow:hidden; background:linear-gradient(135deg, var(--moss) 0%, var(--camel) 60%, var(--blush) 100%); background-size:cover; background-position:center; height:280px; width:100%;}
   @media (max-width:600px){.ev-cover{height:220px;}}
   .ev-cover .ev-cover-changebtn{position:absolute; right:12px; bottom:12px; z-index:2; background:rgba(30,28,24,.65); color:#fff; border:none; border-radius:999px; padding:7px 14px; font-size:12.5px; cursor:pointer;}
@@ -3093,7 +3092,7 @@
             <div class="ev-sub" id="evDesc" style="margin-top:6px; display:none;"></div>
           </div>
           <button type="button" class="btn-small" id="evEditBtn" style="display:none; flex:none; align-items:center; gap:6px;" onclick="toggleEventEdit()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit details</button>
-          <button type="button" class="btn-small" id="evPrintBtn" style="flex:none; display:inline-flex; align-items:center; gap:6px;" onclick="openPrintModal('event')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg> Print</button>
+          <button type="button" class="btn-small" id="evPrintBtn" style="display:none; flex:none; align-items:center; gap:6px;" onclick="openPrintModal('event')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg> Print</button>
         </div>
 
         <div id="evCoverDisplay" style="display:none; margin-top:14px; border-radius:12px; overflow:hidden; height:180px; background:var(--oat-deep) center/cover no-repeat;"></div>
@@ -14280,6 +14279,11 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     document.getElementById('evDeleteBtn').style.display = (curRole==='owner') ? 'inline' : 'none';
     document.getElementById('evEditBtn').style.display = (curRole==='owner') ? 'inline-block' : 'none';
     document.getElementById('evEditBox').style.display = 'none';
+    // Print exports a one-page summary WITH the guest list — same access
+    // rule as everything else members-only, so it only ever shows once
+    // you're actually in (owner or joined member), never while requested,
+    // invited-but-not-joined, or a stranger.
+    var _printBtn = document.getElementById('evPrintBtn'); if (_printBtn) _printBtn.style.display = isIn ? 'inline-flex' : 'none';
 
     if (curRole === 'owner'){
       document.getElementById('evLink').value = eventUrl(ev.slug);
