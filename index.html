@@ -17060,7 +17060,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       });
       try{ localStorage.setItem(key, new Date().toISOString()); }catch(e){}
       showToast('Sent — no reply needed');
-      if (btn){ btn.innerHTML = '✓'; btn.title = 'Sent today'; }
+      renderAnchor(); // redraw so this button shows the same ✓ + "sent today" caption as any already-pinged person
     } catch(e){
       showToast('Could not send — try again later');
       if (btn) btn.disabled = false;
@@ -17188,6 +17188,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
             ? '<button type="button" onclick="anRemoveCircleMember(\'' + p.user_id + '\')" style="margin-top:8px; font-size:10.5px; color:var(--ink-soft); background:none; border:1px solid var(--line); border-radius:999px; padding:3px 9px;">Unpin</button>'
             : (pingedToday
                 ? '<button type="button" disabled title="Already sent today" style="margin-top:8px; width:30px; height:30px; border-radius:50%; background:none; border:1px solid var(--line); font-size:13px; color:var(--ink-soft); opacity:.55; cursor:default;">✓</button>'
+                  + '<div style="font-size:9px; color:var(--ink-soft); margin-top:3px;">sent today</div>'
                 : '<button type="button" onclick="anPing(\'' + p.user_id + '\',\'' + escapeHtml(cleanName) + '\', this)" title="Send a quiet, no-reply-needed hello" style="margin-top:8px; width:30px; height:30px; border-radius:50%; background:none; border:1px solid var(--line); font-size:13px; color:var(--moss);">💛</button>'))
         + '</div>';
     }).join('');
