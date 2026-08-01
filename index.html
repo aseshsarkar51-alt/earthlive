@@ -14112,70 +14112,59 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
      looked identical to a "sign this page" link, with no way to tell what
      you were being invited to. Chat-app crawlers don't run JavaScript, so
      the fix has to be a real, differently-titled HTML file per event.
-     We generate one and park it in a public Storage bucket (Supabase Edge
-     Functions can't be used for this — they silently rewrite any text/html
-     response to a GET into text/plain). A real visitor's browser *does*
-     run JavaScript, so the file immediately bounces them on to the actual
-     app — deliberately via a JS redirect rather than a meta-refresh, since
-     some crawlers follow meta-refreshes too and that would defeat the
-     purpose. */
+     Both Supabase Edge Functions and Supabase Storage turned out to be
+     dead ends for this — Supabase deliberately serves any HTML they host
+     as text/plain instead (a documented anti-XSS measure), which crawlers
+     won't render as a page. So instead, the signed-in event owner's
+     "publish" call commits a small real file straight into the GitHub
+     repo at events/{slug}.html (via the publish-event-share edge
+     function, which owns the GitHub token) — GitHub Pages has no such
+     restriction and just serves it like any other page on the site. */
   function eventShareUrl(slug){
-    return 'https://uehnlopsazcwguhrqtnh.supabase.co/storage/v1/object/public/event-share/' + encodeURIComponent(slug) + '.html';
-  }
-
-  function escAttr(s){
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-  }
-
-  function buildEventShareHtml(ev){
-    const destUrl = eventUrl(ev.slug);
-    const canonicalUrl = 'https://earthlive.in/?e=' + encodeURIComponent(ev.slug);
-    const title = (ev.name || 'An event') + '— you’re invited | EarthLive';
-    const bits = [];
-    if (ev.honoree) bits.push(ev.honoree);
-    const d = ev.event_date ? new Date(ev.event_date) : null;
-    if (d && !isNaN(d)) bits.push(d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}));
-    if (ev.location) bits.push(ev.location);
-    const lead = bits.length ? bits.join(' • ') + ' — ' : '';
-    const description = lead + 'RSVP, see photos, and add your own memories on EarthLive.';
-    const image = ev.cover_url || 'https://earthlive.in/og-image.png';
-    return '<!DOCTYPE html>\n<html lang="en">\n<head>\n'
-      + '<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n'
-      + '<title>' + escAttr(title) + '</title>\n'
-      + '<meta property="og:type" content="website">\n'
-      + '<meta property="og:site_name" content="EarthLive">\n'
-      + '<meta property="og:title" content="' + escAttr(title) + '">\n'
-      + '<meta property="og:description" content="' + escAttr(description) + '">\n'
-      + '<meta property="og:image" content="' + escAttr(image) + '">\n'
-      + '<meta property="og:url" content="' + escAttr(canonicalUrl) + '">\n'
-      + '<meta name="twitter:card" content="summary_large_image">\n'
-      + '<meta name="twitter:title" content="' + escAttr(title) + '">\n'
-      + '<meta name="twitter:description" content="' + escAttr(description) + '">\n'
-      + '<meta name="twitter:image" content="' + escAttr(image) + '">\n'
-      + '<style>body{font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#faf8f4;color:#3d4634;text-align:center;padding:24px;box-sizing:border-box;}a{color:#3d4634;}</style>\n'
-      + '</head>\n<body>\n'
-      + '<p>Opening the event… <a href="' + escAttr(destUrl) + '">Tap here if it doesn’t open</a>.</p>\n'
-      + '<scr' + 'ipt>location.replace(' + JSON.stringify(destUrl) + ');</scr' + 'ipt>\n'
-      + '</body>\n</html>';
+    return 'https://earthlive.in/events/' + encodeURIComponent(slug) + '.html';
   }
 
   // Fire-and-forget: (re)publish the static share card whenever the owner
   // creates/edits an event or changes its cover, so a previously-shared
-  // link's preview stays in sync. Returns true on success.
+  // link's preview stays in sync. Returns true once the commit succeeded
+  // (the file may take ~30–60s to actually go live while GitHub Pages
+  // rebuilds — see the polling in openEventPage before we switch evLink
+  // over to this URL).
   async function publishEventShareCard(ev){
     if (!db || !ev || ev.local || !ev.slug) return false;
     try{
-      const html = buildEventShareHtml(ev);
-      const blob = new Blob([html], { type: 'text/html' });
-      const { error } = await db.storage.from('event-share').upload(ev.slug + '.html', blob, { upsert:true, contentType:'text/html' });
-      if (error){ console.error('[EarthLive] share card publish failed:', error); return false; }
+      const { data: sessionData } = await db.auth.getSession();
+      const token = sessionData && sessionData.session && sessionData.session.access_token;
+      if (!token) return false;
+      const ref = profile && (profile.username || profile.code);
+      const res = await fetch('https://uehnlopsazcwguhrqtnh.supabase.co/functions/v1/publish-event-share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ eventId: ev.id, ref: ref || null })
+      });
+      if (!res.ok){
+        console.error('[EarthLive] share card publish failed:', res.status, await res.text().catch(()=>''));
+        return false;
+      }
       return true;
     }catch(err){
       console.error('[EarthLive] share card publish failed:', err);
       return false;
     }
+  }
+
+  // GitHub Pages needs a bit to rebuild after the commit lands, so poll
+  // the real URL a few times before trusting it — never hand someone a
+  // link that might still 404.
+  async function waitForEventShareLive(slug, tries, delayMs){
+    for (let i=0; i<tries; i++){
+      await new Promise(r=>setTimeout(r, delayMs));
+      try{
+        const res = await fetch(eventShareUrl(slug), { method:'GET', cache:'no-store' });
+        if (res.ok) return true;
+      }catch(e){ /* keep trying */ }
+    }
+    return false;
   }
 
   /* ── State for the currently open event ── */
@@ -14517,8 +14506,12 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       document.getElementById('evLink').value = eventUrl(ev.slug);
       document.getElementById('evQR').src = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent(eventUrl(ev.slug));
       if (!ev.local && db){
-        publishEventShareCard(ev).then(ok=>{
-          if (ok){
+        publishEventShareCard(ev).then(async (ok)=>{
+          if (!ok) return;
+          // The commit landed, but GitHub Pages takes ~30–60s to rebuild —
+          // poll before swapping the copy/QR link over to it.
+          const live = await waitForEventShareLive(ev.slug, 8, 6000);
+          if (live){
             const linkInput = document.getElementById('evLink');
             if (linkInput) linkInput.value = eventShareUrl(ev.slug);
           }
