@@ -3348,8 +3348,8 @@
 <section class="screen" id="screen-auth">
   <div class="center-wrap">
     <div class="form-card" style="max-width:420px;">
-      <div class="form-eyebrow">Welcome</div>
-      <h2>Sign in to EarthLive</h2>
+      <div class="form-eyebrow" id="authEyebrow">Welcome</div>
+      <h2 id="authHeading">Sign in to EarthLive</h2>
       <button class="auth-btn" onclick="signInWithGoogle()">
         <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18A11 11 0 0 0 1 12c0 1.77.43 3.45 1.18 4.94l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
         Continue with Google
@@ -3382,7 +3382,7 @@
       <div class="demo-note">
         Sign in with Google or email to create a page, sign someone's book, or comment.
       </div>
-      <button class="link-quiet" style="margin-top:18px;" onclick="showScreen('landing')">Back</button>
+      <button class="link-quiet" style="margin-top:18px;" onclick="authGoBack()">Back</button>
     </div>
   </div>
 </section>
@@ -5229,6 +5229,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   /* ---------- REAL SIGN-IN (Stage 2, piece 2) ---------- */
   let currentUser = null;
   let pendingAuthEmail = null;
+  // Set right before showScreen('auth') to keep context on-screen for
+  // WHY someone landed on the sign-in screen (see showScreen). Consumed
+  // once, then cleared, so it never leaks into an unrelated later visit.
+  let authContextName = null;
   // Supabase re-fires SIGNED_IN every time the tab regains focus.
   // Track the signed-in user so we only navigate on a GENUINE new sign-in,
   // and stay exactly where the person was when they switch back to the tab.
@@ -10110,6 +10114,16 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     previewProfile(profile, entries, 'dashboard');
   }
 
+  // "Back" from the sign-in screen used to always drop to the generic
+  // landing page, even for someone who arrived here mid-way through
+  // signing a specific person's page — losing their place entirely.
+  // If they were looking at someone's page, send them back to exactly
+  // that instead; otherwise fall back to landing as before.
+  function authGoBack(){
+    if (currentVisitorProfile){ showScreen('visitor'); }
+    else { showScreen('landing'); }
+  }
+
   function signCurrentVisitorProfile(){
     if (!currentVisitorProfile) return;
     // Reading a book is open to everyone, but writing in it now requires a
@@ -10128,7 +10142,11 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         pendingLinkUsername = currentVisitorProfile.username;
         try{ sessionStorage.setItem('elPendingLinkUsername', pendingLinkUsername); }catch(e){}
       }
-      showToast('Sign in to write on ' + (currentVisitorProfile.name || 'their') + '’s page');
+      // The toast fades in a couple seconds; authContextName keeps the
+      // "why am I here" thread visible on-screen (see showScreen) so the
+      // sign-in screen doesn't read as a random, disconnected wall.
+      authContextName = currentVisitorProfile.name || 'their';
+      showToast('Sign in to write on ' + authContextName + '’s page');
       showScreen('auth');
       return;
     }
@@ -11777,6 +11795,25 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (name === 'happiness-library'){
       hlBackToGrid();
       renderHlGrid();
+    }
+    if (name === 'auth'){
+      // Landing on the sign-in screen out of nowhere (e.g. straight after
+      // tapping "Sign this page") reads as a random, unexplained wall —
+      // people don't recognise it as the next step and can even find it
+      // suspicious. authContextName carries WHY they're here, set right
+      // before this screen is shown, so the heading keeps the thread
+      // going instead of resetting to a generic "Welcome". It's one-shot:
+      // consumed here, so a later plain "Sign in" click shows the default.
+      const eyebrow = document.getElementById('authEyebrow');
+      const heading = document.getElementById('authHeading');
+      if (authContextName){
+        if (eyebrow) eyebrow.textContent = 'One more step';
+        if (heading) heading.textContent = 'Sign in to write on ' + authContextName + '’s page';
+        authContextName = null;
+      } else {
+        if (eyebrow) eyebrow.textContent = 'Welcome';
+        if (heading) heading.textContent = 'Sign in to EarthLive';
+      }
     }
     refreshNav();
     window.scrollTo({top:0, behavior:'smooth'});
