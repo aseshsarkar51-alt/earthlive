@@ -16985,6 +16985,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
      the whole reason it stays a separate tab instead of folding in. */
   let anEditMode = false;
   let anCircleSearchTimer = null;
+  // Bumped on every renderAnchor() call so an older, still-in-flight render
+  // (it awaits two DB calls) can tell it's been superseded and skip its
+  // final DOM write instead of clobbering a newer render that finished first.
+  let anRenderSeq = 0;
 
   function anToggleEdit(){
     anEditMode = !anEditMode;
@@ -17113,24 +17117,30 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   }
 
   async function renderAnchor(){
+    const mySeq = ++anRenderSeq;
     const host = document.getElementById('anchorBody');
     if (!host) return;
     if (profile && profile.extras && Array.isArray(profile.extras.happiness_support_circle)){
       hpSupportCircle = profile.extras.happiness_support_circle.slice();
     }
 
-    const header =
-      '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">'
-      + '<div style="font-size:11px; color:var(--ink-soft); letter-spacing:0.04em;">YOUR ANCHOR PEOPLE</div>'
-      + '<button type="button" onclick="anToggleEdit()" style="font-size:11px; color:var(--moss); border:1px solid var(--line); border-radius:999px; padding:5px 12px; background:none;">' + (anEditMode ? 'Done' : 'Edit anchors') + '</button>'
-      + '</div>';
+    // Built fresh (not cached) right before each DOM write below, so it
+    // always reflects the CURRENT anEditMode — never a value snapshotted
+    // before this render's DB calls had a chance to finish.
+    function header(){
+      return '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">'
+        + '<div style="font-size:11px; color:var(--ink-soft); letter-spacing:0.04em;">YOUR ANCHOR PEOPLE</div>'
+        + '<button type="button" onclick="anToggleEdit()" style="font-size:11px; color:var(--moss); border:1px solid var(--line); border-radius:999px; padding:5px 12px; background:none;">' + (anEditMode ? 'Done' : 'Edit anchors') + '</button>'
+        + '</div>';
+    }
 
     if (!hpSupportCircle.length){
       // Nothing pinned yet — fall back to the old auto-computed list as
       // suggestions, each with a one-tap way to actually pin them.
       cnBuild();
       const suggestions = cnNodes.filter(n=>n.t==='person' && n.byId).sort((a,b)=> b.w - a.w).slice(0,6);
-      host.innerHTML = header
+      if (mySeq !== anRenderSeq) return; // a newer render started — don't overwrite it
+      host.innerHTML = header()
         + '<div class="lb-empty" style="margin-bottom:' + (suggestions.length ? '18px' : '0') + ';"><b>No one pinned yet</b>'
         + 'Pin the people you actually want to anchor to — not just whoever writes most.</div>'
         + (suggestions.length ? (
@@ -17189,7 +17199,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         + '</div>'
       : '';
 
-    host.innerHTML = header
+    if (mySeq !== anRenderSeq) return; // a newer render started while we were awaiting — don't overwrite it
+    host.innerHTML = header()
       + '<div style="display:flex; flex-wrap:wrap; gap:22px;">' + grid + '</div>'
       + '<div style="margin-top:18px; padding-top:14px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-soft); line-height:1.6;">Tap 💛 to send a quiet "thinking of you" — no reply expected, nothing posted anywhere. This same list is also who gets the Happiness check-in nudges.</div>'
       + editUi;
