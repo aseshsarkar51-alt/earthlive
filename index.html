@@ -16577,6 +16577,11 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
      (cnComputeMutualIds), just filtered to person nodes, capped to a small
      number, and rendered without any count or ranking visible anywhere —
      that restraint is the entire point of this screen. */
+  // Some entries store the signer's name as typed into a pre-filled field
+  // that includes "(@username)" — strip that back off before using the text
+  // for initials or a fallback label, so it never leaks into the UI as-is.
+  function anCleanName(s){ return (s||'?').replace(/\s*\(@[^)]*\)\s*$/,'').trim() || '?'; }
+
   async function renderAnchor(){
     const host = document.getElementById('anchorBody');
     if (!host) return;
@@ -16588,15 +16593,32 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       return;
     }
     await cnComputeMutualIds();
+    // For anyone with a linked account, prefer their real username + avatar
+    // over the free-text name on the entry — cleaner, and matches what the
+    // rest of the app shows for members.
+    let profMap = {};
+    const byIds = [...new Set(people.map(p=>p.byId).filter(Boolean))];
+    if (byIds.length && db){
+      try{
+        const { data: profs } = await db.from('profiles').select('user_id, username, avatar_url').in('user_id', byIds);
+        (profs || []).forEach(pr=>{ profMap[pr.user_id] = pr; });
+      } catch(e){ /* falls back to the entry's own name below */ }
+    }
     host.innerHTML =
-      '<div style="font-size:13px; color:var(--ink-soft); margin-bottom:18px; max-width:480px;">A handful of the people closest to you right now, in no particular order. Not a followers list — there is nothing to grow here on purpose.</div>'
-      + '<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:18px;">'
+      '<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:18px;">'
       + people.map(p=>{
-          const initials = (p.lb||'?').trim().split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
+          const prof = p.byId ? profMap[p.byId] : null;
+          const cleanName = anCleanName(p.lb);
+          const initials = cleanName.split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
+          const label = (prof && prof.username) ? '@' + prof.username : cleanName;
+          const avatarUrl = prof && prof.avatar_url;
           const mutual = p.byId && cnMutualIds.has(p.byId);
+          const avatarInner = avatarUrl
+            ? '<div style="width:56px; height:56px; margin:0 auto 8px; border-radius:50%; background-image:url(\'' + escapeHtml(avatarUrl) + '\'); background-size:cover; background-position:center;"></div>'
+            : '<div style="width:56px; height:56px; margin:0 auto 8px; border-radius:50%; background:var(--oat-deep); color:var(--ink); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px;">' + escapeHtml(initials) + '</div>';
           return '<div style="text-align:center;">'
-            + '<div style="width:56px; height:56px; margin:0 auto 8px; border-radius:50%; background:var(--oat-deep); color:var(--ink); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px;">' + escapeHtml(initials) + '</div>'
-            + '<div style="font-size:12.5px; color:var(--ink); font-weight:600;">' + escapeHtml(p.lb) + '</div>'
+            + avatarInner
+            + '<div style="font-size:12.5px; color:var(--ink); font-weight:600;">' + escapeHtml(label) + '</div>'
             + (mutual ? '<div style="font-size:10.5px; color:var(--moss); margin-top:2px;">writes back too</div>' : '')
             + '</div>';
         }).join('')
