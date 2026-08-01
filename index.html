@@ -14499,22 +14499,38 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     var _printBtn = document.getElementById('evPrintBtn'); if (_printBtn) _printBtn.style.display = isIn ? 'inline-flex' : 'none';
 
     if (curRole === 'owner'){
-      // Start with the direct app link (always works), then upgrade to the
-      // rich-preview share-card link once we've confirmed it's live — a
-      // copied link should never point somewhere that might 404.
-      document.getElementById('evLink').value = eventUrl(ev.slug);
-      document.getElementById('evQR').src = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent(eventUrl(ev.slug));
+      // Show the rich-preview share-card link right away — it already
+      // exists for any event that's been opened before (we (re)publish it
+      // on every render). We only fall back to the plain app link, then
+      // upgrade once confirmed live, for a brand-new event whose share
+      // card hasn't been committed/built yet — a copied link should never
+      // point somewhere that might 404.
+      const _shareUrl = eventShareUrl(ev.slug);
+      const _plainUrl = eventUrl(ev.slug);
+      const _linkInput = document.getElementById('evLink');
+      const _qrImg = document.getElementById('evQR');
+      const _setLink = (u)=>{
+        if (_linkInput) _linkInput.value = u;
+        if (_qrImg) _qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent(u);
+      };
+      _setLink(_shareUrl);
       if (!ev.local && db){
-        publishEventShareCard(ev).then(async (ok)=>{
+        (async ()=>{
+          let alreadyLive = false;
+          try{
+            const res = await fetch(_shareUrl, { method:'GET', cache:'no-store' });
+            alreadyLive = res.ok;
+          }catch(e){ /* treat as not live yet */ }
+          if (!alreadyLive) _setLink(_plainUrl);
+          const ok = await publishEventShareCard(ev);
           if (!ok) return;
-          // The commit landed, but GitHub Pages takes ~30–60s to rebuild —
-          // poll before swapping the copy/QR link over to it.
-          const live = await waitForEventShareLive(ev.slug, 8, 6000);
-          if (live){
-            const linkInput = document.getElementById('evLink');
-            if (linkInput) linkInput.value = eventShareUrl(ev.slug);
+          if (!alreadyLive){
+            // The commit landed, but GitHub Pages takes ~30–60s to rebuild —
+            // poll before swapping the copy/QR link over to it.
+            const live = await waitForEventShareLive(ev.slug, 8, 6000);
+            if (live) _setLink(_shareUrl);
           }
-        });
+        })();
       }
       renderEventQueue();
       renderInvitedNow();
