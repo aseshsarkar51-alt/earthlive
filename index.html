@@ -2077,7 +2077,12 @@
     <button class="elr-item" data-rail="voiceprints" onclick="railGo('voiceprints')">
       <span class="elr-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 11v2M8 7.5v9M12 4.5v15M16 8.5v7M20 10.5v3"/></svg></span>
       <span class="elr-label">Voiceprints</span>
-      
+
+    </button>
+    <button class="elr-item" data-rail="anchor" onclick="railGo('anchor')">
+      <span class="elr-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="8" r="2.4"/><path d="M3 20c0-3.3 2.2-5.5 5-5.5s5 2.2 5 5.5M14.5 20c0-2.6 1.7-4.4 3.5-4.4"/></svg></span>
+      <span class="elr-label">Anchor People</span>
+
     </button>
   </div>
 
@@ -4240,6 +4245,17 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       <p class="lb-lede">Every voice recording left in your book, in one place. Never a plain audio player — always the barcode, so a voice is recognisable as an EarthLive object anywhere it appears.</p>
     </div>
     <div id="voiceprintsBody"></div>
+  </div>
+</section>
+
+<section class="screen" id="screen-anchor">
+  <div class="lb-wrap">
+    <div class="lb-head">
+      <div class="lb-crumb">Ways to look back</div>
+      <h1 class="lb-h1">Anchor People</h1>
+      <p class="lb-lede">Not a followers list — a small, unranked set of the people closest to you right now. Nothing here is scored or counted on purpose.</p>
+    </div>
+    <div id="anchorBody"></div>
   </div>
 </section>
 
@@ -10915,7 +10931,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (which === 'book'){ showScreen('dashboard'); }
     else if (which === 'diary'){ if(typeof openDiaryEditor==='function'){ openDiaryEditor(null); } if(typeof renderDiary==='function'){ renderDiary(); } showScreen('diary'); }
     else if (which === 'waypoints'){ showScreen('waypoints'); if(typeof wptsOpen==='function') wptsOpen(); }
-    else if (which === 'ribbon' || which === 'constellation' || which === 'voiceprints' || which === 'happiness'){ if(typeof openLookBack==='function') openLookBack(which); }
+    else if (which === 'ribbon' || which === 'constellation' || which === 'voiceprints' || which === 'happiness' || which === 'anchor'){ if(typeof openLookBack==='function') openLookBack(which); }
     railSyncActive();
   }
   function railToggle(){
@@ -10928,7 +10944,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   // map current screen -> rail key for active highlight
   function railSyncActive(){
     var r=document.getElementById('elRail'); if(!r) return;
-    var map = { dashboard:'book', diary:'diary', waypoints:'waypoints', ribbon:'ribbon', constellation:'constellation', voiceprints:'voiceprints', happiness:'happiness' };
+    var map = { dashboard:'book', diary:'diary', waypoints:'waypoints', ribbon:'ribbon', constellation:'constellation', voiceprints:'voiceprints', happiness:'happiness', anchor:'anchor' };
     var key = map[currentScreenName] || null;
     r.querySelectorAll('.elr-item').forEach(function(b){ b.classList.toggle('active', b.dataset.rail === key); });
   }
@@ -11010,6 +11026,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         '<button class="nav-am-item" onclick="closeAvatarMenu(); railGo(\'ribbon\');">Life Ribbon</button>' +
         '<button class="nav-am-item" onclick="closeAvatarMenu(); railGo(\'constellation\');">Constellation</button>' +
         '<button class="nav-am-item" onclick="closeAvatarMenu(); railGo(\'voiceprints\');">Voiceprints</button>' +
+        '<button class="nav-am-item" onclick="closeAvatarMenu(); railGo(\'anchor\');">Anchor People</button>' +
       '</div>' +
       '<button class="nav-am-item" onclick="closeAvatarMenu(); showScreen(\'how\');">How it works</button>' +
       '<button class="nav-am-item" onclick="closeAvatarMenu(); tourReplay();">↻ Guided tour</button>' +
@@ -16336,21 +16353,29 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   /* ---------------- Constellation ---------------- */
   const CN_COL = { self:'#2E2A22', person:'#A9764F', place:'#57614A', event:'#C08078', year:'#3C4A5E' };
   let cnNodes = [], cnLinks = [], cnFilter = 'all', cnHover = null, cnSel = null, cnDrag = null, cnRaf = null;
+  // Reciprocity: which of the person nodes above are people who ALSO got a
+  // signature back from you, not just people who signed your page. Populated
+  // asynchronously by cnComputeMutualIds() — draw() reads it live every frame,
+  // so the lines simply update in place once it resolves. Purely additive: if
+  // this is empty (still loading, or signed out), every link just falls back
+  // to the exact style it always had.
+  let cnMutualIds = new Set();
 
   function cnBuild(){
     const recs = lbCollect();
     const nodes = [{ id:'__self', lb:'You', t:'self', r:24, fixed:true }];
     const links = [], seen = {}, mem = {};
-    const add = (id, lb, t)=>{
-      if (seen[id]){ seen[id].w++; return seen[id]; }
+    const add = (id, lb, t, byId)=>{
+      if (seen[id]){ seen[id].w++; if (byId && !seen[id].byId) seen[id].byId = byId; return seen[id]; }
       const n = { id, lb, t, w:1, r:11 };
+      if (byId) n.byId = byId;
       seen[id] = n; nodes.push(n); links.push(['__self', id]);
       return n;
     };
     recs.forEach(r=>{
       const line = { t:r.title, w:r.when.toLocaleDateString('en-IN',{ day:'numeric', month:'short', year:'numeric' }) };
       const touched = [];
-      if (r.by){ const n = add('p:'+r.by, r.by, 'person'); touched.push(n.id); }
+      if (r.by){ const n = add('p:'+r.by, r.by, 'person', r.byId); touched.push(n.id); }
       if (r.city){ const n = add('c:'+r.city, r.city, 'place'); touched.push(n.id); }
       if (r.t === 'event'){ const n = add('e:'+r.title, r.title, 'event'); touched.push(n.id); }
       const yr = String(r.when.getFullYear());
@@ -16368,6 +16393,42 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     cnNodes = [nodes[0]].concat(keep);
     cnLinks = links.filter(([a,b])=> ok[a] && ok[b]);
     return mem;
+  }
+
+  // Reciprocity lookup: people who signed my page AND whose page I've also
+  // signed back. Mirrors the exact query pattern already used for the
+  // "mutual signatures" item in renderForYou (For You feed) \u2014 same tables,
+  // same fields, just collecting user ids into a Set instead of feed items.
+  // Fails silently (empty set) on any error or when signed out: this only
+  // ever adds a visual nicety on top of Constellation, never blocks it.
+  async function cnComputeMutualIds(){
+    cnMutualIds = new Set();
+    if (!db || !currentUser || !profile || !profile.dbId) return cnMutualIds;
+    try{
+      const { data: whoSignedMe } = await db.from('entries')
+        .select('signer_user_id')
+        .eq('profile_id', profile.dbId)
+        .eq('status', 'approved')
+        .not('signer_user_id','is', null)
+        .limit(200);
+      const signerIds = [...new Set((whoSignedMe || [])
+        .map(r=>r.signer_user_id).filter(id => id && id !== currentUser.id))];
+      if (!signerIds.length) return cnMutualIds;
+      const { data: signerProfiles } = await db.from('profiles')
+        .select('id, user_id')
+        .in('user_id', signerIds);
+      if (!signerProfiles || !signerProfiles.length) return cnMutualIds;
+      const otherProfileIds = signerProfiles.map(p=>p.id);
+      const { data: mySigs } = await db.from('entries')
+        .select('profile_id')
+        .in('profile_id', otherProfileIds)
+        .eq('signer_user_id', currentUser.id)
+        .eq('status', 'approved')
+        .limit(200);
+      const signedProfileIds = new Set((mySigs || []).map(r=>r.profile_id));
+      signerProfiles.forEach(pr=>{ if (signedProfileIds.has(pr.id)) cnMutualIds.add(pr.user_id); });
+    } catch(e){ /* reciprocity is a visual nicety, not core \u2014 fail quiet */ }
+    return cnMutualIds;
   }
 
   function renderConstellation(){
@@ -16388,10 +16449,12 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       +   '<button type="button" class="cn-chip" data-f="event"><span class="d" style="background:#C08078"></span>Events</button>'
       +   '<button type="button" class="cn-chip" data-f="year"><span class="d" style="background:#3C4A5E"></span>Years</button>'
       + '</div>'
+      + '<div style="font-size:10.5px; color:var(--ink-soft); padding:0 14px 8px; margin-top:-4px;">Solid line to a person = writes back to you too &middot; faint dashed = one-way so far</div>'
       + '<canvas id="cnCanvas"></canvas>'
       + '<div class="cn-side" id="cnSide"><button type="button" class="x" id="cnClose">\u2715</button>'
       +   '<div class="kd" id="cnKind"></div><h4 id="cnName"></h4><div id="cnMems"></div></div>'
       + '</div>';
+    cnComputeMutualIds();   // async, fire-and-forget \u2014 draw() below reads cnMutualIds live every frame
 
     const cv = document.getElementById('cnCanvas'), ctx = cv.getContext('2d');
     const RR = { person:104, place:150, event:150, year:196 };
@@ -16439,8 +16502,19 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       cnLinks.forEach(([A,B])=>{
         const a = cnNodes.find(n=>n.id===A), bn = cnNodes.find(n=>n.id===B);
         if (!a || !bn || !vis(a) || !vis(bn)) return;
-        ctx.strokeStyle = 'rgba(46,42,34,0.12)'; ctx.lineWidth = 1;
+        // Only the self<->person spoke carries a reciprocity read; every other
+        // link (person-place, event-year, etc.) keeps the exact original style.
+        const person = a.t === 'self' && bn.t === 'person' ? bn : (bn.t === 'self' && a.t === 'person' ? a : null);
+        ctx.save();
+        if (person && person.byId && cnMutualIds.has(person.byId)){
+          ctx.strokeStyle = 'rgba(87,97,74,0.55)'; ctx.lineWidth = 1.6; ctx.setLineDash([]);
+        } else if (person){
+          ctx.strokeStyle = 'rgba(46,42,34,0.10)'; ctx.lineWidth = 1; ctx.setLineDash([2,3]);
+        } else {
+          ctx.strokeStyle = 'rgba(46,42,34,0.12)'; ctx.lineWidth = 1; ctx.setLineDash([]);
+        }
         ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(bn.x,bn.y); ctx.stroke();
+        ctx.restore();
       });
       cnNodes.forEach(n=>{
         if (!vis(n)) return;
@@ -16495,6 +16569,38 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     cancelAnimationFrame(cnRaf);
     (function loop(){ if (currentScreenName === 'constellation'){ step(); draw(); } cnRaf = requestAnimationFrame(loop); })();
     window.addEventListener('resize', ()=>{ if (currentScreenName === 'constellation'){ resize(); init(); } });
+  }
+
+  /* ---------------- Anchor People ----------------
+     Deliberately NOT a new data source: reuses the exact same aggregation
+     Constellation already builds (cnBuild) and the same reciprocity lookup
+     (cnComputeMutualIds), just filtered to person nodes, capped to a small
+     number, and rendered without any count or ranking visible anywhere —
+     that restraint is the entire point of this screen. */
+  async function renderAnchor(){
+    const host = document.getElementById('anchorBody');
+    if (!host) return;
+    cnBuild();
+    const people = cnNodes.filter(n=>n.t==='person').sort((a,b)=> b.w - a.w).slice(0,12);
+    if (!people.length){
+      host.innerHTML = '<div class="lb-empty"><b>No one here yet</b>'
+        + 'Once a few people sign your book, the closest few will show up here — no ranking, no count.</div>';
+      return;
+    }
+    await cnComputeMutualIds();
+    host.innerHTML =
+      '<div style="font-size:13px; color:var(--ink-soft); margin-bottom:18px; max-width:480px;">A handful of the people closest to you right now, in no particular order. Not a followers list — there is nothing to grow here on purpose.</div>'
+      + '<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:18px;">'
+      + people.map(p=>{
+          const initials = (p.lb||'?').trim().split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
+          const mutual = p.byId && cnMutualIds.has(p.byId);
+          return '<div style="text-align:center;">'
+            + '<div style="width:56px; height:56px; margin:0 auto 8px; border-radius:50%; background:var(--oat-deep); color:var(--ink); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px;">' + escapeHtml(initials) + '</div>'
+            + '<div style="font-size:12.5px; color:var(--ink); font-weight:600;">' + escapeHtml(p.lb) + '</div>'
+            + (mutual ? '<div style="font-size:10.5px; color:var(--moss); margin-top:2px;">writes back too</div>' : '')
+            + '</div>';
+        }).join('')
+      + '</div>';
   }
 
   /* ---------------- Voiceprints ---------------- */
@@ -16591,6 +16697,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (name === 'constellation') renderConstellation();
     if (name === 'voiceprints') renderVoiceprints();
     if (name === 'happiness') renderHappiness();
+    if (name === 'anchor') renderAnchor();
   }
 
   // Happiness: computed from the real mood log (moodByDate). Word-tone and the
@@ -16829,6 +16936,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         </div>
         <button type="button" class="hp-toggle${(profile.extras && profile.extras.happiness_circle_nudge_enabled) ? ' on' : ''}" id="hpConsentToggle" onclick="hpToggleConsent(this)" aria-label="Toggle circle nudge"><i></i></button>
       </div>
+      <div class="hp-card hp-consent">
+        <div>
+          <div class="hp-card-tag" style="margin-bottom:6px;">Off by default</div>
+          <div class="hp-card-title" style="font-size:13.5px;">Nudge me if I've gone quiet with someone in my circle</div>
+          <div class="hp-card-sub">A private reminder to you only — never an automatic message to them</div>
+        </div>
+        <button type="button" class="hp-toggle${(profile.extras && profile.extras.happiness_silence_nudge_enabled) ? ' on' : ''}" id="hpSilenceToggle" onclick="hpToggleSilence(this)" aria-label="Toggle silence nudge"><i></i></button>
+      </div>
       <div class="hp-card">
         <div class="hp-circle-head">
           <div class="hp-card-title">Your support circle</div>
@@ -16851,6 +16966,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (delta !== null && delta <= -15){
       hpMaybeSendCircleNudge(delta);
     }
+    hpMaybeShowSilenceCard();   // async, fire-and-forget — separate opt-in, does not touch the mood-nudge flow above
   }
 
   // Support circle: who gets a gentle, detail-free nudge if the consent
@@ -16937,6 +17053,104 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     }
     await hpSaveExtras({ happiness_last_nudge_sent: new Date().toISOString() });
   }
+
+  // ---------------------------------------------------------------------
+  // Silence-based nudge: a second, separate opt-in (off by default, its own
+  // toggle above) built on the SAME support circle and quiet-mode settings
+  // as the mood nudge, but a different trigger and a different shape of
+  // action. The mood nudge above sends an automatic message to other people
+  // on your behalf. This one does the opposite on purpose: it only ever
+  // shows YOU a private card suggesting you reach out to someone you
+  // haven't exchanged anything with in a while, with a button that opens
+  // the normal compose flow so you write it yourself. Nothing is ever sent
+  // automatically, and no one else ever sees that this card existed.
+  // ---------------------------------------------------------------------
+  let hpSilenceCard = null;
+
+  function hpToggleSilence(btn){
+    const on = btn.classList.toggle('on');
+    hpSaveExtras({ happiness_silence_nudge_enabled: on });
+    if (on) hpMaybeShowSilenceCard();
+    else { const el = document.getElementById('hpSilenceCard'); if (el) el.remove(); hpSilenceCard = null; }
+  }
+
+  async function hpComputeSilenceCandidate(){
+    hpSilenceCard = null;
+    if (!db || !currentUser || !profile || !profile.dbId) return null;
+    const circle = (profile.extras && Array.isArray(profile.extras.happiness_support_circle))
+      ? profile.extras.happiness_support_circle.filter(p => p.user_id) : [];
+    if (!circle.length) return null;
+    const dismissed = (profile.extras && profile.extras.happiness_silence_dismissed) || {};
+    const now = Date.now();
+    const THRESHOLD_DAYS = 90, SNOOZE_DAYS = 21;
+    let best = null;
+    try{
+      for (const person of circle){
+        if (dismissed[person.user_id] && (now - new Date(dismissed[person.user_id]).getTime()) < SNOOZE_DAYS*24*60*60*1000) continue;
+        const { data: theirProfile } = await db.from('profiles')
+          .select('id, username, name').eq('user_id', person.user_id).maybeSingle();
+        if (!theirProfile || !theirProfile.username) continue;
+        const { data: mine } = await db.from('entries').select('created_at')
+          .eq('profile_id', theirProfile.id).eq('signer_user_id', currentUser.id)
+          .eq('status','approved').order('created_at',{ascending:false}).limit(1);
+        const { data: theirs } = await db.from('entries').select('created_at')
+          .eq('profile_id', profile.dbId).eq('signer_user_id', person.user_id)
+          .eq('status','approved').order('created_at',{ascending:false}).limit(1);
+        const dates = [];
+        if (mine && mine[0]) dates.push(new Date(mine[0].created_at));
+        if (theirs && theirs[0]) dates.push(new Date(theirs[0].created_at));
+        const last = dates.length ? new Date(Math.max(...dates.map(d=>d.getTime()))) : null;
+        const days = last ? Math.floor((now - last.getTime())/(24*60*60*1000)) : Infinity;
+        if (days >= THRESHOLD_DAYS && (!best || days > best.days)){
+          best = { user_id:person.user_id, name:theirProfile.name || person.name, username:theirProfile.username, days };
+        }
+      }
+    } catch(e){ /* a missed nudge is fine — never let this break the Happiness screen */ }
+    hpSilenceCard = best;
+    return best;
+  }
+
+  function hpRenderSilenceCard(){
+    if (currentScreenName !== 'happiness') return;   // screen may have changed while this was loading
+    const body = document.getElementById('happinessBody');
+    if (!body || !hpSilenceCard || document.getElementById('hpSilenceCard')) return;
+    const c = hpSilenceCard;
+    const div = document.createElement('div');
+    div.className = 'hp-card';
+    div.id = 'hpSilenceCard';
+    div.innerHTML =
+      '<div class="hp-card-tag">🔒 Only visible to you</div>' +
+      '<div class="hp-card-title">You and ' + escapeHtml(c.name) + ' haven’t written anything in a while</div>' +
+      '<div class="hp-card-sub">No pressure — just a nudge in case it got buried.</div>' +
+      '<div class="hp-card-btns">' +
+        '<button type="button" onclick="hpWriteToSilenceCard()">Write something</button>' +
+        '<button type="button" class="link-quiet" style="margin-left:10px;" onclick="hpDismissSilenceCard()">Not now</button>' +
+      '</div>';
+    const anchor = body.querySelector('.hp-consent');
+    if (anchor) body.insertBefore(div, anchor); else body.appendChild(div);
+  }
+
+  function hpWriteToSilenceCard(){
+    if (!hpSilenceCard || !hpSilenceCard.username) return;
+    openProfileByUsername(hpSilenceCard.username, true);
+  }
+
+  function hpDismissSilenceCard(){
+    if (!hpSilenceCard) return;
+    const dismissed = { ...((profile.extras && profile.extras.happiness_silence_dismissed) || {}) };
+    dismissed[hpSilenceCard.user_id] = new Date().toISOString();
+    hpSaveExtras({ happiness_silence_dismissed: dismissed });
+    const el = document.getElementById('hpSilenceCard');
+    if (el) el.remove();
+    hpSilenceCard = null;
+  }
+
+  async function hpMaybeShowSilenceCard(){
+    if (!profile || !profile.extras || !profile.extras.happiness_silence_nudge_enabled) return;
+    await hpComputeSilenceCandidate();
+    hpRenderSilenceCard();
+  }
+
   async function hpSaveCircle(){
     const extras = { ...(profile.extras || {}), happiness_support_circle: hpSupportCircle };
     profile.extras = extras;
