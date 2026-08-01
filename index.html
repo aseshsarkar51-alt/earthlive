@@ -6513,12 +6513,17 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     }
     const theirEntries = await fetchEntriesForProfile(p.dbId);
     previewProfile(p, theirEntries, currentUser ? 'search' : 'landing');
-    // Someone who followed a shared link (WhatsApp, etc.) came here
-    // specifically to write something — on mobile especially, the "Sign
-    // this page" button on the preview is easy to miss. Take them straight
-    // to the composer; Cancel still lands back on the normal profile
-    // preview (previewProfile above already set up all of that state).
-    if (viaDirectLink) signCurrentVisitorProfile();
+    // Someone who followed a shared link (WhatsApp, etc.) and is ALREADY
+    // signed in came here specifically to write something — on mobile
+    // especially, the "Sign this page" button on the preview is easy to
+    // miss, so take them straight to the composer; Cancel still lands
+    // back on the normal profile preview (previewProfile above already
+    // set up all of that state).
+    // Signed-out visitors are left on the preview instead of being
+    // auto-redirected into a sign-in screen before they've even read the
+    // page — writing now requires signing in (see signCurrentVisitorProfile),
+    // so that jump only happens once they deliberately tap "Sign this page".
+    if (viaDirectLink && currentUser) signCurrentVisitorProfile();
     return true;
   }
 
@@ -9808,8 +9813,11 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   let fillTarget = null;
 
   function openFillForm(profileObj, entriesArr, isOwn, returnScreen){
-    // Guests can sign with name + email — no account needed. The owner's
-    // approval queue plus the visible email is the security layer.
+    // Writing now requires a signed-in, verified identity — see
+    // signCurrentVisitorProfile(), which sends signed-out visitors to sign
+    // in before they ever reach this form. The raw-email guest branch
+    // below is kept only as a defensive fallback and should be unreachable
+    // in the normal flow; the owner's approval queue remains the gate.
     fillTarget = { profileObj, entriesArr, isOwn, returnScreen: returnScreen || 'dashboard' };
     document.getElementById('fillOwnerName').textContent = profileObj.name;
     document.getElementById('fillOwnerName2').textContent = profileObj.name;
@@ -10104,8 +10112,26 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
   function signCurrentVisitorProfile(){
     if (!currentVisitorProfile) return;
-    // Reading and signing a book are open to everyone. Guests sign with
-    // name + email; the owner's approval queue is the gate that matters.
+    // Reading a book is open to everyone, but writing in it now requires a
+    // real, verified identity (Google or a 6-digit email code) rather than
+    // a freeform, unverified email typed into a field — that's the
+    // whole point: the page owner should be able to trust who signed.
+    // If they're not signed in yet, remember which page they came to sign
+    // (surviving a full-page Google-OAuth redirect via sessionStorage,
+    // same mechanism as a shared ?u= link) and send them to sign in first.
+    // onAuthStateChange already checks pendingLinkUsername BEFORE its
+    // "no page yet → create one" fallback, so the moment they're signed
+    // in they land straight back on THIS page's sign form — never on
+    // their own empty dashboard or a "create your page" screen.
+    if (!currentUser){
+      if (currentVisitorProfile.username){
+        pendingLinkUsername = currentVisitorProfile.username;
+        try{ sessionStorage.setItem('elPendingLinkUsername', pendingLinkUsername); }catch(e){}
+      }
+      showToast('Sign in to write on ' + (currentVisitorProfile.name || 'their') + '’s page');
+      showScreen('auth');
+      return;
+    }
     openFillForm(currentVisitorProfile, currentVisitorEntries, currentVisitorIsOwn, visitorReturnScreen);
   }
 
