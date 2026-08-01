@@ -14106,6 +14106,78 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     return 'https://earthlive.in/?e=' + slug + (ref ? '&ref=' + ref : '');
   }
 
+  /* ── Event link previews (WhatsApp/iMessage/Telegram) ──
+     GitHub Pages serves one static index.html, so every URL shows the same
+     site-wide "EarthLive — Memory Book" preview card — a shared event link
+     looked identical to a "sign this page" link, with no way to tell what
+     you were being invited to. Chat-app crawlers don't run JavaScript, so
+     the fix has to be a real, differently-titled HTML file per event.
+     We generate one and park it in a public Storage bucket (Supabase Edge
+     Functions can't be used for this — they silently rewrite any text/html
+     response to a GET into text/plain). A real visitor's browser *does*
+     run JavaScript, so the file immediately bounces them on to the actual
+     app — deliberately via a JS redirect rather than a meta-refresh, since
+     some crawlers follow meta-refreshes too and that would defeat the
+     purpose. */
+  function eventShareUrl(slug){
+    return 'https://uehnlopsazcwguhrqtnh.supabase.co/storage/v1/object/public/event-share/' + encodeURIComponent(slug) + '.html';
+  }
+
+  function escAttr(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function buildEventShareHtml(ev){
+    const destUrl = eventUrl(ev.slug);
+    const canonicalUrl = 'https://earthlive.in/?e=' + encodeURIComponent(ev.slug);
+    const title = (ev.name || 'An event') + '— you’re invited | EarthLive';
+    const bits = [];
+    if (ev.honoree) bits.push(ev.honoree);
+    const d = ev.event_date ? new Date(ev.event_date) : null;
+    if (d && !isNaN(d)) bits.push(d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}));
+    if (ev.location) bits.push(ev.location);
+    const lead = bits.length ? bits.join(' • ') + ' — ' : '';
+    const description = lead + 'RSVP, see photos, and add your own memories on EarthLive.';
+    const image = ev.cover_url || 'https://earthlive.in/og-image.png';
+    return '<!DOCTYPE html>\n<html lang="en">\n<head>\n'
+      + '<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+      + '<title>' + escAttr(title) + '</title>\n'
+      + '<meta property="og:type" content="website">\n'
+      + '<meta property="og:site_name" content="EarthLive">\n'
+      + '<meta property="og:title" content="' + escAttr(title) + '">\n'
+      + '<meta property="og:description" content="' + escAttr(description) + '">\n'
+      + '<meta property="og:image" content="' + escAttr(image) + '">\n'
+      + '<meta property="og:url" content="' + escAttr(canonicalUrl) + '">\n'
+      + '<meta name="twitter:card" content="summary_large_image">\n'
+      + '<meta name="twitter:title" content="' + escAttr(title) + '">\n'
+      + '<meta name="twitter:description" content="' + escAttr(description) + '">\n'
+      + '<meta name="twitter:image" content="' + escAttr(image) + '">\n'
+      + '<style>body{font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#faf8f4;color:#3d4634;text-align:center;padding:24px;box-sizing:border-box;}a{color:#3d4634;}</style>\n'
+      + '</head>\n<body>\n'
+      + '<p>Opening the event… <a href="' + escAttr(destUrl) + '">Tap here if it doesn’t open</a>.</p>\n'
+      + '<scr' + 'ipt>location.replace(' + JSON.stringify(destUrl) + ');</scr' + 'ipt>\n'
+      + '</body>\n</html>';
+  }
+
+  // Fire-and-forget: (re)publish the static share card whenever the owner
+  // creates/edits an event or changes its cover, so a previously-shared
+  // link's preview stays in sync. Returns true on success.
+  async function publishEventShareCard(ev){
+    if (!db || !ev || ev.local || !ev.slug) return false;
+    try{
+      const html = buildEventShareHtml(ev);
+      const blob = new Blob([html], { type: 'text/html' });
+      const { error } = await db.storage.from('event-share').upload(ev.slug + '.html', blob, { upsert:true, contentType:'text/html' });
+      if (error){ console.error('[EarthLive] share card publish failed:', error); return false; }
+      return true;
+    }catch(err){
+      console.error('[EarthLive] share card publish failed:', err);
+      return false;
+    }
+  }
+
   /* ── State for the currently open event ── */
   let curEvent = null;        // event row
   let curRole = 'none';       // 'owner' | 'member' | 'requested' | 'invited' | 'none'
@@ -14439,8 +14511,19 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     var _printBtn = document.getElementById('evPrintBtn'); if (_printBtn) _printBtn.style.display = isIn ? 'inline-flex' : 'none';
 
     if (curRole === 'owner'){
+      // Start with the direct app link (always works), then upgrade to the
+      // rich-preview share-card link once we've confirmed it's live — a
+      // copied link should never point somewhere that might 404.
       document.getElementById('evLink').value = eventUrl(ev.slug);
       document.getElementById('evQR').src = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent(eventUrl(ev.slug));
+      if (!ev.local && db){
+        publishEventShareCard(ev).then(ok=>{
+          if (ok){
+            const linkInput = document.getElementById('evLink');
+            if (linkInput) linkInput.value = eventShareUrl(ev.slug);
+          }
+        });
+      }
       renderEventQueue();
       renderInvitedNow();
       if (ev.local){
@@ -14505,6 +14588,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (joined.length > 4) html += '<div class="ev-avatar" style="background:var(--oat-deep); color:var(--ink);">+' + (joined.length-4) + '</div>';
     document.getElementById('evAvatars').innerHTML = html;
     document.getElementById('evMembersCount').textContent = (joined.length + 1) + ' member' + (joined.length ? 's' : '') + ' →';
+
+    // Keep a previously-shared link's WhatsApp/etc. preview in sync after
+    // the owner edits the name/date/location or changes the cover photo.
+    if (curRole === 'owner' && db && ev && !ev.local) publishEventShareCard(ev);
   }
 
   function renderEventLock(){
