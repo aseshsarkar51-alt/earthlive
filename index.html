@@ -11655,11 +11655,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       + EXTERNAL_RESOURCES.map(r=>{
           const color = TAG_COLOR[r.tag] || 'var(--moss)';
           const inner =
-            '<div style="height:84px; border-radius:10px 10px 0 0; background:linear-gradient(135deg, ' + color + ', rgba(0,0,0,0.12)), ' + color + '; display:flex; flex-direction:column; justify-content:space-between; padding:12px 14px;">'
-              + '<span style="font-size:9px; font-weight:700; letter-spacing:0.06em; color:rgba(255,255,255,0.85);">' + escapeHtml(KIND_LABEL[r.kind] || '') + '</span>'
-              + '<span style="font-size:11px; font-weight:700; letter-spacing:0.04em; color:#fff;">' + escapeHtml(r.tag.toUpperCase()) + '</span>'
-            + '</div>'
-            + '<div style="padding:14px 16px 16px; background:var(--page); border:1px solid var(--line); border-top:none; border-radius:0 0 10px 10px;">'
+            '<div style="padding:14px 16px 16px; background:var(--oat); border:1px solid var(--line); border-top:3px solid ' + color + '; border-radius:10px;">'
+              + '<div style="font-size:10px; font-weight:700; letter-spacing:0.05em; color:' + color + '; margin-bottom:8px;">' + escapeHtml((KIND_LABEL[r.kind] || '') + ' · ' + r.tag.toUpperCase()) + '</div>'
               + '<div style="font-family:\'Fraunces\',serif; font-size:15.5px; font-weight:600; color:var(--ink); line-height:1.3; margin-bottom:6px;">' + escapeHtml(r.title) + '</div>'
               + '<div style="font-size:12.5px; color:var(--ink-soft); line-height:1.55; margin-bottom:10px;">' + escapeHtml(r.blurb) + '</div>'
               + '<div style="font-size:11px; color:var(--ink-soft); font-weight:600; opacity:0.8;">' + escapeHtml(r.byline) + (r.url ? ' →' : '') + '</div>'
