@@ -17009,6 +17009,16 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     return back;
   }
 
+  // Read-only check used at render time so the button can show its
+  // "already sent" state up front, instead of only revealing it via a
+  // toast after the person taps an emoji that looked live.
+  function anPingedToday(userId){
+    try{
+      const last = localStorage.getItem('el_ping_' + userId);
+      return !!(last && (Date.now() - new Date(last).getTime()) < 24*60*60*1000);
+    } catch(e){ return false; }
+  }
+
   // A single, no-reply-needed tap: sends one short line through the same
   // conversations/messages system the Happiness nudge already uses, no
   // compose box involved. Throttled to once per person per day from this
@@ -17155,6 +17165,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       const initials = cleanName.split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
       const avatarUrl = prof && prof.avatar_url;
       const back = anchoredBack.has(p.user_id);
+      const pingedToday = anPingedToday(p.user_id);
       const ringStyle = back ? 'border:2.5px solid var(--moss);' : 'border:1.5px dashed var(--line);';
       const avatarInner = avatarUrl
         ? '<div style="width:56px; height:56px; margin:0 auto 6px; border-radius:50%; background-image:url(\'' + escapeHtml(avatarUrl) + '\'); background-size:cover; background-position:center; ' + ringStyle + '"></div>'
@@ -17165,7 +17176,9 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         + '<div style="font-size:9.5px; color:' + (back ? 'var(--moss)' : 'var(--ink-soft)') + '; margin-top:1px;">' + (back ? 'anchors you too' : 'pinned by you') + '</div>'
         + (anEditMode
             ? '<button type="button" onclick="anRemoveCircleMember(\'' + p.user_id + '\')" style="margin-top:8px; font-size:10.5px; color:var(--ink-soft); background:none; border:1px solid var(--line); border-radius:999px; padding:3px 9px;">Unpin</button>'
-            : '<button type="button" onclick="anPing(\'' + p.user_id + '\',\'' + escapeHtml(cleanName) + '\', this)" title="Send a quiet, no-reply-needed hello" style="margin-top:8px; width:30px; height:30px; border-radius:50%; background:none; border:1px solid var(--line); font-size:13px; color:var(--moss);">💛</button>')
+            : (pingedToday
+                ? '<button type="button" disabled title="Already sent today" style="margin-top:8px; width:30px; height:30px; border-radius:50%; background:none; border:1px solid var(--line); font-size:13px; color:var(--ink-soft); opacity:.55; cursor:default;">✓</button>'
+                : '<button type="button" onclick="anPing(\'' + p.user_id + '\',\'' + escapeHtml(cleanName) + '\', this)" title="Send a quiet, no-reply-needed hello" style="margin-top:8px; width:30px; height:30px; border-radius:50%; background:none; border:1px solid var(--line); font-size:13px; color:var(--moss);">💛</button>'))
         + '</div>';
     }).join('');
 
