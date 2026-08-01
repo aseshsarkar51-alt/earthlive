@@ -4256,7 +4256,6 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       <p class="lb-lede">Not a followers list — a small, unranked set of the people closest to you right now. Nothing here is scored or counted on purpose.</p>
     </div>
     <div id="anchorBody"></div>
-    <div id="anResourceShelf" style="margin-top:32px;"></div>
   </div>
 </section>
 
@@ -16759,7 +16758,6 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   async function renderAnchor(){
     const host = document.getElementById('anchorBody');
     if (!host) return;
-    renderResourceShelf('anResourceShelf');
     if (profile && profile.extras && Array.isArray(profile.extras.happiness_support_circle)){
       hpSupportCircle = profile.extras.happiness_support_circle.slice();
     }
