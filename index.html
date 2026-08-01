@@ -676,12 +676,15 @@
     padding:14px 18px; border-bottom:1px solid var(--line);
   }
   .thread-msgs{flex:1; overflow-y:auto; padding:18px; display:flex; flex-direction:column; gap:10px;}
+  .msg-row{display:flex; flex-direction:column; max-width:75%; align-self:flex-start; align-items:flex-start;}
+  .msg-row.mine{align-self:flex-end; align-items:flex-end;}
+  .msg-time{font-size:10px; color:var(--ink-soft); margin:3px 6px 0;}
   .msg-bubble{
-    max-width:75%; padding:9px 14px; border-radius:14px; font-size:14px; line-height:1.5;
-    background:var(--oat); align-self:flex-start; border-bottom-left-radius:4px;
+    padding:9px 14px; border-radius:14px; font-size:14px; line-height:1.5;
+    background:var(--oat); border-bottom-left-radius:4px;
   }
   .msg-bubble.mine{
-    background:var(--ink); color:var(--page); align-self:flex-end;
+    background:var(--ink); color:var(--page);
     border-bottom-left-radius:14px; border-bottom-right-radius:4px;
   }
   .msg-unsend{
@@ -6291,14 +6294,17 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     box.innerHTML = (decryptedMsgs || []).map(m=>{
       const mine = m.sender_profile_id === profile.dbId ? 'mine' : '';
       const unsend = mine ? `<div class="msg-unsend" onclick="deleteMessage('${m.id}')">Unsend</div>` : '';
+      const stamp = `<div class="msg-time ${mine}">${msgTimeLabel(m.created_at)}</div>`;
+      let bubble;
       if (m.voice_url){
-        return `<div class="msg-bubble voice ${mine}" id="msgrow-${m.id}">${msgVoiceBubbleHtml(m.voice_url, m.voice_seconds)}${unsend}</div>`;
-      }
-      if (m.image_url){
+        bubble = `<div class="msg-bubble voice ${mine}">${msgVoiceBubbleHtml(m.voice_url, m.voice_seconds)}${unsend}</div>`;
+      } else if (m.image_url){
         const caption = m.body ? `<div style="margin-top:6px;font-size:13px;">${linkify(m.body)}</div>` : '';
-        return `<div class="msg-bubble ${mine}" id="msgrow-${m.id}" style="padding:6px;"><img src="${m.image_url}" alt="Photo" style="max-width:220px;width:100%;border-radius:9px;display:block;cursor:pointer;" onclick="openLightbox('${m.image_url}')">${caption}${unsend}</div>`;
+        bubble = `<div class="msg-bubble ${mine}" style="padding:6px;"><img src="${m.image_url}" alt="Photo" style="max-width:220px;width:100%;border-radius:9px;display:block;cursor:pointer;" onclick="openLightbox('${m.image_url}')">${caption}${unsend}</div>`;
+      } else {
+        bubble = `<div class="msg-bubble ${mine}">${linkify(m.body)}${unsend}</div>`;
       }
-      return `<div class="msg-bubble ${mine}" id="msgrow-${m.id}">${linkify(m.body)}${unsend}</div>`;
+      return `<div class="msg-row ${mine}" id="msgrow-${m.id}">${bubble}${stamp}</div>`;
     }).join('') || '<p style="font-size:13px; color:var(--ink-soft); text-align:center;">No messages yet.</p>';
     box.scrollTop = box.scrollHeight;
 
@@ -6682,7 +6688,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       voiceUrl: row.voice_url || null,
       voiceSeconds: row.voice_seconds || null,
       rawDate: row.created_at,
-      date: new Date(row.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
+      date: new Date(row.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) + ' · ' + minimalTime(row.created_at)
     };
   }
 
@@ -13592,7 +13598,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   }
   function diaryDateLabel(iso){
     const d = new Date(iso);
-    return d.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+    return d.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short', year:'numeric' }) + ' · ' + minimalTime(iso);
   }
 
   const ICON_LOCK_OPEN = '<span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 016.5-2.3"/></svg></span>';
@@ -16184,6 +16190,25 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
          sender_user_id = auth.uid() and is_circle_member(circle_id));
      ------------------------------------------------------------------
   */
+  // Minimal clock time only, e.g. "2:45 PM" — used to append a small time
+  // stamp onto places that already show a date (wall posts, diary entries).
+  function minimalTime(ts){
+    try{ return new Date(ts).toLocaleTimeString('en-IN', { hour:'numeric', minute:'2-digit' }); }
+    catch(e){ return ''; }
+  }
+  // Date + time together, minimal, for places with no date shown at all
+  // (message bubbles) — just the time if it was today, otherwise a short
+  // date ahead of it.
+  function msgTimeLabel(ts){
+    try{
+      const d = new Date(ts), now = new Date();
+      const time = d.toLocaleTimeString('en-IN', { hour:'numeric', minute:'2-digit' });
+      if (d.toDateString() === now.toDateString()) return time;
+      const sameYear = d.getFullYear() === now.getFullYear();
+      const datePart = d.toLocaleDateString('en-IN', sameYear ? { day:'numeric', month:'short' } : { day:'numeric', month:'short', year:'numeric' });
+      return datePart + ', ' + time;
+    } catch(e){ return ''; }
+  }
   function timeAgo(ts){
     try{
       const d = new Date(ts), now = new Date();
@@ -17053,11 +17078,15 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         conv = newConv;
       }
       if (!conv){ if (btn) btn.disabled = false; return; }
-      await db.from('messages').insert({
+      const { error: sendErr } = await db.from('messages').insert({
         conversation_id: conv.id,
         sender_profile_id: profile.dbId,
         body: '💛 Thinking of you — no reply needed.'
       });
+      // Only mark this as sent (24h throttle + checkmark) if it actually landed —
+      // previously this was unconditional, so a failed insert still locked the
+      // button and claimed success with nothing really delivered.
+      if (sendErr){ showToast('Could not send — try again later'); if (btn) btn.disabled = false; return; }
       try{ localStorage.setItem(key, new Date().toISOString()); }catch(e){}
       showToast('Sent — no reply needed');
       renderAnchor(); // redraw so this button shows the same ✓ + "sent today" caption as any already-pinged person
