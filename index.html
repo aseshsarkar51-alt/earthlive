@@ -1349,15 +1349,15 @@
   .diary-split{display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;}
   @media(max-width:900px){.diary-split{grid-template-columns:1fr;}}
   .d-pane{background:var(--card); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); overflow:hidden;}
-  .d-pane-head{padding:13px 18px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; background:var(--oat);}
-  .d-pane-head b{font-size:13.5px;}
+  .d-pane-head{padding:13px 18px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; background:transparent;}
+  .d-pane-head b{font-size:13.5px; font-weight:500;}
   .d-tag{font-size:11.5px; color:var(--ink-soft);}
   .d-pane-body{padding:18px;}
-  .d-datestamp{font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--camel); font-weight:700; margin-bottom:12px;}
-  .d-title-input{width:100%; border:none; font-family:inherit; font-size:19px; font-weight:600; outline:none; padding:0 0 10px; background:transparent; color:var(--ink);}
+  .d-datestamp{font-size:12.5px; color:var(--ink-soft); font-weight:400; margin-bottom:12px;}
+  .d-title-input{width:100%; border:none; font-family:inherit; font-size:19px; font-weight:500; outline:none; padding:0 0 10px; background:transparent; color:var(--ink);}
   .d-body-input{width:100%; border:none; font-family:inherit; font-size:14.5px; line-height:1.75; outline:none; resize:none; min-height:120px; background:transparent; color:var(--ink); padding:0;}
   .d-visibility{margin-top:16px; padding-top:14px; border-top:1px solid var(--line);}
-  .d-vis-label{font-weight:600; font-size:13px; margin-bottom:8px;}
+  .d-vis-label{font-weight:500; font-size:13px; margin-bottom:8px; color:var(--ink-soft);}
   .diary-visibility-opt{display:flex; align-items:center; gap:9px; padding:7px 9px; border-radius:8px; cursor:pointer; font-size:13.5px; line-height:1.5;}
   .diary-visibility-opt:hover{background:var(--oat);}
   .diary-visibility-opt input{margin:0;}
@@ -1397,16 +1397,16 @@
   .hiw-msgb.mine{margin-left:auto; background:var(--moss); color:#F5F4F1; border-color:var(--moss);}
   /* diary calendar */
   /* ── mood tracker ── */
-  .mood-card{border-bottom:1px solid var(--line); padding:20px 22px 22px; background:#FCFBF7;}
-  .mood-q{font-size:13.5px; font-weight:700; margin:0 0 12px;}
+  .mood-card{border-bottom:1px solid var(--line); padding:20px 22px 22px; background:transparent;}
+  .mood-q{font-size:13.5px; font-weight:500; margin:0 0 12px;}
   .mood-hint{font-size:11.5px; color:var(--ink-soft); margin:0 0 10px;}
   .mood-row{display:flex; gap:10px; flex-wrap:wrap;}
   .mood-opt{text-align:center; background:none; border:none; padding:0; cursor:pointer; font-family:inherit;}
-  .mood-opt .mo-dot{width:26px; height:26px; border-radius:7px; margin:0 auto 5px; border:2px solid transparent; transition:transform .12s;}
+  .mood-opt .mo-dot{width:24px; height:24px; border-radius:50%; margin:0 auto 5px; border:2px solid transparent; transition:transform .12s;}
   .mood-opt:hover .mo-dot{transform:scale(1.08);}
   .mood-opt.sel .mo-dot{border-color:var(--ink); transform:scale(1.05);}
   .mood-opt span{display:block; font-size:11.5px; color:var(--ink-soft);}
-  .mood-opt.sel span{color:var(--ink); font-weight:700;}
+  .mood-opt.sel span{color:var(--ink); font-weight:500;}
   .cal-day.mooded{font-weight:600;}
   .cal-day.dim{opacity:.18;}
   .mood-tools{border-top:1px dashed var(--line); margin-top:20px; padding-top:20px;}
@@ -1429,7 +1429,7 @@
   .cal-toggle{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; padding:6px 11px; border-radius:999px; border:1px solid var(--line); background:var(--page); cursor:pointer; font-family:inherit; color:var(--ink-soft);}
   .cal-toggle:hover{border-color:var(--ink); color:var(--ink);}
   .cal-toggle.on{background:var(--ink); color:var(--oat); border-color:var(--ink);}
-  .cal{border-bottom:1px solid var(--line); padding:20px 22px; background:#FCFBF7;}
+  .cal{border-bottom:1px solid var(--line); padding:20px 22px; background:transparent;}
   .cal.hidden{display:none;}
   .cal-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
   .cal-month{font-size:14px; font-weight:700;}
@@ -1443,6 +1443,7 @@
   .cal-day.has{color:var(--ink); font-weight:600; cursor:pointer;}
   .cal-day.has:hover{background:var(--oat-deep);}
   .cal-day .dot{width:4px; height:4px; border-radius:50%; background:var(--camel); position:absolute; bottom:5px;}
+  .cal-bday{position:absolute; top:1px; right:2px; font-size:8px; line-height:1; cursor:pointer;}
   .cal-day.today{color:var(--moss); font-weight:700;}
   .cal-day.today::after{content:''; position:absolute; bottom:5px; width:4px; height:4px; border-radius:50%; background:var(--moss);}
   .cal-day.today .dot{display:none;}
@@ -1471,7 +1472,7 @@
   .d-scroll::-webkit-scrollbar-thumb{background:var(--ink-soft); border-radius:99px;}
   .d-scroll::-webkit-scrollbar-thumb:hover{background:var(--ink);}
   .d-e-preview{font-size:13.5px; line-height:1.6; color:var(--ink-soft); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
-  .d-e-more{font-size:11.5px; color:var(--camel); margin-top:6px; font-weight:600;}
+  .d-e-more{font-size:11.5px; color:var(--ink-soft); margin-top:6px; font-weight:500;}
   /* diary entry popup */
   .d-modal-ov{position:fixed; inset:0; background:rgba(46,42,34,.55); backdrop-filter:blur(3px); display:none; align-items:center; justify-content:center; z-index:1200; padding:24px;}
   .d-modal-ov.open{display:flex;}
@@ -1480,7 +1481,7 @@
   .d-m-close{background:none; border:none; font-size:17px; color:var(--ink-soft); cursor:pointer; padding:0 3px; line-height:1;}
   .d-m-close:hover{color:var(--ink);}
   .d-m-body{padding:20px 22px; overflow-y:auto;}
-  .d-m-title{font-size:19px; font-weight:600; margin:8px 0 10px;}
+  .d-m-title{font-size:19px; font-weight:500; margin:8px 0 10px;}
   .d-m-text{font-size:14.5px; line-height:1.8; white-space:pre-wrap;}
   .d-m-photos{display:flex; gap:9px; margin-top:14px; flex-wrap:wrap;}
   .d-m-photos img{width:100px; height:100px; object-fit:cover; border-radius:9px; cursor:pointer;}
@@ -1490,11 +1491,11 @@
   .d-entry:hover{background:#FCFBF7;}
   .d-entry:last-child{border-bottom:none;}
   .d-e-head{display:flex; align-items:center; gap:9px; margin-bottom:6px; flex-wrap:wrap;}
-  .d-e-date{font-size:13px; font-weight:700; color:var(--camel);}
-  .d-e-seal{font-size:10.5px; color:var(--ink-soft); border:1px solid var(--line); border-radius:999px; padding:2px 9px; background:var(--oat); display:inline-flex; align-items:center; gap:4px;}
-  .d-e-seal.open{color:var(--moss); border-color:#D0D8C7; background:#F1F3EE;}
+  .d-e-date{font-size:13px; font-weight:400; color:var(--ink-soft);}
+  .d-e-seal{font-size:11px; color:var(--ink-soft); display:inline-flex; align-items:center; gap:4px;}
+  .d-e-seal.open{color:var(--moss);}
   .d-e-vis{font-size:10.5px; color:var(--camel); border:1px solid var(--line); border-radius:999px; padding:2px 9px; background:var(--oat);}
-  .d-e-title{font-size:15.5px; font-weight:600; margin:0 0 5px;}
+  .d-e-title{font-size:15.5px; font-weight:500; margin:0 0 5px;}
   .d-e-body{font-size:14px; line-height:1.7; color:var(--ink-soft); white-space:pre-wrap;}
   .d-e-photos{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;}
   .d-e-photos img{width:76px; height:76px; object-fit:cover; border-radius:8px; cursor:pointer;}
@@ -2603,6 +2604,7 @@
             <div class="cal-legend">
               <span><i></i> wrote that day</span>
               <span><span class="box"></span> today</span>
+              <span>🎂 follower's birthday</span>
               <button class="cal-clear" id="calClear" style="display:none;" onclick="clearDiaryFilter()">Show all</button>
             </div>
             <div class="mood-tools" id="moodTools">
@@ -5660,13 +5662,28 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   const DETAIL_FIELDS = [
     { key:'home',  emoji:'\ud83c\udfe0', label:'Hometown' },
     { key:'city',  emoji:'\ud83d\udccd', label:'Current city' },
-    { key:'bday',  emoji:'\ud83c\udf82', label:'Birthday' },
+    { key:'bday',  emoji:'\ud83c\udf82', label:'Birthday', type:'date' },
     { key:'song',  emoji:'\ud83c\udfb5', label:'Favourite song' },
     { key:'movie', emoji:'\ud83c\udfac', label:'Favourite movie' },
     { key:'food',  emoji:'\ud83c\udf5c', label:'Comfort food' },
     { key:'word',  emoji:'\u2728', label:'One word for me' },
     { key:'trip',  emoji:'\u2708\ufe0f', label:'Dream destination' }
   ];
+
+  // Birthdays are stored as an ISO date (YYYY-MM-DD) so month/day can be
+  // matched against the diary calendar. Older accounts may still have a
+  // free-text value from before this changed \u2014 fall back to showing
+  // that as-is rather than losing it.
+  function formatBdayDisplay(v){
+    const m = /^\d{4}-(\d{2})-(\d{2})$/.exec(v || '');
+    if (!m) return v;
+    const d = new Date(2000, parseInt(m[1],10)-1, parseInt(m[2],10));
+    return d.toLocaleDateString('en-IN', { day:'numeric', month:'long' });
+  }
+  function detailDisplayValue(f, extras){
+    const v = extras[f.key];
+    return f.key === 'bday' ? formatBdayDisplay(v) : v;
+  }
 
   function renderDetails(cardId, profileObj, isOwner){
     const card = document.getElementById(cardId);
@@ -5680,7 +5697,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const rows = filled.map(f=>`
       <div class="detail-row">
         <span class="detail-label">${f.label}</span>
-        <span class="detail-value">${escapeHtml(extras[f.key])}</span>
+        <span class="detail-value">${escapeHtml(detailDisplayValue(f, extras))}</span>
       </div>`).join('');
     card.innerHTML = `
       <div class="entries-head">
@@ -5694,11 +5711,21 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
   function openDetailsEditor(){
     const extras = (profile && profile.extras) || {};
-    document.getElementById('detailsGrid').innerHTML = DETAIL_FIELDS.map(f=>`
+    document.getElementById('detailsGrid').innerHTML = DETAIL_FIELDS.map(f=>{
+      if (f.type === 'date'){
+        const isIso = /^\d{4}-\d{2}-\d{2}$/.test(extras[f.key] || '');
+        return `
+      <div>
+        <label for="d_${f.key}">${f.label}</label>
+        <input type="date" id="d_${f.key}" value="${isIso ? extras[f.key] : ''}">
+      </div>`;
+      }
+      return `
       <div>
         <label for="d_${f.key}">${f.label}</label>
         <input type="text" id="d_${f.key}" maxlength="60" value="${escapeHtml(extras[f.key] || '')}">
-      </div>`).join('');
+      </div>`;
+    }).join('');
     document.getElementById('detailsModal').style.display = 'flex';
   }
 
@@ -8455,12 +8482,12 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...SOFT_C);
       doc.text(left.label, leftX, rowY);
       doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...INK_C);
-      doc.text(pdfSafe(extras[left.key]), leftX + colW, rowY, { align:'right' });
+      doc.text(pdfSafe(detailDisplayValue(left, extras)), leftX + colW, rowY, { align:'right' });
       if (right){
         doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...SOFT_C);
         doc.text(right.label, rightX, rowY);
         doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...INK_C);
-        doc.text(pdfSafe(extras[right.key]), rightX + colW, rowY, { align:'right' });
+        doc.text(pdfSafe(detailDisplayValue(right, extras)), rightX + colW, rowY, { align:'right' });
       }
       y += 5;
       doc.setDrawColor(229,226,219); doc.setLineWidth(0.2);
@@ -13488,6 +13515,40 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   let diaryEntriesCache = [];        // every entry, so the calendar knows which days have one
   let calView = new Date();          // month currently shown
   let calSelected = null;            // 'YYYY-MM-DD' or null
+  let followerBdays = {};            // { 'MM-DD': [{ userId, name }] } — followers' birthdays
+
+  // Followers only show up here if they've filled in their birthday on their
+  // own bio (profiles.extras.bday, stored as YYYY-MM-DD). Only month/day is
+  // ever used — the year never leaves their profile.
+  async function loadFollowerBirthdays(){
+    followerBdays = {};
+    if (!db || !profile || !profile.dbId) return;
+    const { data: rows, error } = await db.from('follows')
+      .select('follower_user_id').eq('followed_profile_id', profile.dbId);
+    if (error || !rows || !rows.length) return;
+    const ids = rows.map(r => r.follower_user_id);
+    const { data: people, error: pErr } = await db.from('profiles')
+      .select('user_id, name, extras').in('user_id', ids);
+    if (pErr || !people) return;
+    people.forEach(p=>{
+      const m = /^\d{4}-(\d{2})-(\d{2})$/.exec((p.extras && p.extras.bday) || '');
+      if (!m) return;
+      const key = m[1] + '-' + m[2];
+      (followerBdays[key] = followerBdays[key] || []).push({ userId:p.user_id, name:p.name });
+    });
+    renderDiaryCal();
+  }
+
+  function calBdayMark(people){
+    if (!people || !people.length) return '';
+    const first = people[0];
+    const label = people.length > 1
+      ? people.map(p=>p.name).join(', ') + '’s birthdays — tap to send a note'
+      : first.name + '’s birthday — tap to send a note';
+    const safeName = first.name.replace(/'/g, "\\'");
+    return '<span class="cal-bday" title="' + escapeHtml(label) + '" ' +
+      'onclick="event.stopPropagation(); openBirthdayNote(\'' + first.userId + '\',\'' + safeName + '\')">🎂</span>';
+  }
 
   function calKey(d){
     const dt = (d instanceof Date) ? d : new Date(d);
@@ -13546,7 +13607,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       const click = has ? ' onclick="pickDiaryDate(\'' + k + '\')"' : '';
       const tip = mood ? ' title="' + mood.label + '"' : '';
       html += '<div class="' + cls + '"' + styl + tip + click + '>' + d +
-              (has ? '<span class="dot"' + (mood ? ' style="background:' + mood.tx + ';"' : '') + '></span>' : '') + '</div>';
+              (has ? '<span class="dot"' + (mood ? ' style="background:' + mood.tx + ';"' : '') + '></span>' : '') +
+              calBdayMark(followerBdays[k.slice(5)]) + '</div>';
     }
     grid.innerHTML = html;
   }
@@ -13585,6 +13647,24 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (fb) fb.classList.remove('on');
     const cc = document.getElementById('calClear');
     if (cc) cc.style.display = 'none';
+  }
+
+  // Tapping the 🎂 on a calendar day jumps straight into a fresh, private
+  // "send to one person" entry for that follower — one tap from noticing
+  // to writing the note.
+  async function openBirthdayNote(userId, name){
+    await openDiaryEditor(null);
+    const radio = document.querySelector('input[name="diaryVisibility"][value="shared_person"]');
+    if (radio) radio.checked = true;
+    diaryPickPerson(userId, name);
+    onDiaryVisibilityChange();
+    const titleEl = document.getElementById('diaryTitle');
+    if (titleEl && !titleEl.value) titleEl.value = 'Happy birthday, ' + name.split(' ')[0] + '! 🎂';
+    const bodyEl = document.getElementById('diaryBody');
+    if (bodyEl) bodyEl.focus();
+    const pane = document.querySelector('.d-pane');
+    if (pane) pane.scrollIntoView({ behavior:'smooth', block:'start' });
+    showToast('Ready to send ' + name.split(' ')[0] + ' a birthday note');
   }
 
   /* ── Sealing: an entry is editable only on the day it was written ── */
@@ -13634,6 +13714,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     }
     diaryEntriesCache = entries;          // the calendar reads its dots from this
     renderDiaryCal();                     // refresh dots whenever the diary reloads
+    loadFollowerBirthdays();              // fire-and-forget; re-renders the calendar once loaded
     const tag = document.getElementById('diaryCountTag');
     if (tag) tag.textContent = entries.length
       ? entries.length + (entries.length === 1 ? ' entry' : ' entries')
