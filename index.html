@@ -3121,8 +3121,6 @@
           <button type="button" class="btn-small" id="evPrintBtn" style="display:none; flex:none; align-items:center; gap:6px;" onclick="openPrintModal('event')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg> Print</button>
         </div>
 
-        <div id="evCoverDisplay" style="display:none; margin-top:14px; border-radius:12px; overflow:hidden; height:180px; background:var(--oat-deep) center/cover no-repeat;"></div>
-
         <div id="evEditBox" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--line);">
           <div class="field" style="margin-bottom:11px;">
             <label style="font-size:13px;">Event name</label>
@@ -14556,11 +14554,6 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (descEl){
       descEl.textContent = pdfSafe(ev.description) ? '\u201c' + pdfSafe(ev.description) + '\u201d' : '';
       descEl.style.display = pdfSafe(ev.description) ? 'block' : 'none';
-    }
-    const coverDisplay = document.getElementById('evCoverDisplay');
-    if (coverDisplay){
-      if (ev.cover_url){ coverDisplay.style.display = 'block'; coverDisplay.style.background = 'url(' + ev.cover_url + ') center/cover no-repeat'; }
-      else { coverDisplay.style.display = 'none'; }
     }
     const removeCoverBtn = document.getElementById('evEditRemoveCoverBtn');
     if (removeCoverBtn) removeCoverBtn.style.display = ev.cover_url ? 'inline-flex' : 'none';
