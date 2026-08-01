@@ -5312,7 +5312,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
   // On refresh, reopen whatever screen the person was actually on instead of
   // always dropping them back on the dashboard.
-  const RESTORABLE_SCREENS = ['dashboard','feed','events','waypoints','messages','account','contact','privacy','terms','about','how','search'];
+  const RESTORABLE_SCREENS = ['dashboard','feed','events','waypoints','messages','account','contact','privacy','terms','about','how','search','ribbon','constellation','voiceprints','happiness','anchor'];
   function restoreLastScreen(){
     let saved = null;
     try{ saved = sessionStorage.getItem('elLastScreen'); }catch(err){}
@@ -5320,7 +5320,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       if (saved === 'feed'){ renderForYou(); showScreen('feed'); return; }
       if (saved === 'events'){ renderMyEvents(); showScreen('events'); return; }
       if (saved === 'waypoints'){ showScreen('waypoints'); wptsOpen(); return; }
-      if (saved === 'ribbon' || saved === 'constellation' || saved === 'voiceprints'){ openLookBack(saved); return; }
+      if (saved === 'ribbon' || saved === 'constellation' || saved === 'voiceprints' || saved === 'happiness' || saved === 'anchor'){ openLookBack(saved); return; }
       if (saved === 'messages'){ openMessages(); return; }
       if (saved === 'account'){ openMyAccount(); return; }
       renderDashboard();
