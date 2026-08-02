@@ -13346,6 +13346,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (lastForYouCheck) q2.gt('created_at', lastForYouCheck);
     const { count: c2 } = await q2;
     count += (c2 || 0);
+    // new poll answers on MY "What people notice" poll since last check
+    if (profile && profile.dbId){
+      const q3 = db.from('poll_votes').select('id', {count:'exact', head:true})
+        .eq('profile_id', profile.dbId);
+      if (lastForYouCheck) q3.gt('created_at', lastForYouCheck);
+      const { count: c3 } = await q3;
+      count += (c3 || 0);
+    }
     if (count > 0){ badge.textContent = count; badge.style.display = 'inline-flex'; }
     else badge.style.display = 'none';
   }
@@ -13490,6 +13498,27 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       });
     }
 
+    // 5) New answers on MY "What people notice" poll since last check.
+    //    Votes are anonymous even to the owner, so this is one aggregated
+    //    card rather than one per voter.
+    if (profile && profile.dbId){
+      const pollQ = db.from('poll_votes').select('id, created_at', {count:'exact'})
+        .eq('profile_id', profile.dbId)
+        .order('created_at', {ascending:false}).limit(1);
+      if (lastForYouCheck) pollQ.gt('created_at', lastForYouCheck);
+      const { data: pollLatest, count: pollCount } = await pollQ;
+      if (pollCount > 0){
+        items.push({
+          kind:'poll',
+          at: pollLatest[0].created_at,
+          avatar: icon('sparkle') || '✦',
+          color: 'var(--camel)',
+          title: (pollCount === 1 ? 'Someone' : pollCount + ' people') + ' answered a question in <b>What people notice</b>',
+          meta: evTimeAgo(pollLatest[0].created_at)
+        });
+      }
+    }
+
     // Mutual signatures: books you and someone else BOTH signed for each other.
     // Shown as a minimal handshake notification in this feed instead of a header
     // badge on their page (which was the old behaviour).
@@ -13599,6 +13628,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         if (it.kind==='signature') action = '<button class="btn-small" onclick="showScreen(\'dashboard\')">Open in my book</button>';
         if (it.kind==='invite') action = '<button class="btn-small" style="background:var(--moss); color:#fff; border-color:var(--moss);" onclick="acceptInviteFromList(\'' + it.guestRowId + '\',\'' + it.eventId + '\')">Join</button> <button class="btn-small" onclick="openEventById(\'' + it.eventId + '\', false)">View first</button>';
         if (it.kind==='request') action = '<button class="btn-small" onclick="openEventById(\'' + it.eventId + '\', false)">Open event to approve</button>';
+        if (it.kind==='poll') action = '<button class="btn-small" onclick="showScreen(\'dashboard\')">See what people notice</button>';
         return `
         <div class="fy-item">
           <div class="fy-row">
@@ -18593,7 +18623,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   async function bookPollEnsureLoaded(hostId, profileObj){
     let st = bookPollUI[hostId];
     if (!st || st.profileId !== profileObj.dbId){
-      st = { profileId: profileObj.dbId, index: 0, rows: {}, loaded: false };
+      st = { profileId: profileObj.dbId, index: hostId === 'owner' ? BOOK_POLLS.length : 0, rows: {}, loaded: false };
       bookPollUI[hostId] = st;
     }
     if (st.loaded || !db || !profileObj.dbId) return st;
