@@ -6168,6 +6168,25 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         </div>`;
       return;
     }
+
+    // Bump whichever conversation has the newest activity to the top —
+    // like any chat app — instead of leaving the list ordered by when the
+    // thread first started. The conversations table has no last-message
+    // column, so pull the latest message time per conversation here and
+    // sort by that, falling back to the conversation's own created_at for
+    // threads with no messages yet (an unanswered request).
+    const lastActivity = {};
+    data.forEach(c => { lastActivity[c.id] = c.created_at; });
+    const { data: recentMsgs } = await db.from('messages')
+      .select('conversation_id, created_at')
+      .in('conversation_id', data.map(c=>c.id));
+    (recentMsgs || []).forEach(m=>{
+      if (new Date(m.created_at) > new Date(lastActivity[m.conversation_id])){
+        lastActivity[m.conversation_id] = m.created_at;
+      }
+    });
+    data.sort((a,b) => new Date(lastActivity[b.id]) - new Date(lastActivity[a.id]));
+
     el.innerHTML = data.map((c,i)=>{
       const other = otherParty(c) || { name:'A private page', username:'', ink:'#726A59', avatar_url:null };
       const iAmRecipient = c.recipient_profile_id === profile.dbId;
