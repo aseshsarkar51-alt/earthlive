@@ -585,14 +585,24 @@
   .poll-dot{cursor:pointer;}
   .poll-dot.summary.on{background:var(--camel);}
   .poll-summary-title{font-family:"Fraunces",serif; font-weight:600; font-size:21px; line-height:1.3; color:var(--ink); margin:0 0 4px;}
-  .poll-recap-list{display:flex; flex-direction:column;}
-  .poll-recap-row{display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line);}
-  .poll-recap-row:last-child{border-bottom:none;}
-  .poll-recap-row.poll-recap-locked{cursor:pointer;}
-  .poll-recap-theme{font-size:10.5px; letter-spacing:.04em; color:var(--ink-soft); margin-bottom:3px; text-transform:uppercase;}
-  .poll-recap-answer{font-family:"Fraunces",serif; font-weight:500; font-size:15.5px; color:var(--ink);}
-  .poll-recap-answer.muted, .poll-recap-answer.locked{font-style:italic; font-weight:400; font-size:14px; color:var(--ink-soft);}
-  .poll-recap-pct{font-size:12px; font-weight:600; color:var(--moss); background:var(--oat); border-radius:999px; padding:4px 10px; flex:none; margin-left:12px;}
+  .poll-rank-list{display:flex; flex-direction:column;}
+  .poll-rank-row{display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid var(--line);}
+  .poll-rank-row:last-child{border-bottom:none;}
+  .poll-rank-row-empty.poll-recap-locked{cursor:pointer;}
+  .poll-rank-badge{width:24px; height:24px; border-radius:50%; background:var(--oat-deep); color:var(--ink-soft); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:none; margin-top:2px;}
+  .poll-rank-badge.first{background:var(--camel); color:#fff;}
+  .poll-rank-badge.empty{background:transparent; color:var(--ink-soft); font-weight:400;}
+  .poll-rank-body{flex:1; min-width:0;}
+  .poll-rank-top{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:6px;}
+  .poll-rank-label{font-size:13.5px; color:var(--ink);}
+  .poll-rank-theme{color:var(--ink-soft); font-weight:400;}
+  .poll-rank-pct{font-size:12px; color:var(--ink-soft); flex:none;}
+  .poll-rank-track{height:10px; border-radius:6px; background:var(--oat-deep); overflow:hidden;}
+  .poll-rank-fill{height:100%; border-radius:6px; background:var(--moss);}
+  .poll-rank-fill.first{background:var(--camel);}
+  .poll-rank-answer{font-size:13px; color:var(--ink-soft);}
+  .poll-rank-answer.locked{font-style:italic; cursor:pointer;}
+  .poll-rank-answer.muted{font-style:italic;}
 
   .cover-edit-menu-wrap{position:absolute; right:14px; top:14px; z-index:3;}
   .cover-edit-btn{
@@ -18693,32 +18703,43 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
     if (st.index === BOOK_POLLS.length){
       const respondents = bookPollOverallCount(st);
-      const rows = BOOK_POLLS.map((poll, i) => {
+      const withData = [];
+      const withoutData = [];
+      BOOK_POLLS.forEach((poll, i) => {
         const myVote = isOwnerView ? 0 : bookPollMyVote(st, poll.key);
         const unlocked = isOwnerView || myVote >= 0;
-        if (!unlocked){
-          return `<div class="poll-recap-row poll-recap-locked" onclick="bookPollJump('${hostId}', ${i})">
-            <div>
-              <div class="poll-recap-theme">${escapeHtml(poll.theme)}</div>
-              <div class="poll-recap-answer locked">Answer this one to reveal &rarr;</div>
+        const top = unlocked ? bookPollTopPick(st, poll.key) : null;
+        if (unlocked && top) withData.push({ poll, i, top });
+        else withoutData.push({ poll, i, unlocked });
+      });
+      withData.sort((a, b) => b.top.pct - a.top.pct);
+
+      const rankedRows = withData.map((item, idx) => {
+        const rank = idx + 1;
+        const first = rank === 1;
+        return `
+        <div class="poll-rank-row">
+          <div class="poll-rank-badge${first ? ' first' : ''}">${rank}</div>
+          <div class="poll-rank-body">
+            <div class="poll-rank-top">
+              <span class="poll-rank-label"><b>${escapeHtml(item.poll.opts[item.top.index])}</b> <span class="poll-rank-theme">&middot; ${escapeHtml(item.poll.theme)}</span></span>
+              <span class="poll-rank-pct">${item.top.pct}%</span>
             </div>
-          </div>`;
-        }
-        const top = bookPollTopPick(st, poll.key);
-        if (!top){
-          return `<div class="poll-recap-row">
-            <div>
-              <div class="poll-recap-theme">${escapeHtml(poll.theme)}</div>
-              <div class="poll-recap-answer muted">Not enough answers yet</div>
-            </div>
-          </div>`;
-        }
-        return `<div class="poll-recap-row">
-          <div>
-            <div class="poll-recap-theme">${escapeHtml(poll.theme)}</div>
-            <div class="poll-recap-answer">${escapeHtml(poll.opts[top.index])}</div>
+            <div class="poll-rank-track"><div class="poll-rank-fill${first ? ' first' : ''}" style="width:${item.top.pct}%;"></div></div>
           </div>
-          <div class="poll-recap-pct">${top.pct}%</div>
+        </div>`;
+      }).join('');
+
+      const unrankedRows = withoutData.map(item => {
+        const locked = !item.unlocked;
+        const label = locked ? 'Answer this one to reveal &rarr;' : 'Not enough answers yet';
+        return `
+        <div class="poll-rank-row${locked ? ' poll-rank-row-empty poll-recap-locked' : ''}"${locked ? ` onclick="bookPollJump('${hostId}', ${item.i})"` : ''}>
+          <div class="poll-rank-badge empty">&ndash;</div>
+          <div class="poll-rank-body">
+            <div class="poll-rank-top"><span class="poll-rank-label">${escapeHtml(item.poll.theme)}</span></div>
+            <div class="poll-rank-answer${locked ? ' locked' : ' muted'}">${label}</div>
+          </div>
         </div>`;
       }).join('');
 
@@ -18730,7 +18751,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
           </div>
           <div class="poll-summary-title">The picture people are painting</div>
           <p class="poll-lede">Here's what's come through so far about ${escapeHtml(name)} — it fills in as more people answer.</p>
-          <div class="poll-recap-list">${rows}</div>
+          <div class="poll-rank-list">${rankedRows}${unrankedRows}</div>
           <div class="poll-bottom">
             <span class="poll-respondents">${respondents} ${respondents === 1 ? 'person has' : 'people have'} shared what they notice</span>
             <div style="display:flex; gap:8px;">
