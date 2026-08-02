@@ -550,6 +550,39 @@
   .recent-song-use:hover{border-color:var(--ink-soft);}
   .recent-song-use.current{background:var(--ink); color:var(--oat); border-color:var(--ink);}
 
+  /* ---------- "WHAT PEOPLE NOTICE" POLL ---------- */
+  .book-poll-wrap{margin-top:28px;}
+  .poll-card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px 24px 20px;}
+  .poll-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
+  .poll-eyebrow{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--camel); font-weight:700;}
+  .poll-dots{display:flex; gap:5px;}
+  .poll-dot{width:5px; height:5px; border-radius:3px; background:var(--oat-deep); display:block; transition:width .2s;}
+  .poll-dot.on{width:14px; background:var(--moss);}
+  .poll-lede{font-size:12.5px; color:var(--ink-soft); margin:0 0 14px; max-width:460px;}
+  .poll-theme-tag{display:inline-block; font-size:10.5px; letter-spacing:.04em; color:var(--moss); background:var(--oat); border:1px solid var(--line); border-radius:999px; padding:3px 10px; margin-bottom:12px;}
+  .poll-qtext{font-family:"Fraunces",serif; font-weight:500; font-size:21px; line-height:1.35; margin:0 0 16px;}
+  .poll-opts-wrap{position:relative;}
+  .poll-opt-btn{display:block; width:100%; text-align:left; padding:12px 16px; margin-bottom:8px; border-radius:11px; border:1px solid var(--line); background:var(--page); color:var(--ink); font-size:14px; font-family:inherit; cursor:pointer;}
+  .poll-opt-btn:hover{border-color:var(--ink-soft);}
+  .poll-opt-btn[tabindex="-1"]{cursor:default;}
+  .poll-empty{font-size:13px; color:var(--ink-soft); padding:6px 0 2px;}
+  .poll-result-row{margin-bottom:9px;}
+  .poll-result-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;}
+  .poll-result-label{font-size:13.5px; color:var(--ink);}
+  .poll-result-label.mine{font-weight:600;}
+  .poll-result-check{color:var(--moss); font-weight:700; margin-left:4px;}
+  .poll-result-pct{font-size:12px; color:var(--ink-soft);}
+  .poll-bar-track{height:8px; border-radius:5px; background:var(--oat-deep); overflow:hidden;}
+  .poll-bar-fill{height:100%; border-radius:5px; background:var(--moss); transition:width .5s ease;}
+  .poll-bar-fill.mine{background:var(--camel);}
+  .poll-lock{position:absolute; inset:0; background:rgba(255,255,255,0.72); border-radius:11px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;}
+  .poll-lock span{font-size:12.5px; color:var(--ink-soft);}
+  .poll-lock button{font-size:13px; font-weight:600; padding:9px 18px; border-radius:999px; border:none; background:var(--ink); color:var(--oat); cursor:pointer; font-family:inherit;}
+  .poll-bottom{display:flex; align-items:center; justify-content:space-between; margin-top:16px; flex-wrap:wrap; gap:8px;}
+  .poll-respondents{font-size:12px; color:var(--ink-soft);}
+  .poll-next-btn{font-size:12.5px; font-weight:600; padding:8px 16px; border-radius:999px; border:1px solid var(--line); background:var(--page); color:var(--ink); cursor:pointer; font-family:inherit;}
+  .poll-footnote{text-align:center; font-size:11.5px; color:var(--ink-soft); margin-top:12px; max-width:480px; margin-left:auto; margin-right:auto;}
+
   .cover-edit-menu-wrap{position:absolute; right:14px; top:14px; z-index:3;}
   .cover-edit-btn{
     position:static; background:rgba(30,28,24,0.68); color:#F6F1E7;
@@ -2694,6 +2727,8 @@
 
     <div id="ownerEntries"></div>
 
+    <div class="book-poll-wrap" id="ownerPollWrap"></div>
+
   </div>
 </section>
 
@@ -3178,6 +3213,8 @@
       </div>
       <div id="visitorSigSearchMeta" class="sig-search-meta" style="display:none;"></div>
       <div id="visitorEntries"></div>
+
+      <div class="book-poll-wrap" id="visitorPollWrap"></div>
 
     </div>
 
@@ -7806,6 +7843,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     try { renderAlbumGrid(); renderAlbumMap(); } catch(err){ console.error('[EarthLive] album render failed:', err); }
     renderPendingPanel(entries.filter(e => e.status === 'pending'));
     renderOnThisDay();
+    renderBookPoll('owner', profile);
   }
 
   /* On this day: resurface memories from a previous year, on today's month/day \u2014
@@ -10643,6 +10681,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       }
       renderMemoryMap('visitorMapPanel', 'visitorMap', 'visitorMapCount', approved);
       renderVisitorWaypoints(profileObj);
+      renderBookPoll('visitor', profileObj);
     }
     showScreen('visitor');
   }
@@ -18510,6 +18549,163 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     await songSetFavorite(null);
     renderOwnerSong();
     renderRecentSongs();
+  }
+
+  /* ---------- "WHAT PEOPLE NOTICE" POLL (after Signatures) ----------
+     A fixed set of five strength-based questions that VISITORS — not the
+     book's own owner — answer about the person whose book this is.
+     Inspired by the Reflected Best Self Exercise (Roberts, Dutton,
+     Spreitzer & Quinn): gathering other people's observations of someone
+     at their best builds a kinder, truer picture than self-rating ever
+     does. Every option is a compliment, so there's no low or judged
+     answer, only which good thing people picked. Votes are anonymous
+     even to the book's owner — results show aggregate percentages only,
+     never who picked what. Voting requires sign-in; one vote per
+     question per book, enforced by a unique constraint in poll_votes. */
+  const BOOK_POLLS = [
+    { key:'spark',   theme:'Their spark',       q:n=>`What do you notice most about ${n}?`,
+      opts:['Their calm under pressure','Their curiosity','Their warmth','Their humor','Their honesty'] },
+    { key:'element', theme:'At their best',     q:n=>`When does ${n} seem most in their element?`,
+      opts:['Solving a hard problem','Helping someone out','Making people laugh','Deep in conversation','Creating something'] },
+    { key:'word',    theme:'One word',          q:n=>`Which word fits ${n} best?`,
+      opts:['Steady','Kind','Curious','Thoughtful','Bold'] },
+    { key:'value',   theme:'What people value', q:n=>`What do you appreciate most about knowing ${n}?`,
+      opts:['They listen','They show up','They keep it real','They make things fun','They remember the details'] },
+    { key:'mark',    theme:'Their mark',        q:n=>`If ${n} is remembered for one thing, what would it be?`,
+      opts:['Their kindness','Their loyalty','Their drive','Their humor','Their creativity'] }
+  ];
+  const bookPollUI = {};   // hostId ('owner'|'visitor') -> { profileId, index, rows:{key:[...]}, loaded }
+
+  function bookPollFirstName(name){
+    return ((name || 'this person').trim().split(' ')[0]) || 'this person';
+  }
+  async function bookPollEnsureLoaded(hostId, profileObj){
+    let st = bookPollUI[hostId];
+    if (!st || st.profileId !== profileObj.dbId){
+      st = { profileId: profileObj.dbId, index: 0, rows: {}, loaded: false };
+      bookPollUI[hostId] = st;
+    }
+    if (st.loaded || !db || !profileObj.dbId) return st;
+    const { data, error } = await db.from('poll_votes')
+      .select('question_key, option_index, voter_user_id')
+      .eq('profile_id', profileObj.dbId);
+    const rows = {};
+    BOOK_POLLS.forEach(p => rows[p.key] = []);
+    if (!error && data){
+      data.forEach(r => { if (rows[r.question_key]) rows[r.question_key].push(r); });
+    }
+    st.rows = rows;
+    st.loaded = true;
+    return st;
+  }
+  function bookPollMyVote(st, key){
+    if (!currentUser) return -1;
+    const rows = st.rows[key] || [];
+    const mine = rows.find(r => r.voter_user_id === currentUser.id);
+    return mine ? mine.option_index : -1;
+  }
+  function bookPollCounts(st, key){
+    const rows = st.rows[key] || [];
+    const counts = [0,0,0,0,0];
+    rows.forEach(r => { if (counts[r.option_index] !== undefined) counts[r.option_index]++; });
+    return { counts, total: rows.length };
+  }
+  async function renderBookPoll(hostId, profileObj){
+    if (!profileObj) return;
+    const host = document.getElementById(hostId + 'PollWrap');
+    if (!host) return;
+    await bookPollEnsureLoaded(hostId, profileObj);
+    bookPollPaint(hostId, profileObj);
+  }
+  function bookPollPaint(hostId, profileObj){
+    const host = document.getElementById(hostId + 'PollWrap');
+    const st = bookPollUI[hostId];
+    if (!host || !st || !profileObj) return;
+    const isOwnerView = hostId === 'owner';
+    const name = bookPollFirstName(profileObj.name);
+    const poll = BOOK_POLLS[st.index];
+    const myVote = isOwnerView ? -2 : bookPollMyVote(st, poll.key);
+    const { counts, total } = bookPollCounts(st, poll.key);
+    const dots = BOOK_POLLS.map((_, i) => `<span class="poll-dot${i === st.index ? ' on' : ''}"></span>`).join('');
+
+    let bodyHtml;
+    if (isOwnerView || myVote >= 0){
+      if (!total){
+        bodyHtml = `<p class="poll-empty">No answers yet — once people who know ${escapeHtml(name)} start weighing in, this fills in on its own.</p>`;
+      } else {
+        bodyHtml = poll.opts.map((label, oi) => {
+          const pct = Math.round((counts[oi] / total) * 100);
+          const mine = oi === myVote;
+          return `
+          <div class="poll-result-row">
+            <div class="poll-result-top">
+              <span class="poll-result-label${mine ? ' mine' : ''}">${escapeHtml(label)}${mine ? '<span class="poll-result-check">&#10003;</span>' : ''}</span>
+              <span class="poll-result-pct">${pct}%</span>
+            </div>
+            <div class="poll-bar-track"><div class="poll-bar-fill${mine ? ' mine' : ''}" style="width:${pct}%;"></div></div>
+          </div>`;
+        }).join('');
+      }
+    } else {
+      const locked = !currentUser;
+      bodyHtml = poll.opts.map((label, oi) =>
+        `<button type="button" class="poll-opt-btn" ${locked ? 'tabindex="-1"' : `onclick="bookPollVote('${hostId}', ${oi})"`}>${escapeHtml(label)}</button>`
+      ).join('');
+      if (locked){
+        bodyHtml += `<div class="poll-lock"><span>Sign in to answer and see results</span><button type="button" onclick="showScreen('auth')">Sign in</button></div>`;
+      }
+    }
+
+    host.innerHTML = `
+      <div class="poll-card">
+        <div class="poll-top">
+          <div class="poll-eyebrow">What people notice</div>
+          <div class="poll-dots">${dots}</div>
+        </div>
+        <p class="poll-lede">Quick, anonymous impressions from people who know ${escapeHtml(name)} — gathered the way the rest of this book is.</p>
+        <div class="poll-theme-tag">${escapeHtml(poll.theme)}</div>
+        <div class="poll-qtext">${escapeHtml(poll.q(name))}</div>
+        <div class="poll-opts-wrap">${bodyHtml}</div>
+        <div class="poll-bottom">
+          <span class="poll-respondents">${total} ${total === 1 ? 'person has' : 'people have'} answered</span>
+          <div style="display:flex; gap:8px;">
+            ${st.index > 0 ? `<button type="button" class="poll-next-btn" onclick="bookPollNav('${hostId}', -1)">&larr; Back</button>` : ''}
+            ${st.index < BOOK_POLLS.length - 1 ? `<button type="button" class="poll-next-btn" onclick="bookPollNav('${hostId}', 1)">Next question &rarr;</button>` : ''}
+          </div>
+        </div>
+      </div>
+      <p class="poll-footnote">Every option here is a compliment — there's no low or wrong answer, only which good thing people picked. ${isOwnerView ? 'You never see' : escapeHtml(name) + ' never sees'} who picked what, only the totals.</p>`;
+  }
+  function bookPollNav(hostId, dir){
+    const st = bookPollUI[hostId];
+    if (!st) return;
+    st.index = Math.max(0, Math.min(BOOK_POLLS.length - 1, st.index + dir));
+    bookPollPaint(hostId, hostId === 'owner' ? profile : currentVisitorProfile);
+  }
+  async function bookPollVote(hostId, optionIndex){
+    const st = bookPollUI[hostId];
+    const profileObj = hostId === 'owner' ? profile : currentVisitorProfile;
+    if (!st || !profileObj || !profileObj.dbId) return;
+    if (!currentUser || !db){ showToast('Sign in to answer'); return; }
+    const poll = BOOK_POLLS[st.index];
+    const { error } = await db.from('poll_votes').insert({
+      profile_id: profileObj.dbId,
+      voter_user_id: currentUser.id,
+      question_key: poll.key,
+      option_index: optionIndex
+    });
+    if (error){
+      if (error.code === '23505'){
+        st.loaded = false;
+        await bookPollEnsureLoaded(hostId, profileObj);
+        bookPollPaint(hostId, profileObj);
+        return;
+      }
+      showToast('Could not save your answer');
+      return;
+    }
+    (st.rows[poll.key] = st.rows[poll.key] || []).push({ question_key: poll.key, option_index: optionIndex, voter_user_id: currentUser.id });
+    bookPollPaint(hostId, profileObj);
   }
 
   function hpToggleConsent(btn){
