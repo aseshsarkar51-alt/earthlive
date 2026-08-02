@@ -4499,8 +4499,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     </div>
     <div id="voiceprintsBody"></div>
     <div class="vp-songs-head">
-      <h3>Recently added songs</h3>
-      <p>The last favourite songs picked across EarthLive books. Tap one to make it yours.</p>
+      <h3>Your song history</h3>
+      <p>Songs you've picked before for your own book — never anyone else's. Tap one to bring it back.</p>
     </div>
     <div id="recentSongsBody"></div>
   </div>
@@ -17958,67 +17958,43 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     host.querySelectorAll('.vprint').forEach(vpAttach);
   }
 
-  /* ---- Recently added songs (Voiceprints page) ----
-     The 10 most recently picked favourite songs across public EarthLive
-     books, so someone without a song idea of their own can borrow one.
-     Sourced from profiles.extras.favorite_song (set by pickSong / a row
-     here); RLS already restricts the read to public, non-deactivated
-     profiles, same as the rest of the "search" / visitor browsing. */
+  /* ---- Your song history (Voiceprints page) ----
+     Purely personal: up to 10 of YOUR OWN past favourite-song picks, kept
+     so you can bring an old one back without re-searching. Never shows
+     another user's picks — earlier this pulled from every public profile
+     site-wide, which meant two different people saw overlapping lists;
+     it's now sourced only from profile.extras.song_history, which
+     songSetFavorite() maintains locally whenever the current song changes. */
   let recentSongsCache = [];
-  async function loadRecentSongs(){
-    if (!db){ recentSongsCache = []; return; }
-    const { data, error } = await db.from('profiles')
-      .select('id, name, username, avatar_url, extras')
-      .order('created_at', { ascending:false })
-      .limit(300);
-    if (error || !data){ recentSongsCache = []; return; }
-    const withSongs = data
-      .filter(p => p.extras && p.extras.favorite_song && p.extras.favorite_song.previewUrl)
-      .map(p => ({
-        profileId: p.id,
-        name: p.name,
-        username: p.username,
-        avatarUrl: p.avatar_url,
-        song: p.extras.favorite_song
-      }));
-    withSongs.sort((a,b) => new Date(b.song.addedAt || 0) - new Date(a.song.addedAt || 0));
-    recentSongsCache = withSongs.slice(0, 10);
-  }
   function renderRecentSongs(){
     const host = document.getElementById('recentSongsBody');
     if (!host) return;
+    recentSongsCache = (profile && profile.extras && profile.extras.song_history) || [];
     if (!recentSongsCache.length){
-      host.innerHTML = '<div class="lb-empty"><b>No songs yet</b>Once people start adding a favourite song to their book, the ten most recent picks will show up here — tap one to make it yours.</div>';
+      host.innerHTML = '<div class="lb-empty"><b>No song history yet</b>Once you swap your favourite song for a new one, the song you replaced shows up here — tap it any time to bring it back.</div>';
       return;
     }
-    const mySong = profile && profile.extras && profile.extras.favorite_song;
-    host.innerHTML = '<div class="recent-song-list">' + recentSongsCache.map((r, i)=>{
-      const isCurrent = !!(mySong && mySong.previewUrl === r.song.previewUrl && mySong.title === r.song.title);
+    host.innerHTML = '<div class="recent-song-list">' + recentSongsCache.map((song, i)=>{
+      const when = song.addedAt ? new Date(song.addedAt).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '';
       return `
       <div class="recent-song-row">
         <button type="button" class="song-play-btn" id="recent${i}SongPlayBtn" onclick="toggleSongPlay('recent${i}')" aria-label="Play song">${songIcon(true)}</button>
-        <img class="song-art" src="${escapeHtml(r.song.artworkUrl || '')}" alt="" onerror="this.style.visibility='hidden'">
+        <img class="song-art" src="${escapeHtml(song.artworkUrl || '')}" alt="" onerror="this.style.visibility='hidden'">
         <div class="song-meta">
-          <div class="song-title">${escapeHtml(r.song.title)}</div>
-          <div class="song-artist">${escapeHtml(r.song.artist)}</div>
-          <div class="recent-song-by">Added by ${escapeHtml(r.name || 'someone')}</div>
+          <div class="song-title">${escapeHtml(song.title)}</div>
+          <div class="song-artist">${escapeHtml(song.artist)}</div>
+          ${when ? `<div class="recent-song-by">Picked ${when}</div>` : ''}
         </div>
         <div class="song-wave" id="recent${i}SongWave"><span></span><span></span><span></span><span></span><span></span></div>
-        <button type="button" class="recent-song-use${isCurrent ? ' current' : ''}" onclick="pickRecentSong(${i})">${isCurrent ? 'Your song' : 'Use this'}</button>
+        <button type="button" class="recent-song-use" onclick="pickRecentSong(${i})">Use this</button>
       </div>`;
     }).join('') + '</div>';
   }
   async function pickRecentSong(i){
-    const r = recentSongsCache[i];
-    if (!r || !profile) return;
+    const song = recentSongsCache[i];
+    if (!song || !profile) return;
     stopSongPlayback();
-    await hpSaveExtras({ favorite_song: {
-      title: r.song.title,
-      artist: r.song.artist,
-      artworkUrl: r.song.artworkUrl,
-      previewUrl: r.song.previewUrl,
-      addedAt: new Date().toISOString()
-    }});
+    await songSetFavorite(song);
     renderOwnerSong();
     renderRecentSongs();
     showToast('Favourite song updated');
@@ -18031,8 +18007,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (name === 'constellation') renderConstellation();
     if (name === 'voiceprints'){
       renderVoiceprints();
-      renderRecentSongs();       // paint from cache immediately, then refresh from the DB
-      loadRecentSongs().then(renderRecentSongs);
+      renderRecentSongs();
     }
     if (name === 'happiness'){ await loadMoods(); renderHappiness(); }
     if (name === 'anchor') renderAnchor();
@@ -18403,7 +18378,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (key === 'visitor') return currentVisitorProfile && currentVisitorProfile.extras && currentVisitorProfile.extras.favorite_song;
     if (key.indexOf('recent') === 0){
       const i = parseInt(key.slice(6), 10);
-      return recentSongsCache[i] && recentSongsCache[i].song;
+      return recentSongsCache[i];
     }
     return null;
   }
@@ -18482,25 +18457,46 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       }
     }, 350);
   }
+  /* Swaps profile.extras.favorite_song, archiving whatever song it
+     replaces into extras.song_history (max 10, de-duplicated, most
+     recent first) so it can be picked again later from "Your song
+     history" on the Voiceprints page. Pass null to just remove the
+     current song (it still gets archived, so it's recoverable). */
+  function songsEqual(a, b){
+    return !!a && !!b && a.previewUrl === b.previewUrl && a.title === b.title;
+  }
+  async function songSetFavorite(newSong){
+    const old = profile.extras && profile.extras.favorite_song;
+    let history = ((profile.extras && profile.extras.song_history) || []).slice();
+    history = history.filter(h => !songsEqual(h, newSong));
+    if (old && !songsEqual(old, newSong)){
+      history = history.filter(h => !songsEqual(h, old));
+      history.unshift(old);
+    }
+    history = history.slice(0, 10);
+    await hpSaveExtras({ favorite_song: newSong, song_history: history });
+  }
   async function pickSong(i){
     const t = songSearchResultsCache[i];
     if (!t) return;
     stopSongPlayback();
-    await hpSaveExtras({ favorite_song: {
+    await songSetFavorite({
       title: t.trackName || 'Untitled',
       artist: t.artistName || '',
       artworkUrl: (t.artworkUrl100 || t.artworkUrl60 || '').replace('100x100bb', '200x200bb'),
       previewUrl: t.previewUrl,
       addedAt: new Date().toISOString()
-    }});
+    });
     closeSongSearch();
     renderOwnerSong();
+    renderRecentSongs();
     showToast('Favourite song added');
   }
   async function removeSong(){
     stopSongPlayback();
-    await hpSaveExtras({ favorite_song: null });
+    await songSetFavorite(null);
     renderOwnerSong();
+    renderRecentSongs();
   }
 
   function hpToggleConsent(btn){
