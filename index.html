@@ -18670,9 +18670,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   function bookPollTopPick(st, key){
     const { counts, total } = bookPollCounts(st, key);
     if (!total) return null;
-    let best = 0;
-    for (let i = 1; i < counts.length; i++){ if (counts[i] > counts[best]) best = i; }
-    return { index: best, pct: Math.round((counts[best] / total) * 100), total };
+    const max = Math.max(...counts);
+    const indices = [];
+    for (let i = 0; i < counts.length; i++){ if (counts[i] === max) indices.push(i); }
+    return { indices, pct: Math.round((max / total) * 100), total };
   }
   function bookPollOverallCount(st){
     const ids = new Set();
@@ -18720,15 +18721,18 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       });
       withData.sort((a, b) => b.top.pct - a.top.pct);
 
+      let rank = 0, prevPct = null;
       const rankedRows = withData.map((item, idx) => {
-        const rank = idx + 1;
+        if (item.top.pct !== prevPct){ rank = idx + 1; prevPct = item.top.pct; }
         const first = rank === 1;
+        const leadLabel = item.top.indices.map(i => escapeHtml(item.poll.opts[i])).join(' and ');
+        const tied = item.top.indices.length > 1;
         return `
         <div class="poll-rank-row">
           <div class="poll-rank-badge${first ? ' first' : ''}">${rank}</div>
           <div class="poll-rank-body">
             <div class="poll-rank-top">
-              <span class="poll-rank-label"><b>${escapeHtml(item.poll.opts[item.top.index])}</b> <span class="poll-rank-theme">&middot; ${escapeHtml(item.poll.theme)}</span></span>
+              <span class="poll-rank-label"><b>${leadLabel}</b> <span class="poll-rank-theme">&middot; ${escapeHtml(item.poll.theme)}${tied ? ' &middot; tied' : ''}</span></span>
               <span class="poll-rank-pct-wrap">
                 <span class="poll-rank-pct">${item.top.pct}%</span>
                 <span class="poll-rank-count">${item.top.total} ${item.top.total === 1 ? 'answer' : 'answers'}</span>
