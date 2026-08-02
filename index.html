@@ -17410,7 +17410,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (name === 'ribbon') renderRibbon();
     if (name === 'constellation') renderConstellation();
     if (name === 'voiceprints') renderVoiceprints();
-    if (name === 'happiness') renderHappiness();
+    if (name === 'happiness'){ await loadMoods(); renderHappiness(); }
     if (name === 'anchor') renderAnchor();
   }
 
