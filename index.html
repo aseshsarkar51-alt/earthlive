@@ -534,6 +534,21 @@
   .song-result .sr-title{font-size:13px; color:var(--ink); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .song-result .sr-artist{font-size:11.5px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .song-search-msg{font-size:12.5px; color:var(--ink-soft); padding:14px 4px; text-align:center;}
+  .vp-songs-head{margin:36px 0 14px; padding-top:24px; border-top:1px solid var(--line);}
+  .vp-songs-head h3{font-size:17px; margin:0 0 4px;}
+  .vp-songs-head p{font-size:13px; color:var(--ink-soft); margin:0; max-width:560px;}
+  .recent-song-list{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:4px 18px;}
+  .recent-song-row{display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--line);}
+  .recent-song-row:last-child{border-bottom:none;}
+  .recent-song-row .song-art{width:40px; height:40px;}
+  .recent-song-row .song-meta{flex:1 1 120px; min-width:0;}
+  .recent-song-row .song-play-btn{width:32px; height:32px;}
+  .recent-song-row .song-play-btn svg{width:12px; height:12px;}
+  .recent-song-row .song-wave{height:14px;}
+  .recent-song-by{font-size:11px; color:var(--ink-soft); margin-top:1px;}
+  .recent-song-use{font-size:11.5px; font-weight:600; padding:6px 13px; border-radius:999px; border:1px solid var(--line); background:var(--page); color:var(--ink); cursor:pointer; flex:none; font-family:inherit;}
+  .recent-song-use:hover{border-color:var(--ink-soft);}
+  .recent-song-use.current{background:var(--ink); color:var(--oat); border-color:var(--ink);}
 
   .cover-edit-menu-wrap{position:absolute; right:14px; top:14px; z-index:3;}
   .cover-edit-btn{
@@ -4483,6 +4498,11 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       <p class="lb-lede">Every voice recording left in your book, in one place. Never a plain audio player — always the barcode, so a voice is recognisable as an EarthLive object anywhere it appears.</p>
     </div>
     <div id="voiceprintsBody"></div>
+    <div class="vp-songs-head">
+      <h3>Recently added songs</h3>
+      <p>The last favourite songs picked across EarthLive books. Tap one to make it yours.</p>
+    </div>
+    <div id="recentSongsBody"></div>
   </div>
 </section>
 
@@ -17938,12 +17958,82 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     host.querySelectorAll('.vprint').forEach(vpAttach);
   }
 
+  /* ---- Recently added songs (Voiceprints page) ----
+     The 10 most recently picked favourite songs across public EarthLive
+     books, so someone without a song idea of their own can borrow one.
+     Sourced from profiles.extras.favorite_song (set by pickSong / a row
+     here); RLS already restricts the read to public, non-deactivated
+     profiles, same as the rest of the "search" / visitor browsing. */
+  let recentSongsCache = [];
+  async function loadRecentSongs(){
+    if (!db){ recentSongsCache = []; return; }
+    const { data, error } = await db.from('profiles')
+      .select('id, name, username, avatar_url, extras')
+      .order('created_at', { ascending:false })
+      .limit(300);
+    if (error || !data){ recentSongsCache = []; return; }
+    const withSongs = data
+      .filter(p => p.extras && p.extras.favorite_song && p.extras.favorite_song.previewUrl)
+      .map(p => ({
+        profileId: p.id,
+        name: p.name,
+        username: p.username,
+        avatarUrl: p.avatar_url,
+        song: p.extras.favorite_song
+      }));
+    withSongs.sort((a,b) => new Date(b.song.addedAt || 0) - new Date(a.song.addedAt || 0));
+    recentSongsCache = withSongs.slice(0, 10);
+  }
+  function renderRecentSongs(){
+    const host = document.getElementById('recentSongsBody');
+    if (!host) return;
+    if (!recentSongsCache.length){
+      host.innerHTML = '<div class="lb-empty"><b>No songs yet</b>Once people start adding a favourite song to their book, the ten most recent picks will show up here — tap one to make it yours.</div>';
+      return;
+    }
+    const mySong = profile && profile.extras && profile.extras.favorite_song;
+    host.innerHTML = '<div class="recent-song-list">' + recentSongsCache.map((r, i)=>{
+      const isCurrent = !!(mySong && mySong.previewUrl === r.song.previewUrl && mySong.title === r.song.title);
+      return `
+      <div class="recent-song-row">
+        <button type="button" class="song-play-btn" id="recent${i}SongPlayBtn" onclick="toggleSongPlay('recent${i}')" aria-label="Play song">${songIcon(true)}</button>
+        <img class="song-art" src="${escapeHtml(r.song.artworkUrl || '')}" alt="" onerror="this.style.visibility='hidden'">
+        <div class="song-meta">
+          <div class="song-title">${escapeHtml(r.song.title)}</div>
+          <div class="song-artist">${escapeHtml(r.song.artist)}</div>
+          <div class="recent-song-by">Added by ${escapeHtml(r.name || 'someone')}</div>
+        </div>
+        <div class="song-wave" id="recent${i}SongWave"><span></span><span></span><span></span><span></span><span></span></div>
+        <button type="button" class="recent-song-use${isCurrent ? ' current' : ''}" onclick="pickRecentSong(${i})">${isCurrent ? 'Your song' : 'Use this'}</button>
+      </div>`;
+    }).join('') + '</div>';
+  }
+  async function pickRecentSong(i){
+    const r = recentSongsCache[i];
+    if (!r || !profile) return;
+    stopSongPlayback();
+    await hpSaveExtras({ favorite_song: {
+      title: r.song.title,
+      artist: r.song.artist,
+      artworkUrl: r.song.artworkUrl,
+      previewUrl: r.song.previewUrl,
+      addedAt: new Date().toISOString()
+    }});
+    renderOwnerSong();
+    renderRecentSongs();
+    showToast('Favourite song updated');
+  }
+
   async function openLookBack(name){
     await lbLoadEvents();
     showScreen(name);
     if (name === 'ribbon') renderRibbon();
     if (name === 'constellation') renderConstellation();
-    if (name === 'voiceprints') renderVoiceprints();
+    if (name === 'voiceprints'){
+      renderVoiceprints();
+      renderRecentSongs();       // paint from cache immediately, then refresh from the DB
+      loadRecentSongs().then(renderRecentSongs);
+    }
     if (name === 'happiness'){ await loadMoods(); renderHappiness(); }
     if (name === 'anchor') renderAnchor();
   }
@@ -18303,32 +18393,43 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       </div>`;
   }
 
-  let songAudioContext = null;   // 'owner' | 'visitor' | null — which box the shared <audio> is bound to
+  /* key -> song lookup, so the shared <audio> element can play from any
+     song-card on the page: the owner's own pick, a visitor's read-only view,
+     or a row in the "recently added songs" list (recent0, recent1, ...).
+     Each key maps to element ids "<key>SongPlayBtn" / "<key>SongWave". */
+  let songAudioContext = null;
+  function songForKey(key){
+    if (key === 'owner') return profile.extras && profile.extras.favorite_song;
+    if (key === 'visitor') return currentVisitorProfile && currentVisitorProfile.extras && currentVisitorProfile.extras.favorite_song;
+    if (key.indexOf('recent') === 0){
+      const i = parseInt(key.slice(6), 10);
+      return recentSongsCache[i] && recentSongsCache[i].song;
+    }
+    return null;
+  }
   function stopSongPlayback(){
     const audio = document.getElementById('songAudioEl');
     if (audio) audio.pause();
     if (songAudioContext){
-      const btn = document.getElementById(songAudioContext === 'owner' ? 'ownerSongPlayBtn' : 'visitorSongPlayBtn');
-      const wave = document.getElementById(songAudioContext === 'owner' ? 'ownerSongWave' : 'visitorSongWave');
+      const btn = document.getElementById(songAudioContext + 'SongPlayBtn');
+      const wave = document.getElementById(songAudioContext + 'SongWave');
       if (btn) btn.innerHTML = songIcon(true);
       if (wave) wave.classList.remove('playing');
     }
     songAudioContext = null;
   }
-  function toggleSongPlay(which){
+  function toggleSongPlay(key){
     const audio = document.getElementById('songAudioEl');
     if (!audio) return;
-    const song = which === 'owner'
-      ? (profile.extras && profile.extras.favorite_song)
-      : (currentVisitorProfile && currentVisitorProfile.extras && currentVisitorProfile.extras.favorite_song);
+    const song = songForKey(key);
     if (!song || !song.previewUrl) return;
-    if (songAudioContext === which && !audio.paused){ stopSongPlayback(); return; }
-    if (songAudioContext && songAudioContext !== which) stopSongPlayback();
+    if (songAudioContext === key && !audio.paused){ stopSongPlayback(); return; }
+    if (songAudioContext && songAudioContext !== key) stopSongPlayback();
     if (audio.src !== song.previewUrl){ audio.src = song.previewUrl; audio.currentTime = 0; }
-    songAudioContext = which;
+    songAudioContext = key;
     audio.play().then(()=>{
-      const btn = document.getElementById(which === 'owner' ? 'ownerSongPlayBtn' : 'visitorSongPlayBtn');
-      const wave = document.getElementById(which === 'owner' ? 'ownerSongWave' : 'visitorSongWave');
+      const btn = document.getElementById(key + 'SongPlayBtn');
+      const wave = document.getElementById(key + 'SongWave');
       if (btn) btn.innerHTML = songIcon(false);
       if (wave) wave.classList.add('playing');
     }).catch(()=>{ showToast('Could not play preview'); songAudioContext = null; });
@@ -18389,7 +18490,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       title: t.trackName || 'Untitled',
       artist: t.artistName || '',
       artworkUrl: (t.artworkUrl100 || t.artworkUrl60 || '').replace('100x100bb', '200x200bb'),
-      previewUrl: t.previewUrl
+      previewUrl: t.previewUrl,
+      addedAt: new Date().toISOString()
     }});
     closeSongSearch();
     renderOwnerSong();
