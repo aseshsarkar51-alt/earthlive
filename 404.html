@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>EarthLive</title>
+<!--
+  GitHub Pages is static hosting with no server-side routing, so a clean
+  URL like earthlive.in/someone or earthlive.in/our-story isn't a real
+  file and lands here. This encodes the path the visitor actually wanted
+  into a query string and sends them back to index.html, which restores
+  it (see the small script at the top of index.html's <head>) before the
+  app boots — so it opens the right page instead of just the homepage.
+  Standard trick: https://github.com/rafgraph/spa-github-pages
+-->
+<script>
+  var l = window.location;
+  l.replace(
+    l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + '/?/' +
+    l.pathname.slice(1).replace(/&/g, '~and~') +
+    (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+    l.hash
+  );
+</script>
+</head>
+<body>
+</body>
+</html>

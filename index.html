@@ -4,6 +4,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  // Restore a clean path (earthlive.in/someone, /our-story, /how-it-works)
+  // after 404.html's redirect trick brought us back here. GitHub Pages is
+  // static hosting with no server-side routing, so a URL that isn't a real
+  // file 404s; 404.html encodes the intended path into a query string and
+  // sends the browser back to this page, and this restores it via
+  // history.replaceState before anything else runs — see 404.html and
+  // parseCleanPath() later in this file.
+  (function(l){
+    if (l.search[1] === '/'){
+      var decoded = l.search.slice(1).split('&').map(function(s){ return s.replace(/~and~/g, '&'); }).join('?');
+      window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash);
+    }
+  }(window.location));
+</script>
 <title>EarthLive — Digital Memory Book & Online Guestbook</title>
 <meta name="description" content="EarthLive is a free digital memory book and online guestbook. Share one link and let the people in your life sign your page with photos, voice notes, and memories — like a digital slam book that keeps growing. Export any book as a printable PDF keepsake.">
 <meta name="keywords" content="digital memory book, online guestbook, digital slam book, memory book app, keepsake book maker, digital yearbook, guestbook app, memory jar app, printable memory book PDF">
@@ -3506,7 +3521,7 @@
                   <div style="width:44px; height:44px; border-radius:50%; background:var(--oat-deep); border:2px dashed var(--ink-soft); display:flex; align-items:center; justify-content:center; font-size:16px; flex:none;">+</div>
                   <div style="flex:1;">
                     <div class="hiw-fake-input" style="margin-bottom:5px;">Your name</div>
-                    <div class="hiw-fake-input" style="margin-bottom:0;">earthlive.in/?u=<b style="color:var(--ink);">yourname</b></div>
+                    <div class="hiw-fake-input" style="margin-bottom:0;">earthlive.in/<b style="color:var(--ink);">yourname</b></div>
                   </div>
                 </div>
                 <div style="font-size:11px; font-weight:700; margin-bottom:5px;">Pick your questions</div>
@@ -3528,7 +3543,7 @@
               <div class="hiw-mini">
                 <div class="hiw-mini-label">Your link and QR</div>
                 <div style="display:flex; gap:8px; margin-bottom:10px;">
-                  <div class="hiw-fake-input" style="flex:1; margin:0; color:var(--ink); font-weight:600;">earthlive.in/?u=yourname</div>
+                  <div class="hiw-fake-input" style="flex:1; margin:0; color:var(--ink); font-weight:600;">earthlive.in/yourname</div>
                   <span class="hiw-fake-btn" style="flex:none; align-self:center;">Copy</span>
                 </div>
                 <div style="display:flex; gap:12px; align-items:center;">
@@ -5356,6 +5371,12 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
             openEventBySlug(s);
             return;
           }
+          if (pendingCleanScreen){
+            const s = pendingCleanScreen;
+            pendingCleanScreen = null;
+            showScreen(s);
+            return;
+          }
           if (found){
             renderDashboard();
             showScreen('dashboard');
@@ -5384,6 +5405,12 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
               pendingEventSlug = null;
               try{ sessionStorage.removeItem('elPendingEventSlug'); }catch(e){}
               openEventBySlug(s);
+              return;
+            }
+            if (pendingCleanScreen){
+              const s = pendingCleanScreen;
+              pendingCleanScreen = null;
+              showScreen(s);
               return;
             }
             if (found){
@@ -6578,9 +6605,26 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     openThread(data.id);
   }
 
-  /* ---------- INVITE LINK ROUTING (earthlive.in/?u=username) ---------- */
-  let pendingLinkUsername = new URLSearchParams(location.search).get('u');
+  /* ---------- CLEAN URL ROUTING (earthlive.in/username, /our-story, /how-it-works) ----------
+     Falls back to the older ?u=/?e= query-param form so any previously
+     shared link keeps working. Usernames can only contain [a-z0-9_] (see
+     validateUsername()), so they can never collide with the hyphenated
+     /our-story or /how-it-works routes. */
+  const CLEAN_SCREEN_ROUTES = { 'our-story':'about', 'how-it-works':'how' };
+  const RESERVED_PATH_SLUGS = ['events', 'our-story', 'how-it-works'];
+  function parseCleanPath(){
+    const seg = decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g, ''));
+    if (!seg) return {};
+    if (CLEAN_SCREEN_ROUTES[seg]) return { screen: CLEAN_SCREEN_ROUTES[seg] };
+    if (/^[a-z0-9_]{3,20}$/.test(seg) && RESERVED_PATH_SLUGS.indexOf(seg) === -1) return { username: seg };
+    return {};
+  }
+  const _cleanRoute = parseCleanPath();
+
+  /* ---------- INVITE LINK ROUTING (earthlive.in/username or earthlive.in/?u=username) ---------- */
+  let pendingLinkUsername = new URLSearchParams(location.search).get('u') || _cleanRoute.username || null;
   var pendingEventSlug = new URLSearchParams(location.search).get('e');
+  let pendingCleanScreen = _cleanRoute.screen || null;
   // Same reasoning as the event slug below: someone who opens a shared
   // profile link, reads the page, then signs in (Google OAuth — full page
   // redirect) to leave a signature needs this to survive the round trip
@@ -6616,7 +6660,9 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
      on signup in createProfile(). No new table — stored in profiles.extras. */
   (function captureReferral(){
     try {
-      const ref = new URLSearchParams(location.search).get('ref');
+      // A clean profile link (earthlive.in/username) no longer carries a
+      // separate &ref= param — the path itself IS the referral signal now.
+      const ref = new URLSearchParams(location.search).get('ref') || _cleanRoute.username || null;
       if (ref) localStorage.setItem('el_ref', ref);
     } catch(err){ /* localStorage unavailable — referral just won't be tracked */ }
   })();
@@ -6658,10 +6704,16 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   function handleIncomingLink(){
     // Deep link from the tour / marketing: /#create (or ?start=1) jumps straight
     // into creating a book. For a signed-out visitor this opens the sign-in step.
-    if (!pendingLinkUsername && !pendingEventSlug &&
+    if (!pendingLinkUsername && !pendingEventSlug && !pendingCleanScreen &&
         (location.hash === '#create' || new URLSearchParams(location.search).get('start') === '1')){
       try{ history.replaceState(null, '', location.pathname); }catch(e){}
       beginFlow();
+      return true;
+    }
+    if (pendingCleanScreen){
+      const s = pendingCleanScreen;
+      pendingCleanScreen = null;
+      showScreen(s);
       return true;
     }
     if (pendingEventSlug){
@@ -7074,6 +7126,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   }
 
   async function isUsernameFree(u){
+    if (RESERVED_PATH_SLUGS.indexOf(u) !== -1) return false;
     if (db){
       const { data, error } = await db.rpc('username_available', { candidate: u });
       if (error){ console.error('[EarthLive] username check failed:', error.message); return true; }
@@ -7278,6 +7331,9 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   function validateUsername(u){
     if (!u) return { ok:false, msg:'Pick a username \u2014 it becomes your page link.' };
     if (!/^[a-z0-9_]{3,20}$/.test(u)) return { ok:false, msg:'3\u201320 characters: lowercase letters, numbers, and _ only.' };
+    // These would collide with real site paths (earthlive.in/events/...) or
+    // are reserved for the app itself \u2014 see RESERVED_PATH_SLUGS.
+    if (RESERVED_PATH_SLUGS.indexOf(u) !== -1) return { ok:false, msg:'@' + u + ' is reserved \u2014 try another.' };
     if (takenUsernames().includes(u)) return { ok:false, msg:'@' + u + ' is already taken \u2014 try another.' };
     return { ok:true, msg:'@' + u + ' is available!' };
   }
@@ -8201,7 +8257,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const slug = pageProfile
       ? (pageProfile.username || pageProfile.code)
       : 'page';
-    const url = 'https://earthlive.in/?u=' + slug + '#entry-' + (entry.id || i);
+    const url = 'https://earthlive.in/' + slug + '#entry-' + (entry.id || i);
     shareWithFallback({ title:'A note on EarthLive', text:`See what ${entry.name} wrote`, url }, 'Entry link copied');
   }
 
@@ -8303,7 +8359,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
           '</div>').join('') +
         '<div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #E0D8C3; margin-top:16px; padding-top:12px;">' +
           '<span style="font-size:12px; color:#726A59;">' + escapeHtml(entry.date || '') + '</span>' +
-          '<span style="font-size:12px; color:#726A59;">Kept on <b style="color:#2E2A22;">EarthLive</b>' + (profile && profile.username ? ' · earthlive.in/?u=' + escapeHtml(profile.username) : '') + '</span>' +
+          '<span style="font-size:12px; color:#726A59;">Kept on <b style="color:#2E2A22;">EarthLive</b>' + (profile && profile.username ? ' · earthlive.in/' + escapeHtml(profile.username) : '') + '</span>' +
         '</div>' +
       '</div>';
   }
@@ -10679,8 +10735,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
   function shareVisitorBook(){
     if (!currentVisitorProfile) return;
-    const link = 'earthlive.in/?u=' + (currentVisitorProfile.username || currentVisitorProfile.code);
-    const url = 'https://' + link;
+    const handle = currentVisitorProfile.username || currentVisitorProfile.code;
+    const url = 'https://earthlive.in/' + handle;
     shareWithFallback({ title: currentVisitorProfile.name + '\u2019s memory book', url }, 'Link copied');
   }
 
@@ -10691,7 +10747,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   function myBookLink(){
     if (!profile) return 'earthlive.in';
     const handle = profile.username || profile.code;
-    return 'earthlive.in/?u=' + handle + '&ref=' + handle;
+    return 'earthlive.in/' + handle;
   }
 
   function copyInvite(){
@@ -11932,6 +11988,11 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   let currentScreenName = 'landing';
   let navFromPopstate = false;
 
+  // Screens with a shareable clean-path URL of their own (see the 404.html
+  // redirect trick + parseCleanPath() near the top of this file). 'visitor'
+  // is handled specially below since its path depends on whose page it is.
+  const CLEAN_SCREEN_PATHS = { about:'/our-story', how:'/how-it-works' };
+
   function showScreen(name){
     if (name === 'search' && !currentUser){
       showToast('Sign in to find and view pages');
@@ -11946,11 +12007,18 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     document.getElementById('screen-'+name).classList.add('active');
 
     // Real browser history: every screen change is one history step, so the
-    // Back button always returns to the previously viewed screen.
-    // We also push a CLEAN url (no ?u= / ?e=), so refreshing the page always
+    // Back button always returns to the previously viewed screen. Screens
+    // with their own clean path (a profile, Our story, How it works) get
+    // that path in the address bar so they're shareable as-is; everywhere
+    // else resets to the bare domain, so refreshing the page always
     // reopens YOUR page instead of the last shared link you clicked.
     if (!navFromPopstate && name !== currentScreenName){
-      try{ history.pushState({ elScreen: name }, '', location.pathname); }catch(err){}
+      let path = '/';
+      if (CLEAN_SCREEN_PATHS[name]) path = CLEAN_SCREEN_PATHS[name];
+      else if (name === 'visitor' && currentVisitorProfile && currentVisitorProfile.username){
+        path = '/' + currentVisitorProfile.username;
+      }
+      try{ history.pushState({ elScreen: name }, '', path); }catch(err){}
     }
     currentScreenName = name;
     // Remember the screen so a refresh can reopen it instead of always
