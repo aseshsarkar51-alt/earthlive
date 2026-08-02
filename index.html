@@ -593,10 +593,12 @@
   .poll-rank-badge.first{background:var(--camel); color:#fff;}
   .poll-rank-badge.empty{background:transparent; color:var(--ink-soft); font-weight:400;}
   .poll-rank-body{flex:1; min-width:0;}
-  .poll-rank-top{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:6px;}
+  .poll-rank-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:6px;}
   .poll-rank-label{font-size:13.5px; color:var(--ink);}
   .poll-rank-theme{color:var(--ink-soft); font-weight:400;}
-  .poll-rank-pct{font-size:12px; color:var(--ink-soft); flex:none;}
+  .poll-rank-pct-wrap{display:inline-block; text-align:right; flex:none;}
+  .poll-rank-pct{font-size:13px; font-weight:600; color:var(--ink); display:block;}
+  .poll-rank-count{font-size:10.5px; color:var(--ink-soft); margin-top:1px;}
   .poll-rank-track{height:10px; border-radius:6px; background:var(--oat-deep); overflow:hidden;}
   .poll-rank-fill{height:100%; border-radius:6px; background:var(--moss);}
   .poll-rank-fill.first{background:var(--camel);}
@@ -13356,13 +13358,15 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (lastForYouCheck) q2.gt('created_at', lastForYouCheck);
     const { count: c2 } = await q2;
     count += (c2 || 0);
-    // new poll answers on MY "What people notice" poll since last check
+    // new poll answers on MY "What people notice" poll since last check —
+    // these always collapse into a single aggregated feed card, so they
+    // only ever add 1 to the badge, regardless of how many votes came in.
     if (profile && profile.dbId){
       const q3 = db.from('poll_votes').select('id', {count:'exact', head:true})
         .eq('profile_id', profile.dbId);
       if (lastForYouCheck) q3.gt('created_at', lastForYouCheck);
       const { count: c3 } = await q3;
-      count += (c3 || 0);
+      if (c3 > 0) count += 1;
     }
     if (count > 0){ badge.textContent = count; badge.style.display = 'inline-flex'; }
     else badge.style.display = 'none';
@@ -13510,21 +13514,23 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
     // 5) New answers on MY "What people notice" poll since last check.
     //    Votes are anonymous even to the owner, so this is one aggregated
-    //    card rather than one per voter.
+    //    card rather than one per voter — and one person can answer up to
+    //    5 questions (5 rows), so we count DISTINCT voters, not rows.
     if (profile && profile.dbId){
-      const pollQ = db.from('poll_votes').select('id, created_at', {count:'exact'})
+      const pollQ = db.from('poll_votes').select('voter_user_id, created_at')
         .eq('profile_id', profile.dbId)
-        .order('created_at', {ascending:false}).limit(1);
+        .order('created_at', {ascending:false});
       if (lastForYouCheck) pollQ.gt('created_at', lastForYouCheck);
-      const { data: pollLatest, count: pollCount } = await pollQ;
-      if (pollCount > 0){
+      const { data: pollRows } = await pollQ;
+      if (pollRows && pollRows.length){
+        const pollVoterCount = new Set(pollRows.map(r => r.voter_user_id)).size;
         items.push({
           kind:'poll',
-          at: pollLatest[0].created_at,
+          at: pollRows[0].created_at,
           avatar: icon('sparkle') || '✦',
           color: 'var(--camel)',
-          title: (pollCount === 1 ? 'Someone' : pollCount + ' people') + ' answered a question in <b>What people notice</b>',
-          meta: evTimeAgo(pollLatest[0].created_at)
+          title: (pollVoterCount === 1 ? 'Someone' : pollVoterCount + ' people') + ' answered a question in <b>What people notice</b>',
+          meta: evTimeAgo(pollRows[0].created_at)
         });
       }
     }
@@ -18723,7 +18729,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
           <div class="poll-rank-body">
             <div class="poll-rank-top">
               <span class="poll-rank-label"><b>${escapeHtml(item.poll.opts[item.top.index])}</b> <span class="poll-rank-theme">&middot; ${escapeHtml(item.poll.theme)}</span></span>
-              <span class="poll-rank-pct">${item.top.pct}%</span>
+              <span class="poll-rank-pct-wrap">
+                <span class="poll-rank-pct">${item.top.pct}%</span>
+                <span class="poll-rank-count">${item.top.total} ${item.top.total === 1 ? 'answer' : 'answers'}</span>
+              </span>
             </div>
             <div class="poll-rank-track"><div class="poll-rank-fill${first ? ' first' : ''}" style="width:${item.top.pct}%;"></div></div>
           </div>
