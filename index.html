@@ -586,23 +586,16 @@
   .poll-dot.summary.on{background:var(--camel);}
   .poll-summary-title{font-family:"Fraunces",serif; font-weight:600; font-size:21px; line-height:1.3; color:var(--ink); margin:0 0 4px;}
   .poll-rank-list{display:flex; flex-direction:column;}
-  .poll-rank-row{display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid var(--line);}
+  .poll-rank-row{display:flex; align-items:baseline; justify-content:space-between; gap:16px; padding:18px 0; border-bottom:1px solid var(--line);}
   .poll-rank-row:last-child{border-bottom:none;}
   .poll-rank-row-empty.poll-recap-locked{cursor:pointer;}
-  .poll-rank-badge{width:24px; height:24px; border-radius:50%; background:var(--oat-deep); color:var(--ink-soft); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:none; margin-top:2px;}
-  .poll-rank-badge.first{background:var(--camel); color:#fff;}
-  .poll-rank-badge.empty{background:transparent; color:var(--ink-soft); font-weight:400;}
   .poll-rank-body{flex:1; min-width:0;}
-  .poll-rank-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:6px;}
-  .poll-rank-label{font-size:13.5px; color:var(--ink);}
-  .poll-rank-theme{color:var(--ink-soft); font-weight:400;}
-  .poll-rank-pct-wrap{display:inline-block; text-align:right; flex:none;}
-  .poll-rank-pct{font-size:13px; font-weight:600; color:var(--ink); display:block;}
-  .poll-rank-count{font-size:10.5px; color:var(--ink-soft); margin-top:1px;}
-  .poll-rank-track{height:10px; border-radius:6px; background:var(--oat-deep); overflow:hidden;}
-  .poll-rank-fill{height:100%; border-radius:6px; background:var(--moss);}
-  .poll-rank-fill.first{background:var(--camel);}
-  .poll-rank-answer{font-size:13px; color:var(--ink-soft);}
+  .poll-rank-label{font-family:"Fraunces",serif; font-weight:600; font-size:16.5px; color:var(--ink);}
+  .poll-rank-theme{font-size:11.5px; color:var(--ink-soft); font-weight:400; margin-left:8px;}
+  .poll-rank-pct-wrap{display:flex; flex-direction:column; align-items:flex-end; text-align:right; flex:none;}
+  .poll-rank-pct{font-size:13px; color:var(--ink-soft);}
+  .poll-rank-count{font-size:10.5px; color:var(--ink-soft); margin-top:2px;}
+  .poll-rank-answer{font-size:13px; color:var(--ink-soft); margin-top:4px;}
   .poll-rank-answer.locked{font-style:italic; cursor:pointer;}
   .poll-rank-answer.muted{font-style:italic;}
 
@@ -18720,25 +18713,17 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         else withoutData.push({ poll, i, unlocked });
       });
       withData.sort((a, b) => b.top.pct - a.top.pct);
-
-      let rank = 0, prevPct = null;
-      const rankedRows = withData.map((item, idx) => {
-        if (item.top.pct !== prevPct){ rank = idx + 1; prevPct = item.top.pct; }
-        const first = rank === 1;
+      const rankedRows = withData.map((item) => {
         const leadLabel = item.top.indices.map(i => escapeHtml(item.poll.opts[i])).join(' and ');
         const tied = item.top.indices.length > 1;
         return `
         <div class="poll-rank-row">
-          <div class="poll-rank-badge${first ? ' first' : ''}">${rank}</div>
           <div class="poll-rank-body">
-            <div class="poll-rank-top">
-              <span class="poll-rank-label"><b>${leadLabel}</b> <span class="poll-rank-theme">&middot; ${escapeHtml(item.poll.theme)}${tied ? ' &middot; tied' : ''}</span></span>
-              <span class="poll-rank-pct-wrap">
-                <span class="poll-rank-pct">${item.top.pct}%</span>
-                <span class="poll-rank-count">${item.top.total} ${item.top.total === 1 ? 'answer' : 'answers'}</span>
-              </span>
-            </div>
-            <div class="poll-rank-track"><div class="poll-rank-fill${first ? ' first' : ''}" style="width:${item.top.pct}%;"></div></div>
+            <span class="poll-rank-label">${leadLabel}</span><span class="poll-rank-theme">&middot; ${escapeHtml(item.poll.theme)}${tied ? ' &middot; tied' : ''}</span>
+          </div>
+          <div class="poll-rank-pct-wrap">
+            <span class="poll-rank-pct">${item.top.pct}%</span>
+            <span class="poll-rank-count">${item.top.total} ${item.top.total === 1 ? 'answer' : 'answers'}</span>
           </div>
         </div>`;
       }).join('');
@@ -18748,9 +18733,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         const label = locked ? 'Answer this one to reveal &rarr;' : 'Not enough answers yet';
         return `
         <div class="poll-rank-row${locked ? ' poll-rank-row-empty poll-recap-locked' : ''}"${locked ? ` onclick="bookPollJump('${hostId}', ${item.i})"` : ''}>
-          <div class="poll-rank-badge empty">&ndash;</div>
           <div class="poll-rank-body">
-            <div class="poll-rank-top"><span class="poll-rank-label">${escapeHtml(item.poll.theme)}</span></div>
+            <span class="poll-rank-theme">${escapeHtml(item.poll.theme)}</span>
             <div class="poll-rank-answer${locked ? ' locked' : ' muted'}">${label}</div>
           </div>
         </div>`;
