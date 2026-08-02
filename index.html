@@ -1524,8 +1524,9 @@
   .mini-date-ic{width:14px; height:14px; flex:none; color:var(--ink-soft);}
   .mini-date-pop{position:absolute; z-index:1400; background:var(--card); border:1px solid var(--line); border-radius:12px; box-shadow:0 12px 30px -10px rgba(46,42,34,.35); padding:12px; width:236px;}
   .mini-date-top{display:flex; align-items:center; justify-content:space-between; font-size:12.5px; font-weight:500; margin-bottom:8px;}
-  .mini-date-top button{width:22px; height:22px; border-radius:6px; border:none; background:none; color:var(--ink-soft); cursor:pointer; font-size:14px; line-height:1; font-family:inherit;}
+  .mini-date-top button{min-width:22px; height:22px; border-radius:6px; border:none; background:none; color:var(--ink-soft); cursor:pointer; font-size:14px; line-height:1; font-family:inherit;}
   .mini-date-top button:hover{background:var(--oat-deep); color:var(--ink);}
+  .mini-date-label{padding:2px 8px !important; font-size:12.5px; font-weight:600; color:var(--ink) !important;}
   .mini-date-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:3px;}
   .mini-date-dow{font-size:9px; font-weight:500; color:#B4AFA4; text-align:center; padding:2px 0 4px;}
   .mini-date-day{aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:11.5px; border-radius:7px; cursor:pointer; color:var(--ink);}
@@ -1533,6 +1534,11 @@
   .mini-date-day:hover{background:var(--oat-deep);}
   .mini-date-day.today{color:var(--moss); font-weight:600;}
   .mini-date-day.sel{background:var(--ink); color:var(--oat);}
+  .mini-date-months, .mini-date-years{display:grid; grid-template-columns:repeat(3,1fr); gap:6px;}
+  .mini-date-cell{padding:11px 0; text-align:center; font-size:12.5px; border-radius:8px; cursor:pointer; color:var(--ink);}
+  .mini-date-cell:hover{background:var(--oat-deep);}
+  .mini-date-cell.today{color:var(--moss); font-weight:600;}
+  .mini-date-cell.sel{background:var(--ink); color:var(--oat);}
   .mini-date-clear{margin-top:8px; width:100%; text-align:center; font-size:11.5px; color:var(--ink-soft); background:none; border:none; cursor:pointer; padding:4px; font-family:inherit;}
   .mini-date-clear:hover{color:var(--ink); text-decoration:underline;}
   .cal-day.today{color:var(--moss); font-weight:700;}
@@ -13893,6 +13899,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     pop.dataset.y = base.getFullYear();
     pop.dataset.m = base.getMonth();
     pop.dataset.sel = input.value || '';
+    pop.dataset.view = 'days';
     document.body.appendChild(pop);
     miniDateFill(pop);
     const r = triggerEl.getBoundingClientRect();
@@ -13906,15 +13913,108 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     });
     setTimeout(()=> document.addEventListener('click', miniDateOutsideClick, true), 0);
   }
+  /* Three drill-down levels so a birthdate 40+ years back doesn't take
+     dozens of clicks: days (default) -> click the month/year label ->
+     months (12 months for one year) -> click the year label -> years
+     (a block of 12 years, paged with ‹›). Picking a year jumps to its
+     month grid, picking a month jumps to its day grid. */
   function miniDateNav(dir){
     const pop = document.getElementById('miniDatePop');
     if (!pop) return;
+    const view = pop.dataset.view || 'days';
+    if (view === 'years'){
+      pop.dataset.yblock = parseInt(pop.dataset.yblock, 10) + dir * 12;
+      miniDateFill(pop);
+      return;
+    }
+    if (view === 'months'){
+      pop.dataset.y = parseInt(pop.dataset.y, 10) + dir;
+      miniDateFill(pop);
+      return;
+    }
     let y = parseInt(pop.dataset.y, 10), m = parseInt(pop.dataset.m, 10) + dir;
     if (m < 0){ m = 11; y--; } else if (m > 11){ m = 0; y++; }
     pop.dataset.y = y; pop.dataset.m = m;
     miniDateFill(pop);
   }
+  function miniDateShowMonths(){
+    const pop = document.getElementById('miniDatePop');
+    if (!pop) return;
+    pop.dataset.view = 'months';
+    miniDateFill(pop);
+  }
+  function miniDateShowYears(){
+    const pop = document.getElementById('miniDatePop');
+    if (!pop) return;
+    const y = parseInt(pop.dataset.y, 10);
+    pop.dataset.view = 'years';
+    pop.dataset.yblock = Math.floor(y / 12) * 12;
+    miniDateFill(pop);
+  }
+  function miniDatePickYear(y){
+    const pop = document.getElementById('miniDatePop');
+    if (!pop) return;
+    pop.dataset.y = y;
+    pop.dataset.view = 'months';
+    miniDateFill(pop);
+  }
+  function miniDatePickMonth(m){
+    const pop = document.getElementById('miniDatePop');
+    if (!pop) return;
+    pop.dataset.m = m;
+    pop.dataset.view = 'days';
+    miniDateFill(pop);
+  }
   function miniDateFill(pop){
+    const view = pop.dataset.view || 'days';
+    if (view === 'years') return miniDateFillYears(pop);
+    if (view === 'months') return miniDateFillMonths(pop);
+    return miniDateFillDays(pop);
+  }
+  function miniDateFillYears(pop){
+    const start = parseInt(pop.dataset.yblock, 10);
+    const sel = pop.dataset.sel || '';
+    const selYear = sel ? parseInt(sel.slice(0,4), 10) : null;
+    const thisYear = new Date().getFullYear();
+    let grid = '';
+    for (let i = 0; i < 12; i++){
+      const yr = start + i;
+      let cls = 'mini-date-cell';
+      if (yr === selYear) cls += ' sel';
+      if (yr === thisYear) cls += ' today';
+      grid += '<div class="' + cls + '" onclick="miniDatePickYear(' + yr + ')">' + yr + '</div>';
+    }
+    pop.innerHTML =
+      '<div class="mini-date-top">' +
+        '<button type="button" onclick="miniDateNav(-1)" aria-label="Previous years">‹</button>' +
+        '<span>' + start + '–' + (start + 11) + '</span>' +
+        '<button type="button" onclick="miniDateNav(1)" aria-label="Next years">›</button>' +
+      '</div>' +
+      '<div class="mini-date-years">' + grid + '</div>';
+  }
+  function miniDateFillMonths(pop){
+    const y = parseInt(pop.dataset.y, 10);
+    const sel = pop.dataset.sel || '';
+    const selYear = sel ? parseInt(sel.slice(0,4), 10) : null;
+    const selMonth = sel ? parseInt(sel.slice(5,7), 10) - 1 : null;
+    const today = new Date();
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    let grid = '';
+    for (let mi = 0; mi < 12; mi++){
+      let cls = 'mini-date-cell';
+      if (y === selYear && mi === selMonth) cls += ' sel';
+      if (y === today.getFullYear() && mi === today.getMonth()) cls += ' today';
+      grid += '<div class="' + cls + '" onclick="miniDatePickMonth(' + mi + ')">' + monthNames[mi] + '</div>';
+    }
+    pop.innerHTML =
+      '<div class="mini-date-top">' +
+        '<button type="button" onclick="miniDateNav(-1)" aria-label="Previous year">‹</button>' +
+        '<button type="button" class="mini-date-label" onclick="miniDateShowYears()">' + y + '</button>' +
+        '<button type="button" onclick="miniDateNav(1)" aria-label="Next year">›</button>' +
+      '</div>' +
+      '<div class="mini-date-months">' + grid + '</div>';
+  }
+  function miniDateFillDays(pop){
     const y = parseInt(pop.dataset.y, 10), m = parseInt(pop.dataset.m, 10);
     const sel = pop.dataset.sel || '';
     const today = calKey(new Date());
@@ -13934,7 +14034,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     pop.innerHTML =
       '<div class="mini-date-top">' +
         '<button type="button" onclick="miniDateNav(-1)" aria-label="Previous month">‹</button>' +
-        '<span>' + monthLabel + '</span>' +
+        '<button type="button" class="mini-date-label" onclick="miniDateShowMonths()">' + monthLabel + '</button>' +
         '<button type="button" onclick="miniDateNav(1)" aria-label="Next month">›</button>' +
       '</div>' +
       '<div class="mini-date-grid">' + grid + '</div>' +
