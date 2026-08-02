@@ -5431,7 +5431,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
   // On refresh, reopen whatever screen the person was actually on instead of
   // always dropping them back on the dashboard.
-  const RESTORABLE_SCREENS = ['dashboard','feed','events','waypoints','messages','account','contact','privacy','terms','about','how','search','ribbon','constellation','voiceprints','happiness','anchor'];
+  const RESTORABLE_SCREENS = ['dashboard','feed','events','waypoints','messages','account','contact','privacy','terms','about','how','research','tour','search','ribbon','constellation','voiceprints','happiness','anchor'];
   function restoreLastScreen(){
     let saved = null;
     try{ saved = sessionStorage.getItem('elLastScreen'); }catch(err){}
@@ -6605,13 +6605,27 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     openThread(data.id);
   }
 
-  /* ---------- CLEAN URL ROUTING (earthlive.in/username, /our-story, /how-it-works) ----------
+  /* ---------- CLEAN URL ROUTING (earthlive.in/username, /our-story, /how-it-works, ...) ----------
      Falls back to the older ?u=/?e= query-param form so any previously
      shared link keeps working. Usernames can only contain [a-z0-9_] (see
-     validateUsername()), so they can never collide with the hyphenated
-     /our-story or /how-it-works routes. */
-  const CLEAN_SCREEN_ROUTES = { 'our-story':'about', 'how-it-works':'how' };
-  const RESERVED_PATH_SLUGS = ['events', 'our-story', 'how-it-works'];
+     validateUsername()), so they can never collide with a hyphenated route
+     like /our-story or /how-it-works.
+     Every footer page gets the same treatment as Our story / How it works,
+     so sharing any of them opens that exact page instead of the homepage.
+     'Find someone' (search) and 'Sign in' (auth) are left out on purpose —
+     they're gated to signed-in use or are a form to fill in, not a page
+     someone would share as a link. */
+  const CLEAN_SCREEN_ROUTES = {
+    'our-story':'about', 'how-it-works':'how', 'contact':'contact',
+    'privacy':'privacy', 'terms':'terms', 'research':'research', 'tour':'tour'
+  };
+  const RESERVED_PATH_SLUGS = Object.keys(CLEAN_SCREEN_ROUTES).concat(['events']);
+  function cleanPathForScreen(name){
+    for (const slug in CLEAN_SCREEN_ROUTES){
+      if (CLEAN_SCREEN_ROUTES[slug] === name) return '/' + slug;
+    }
+    return null;
+  }
   function parseCleanPath(){
     const seg = decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g, ''));
     if (!seg) return {};
@@ -11988,11 +12002,6 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   let currentScreenName = 'landing';
   let navFromPopstate = false;
 
-  // Screens with a shareable clean-path URL of their own (see the 404.html
-  // redirect trick + parseCleanPath() near the top of this file). 'visitor'
-  // is handled specially below since its path depends on whose page it is.
-  const CLEAN_SCREEN_PATHS = { about:'/our-story', how:'/how-it-works' };
-
   function showScreen(name){
     if (name === 'search' && !currentUser){
       showToast('Sign in to find and view pages');
@@ -12008,14 +12017,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
     // Real browser history: every screen change is one history step, so the
     // Back button always returns to the previously viewed screen. Screens
-    // with their own clean path (a profile, Our story, How it works) get
-    // that path in the address bar so they're shareable as-is; everywhere
-    // else resets to the bare domain, so refreshing the page always
-    // reopens YOUR page instead of the last shared link you clicked.
+    // with their own clean path (a profile, Our story, How it works,
+    // Contact, Privacy, Terms, Research note, the tour) get that path in
+    // the address bar so they're shareable as-is; everywhere else resets
+    // to the bare domain, so refreshing the page always reopens YOUR page
+    // instead of the last shared link you clicked.
     if (!navFromPopstate && name !== currentScreenName){
-      let path = '/';
-      if (CLEAN_SCREEN_PATHS[name]) path = CLEAN_SCREEN_PATHS[name];
-      else if (name === 'visitor' && currentVisitorProfile && currentVisitorProfile.username){
+      let path = cleanPathForScreen(name) || '/';
+      if (name === 'visitor' && currentVisitorProfile && currentVisitorProfile.username){
         path = '/' + currentVisitorProfile.username;
       }
       try{ history.pushState({ elScreen: name }, '', path); }catch(err){}
