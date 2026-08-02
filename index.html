@@ -582,6 +582,17 @@
   .poll-respondents{font-size:12px; color:var(--ink-soft);}
   .poll-next-btn{font-size:12.5px; font-weight:600; padding:8px 16px; border-radius:999px; border:1px solid var(--line); background:var(--page); color:var(--ink); cursor:pointer; font-family:inherit;}
   .poll-footnote{text-align:center; font-size:11.5px; color:var(--ink-soft); margin-top:12px; max-width:480px; margin-left:auto; margin-right:auto;}
+  .poll-dot{cursor:pointer;}
+  .poll-dot.summary.on{background:var(--camel);}
+  .poll-summary-title{font-family:"Fraunces",serif; font-weight:600; font-size:21px; line-height:1.3; color:var(--ink); margin:0 0 4px;}
+  .poll-recap-list{display:flex; flex-direction:column;}
+  .poll-recap-row{display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line);}
+  .poll-recap-row:last-child{border-bottom:none;}
+  .poll-recap-row.poll-recap-locked{cursor:pointer;}
+  .poll-recap-theme{font-size:10.5px; letter-spacing:.04em; color:var(--ink-soft); margin-bottom:3px; text-transform:uppercase;}
+  .poll-recap-answer{font-family:"Fraunces",serif; font-weight:500; font-size:15.5px; color:var(--ink);}
+  .poll-recap-answer.muted, .poll-recap-answer.locked{font-style:italic; font-weight:400; font-size:14px; color:var(--ink-soft);}
+  .poll-recap-pct{font-size:12px; font-weight:600; color:var(--moss); background:var(--oat); border-radius:999px; padding:4px 10px; flex:none; margin-left:12px;}
 
   .cover-edit-menu-wrap{position:absolute; right:14px; top:14px; z-index:3;}
   .cover-edit-btn{
@@ -18610,6 +18621,18 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     rows.forEach(r => { if (counts[r.option_index] !== undefined) counts[r.option_index]++; });
     return { counts, total: rows.length };
   }
+  function bookPollTopPick(st, key){
+    const { counts, total } = bookPollCounts(st, key);
+    if (!total) return null;
+    let best = 0;
+    for (let i = 1; i < counts.length; i++){ if (counts[i] > counts[best]) best = i; }
+    return { index: best, pct: Math.round((counts[best] / total) * 100), total };
+  }
+  function bookPollOverallCount(st){
+    const ids = new Set();
+    BOOK_POLLS.forEach(p => (st.rows[p.key] || []).forEach(r => ids.add(r.voter_user_id)));
+    return ids.size;
+  }
   async function renderBookPoll(hostId, profileObj){
     if (!profileObj) return;
     const host = document.getElementById(hostId + 'PollWrap');
@@ -18617,16 +18640,82 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     await bookPollEnsureLoaded(hostId, profileObj);
     bookPollPaint(hostId, profileObj);
   }
+  function bookPollDots(hostId, st){
+    const q = BOOK_POLLS.map((_, i) =>
+      `<span class="poll-dot${i === st.index ? ' on' : ''}" onclick="bookPollJump('${hostId}', ${i})"></span>`
+    ).join('');
+    const summaryOn = st.index === BOOK_POLLS.length;
+    return q + `<span class="poll-dot summary${summaryOn ? ' on' : ''}" onclick="bookPollJump('${hostId}', ${BOOK_POLLS.length})"></span>`;
+  }
+  function bookPollJump(hostId, index){
+    const st = bookPollUI[hostId];
+    if (!st) return;
+    st.index = Math.max(0, Math.min(BOOK_POLLS.length, index));
+    bookPollPaint(hostId, hostId === 'owner' ? profile : currentVisitorProfile);
+  }
   function bookPollPaint(hostId, profileObj){
     const host = document.getElementById(hostId + 'PollWrap');
     const st = bookPollUI[hostId];
     if (!host || !st || !profileObj) return;
     const isOwnerView = hostId === 'owner';
     const name = bookPollFirstName(profileObj.name);
+    const dots = bookPollDots(hostId, st);
+
+    if (st.index === BOOK_POLLS.length){
+      const respondents = bookPollOverallCount(st);
+      const rows = BOOK_POLLS.map((poll, i) => {
+        const myVote = isOwnerView ? 0 : bookPollMyVote(st, poll.key);
+        const unlocked = isOwnerView || myVote >= 0;
+        if (!unlocked){
+          return `<div class="poll-recap-row poll-recap-locked" onclick="bookPollJump('${hostId}', ${i})">
+            <div>
+              <div class="poll-recap-theme">${escapeHtml(poll.theme)}</div>
+              <div class="poll-recap-answer locked">Answer this one to reveal &rarr;</div>
+            </div>
+          </div>`;
+        }
+        const top = bookPollTopPick(st, poll.key);
+        if (!top){
+          return `<div class="poll-recap-row">
+            <div>
+              <div class="poll-recap-theme">${escapeHtml(poll.theme)}</div>
+              <div class="poll-recap-answer muted">Not enough answers yet</div>
+            </div>
+          </div>`;
+        }
+        return `<div class="poll-recap-row">
+          <div>
+            <div class="poll-recap-theme">${escapeHtml(poll.theme)}</div>
+            <div class="poll-recap-answer">${escapeHtml(poll.opts[top.index])}</div>
+          </div>
+          <div class="poll-recap-pct">${top.pct}%</div>
+        </div>`;
+      }).join('');
+
+      host.innerHTML = `
+        <div class="poll-card">
+          <div class="poll-top">
+            <div class="poll-eyebrow">What people notice</div>
+            <div class="poll-dots">${dots}</div>
+          </div>
+          <div class="poll-summary-title">The picture people are painting</div>
+          <p class="poll-lede">Here's what's come through so far about ${escapeHtml(name)} — it fills in as more people answer.</p>
+          <div class="poll-recap-list">${rows}</div>
+          <div class="poll-bottom">
+            <span class="poll-respondents">${respondents} ${respondents === 1 ? 'person has' : 'people have'} shared what they notice</span>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="poll-next-btn" onclick="bookPollNav('${hostId}', -1)">&larr; Back</button>
+              <button type="button" class="poll-next-btn" onclick="bookPollJump('${hostId}', 0)">Start over</button>
+            </div>
+          </div>
+        </div>
+        <p class="poll-footnote">Anonymous to the end — only totals are ever shown, never who picked what.</p>`;
+      return;
+    }
+
     const poll = BOOK_POLLS[st.index];
     const myVote = isOwnerView ? -2 : bookPollMyVote(st, poll.key);
     const { counts, total } = bookPollCounts(st, poll.key);
-    const dots = BOOK_POLLS.map((_, i) => `<span class="poll-dot${i === st.index ? ' on' : ''}"></span>`).join('');
 
     let bodyHtml;
     if (isOwnerView || myVote >= 0){
@@ -18670,16 +18759,15 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
           <span class="poll-respondents">${total} ${total === 1 ? 'person has' : 'people have'} answered</span>
           <div style="display:flex; gap:8px;">
             ${st.index > 0 ? `<button type="button" class="poll-next-btn" onclick="bookPollNav('${hostId}', -1)">&larr; Back</button>` : ''}
-            ${st.index < BOOK_POLLS.length - 1 ? `<button type="button" class="poll-next-btn" onclick="bookPollNav('${hostId}', 1)">Next question &rarr;</button>` : ''}
+            <button type="button" class="poll-next-btn" onclick="bookPollNav('${hostId}', 1)">${st.index === BOOK_POLLS.length - 1 ? 'See summary' : 'Next question'} &rarr;</button>
           </div>
         </div>
-      </div>
-      <p class="poll-footnote">Every option here is a compliment — there's no low or wrong answer, only which good thing people picked. ${isOwnerView ? 'You never see' : escapeHtml(name) + ' never sees'} who picked what, only the totals.</p>`;
+      </div>`;
   }
   function bookPollNav(hostId, dir){
     const st = bookPollUI[hostId];
     if (!st) return;
-    st.index = Math.max(0, Math.min(BOOK_POLLS.length - 1, st.index + dir));
+    st.index = Math.max(0, Math.min(BOOK_POLLS.length, st.index + dir));
     bookPollPaint(hostId, hostId === 'owner' ? profile : currentVisitorProfile);
   }
   async function bookPollVote(hostId, optionIndex){
