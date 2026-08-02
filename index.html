@@ -1444,6 +1444,24 @@
   .cal-day.has:hover{background:var(--oat-deep);}
   .cal-day .dot{width:4px; height:4px; border-radius:50%; background:var(--camel); position:absolute; bottom:5px;}
   .cal-bday{position:absolute; top:1px; right:2px; font-size:8px; line-height:1; cursor:pointer;}
+  /* ── minimalist date picker (sign page, events, birthday) ── */
+  .mini-date-trigger{display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; padding:9px 12px; border:1px solid var(--line); border-radius:9px; background:var(--card); font-family:inherit; font-size:13.5px; color:var(--ink); cursor:pointer; text-align:left;}
+  .mini-date-trigger:hover{border-color:var(--ink-soft);}
+  .mini-date-text:not(.set){color:var(--ink-soft);}
+  .mini-date-ic{width:14px; height:14px; flex:none; color:var(--ink-soft);}
+  .mini-date-pop{position:absolute; z-index:1400; background:var(--card); border:1px solid var(--line); border-radius:12px; box-shadow:0 12px 30px -10px rgba(46,42,34,.35); padding:12px; width:236px;}
+  .mini-date-top{display:flex; align-items:center; justify-content:space-between; font-size:12.5px; font-weight:500; margin-bottom:8px;}
+  .mini-date-top button{width:22px; height:22px; border-radius:6px; border:none; background:none; color:var(--ink-soft); cursor:pointer; font-size:14px; line-height:1; font-family:inherit;}
+  .mini-date-top button:hover{background:var(--oat-deep); color:var(--ink);}
+  .mini-date-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:3px;}
+  .mini-date-dow{font-size:9px; font-weight:500; color:#B4AFA4; text-align:center; padding:2px 0 4px;}
+  .mini-date-day{aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:11.5px; border-radius:7px; cursor:pointer; color:var(--ink);}
+  .mini-date-day.empty{visibility:hidden; cursor:default;}
+  .mini-date-day:hover{background:var(--oat-deep);}
+  .mini-date-day.today{color:var(--moss); font-weight:600;}
+  .mini-date-day.sel{background:var(--ink); color:var(--oat);}
+  .mini-date-clear{margin-top:8px; width:100%; text-align:center; font-size:11.5px; color:var(--ink-soft); background:none; border:none; cursor:pointer; padding:4px; font-family:inherit;}
+  .mini-date-clear:hover{color:var(--ink); text-decoration:underline;}
   .cal-day.today{color:var(--moss); font-weight:700;}
   .cal-day.today::after{content:''; position:absolute; bottom:5px; width:4px; height:4px; border-radius:50%; background:var(--moss);}
   .cal-day.today .dot{display:none;}
@@ -2878,8 +2896,12 @@
           <div class="city-suggestions" id="citySuggestions" style="display:none;"></div>
         </div>
         <div class="field">
-          <label for="fSealDate">Seal this note until a date <span class="hint">optional — a time capsule they can only open then</span></label>
-          <input type="date" id="fSealDate">
+          <label for="fSealDate_trigger">Seal this note until a date <span class="hint">optional — a time capsule they can only open then</span></label>
+          <input type="date" id="fSealDate" style="display:none;">
+          <button type="button" class="mini-date-trigger" id="fSealDate_trigger" onclick="miniDateOpen('fSealDate', this)">
+            <span class="mini-date-text" id="fSealDate_disp" data-placeholder="No seal date">No seal date</span>
+            <svg class="mini-date-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+          </button>
         </div>
 
         <div class="form-actions">
@@ -3070,8 +3092,12 @@
 
           <div class="two-field-row">
             <div class="event-form-group">
-              <label>Event date</label>
-              <input type="date" id="eventDate">
+              <label for="eventDate_trigger">Event date</label>
+              <input type="date" id="eventDate" style="display:none;">
+              <button type="button" class="mini-date-trigger" id="eventDate_trigger" onclick="miniDateOpen('eventDate', this)">
+                <span class="mini-date-text" id="eventDate_disp" data-placeholder="Pick a date">Pick a date</span>
+                <svg class="mini-date-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+              </button>
             </div>
             <div class="event-form-group">
               <label id="eventTimeLabel">Time</label>
@@ -3146,8 +3172,12 @@
             <input type="text" id="evEditName" maxlength="100" style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:9px; font-size:14px;">
           </div>
           <div class="field" style="margin-bottom:11px;">
-            <label style="font-size:13px;">Event date</label>
-            <input type="date" id="evEditDate" style="width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:9px; font-size:14px;">
+            <label for="evEditDate_trigger" style="font-size:13px;">Event date</label>
+            <input type="date" id="evEditDate" style="display:none;">
+            <button type="button" class="mini-date-trigger" id="evEditDate_trigger" onclick="miniDateOpen('evEditDate', this)">
+              <span class="mini-date-text" id="evEditDate_disp" data-placeholder="Pick a date">Pick a date</span>
+              <svg class="mini-date-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+            </button>
           </div>
           <div class="field" style="margin-bottom:11px;">
             <label style="font-size:13px;">Location</label>
@@ -5716,8 +5746,12 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         const isIso = /^\d{4}-\d{2}-\d{2}$/.test(extras[f.key] || '');
         return `
       <div>
-        <label for="d_${f.key}">${f.label}</label>
-        <input type="date" id="d_${f.key}" value="${isIso ? extras[f.key] : ''}">
+        <label for="d_${f.key}_trigger">${f.label}</label>
+        <input type="date" id="d_${f.key}" style="display:none;" value="${isIso ? extras[f.key] : ''}">
+        <button type="button" class="mini-date-trigger" id="d_${f.key}_trigger" onclick="miniDateOpen('d_${f.key}', this)">
+          <span class="mini-date-text" id="d_${f.key}_disp" data-placeholder="Not set">Not set</span>
+          <svg class="mini-date-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        </button>
       </div>`;
       }
       return `
@@ -5726,6 +5760,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         <input type="text" id="d_${f.key}" maxlength="60" value="${escapeHtml(extras[f.key] || '')}">
       </div>`;
     }).join('');
+    DETAIL_FIELDS.forEach(f=>{ if (f.type === 'date') miniDateSync('d_' + f.key); });
     document.getElementById('detailsModal').style.display = 'flex';
   }
 
@@ -9996,6 +10031,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
   function cancelFillForm(){
     document.getElementById('fillForm').reset();
+    miniDateSync('fSealDate');
     selectedCity = null;
     document.getElementById('citySuggestions').style.display = 'none';
     entryPhotos = [];
@@ -10068,6 +10104,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
     const clearForm = ()=>{
       document.getElementById('fillForm').reset();
+      miniDateSync('fSealDate');
       selectedCity = null;
       document.getElementById('citySuggestions').style.display = 'none';
       entryPhotos = [];
@@ -13556,6 +13593,108 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     return dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate());
   }
 
+  /* ── Minimalist date picker ──
+     A small popover calendar, styled like the rest of EarthLive, used
+     anywhere someone picks a date — signing a page (seal-until date),
+     creating or editing an event, a birthday on a bio. The underlying
+     <input type="date"> keeps its original id and its ISO (YYYY-MM-DD)
+     value exactly as before, so every place that already reads .value
+     elsewhere is untouched — this only changes how the date gets typed in.
+     The input stays in the DOM (just visually hidden) so nothing else
+     needs to change. */
+  function miniDateLabel(iso){
+    if (!iso) return null;
+    return new Date(iso + 'T00:00:00').toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+  }
+  function miniDateSync(inputId){
+    const input = document.getElementById(inputId);
+    const disp = document.getElementById(inputId + '_disp');
+    if (!input || !disp) return;
+    const label = miniDateLabel(input.value);
+    disp.textContent = label || disp.dataset.placeholder || 'Pick a date';
+    disp.classList.toggle('set', !!label);
+  }
+  function miniDateOutsideClick(e){
+    const pop = document.getElementById('miniDatePop');
+    if (pop && !pop.contains(e.target) && !e.target.closest('.mini-date-trigger')) miniDateClose();
+  }
+  function miniDateClose(){
+    const pop = document.getElementById('miniDatePop');
+    if (pop) pop.remove();
+    document.removeEventListener('click', miniDateOutsideClick, true);
+  }
+  function miniDateOpen(inputId, triggerEl){
+    miniDateClose();
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const base = input.value ? new Date(input.value + 'T00:00:00') : new Date();
+    const pop = document.createElement('div');
+    pop.className = 'mini-date-pop';
+    pop.id = 'miniDatePop';
+    pop.dataset.input = inputId;
+    pop.dataset.y = base.getFullYear();
+    pop.dataset.m = base.getMonth();
+    pop.dataset.sel = input.value || '';
+    document.body.appendChild(pop);
+    miniDateFill(pop);
+    const r = triggerEl.getBoundingClientRect();
+    pop.style.top = (window.scrollY + r.bottom + 6) + 'px';
+    pop.style.left = (window.scrollX + r.left) + 'px';
+    requestAnimationFrame(()=>{
+      const pr = pop.getBoundingClientRect();
+      if (pr.right > window.innerWidth - 8){
+        pop.style.left = Math.max(8, window.scrollX + window.innerWidth - pr.width - 8) + 'px';
+      }
+    });
+    setTimeout(()=> document.addEventListener('click', miniDateOutsideClick, true), 0);
+  }
+  function miniDateNav(dir){
+    const pop = document.getElementById('miniDatePop');
+    if (!pop) return;
+    let y = parseInt(pop.dataset.y, 10), m = parseInt(pop.dataset.m, 10) + dir;
+    if (m < 0){ m = 11; y--; } else if (m > 11){ m = 0; y++; }
+    pop.dataset.y = y; pop.dataset.m = m;
+    miniDateFill(pop);
+  }
+  function miniDateFill(pop){
+    const y = parseInt(pop.dataset.y, 10), m = parseInt(pop.dataset.m, 10);
+    const sel = pop.dataset.sel || '';
+    const today = calKey(new Date());
+    const monthLabel = new Date(y, m, 1).toLocaleDateString('en-IN', { month:'long', year:'numeric' });
+    const firstDow = new Date(y, m, 1).getDay();
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+    const pad = n => (n < 10 ? '0' + n : '' + n);
+    let grid = ['S','M','T','W','T','F','S'].map(d=>'<div class="mini-date-dow">' + d + '</div>').join('');
+    for (let i = 0; i < firstDow; i++) grid += '<div class="mini-date-day empty"></div>';
+    for (let d = 1; d <= daysInMonth; d++){
+      const iso = y + '-' + pad(m + 1) + '-' + pad(d);
+      let cls = 'mini-date-day';
+      if (iso === sel) cls += ' sel';
+      if (iso === today) cls += ' today';
+      grid += '<div class="' + cls + '" onclick="miniDatePick(\'' + iso + '\')">' + d + '</div>';
+    }
+    pop.innerHTML =
+      '<div class="mini-date-top">' +
+        '<button type="button" onclick="miniDateNav(-1)" aria-label="Previous month">‹</button>' +
+        '<span>' + monthLabel + '</span>' +
+        '<button type="button" onclick="miniDateNav(1)" aria-label="Next month">›</button>' +
+      '</div>' +
+      '<div class="mini-date-grid">' + grid + '</div>' +
+      (sel ? '<button type="button" class="mini-date-clear" onclick="miniDatePick(null)">Clear date</button>' : '');
+  }
+  function miniDatePick(iso){
+    const pop = document.getElementById('miniDatePop');
+    if (!pop) return;
+    const inputId = pop.dataset.input;
+    const input = document.getElementById(inputId);
+    if (input){
+      input.value = iso || '';
+      input.dispatchEvent(new Event('change', { bubbles:true }));
+    }
+    miniDateSync(inputId);
+    miniDateClose();
+  }
+
   function toggleDiaryCal(){
     const c = document.getElementById('diaryCal');
     const b = document.getElementById('calBtn');
@@ -14463,6 +14602,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         return;
       }
       document.getElementById('createEventForm').reset();
+      miniDateSync('eventDate');
       showToast('Event created ✓');
       openEventPage(data);
       return;
@@ -14477,6 +14617,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     };
     const evts = getLocalEvents(); evts.unshift(ev); saveLocalEvents(evts);
     document.getElementById('createEventForm').reset();
+    miniDateSync('eventDate');
     showToast('Event saved in this browser — sign in to make it shareable');
     openEventPage(ev);
   }
@@ -15780,6 +15921,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       // prefill with current values
       document.getElementById('evEditName').value = curEvent.name || '';
       document.getElementById('evEditDate').value = curEvent.event_date || '';
+      miniDateSync('evEditDate');
       document.getElementById('evEditLocation').value = curEvent.location || '';
       document.getElementById('evEditDesc').value = curEvent.description || '';
       box.style.display = 'block';
