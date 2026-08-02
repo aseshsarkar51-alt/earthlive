@@ -17959,23 +17959,32 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   }
 
   /* ---- Your song history (Voiceprints page) ----
-     Purely personal: up to 10 of YOUR OWN past favourite-song picks, kept
-     so you can bring an old one back without re-searching. Never shows
-     another user's picks — earlier this pulled from every public profile
-     site-wide, which meant two different people saw overlapping lists;
-     it's now sourced only from profile.extras.song_history, which
-     songSetFavorite() maintains locally whenever the current song changes. */
+     Purely personal: the current favourite song plus up to 10 of YOUR OWN
+     past picks, kept so you can bring an old one back without re-searching.
+     Never shows another user's picks — earlier this pulled from every
+     public profile site-wide, which meant two different people saw
+     overlapping lists; it's now sourced only from profile.extras, which
+     songSetFavorite() maintains locally whenever the current song changes.
+     recentSongsCache is index-aligned with the rendered rows (current
+     song first, if any, then history) so toggleSongPlay('recentN') and
+     pickRecentSong(N) both address the right entry. */
   let recentSongsCache = [];
   function renderRecentSongs(){
     const host = document.getElementById('recentSongsBody');
     if (!host) return;
-    recentSongsCache = (profile && profile.extras && profile.extras.song_history) || [];
-    if (!recentSongsCache.length){
-      host.innerHTML = '<div class="lb-empty"><b>No song history yet</b>Once you swap your favourite song for a new one, the song you replaced shows up here — tap it any time to bring it back.</div>';
+    const current = profile && profile.extras && profile.extras.favorite_song;
+    const history = (profile && profile.extras && profile.extras.song_history) || [];
+    const rows = current ? [{ song: current, isCurrent: true }] : [];
+    history.forEach(song => rows.push({ song, isCurrent: false }));
+    recentSongsCache = rows.map(r => r.song);
+    if (!rows.length){
+      host.innerHTML = '<div class="lb-empty"><b>No song history yet</b>Add a favourite song from your book and it — plus anything you later replace it with — will show up here.</div>';
       return;
     }
-    host.innerHTML = '<div class="recent-song-list">' + recentSongsCache.map((song, i)=>{
+    host.innerHTML = '<div class="recent-song-list">' + rows.map((r, i)=>{
+      const song = r.song;
       const when = song.addedAt ? new Date(song.addedAt).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '';
+      const subLabel = r.isCurrent ? 'Current favourite' : (when ? 'Picked ' + when : '');
       return `
       <div class="recent-song-row">
         <button type="button" class="song-play-btn" id="recent${i}SongPlayBtn" onclick="toggleSongPlay('recent${i}')" aria-label="Play song">${songIcon(true)}</button>
@@ -17983,16 +17992,20 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         <div class="song-meta">
           <div class="song-title">${escapeHtml(song.title)}</div>
           <div class="song-artist">${escapeHtml(song.artist)}</div>
-          ${when ? `<div class="recent-song-by">Picked ${when}</div>` : ''}
+          ${subLabel ? `<div class="recent-song-by">${subLabel}</div>` : ''}
         </div>
         <div class="song-wave" id="recent${i}SongWave"><span></span><span></span><span></span><span></span><span></span></div>
-        <button type="button" class="recent-song-use" onclick="pickRecentSong(${i})">Use this</button>
+        ${r.isCurrent
+          ? '<span class="recent-song-use current">Current</span>'
+          : `<button type="button" class="recent-song-use" onclick="pickRecentSong(${i})">Use this</button>`}
       </div>`;
     }).join('') + '</div>';
   }
   async function pickRecentSong(i){
     const song = recentSongsCache[i];
     if (!song || !profile) return;
+    const current = profile.extras && profile.extras.favorite_song;
+    if (songsEqual(song, current)) return;   // already the current pick, nothing to do
     stopSongPlayback();
     await songSetFavorite(song);
     renderOwnerSong();
