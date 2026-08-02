@@ -488,6 +488,53 @@
     padding:12px 16px; font-size:13px; color:var(--ink-soft); margin-bottom:22px;
   }
   .hint-card b{color:var(--ink);}
+
+  /* ---------- FAVOURITE SONG ---------- */
+  .song-box-wrap{margin-bottom:22px;}
+  .song-card{
+    display:flex; align-items:center; flex-wrap:wrap; gap:12px; background:var(--card);
+    border:1px solid var(--line); border-radius:16px; padding:14px 18px; box-shadow:var(--shadow);
+  }
+  .song-art{width:48px; height:48px; border-radius:10px; object-fit:cover; flex:none; background:var(--oat);}
+  .song-meta{flex:1 1 140px; min-width:0;}
+  .song-title{font-family:"Inter Tight",sans-serif; font-weight:600; font-size:14px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .song-artist{font-size:12.5px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:1px;}
+  .song-cap{font-size:11px; color:var(--ink-soft); margin-top:4px; letter-spacing:.02em;}
+  .song-play-btn{
+    width:36px; height:36px; border-radius:50%; background:var(--moss); color:#fff; border:none;
+    flex:none; display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .song-play-btn:hover{background:var(--moss-deep);}
+  .song-play-btn svg{width:14px; height:14px;}
+  .song-wave{display:flex; align-items:flex-end; gap:2px; height:16px; flex:none; margin:0 2px;}
+  .song-wave span{width:3px; height:35%; background:var(--line); border-radius:2px; display:block; transition:background .15s;}
+  .song-wave.playing span{background:var(--camel); animation:songwave .9s ease-in-out infinite;}
+  .song-wave span:nth-child(1){animation-delay:0s;}
+  .song-wave span:nth-child(2){animation-delay:.15s;}
+  .song-wave span:nth-child(3){animation-delay:.3s;}
+  .song-wave span:nth-child(4){animation-delay:.1s;}
+  .song-wave span:nth-child(5){animation-delay:.25s;}
+  @keyframes songwave{0%,100%{height:35%;} 50%{height:100%;}}
+  .song-empty{
+    display:flex; align-items:center; gap:12px; background:var(--oat); border:1px dashed var(--line);
+    border-radius:16px; padding:14px 18px; cursor:pointer; text-align:left; width:100%; font-family:inherit;
+  }
+  .song-empty:hover{border-color:var(--ink-soft);}
+  .song-empty .ic{
+    width:36px; height:36px; border-radius:50%; background:var(--card); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; flex:none; color:var(--ink-soft);
+  }
+  .song-empty .ic svg{width:16px; height:16px;}
+  .song-empty b{color:var(--ink); display:block; font-size:13.5px; margin-bottom:2px; font-weight:600;}
+  .song-empty em{font-size:12px; color:var(--ink-soft); font-style:normal; display:block;}
+  .song-result{display:flex; align-items:center; gap:10px; padding:8px 6px; border-radius:10px; cursor:pointer;}
+  .song-result:hover{background:var(--oat);}
+  .song-result img{width:36px; height:36px; border-radius:8px; object-fit:cover; flex:none; background:var(--oat);}
+  .song-result .sr-meta{flex:1; min-width:0;}
+  .song-result .sr-title{font-size:13px; color:var(--ink); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .song-result .sr-artist{font-size:11.5px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .song-search-msg{font-size:12.5px; color:var(--ink-soft); padding:14px 4px; text-align:center;}
+
   .cover-edit-menu-wrap{position:absolute; right:14px; top:14px; z-index:3;}
   .cover-edit-btn{
     position:static; background:rgba(30,28,24,0.68); color:#F6F1E7;
@@ -1502,6 +1549,14 @@
   .filter-bar b{color:var(--camel);}
   .filter-bar > button{margin-left:auto; background:none; border:none; color:var(--ink-soft); cursor:pointer; font-family:inherit; font-size:12px; text-decoration:underline;}
   .d-entry.hide{display:none;}
+  .d-search-bar{display:flex; align-items:center; gap:8px; margin:10px 18px 2px; padding:8px 12px; background:var(--oat); border:1px solid var(--line); border-radius:10px;}
+  .d-search-bar .ic{color:var(--ink-soft); flex:none; display:flex;}
+  .d-search-bar .ic svg{width:15px; height:15px;}
+  .d-search-bar input{flex:1; border:none; outline:none; background:none; font-size:13px; color:var(--ink); font-family:inherit;}
+  .d-search-bar input::placeholder{color:var(--ink-soft);}
+  .d-search-clear{display:none; background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:16px; line-height:1; padding:0 2px; font-family:inherit;}
+  .d-search-bar.has-text .d-search-clear{display:inline-block;}
+  .d-search-empty{padding:18px 4px; font-size:13px; color:var(--ink-soft); text-align:center;}
   /* Each pane takes its natural height — the Write pane stays compact and the
      calendar + mood summary are always fully visible. Only the entries LIST
      scrolls inside itself, so the page still never grows out of control. */
@@ -2509,6 +2564,8 @@
       </div>
     </div>
 
+    <div class="song-box-wrap" id="ownerSongBox"></div>
+
     <div class="hint-card" id="completeHint" style="display:none;"></div>
 
     <div class="details-card" id="ownerDetailsCard" style="display:none;"></div>
@@ -2731,6 +2788,12 @@
             <span class="ic" style="color:var(--camel);" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></span>
             Showing <b id="filterDateLabel"></b>
             <button onclick="clearDiaryFilter()">Show all entries</button>
+          </div>
+
+          <div class="d-search-bar" id="diarySearchBar">
+            <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+            <input type="text" id="diarySearchInput" placeholder="Search your diary…" oninput="filterDiaryBySearch()" aria-label="Search your diary">
+            <button type="button" class="d-search-clear" aria-label="Clear search" onclick="clearDiarySearch()">✕</button>
           </div>
 
           <div class="d-scroll" id="diaryList"></div>
@@ -3033,6 +3096,8 @@
         <button class="link-quiet" id="blockBtn" style="display:none;" onclick="blockThisPage()">Block</button>
       </div>
     </div>
+
+    <div class="song-box-wrap" id="visitorSongBox" style="display:none;"></div>
 
     <div id="visitorPublicView">
       <div class="details-card" id="visitorDetailsCard" style="display:none;"></div>
@@ -4580,6 +4645,19 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   </div>
 </div>
 
+<div class="modal-overlay" id="songSearchOverlay" onclick="if(event.target===this) closeSongSearch()">
+  <div class="entry-modal" style="max-width:420px;">
+    <button class="modal-close" onclick="closeSongSearch()" aria-label="Close">✕</button>
+    <p style="font-size:17px; font-weight:600; margin:0 0 4px;">Choose a favourite song</p>
+    <p style="font-size:12.5px; color:var(--ink-soft); margin:0 0 16px;">Search any track. A short preview plays on your book — up to one minute, one song at a time.</p>
+    <div class="sig-search" style="background:var(--card); border:1px solid var(--line); border-radius:999px; padding:8px 16px; margin-bottom:4px; position:relative;">
+      <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+      <input type="text" id="songSearchInput" placeholder="Song or artist…" autocomplete="off" oninput="songSearchTyped()" style="flex:1; border:none; outline:none; background:transparent; font-family:inherit; font-size:13.5px; color:var(--ink);">
+    </div>
+    <div id="songSearchResults" style="max-height:320px; overflow-y:auto; margin-top:6px;"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="reciprocalModalOverlay" onclick="if(event.target===this) closeReciprocalModal()">
   <div class="entry-modal" style="max-width:380px; text-align:center; padding:34px 28px 28px;">
     <button class="modal-close" onclick="closeReciprocalModal()" aria-label="Close">✕</button>
@@ -4654,6 +4732,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 </div>
 
 <div class="toast" id="toast">Copied to clipboard</div>
+<audio id="songAudioEl" preload="none" style="display:none;"></audio>
 
 <script>
   /* ============================================================
@@ -7678,6 +7757,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     renderDetails('ownerDetailsCard', profile, true);
     renderStats();
     renderCompleteHint();
+    renderOwnerSong();
     const tpl = TEMPLATES.find(t=>t.id===profile.templateId) || TEMPLATES[0];
     const qCount = (profile.questions || tpl.questions).length;
     const tplEl = document.getElementById('acctTemplateText');
@@ -10512,6 +10592,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     renderDetails('visitorDetailsCard', profileObj, false);
     updateFollowUi(profileObj);
     updateMutualBadge(profileObj);
+    renderVisitorSong(profileObj);
 
     const isPrivate = profileObj.visibility === 'private';
     document.getElementById('visitorPublicView').style.display = isPrivate ? 'none' : 'block';
@@ -10854,6 +10935,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   }
 
   function exitVisitorPreview(){
+    stopSongPlayback();
     showScreen(visitorReturnScreen);
   }
 
@@ -13936,17 +14018,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const onThatDay = diaryEntriesCache.filter(e => calKey(e.created_at) === k);
     if (onThatDay.length === 1){
       openDiaryModal(onThatDay[0].id);
-    } else if (onThatDay.length > 1){
-      // More than one entry that day: filter the list instead of guessing.
-      document.querySelectorAll('#diaryList .d-entry').forEach(el=>{
-        el.classList.toggle('hide', el.getAttribute('data-date') !== k);
-      });
     }
 
     // Always show the filter bar so it's clear what's on screen
-    document.querySelectorAll('#diaryList .d-entry').forEach(el=>{
-      el.classList.toggle('hide', el.getAttribute('data-date') !== k);
-    });
+    filterDiaryBySearch();
     const d = new Date(k);
     const lbl = document.getElementById('filterDateLabel');
     if (lbl) lbl.textContent = d.toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
@@ -13957,11 +14032,51 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   function clearDiaryFilter(){
     calSelected = null;
     renderDiaryCal();
-    document.querySelectorAll('#diaryList .d-entry').forEach(el=>el.classList.remove('hide'));
+    filterDiaryBySearch();
     const fb = document.getElementById('diaryFilterBar');
     if (fb) fb.classList.remove('on');
     const cc = document.getElementById('calClear');
     if (cc) cc.style.display = 'none';
+  }
+
+  /* ── Diary search: filters the already-rendered list by title/body text,
+     and plays nicely with the calendar's date filter (calSelected) so the
+     two can be active together. Nothing round-trips to the server — it just
+     shows/hides the .d-entry cards already in the DOM. ── */
+  function filterDiaryBySearch(){
+    const input = document.getElementById('diarySearchInput');
+    const bar = document.getElementById('diarySearchBar');
+    const q = (input && input.value ? input.value : '').trim().toLowerCase();
+    if (bar) bar.classList.toggle('has-text', !!q);
+    const entries = document.querySelectorAll('#diaryList .d-entry');
+    let visible = 0;
+    entries.forEach(el=>{
+      const title = (el.querySelector('.d-e-title') ? el.querySelector('.d-e-title').textContent : '').toLowerCase();
+      const preview = (el.querySelector('.d-e-preview') ? el.querySelector('.d-e-preview').textContent : '').toLowerCase();
+      const matchesSearch = !q || title.indexOf(q) !== -1 || preview.indexOf(q) !== -1;
+      const matchesDate = !calSelected || el.getAttribute('data-date') === calSelected;
+      const show = matchesSearch && matchesDate;
+      el.classList.toggle('hide', !show);
+      if (show) visible++;
+    });
+    let empty = document.getElementById('diarySearchEmpty');
+    if (q && visible === 0 && entries.length){
+      if (!empty){
+        empty = document.createElement('div');
+        empty.id = 'diarySearchEmpty';
+        empty.className = 'd-search-empty';
+        document.getElementById('diaryList').prepend(empty);
+      }
+      empty.textContent = 'No entries match "' + input.value.trim() + '".';
+    } else if (empty){
+      empty.remove();
+    }
+  }
+
+  function clearDiarySearch(){
+    const input = document.getElementById('diarySearchInput');
+    if (input) input.value = '';
+    filterDiaryBySearch();
   }
 
   // Tapping the 🎂 on a calendar day jumps straight into a fresh, private
@@ -14088,6 +14203,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         '</div>' +
       '</div>';
     }).join('');
+    filterDiaryBySearch();   // re-apply any active search after the list reloads
   }
 
   /* ── Diary entry popup ── */
@@ -18034,6 +18150,155 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       const { error } = await db.from('profiles').update({ extras }).eq('id', profile.dbId);
       if (error) showToast('Could not save: ' + error.message);
     }
+  }
+
+  /* ---------- FAVOURITE SONG (iTunes Search API — no login, 30s previews) ---------- */
+  function songIcon(paused){
+    return paused
+      ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
+  }
+  function renderOwnerSong(){
+    const box = document.getElementById('ownerSongBox');
+    if (!box) return;
+    const song = profile.extras && profile.extras.favorite_song;
+    if (!song){
+      box.innerHTML = `
+        <button type="button" class="song-empty" onclick="openSongSearch()">
+          <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></span>
+          <span><b>Add a favourite song</b><em>Pick a track to play on your book — up to one minute</em></span>
+        </button>`;
+      return;
+    }
+    box.innerHTML = `
+      <div class="song-card">
+        <button type="button" class="song-play-btn" id="ownerSongPlayBtn" onclick="toggleSongPlay('owner')" aria-label="Play song">${songIcon(true)}</button>
+        <img class="song-art" src="${escapeHtml(song.artworkUrl || '')}" alt="" onerror="this.style.visibility='hidden'">
+        <div class="song-meta">
+          <div class="song-title">${escapeHtml(song.title)}</div>
+          <div class="song-artist">${escapeHtml(song.artist)}</div>
+          <div class="song-cap">One song at a time · plays up to 1 min</div>
+        </div>
+        <div class="song-wave" id="ownerSongWave"><span></span><span></span><span></span><span></span><span></span></div>
+        <button type="button" class="link-quiet" style="font-size:12px;" onclick="openSongSearch()">Change</button>
+        <button type="button" class="link-quiet" style="font-size:12px; color:var(--blush);" onclick="removeSong()">Remove</button>
+      </div>`;
+  }
+  function renderVisitorSong(profileObj){
+    const box = document.getElementById('visitorSongBox');
+    if (!box) return;
+    const song = profileObj.extras && profileObj.extras.favorite_song;
+    if (!song){ box.innerHTML = ''; box.style.display = 'none'; return; }
+    box.style.display = '';
+    box.innerHTML = `
+      <div class="song-card">
+        <button type="button" class="song-play-btn" id="visitorSongPlayBtn" onclick="toggleSongPlay('visitor')" aria-label="Play song">${songIcon(true)}</button>
+        <img class="song-art" src="${escapeHtml(song.artworkUrl || '')}" alt="" onerror="this.style.visibility='hidden'">
+        <div class="song-meta">
+          <div class="song-title">${escapeHtml(song.title)}</div>
+          <div class="song-artist">${escapeHtml(song.artist)}</div>
+          <div class="song-cap">${escapeHtml(profileObj.name || 'Their')}'s favourite song</div>
+        </div>
+        <div class="song-wave" id="visitorSongWave"><span></span><span></span><span></span><span></span><span></span></div>
+      </div>`;
+  }
+
+  let songAudioContext = null;   // 'owner' | 'visitor' | null — which box the shared <audio> is bound to
+  function stopSongPlayback(){
+    const audio = document.getElementById('songAudioEl');
+    if (audio) audio.pause();
+    if (songAudioContext){
+      const btn = document.getElementById(songAudioContext === 'owner' ? 'ownerSongPlayBtn' : 'visitorSongPlayBtn');
+      const wave = document.getElementById(songAudioContext === 'owner' ? 'ownerSongWave' : 'visitorSongWave');
+      if (btn) btn.innerHTML = songIcon(true);
+      if (wave) wave.classList.remove('playing');
+    }
+    songAudioContext = null;
+  }
+  function toggleSongPlay(which){
+    const audio = document.getElementById('songAudioEl');
+    if (!audio) return;
+    const song = which === 'owner'
+      ? (profile.extras && profile.extras.favorite_song)
+      : (currentVisitorProfile && currentVisitorProfile.extras && currentVisitorProfile.extras.favorite_song);
+    if (!song || !song.previewUrl) return;
+    if (songAudioContext === which && !audio.paused){ stopSongPlayback(); return; }
+    if (songAudioContext && songAudioContext !== which) stopSongPlayback();
+    if (audio.src !== song.previewUrl){ audio.src = song.previewUrl; audio.currentTime = 0; }
+    songAudioContext = which;
+    audio.play().then(()=>{
+      const btn = document.getElementById(which === 'owner' ? 'ownerSongPlayBtn' : 'visitorSongPlayBtn');
+      const wave = document.getElementById(which === 'owner' ? 'ownerSongWave' : 'visitorSongWave');
+      if (btn) btn.innerHTML = songIcon(false);
+      if (wave) wave.classList.add('playing');
+    }).catch(()=>{ showToast('Could not play preview'); songAudioContext = null; });
+  }
+  (function initSongAudioEl(){
+    const audio = document.getElementById('songAudioEl');
+    if (!audio) return;
+    audio.addEventListener('timeupdate', function(){
+      if (audio.currentTime >= 60) stopSongPlayback();
+    });
+    audio.addEventListener('ended', stopSongPlayback);
+  })();
+
+  let songSearchResultsCache = [];
+  let songSearchDebounce = null;
+  function openSongSearch(){
+    document.getElementById('songSearchOverlay').classList.add('open');
+    const input = document.getElementById('songSearchInput');
+    document.getElementById('songSearchResults').innerHTML = '';
+    if (input){ input.value = ''; setTimeout(()=>input.focus(), 50); }
+  }
+  function closeSongSearch(){
+    document.getElementById('songSearchOverlay').classList.remove('open');
+  }
+  function songSearchTyped(){
+    clearTimeout(songSearchDebounce);
+    const q = document.getElementById('songSearchInput').value.trim();
+    const results = document.getElementById('songSearchResults');
+    if (!q){ results.innerHTML = ''; return; }
+    results.innerHTML = '<div class="song-search-msg">Searching…</div>';
+    songSearchDebounce = setTimeout(async ()=>{
+      try{
+        const r = await fetch('https://itunes.apple.com/search?media=music&entity=song&limit=10&term=' + encodeURIComponent(q));
+        const j = await r.json();
+        songSearchResultsCache = (j.results || []).filter(t=>t.previewUrl);
+        if (!songSearchResultsCache.length){
+          results.innerHTML = '<div class="song-search-msg">No tracks found — try another search.</div>';
+          return;
+        }
+        results.innerHTML = songSearchResultsCache.map((t, i)=>`
+          <div class="song-result" onclick="pickSong(${i})">
+            <img src="${escapeHtml(t.artworkUrl60 || t.artworkUrl100 || '')}" alt="">
+            <div class="sr-meta">
+              <div class="sr-title">${escapeHtml(t.trackName || '')}</div>
+              <div class="sr-artist">${escapeHtml(t.artistName || '')}</div>
+            </div>
+          </div>`).join('');
+      }catch(err){
+        results.innerHTML = '<div class="song-search-msg">Search failed — check your connection and try again.</div>';
+      }
+    }, 350);
+  }
+  async function pickSong(i){
+    const t = songSearchResultsCache[i];
+    if (!t) return;
+    stopSongPlayback();
+    await hpSaveExtras({ favorite_song: {
+      title: t.trackName || 'Untitled',
+      artist: t.artistName || '',
+      artworkUrl: (t.artworkUrl100 || t.artworkUrl60 || '').replace('100x100bb', '200x200bb'),
+      previewUrl: t.previewUrl
+    }});
+    closeSongSearch();
+    renderOwnerSong();
+    showToast('Favourite song added');
+  }
+  async function removeSong(){
+    stopSongPlayback();
+    await hpSaveExtras({ favorite_song: null });
+    renderOwnerSong();
   }
 
   function hpToggleConsent(btn){
