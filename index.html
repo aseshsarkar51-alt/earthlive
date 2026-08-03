@@ -8344,7 +8344,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
               <b>${personLink(c.name, { userId: c.userId })}</b>
               <div>
                 <button class="comment-reply-btn" onclick="toggleReplyForm(${idx})">reply</button>
-                ${modalIsOwner ? `<button class="comment-del" onclick="deleteComment('${c.id}')">remove</button>` : ''}
+                ${(modalIsOwner || (currentUser && c.userId === currentUser.id)) ? `<button class="comment-del" onclick="deleteComment('${c.id}')">remove</button>` : ''}
               </div>
             </div>
             <div class="comment-text">${linkifyAndMention(c.text)}</div>
@@ -8353,7 +8353,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
                 <div class="reply">
                   <div class="reply-meta">
                     <b>${personLink(r.name, { userId: r.userId })}</b>
-                    ${modalIsOwner ? `<button class="reply-del" onclick="deleteReply('${c.id}', '${r.id}')">remove</button>` : ''}
+                    ${(modalIsOwner || (currentUser && r.userId === currentUser.id)) ? `<button class="reply-del" onclick="deleteReply('${c.id}', '${r.id}')">remove</button>` : ''}
                   </div>
                   <div class="reply-text">${linkifyAndMention(r.text)}</div>
                 </div>`).join('')}
@@ -8561,7 +8561,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         showToast(friendlyError(error));
         return;
       }
-      entry.comments.push({ id: data.id, name, text });
+      entry.comments.push({ id: data.id, name, text, userId: currentUser ? currentUser.id : null });
     } else {
       entry.comments.push({ id: makeId(), name, text });
     }
@@ -8573,7 +8573,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
   async function deleteComment(commentId){
     const entry = modalEntrySource[currentModalIndex];
-    if (!entry || !modalIsOwner) return;
+    if (!entry) return;
+    const c = (entry.comments || []).find(x => x.id === commentId);
+    const canDelete = modalIsOwner || (currentUser && c && c.userId === currentUser.id);
+    if (!canDelete) return;
 
     if (db && isDbEntry(entry) && String(commentId).includes('-')){
       const { error } = await db.from('comments').delete().eq('id', commentId);
@@ -10272,7 +10275,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         parent_id: commentId
       }).select().single();
       if (error){ showToast(friendlyError(error)); return; }
-      parent.replies.push({ id: data.id, name, text });
+      parent.replies.push({ id: data.id, name, text, userId: currentUser ? currentUser.id : null });
     } else {
       parent.replies.push({ id: makeId(), name, text });
     }
@@ -10283,7 +10286,11 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
   async function deleteReply(commentId, replyId){
     const entry = modalEntrySource[currentModalIndex];
-    if (!entry || !modalIsOwner) return;
+    if (!entry) return;
+    const parentC = (entry.comments || []).find(x => x.id === commentId);
+    const reply = parentC && (parentC.replies || []).find(r => r.id === replyId);
+    const canDelete = modalIsOwner || (currentUser && reply && reply.userId === currentUser.id);
+    if (!canDelete) return;
     if (!confirm('Delete this reply?')) return;
     if (db && isDbEntry(entry) && String(replyId).includes('-')){
       const { error } = await db.from('comments').delete().eq('id', replyId);
@@ -10813,18 +10820,22 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
      already use — this just adds the missing UI + wiring for wall posts. */
   function wallCommentHtml(entryId, c, cIdx, scope){
     const replies = c.replies || [];
+    const canDeleteComment = (scope === 'own') || (currentUser && c.userId === currentUser.id);
     const repliesHtml = replies.length
-      ? '<div class="wp-replies">' + replies.map(r=>
-          '<div class="wp-reply"><div class="wp-reply-meta"><b>' + personLink(r.name, { userId: r.userId }) + '</b>' +
-          (scope === 'own' ? '<button type="button" class="wp-reply-del" onclick="deleteWallReply(\'' + entryId + '\',\'' + c.id + '\',\'' + r.id + '\',\'' + scope + '\')">remove</button>' : '') +
-          '</div><div class="wp-reply-text">' + escapeHtml(r.text || '') + '</div></div>'
-        ).join('') + '</div>'
+      ? '<div class="wp-replies">' + replies.map(r=>{
+          const canDeleteReply = (scope === 'own') || (currentUser && r.userId === currentUser.id);
+          return '<div class="wp-reply"><div class="wp-reply-meta"><b>' + personLink(r.name, { userId: r.userId }) + '</b>' +
+          (canDeleteReply ? '<button type="button" class="wp-reply-del" onclick="deleteWallReply(\'' + entryId + '\',\'' + c.id + '\',\'' + r.id + '\',\'' + scope + '\')">remove</button>' : '') +
+          '</div><div class="wp-reply-text">' + escapeHtml(r.text || '') + '</div></div>';
+        }).join('') + '</div>'
       : '';
     return '<div class="ev-comment wp-comment">' +
       '<div class="ev-avatar" style="background:var(--oat-deep); color:var(--ink);">' +
       escapeHtml((c.name||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()) +
       '</div><div class="ev-comment-body">' +
-      '<div class="wp-comment-top"><b>' + personLink(c.name, { userId: c.userId }) + '</b> ' + escapeHtml(c.text||'') + '</div>' +
+      '<div class="wp-comment-top"><b>' + personLink(c.name, { userId: c.userId }) + '</b> ' + escapeHtml(c.text||'') +
+      (canDeleteComment ? '<button type="button" class="wp-reply-del" onclick="deleteWallComment(\'' + entryId + '\',\'' + c.id + '\',\'' + scope + '\')">remove</button>' : '') +
+      '</div>' +
       '<button type="button" class="wp-reply-btn" onclick="toggleWallReplyForm(\'' + entryId + '\',' + cIdx + ',\'' + scope + '\')">reply</button>' +
       repliesHtml +
       '<div class="wp-reply-form" id="wp-reply-form-' + scope + '-' + entryId + '-' + cIdx + '">' +
@@ -10880,18 +10891,52 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   }
 
   async function deleteWallReply(entryId, commentId, replyId, scope){
-    if (scope !== 'own') return; // only the wall owner can moderate replies on their own posts
-    if (!confirm('Delete this reply?')) return;
-    const e = entries.find(x=>x.id === entryId);
+    const arr = (scope === 'own') ? entries : (currentVisitorEntries || []);
+    const e = arr.find(x=>x.id === entryId);
     if (!e) return;
+    const parent = (e.comments || []).find(c => c.id === commentId);
+    const reply = parent && (parent.replies || []).find(r => r.id === replyId);
+    const canDelete = (scope === 'own') || (currentUser && reply && reply.userId === currentUser.id);
+    if (!canDelete) return;
+    if (!confirm('Delete this reply?')) return;
     if (db && isDbEntry(e) && String(replyId).includes('-')){
       const { error } = await db.from('comments').delete().eq('id', replyId);
       if (error){ showToast('Could not remove: ' + error.message); return; }
     }
-    const parent = (e.comments || []).find(c => c.id === commentId);
     if (parent) parent.replies = (parent.replies || []).filter(r => r.id !== replyId);
-    renderWall();
+    if (scope === 'own'){
+      renderWall();
+    } else {
+      renderVisitorWall(
+        (currentVisitorEntries || []).filter(x=>isApproved(x) && isWallPostOf(x, currentVisitorProfile)),
+        currentVisitorProfile
+      );
+    }
     showToast('Reply removed');
+  }
+
+  async function deleteWallComment(entryId, commentId, scope){
+    const arr = (scope === 'own') ? entries : (currentVisitorEntries || []);
+    const e = arr.find(x=>x.id === entryId);
+    if (!e) return;
+    const c = (e.comments || []).find(x => x.id === commentId);
+    const canDelete = (scope === 'own') || (currentUser && c && c.userId === currentUser.id);
+    if (!canDelete) return;
+    if (!confirm('Delete this comment?')) return;
+    if (db && isDbEntry(e) && String(commentId).includes('-')){
+      const { error } = await db.from('comments').delete().eq('id', commentId);
+      if (error){ showToast('Could not remove: ' + error.message); return; }
+    }
+    e.comments = (e.comments || []).filter(x => x.id !== commentId);
+    if (scope === 'own'){
+      renderWall();
+    } else {
+      renderVisitorWall(
+        (currentVisitorEntries || []).filter(x=>isApproved(x) && isWallPostOf(x, currentVisitorProfile)),
+        currentVisitorProfile
+      );
+    }
+    showToast('Comment removed');
   }
 
   /* Their wall, as a visitor sees it: read + like + comment, but no editing. */
