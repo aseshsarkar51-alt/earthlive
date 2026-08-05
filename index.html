@@ -2195,6 +2195,14 @@
   .msg-voice .mv-wave{flex:1; height:22px; min-width:70px;}
   .msg-voice .mv-wave svg{width:100%; height:100%;}
   .msg-voice .mv-dur{font-family:"Space Mono",monospace; font-size:10px; opacity:.8; flex:none;}
+  /* "Save to Voiceprints" strip under a voice bubble */
+  .msgvp{margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,.14); font-size:10.5px;}
+  .msg-bubble:not(.mine) .msgvp{border-top-color:var(--line);}
+  .msgvp-save, .msgvp-sign{background:none; border:none; padding:0; cursor:pointer; font-size:10.5px; font-weight:600; text-decoration:underline; text-underline-offset:2px;}
+  .msg-bubble.mine .msgvp-save, .msg-bubble.mine .msgvp-sign{color:rgba(255,255,255,.85);}
+  .msg-bubble:not(.mine) .msgvp-save, .msg-bubble:not(.mine) .msgvp-sign{color:var(--camel);}
+  .msgvp-done{opacity:.85;}
+  .msgvp-busy{opacity:.65;}
   /* mic button in the message input row */
   .msg-mic{width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--page); color:var(--ink-soft); cursor:pointer; flex:none; display:flex; align-items:center; justify-content:center;}
   .msg-mic:hover{border-color:var(--camel); color:var(--camel);}
@@ -6363,6 +6371,9 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   /* ---------- MESSAGES (request + approval) ---------- */
   let currentConversationId = null;
   let currentConversation = null;
+  // Per-open-thread lookup so the voice bubbles' "Save to Voiceprints"
+  // control doesn't have to smuggle url/name/userId through onclick attrs.
+  let msgVoiceData = {};
 
   function otherParty(conv){
     const iAmRequester = conv.requester_profile_id === profile.dbId;
@@ -6573,7 +6584,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   async function openThread(convId){
     currentConversationId = convId;
     const { data: conv, error } = await db.from('conversations')
-      .select('*, requester:profiles!conversations_requester_profile_id_fkey(id,name,username,ink,avatar_url,extras), recipient:profiles!conversations_recipient_profile_id_fkey(id,name,username,ink,avatar_url,extras)')
+      .select('*, requester:profiles!conversations_requester_profile_id_fkey(id,user_id,name,username,ink,avatar_url,extras), recipient:profiles!conversations_recipient_profile_id_fkey(id,user_id,name,username,ink,avatar_url,extras)')
       .eq('id', convId).single();
     if (error || !conv){ showToast('Could not open conversation'); return; }
     currentConversation = conv;
@@ -6637,13 +6648,21 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     db.rpc('mark_conversation_read', { conv: convId }).then(()=>refreshMsgBadge()).catch(()=>{});
 
     const box = document.getElementById('threadMsgs');
+    msgVoiceData = {};
     box.innerHTML = (decryptedMsgs || []).map(m=>{
       const mine = m.sender_profile_id === profile.dbId ? 'mine' : '';
       const unsend = mine ? `<div class="msg-unsend" onclick="deleteMessage('${m.id}')">Unsend</div>` : '';
       const stamp = `<div class="msg-time ${mine}">${msgTimeLabel(m.created_at)}</div>`;
       let bubble;
       if (m.voice_url){
-        bubble = `<div class="msg-bubble voice ${mine}">${msgVoiceBubbleHtml(m.voice_url, m.voice_seconds)}${unsend}</div>`;
+        // Whoever's voice this is (me, or the other party) — that's who the
+        // saved Voiceprint/signature gets attributed to.
+        msgVoiceData[m.id] = {
+          url: m.voice_url, seconds: m.voice_seconds,
+          name: mine ? (profile.name || 'You') : (other.name || 'Someone'),
+          userId: mine ? (currentUser && currentUser.id) : other.user_id
+        };
+        bubble = `<div class="msg-bubble voice ${mine}">${msgVoiceBubbleHtml(m.voice_url, m.voice_seconds, m.id)}${unsend}</div>`;
       } else if (m.image_url){
         const caption = m.body ? `<div style="margin-top:6px;font-size:13px;">${linkify(m.body)}</div>` : '';
         bubble = `<div class="msg-bubble ${mine}" style="padding:6px;"><img src="${m.image_url}" alt="Photo" style="max-width:220px;width:100%;border-radius:9px;display:block;cursor:pointer;" onclick="openLightbox('${m.image_url}')">${caption}${unsend}</div>`;
@@ -6763,13 +6782,71 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       openThread(currentConversationId);
     });
   }
-  // Playable voice bubble inside a thread
-  function msgVoiceBubbleHtml(url, seconds){
+  // Playable voice bubble inside a thread. messageId (optional) wires up a
+  // "Save to Voiceprints" control underneath — omitted where there's no
+  // thread context (e.g. any future reuse of this renderer elsewhere).
+  function msgVoiceBubbleHtml(url, seconds, messageId){
+    const saveUi = messageId ? '<div class="msgvp" id="msgvp-' + messageId + '">'
+      + '<button type="button" class="msgvp-save" onclick="saveMsgVoiceprint(\'' + messageId + '\')" title="Keep this voice in your Voiceprints">Save to Voiceprints</button>'
+      + '</div>' : '';
     return '<div class="msg-voice" data-vsrc="' + url + '">' +
       '<button type="button" class="mv-play" onclick="threadVoicePlay(this)" aria-label="Play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>' +
       '<span class="mv-wave">' + voiceBarcodeSvg(seconds || 12) + '</span>' +
       '<span class="mv-dur">' + fmtSecs(seconds || 0) + '</span>' +
-      '</div>';
+      '</div>' + saveUi;
+  }
+
+  // Saves a message's voice note into the current user's own Voiceprints.
+  // Inserted as a 'pending' entry: Voiceprints shows it immediately (it
+  // doesn't filter by status), but it stays out of the Signatures list
+  // (which only shows approved entries) unless the user opts in below —
+  // matching the existing "sign my book" RLS policy, which allows any
+  // signed-in user to insert a pending entry.
+  async function saveMsgVoiceprint(messageId){
+    const info = msgVoiceData[messageId];
+    const host = document.getElementById('msgvp-' + messageId);
+    if (!info || !db || !profile || !profile.dbId){ if (host) host.innerHTML = ''; return; }
+    if (host) host.innerHTML = '<span class="msgvp-busy">Saving…</span>';
+    const row = {
+      profile_id: profile.dbId,
+      signer_user_id: info.userId || null,
+      name: info.name || 'Someone',
+      word: '',
+      message: '',
+      voice_url: info.url,
+      voice_seconds: info.seconds || null,
+      status: 'pending'
+    };
+    const { data, error } = await db.from('entries').insert(row).select('id').maybeSingle();
+    if (error){
+      showToast('Could not save: ' + error.message);
+      if (host) host.innerHTML = '<button type="button" class="msgvp-save" onclick="saveMsgVoiceprint(\'' + messageId + '\')">Save to Voiceprints</button>';
+      return;
+    }
+    info.entryId = data && data.id;
+    entries.unshift(dbRowToEntry({ ...row, id: info.entryId, created_at: new Date().toISOString() }));
+    if (typeof renderVoiceprints === 'function') renderVoiceprints();
+    showToast('Saved to your Voiceprints');
+    if (host){
+      host.innerHTML = '<span class="msgvp-done">✓ Saved to Voiceprints</span>'
+        + (info.entryId ? ' <button type="button" class="msgvp-sign" onclick="alsoSignFromVoiceprint(\'' + messageId + '\')">+ Also add as a signature</button>' : '');
+    }
+  }
+
+  // Optional second step: promote that saved entry so it also shows up as
+  // a real signature on the book (owner-moderation UPDATE policy covers this
+  // since it's always our own profile_id being updated here).
+  async function alsoSignFromVoiceprint(messageId){
+    const info = msgVoiceData[messageId];
+    const host = document.getElementById('msgvp-' + messageId);
+    if (!info || !info.entryId || !db) return;
+    if (host) host.innerHTML = '<span class="msgvp-busy">Adding…</span>';
+    const { error } = await db.from('entries').update({ status: 'approved' }).eq('id', info.entryId);
+    if (error){ showToast('Could not add as signature: ' + error.message); }
+    const e = entries.find(e=>e.id === info.entryId);
+    if (e) e.status = 'approved';
+    if (host) host.innerHTML = '<span class="msgvp-done">✓ Saved to Voiceprints · ✓ Added as signature</span>';
+    if (!error) showToast('Added as a signature too');
   }
   let _threadAudio = null, _threadAudioBtn = null;
   function threadVoicePlay(btn){
@@ -17975,12 +18052,18 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       const back = anchoredBack.has(p.user_id);
       const pingedToday = anPingedToday(p.user_id);
       const ringStyle = back ? 'border:2.5px solid var(--moss);' : 'border:1.5px dashed var(--line);';
+      // Tap the avatar or the name/username to open that person's book.
+      const openAttr = 'event.stopPropagation(); ' + (prof && prof.username
+          ? "openProfileByUsername('" + String(prof.username).replace(/'/g, "\\'") + "')"
+          : "openProfileByUserId('" + String(p.user_id).replace(/'/g, "\\'") + "')")
+        + '; return false;';
+      const openTitle = 'Open ' + escapeHtml(cleanName) + '’s book';
       const avatarInner = avatarUrl
-        ? '<div style="width:56px; height:56px; margin:0 auto 6px; border-radius:50%; background-image:url(\'' + escapeHtml(avatarUrl) + '\'); background-size:cover; background-position:center; ' + ringStyle + '"></div>'
-        : '<div style="width:56px; height:56px; margin:0 auto 6px; border-radius:50%; background:var(--oat-deep); color:var(--ink); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; ' + ringStyle + '">' + escapeHtml(initials) + '</div>';
+        ? '<div role="button" tabindex="0" onclick="' + openAttr + '" title="' + openTitle + '" style="cursor:pointer; width:56px; height:56px; margin:0 auto 6px; border-radius:50%; background-image:url(\'' + escapeHtml(avatarUrl) + '\'); background-size:cover; background-position:center; ' + ringStyle + '"></div>'
+        : '<div role="button" tabindex="0" onclick="' + openAttr + '" title="' + openTitle + '" style="cursor:pointer; width:56px; height:56px; margin:0 auto 6px; border-radius:50%; background:var(--oat-deep); color:var(--ink); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; ' + ringStyle + '">' + escapeHtml(initials) + '</div>';
       return '<div style="text-align:center; width:88px;">'
         + avatarInner
-        + '<div style="font-size:12px; color:var(--ink); font-weight:600;">' + escapeHtml(label) + '</div>'
+        + '<div style="font-size:12px; color:var(--ink); font-weight:600; cursor:pointer;" onclick="' + openAttr + '" title="' + openTitle + '">' + escapeHtml(label) + '</div>'
         + '<div style="font-size:9.5px; color:' + (back ? 'var(--moss)' : 'var(--ink-soft)') + '; margin-top:1px;">' + (back ? 'anchors you too' : 'pinned by you') + '</div>'
         + (anEditMode
             ? '<button type="button" onclick="anRemoveCircleMember(\'' + p.user_id + '\')" style="margin-top:8px; font-size:10.5px; color:var(--ink-soft); background:none; border:1px solid var(--line); border-radius:999px; padding:3px 9px;">Unpin</button>'
