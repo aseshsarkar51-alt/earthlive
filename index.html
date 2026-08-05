@@ -2203,6 +2203,9 @@
   .msg-bubble:not(.mine) .msgvp-save, .msg-bubble:not(.mine) .msgvp-sign{color:var(--camel);}
   .msgvp-done{opacity:.85;}
   .msgvp-busy{opacity:.65;}
+  /* Remove control on a saved message-voiceprint card */
+  .vp-card .vp-remove{margin-top:10px; background:none; border:none; padding:0; cursor:pointer; font-size:11px; color:var(--ink-soft); text-decoration:underline; text-underline-offset:2px;}
+  .vp-card .vp-remove:hover{color:var(--camel);}
   /* mic button in the message input row */
   .msg-mic{width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--page); color:var(--ink-soft); cursor:pointer; flex:none; display:flex; align-items:center; justify-content:center;}
   .msg-mic:hover{border-color:var(--camel); color:var(--camel);}
@@ -6796,12 +6799,13 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       '</div>' + saveUi;
   }
 
-  // Saves a message's voice note into the current user's own Voiceprints.
-  // Inserted as a 'pending' entry: Voiceprints shows it immediately (it
-  // doesn't filter by status), but it stays out of the Signatures list
-  // (which only shows approved entries) unless the user opts in below —
-  // matching the existing "sign my book" RLS policy, which allows any
-  // signed-in user to insert a pending entry.
+  // Saves a message's voice note into the current user's own Voiceprints —
+  // and NOTHING else. It is stored as an entry of kind 'msg_voiceprint',
+  // owned by me (signer_user_id = my own uid) so it never reads as a
+  // signature from someone else, and marked so it's excluded from the
+  // "waiting for approval" panel and the Book notification badge. It shows
+  // up only on the Voiceprints page, where it can be removed again. It has
+  // no connection to signatures or the book at all.
   async function saveMsgVoiceprint(messageId){
     const info = msgVoiceData[messageId];
     const host = document.getElementById('msgvp-' + messageId);
@@ -6809,13 +6813,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (host) host.innerHTML = '<span class="msgvp-busy">Saving…</span>';
     const row = {
       profile_id: profile.dbId,
-      signer_user_id: info.userId || null,
+      signer_user_id: (currentUser && currentUser.id) || null,
       name: info.name || 'Someone',
       word: '',
       message: '',
       voice_url: info.url,
       voice_seconds: info.seconds || null,
-      status: 'pending'
+      status: 'pending',
+      kind: 'msg_voiceprint'
     };
     const { data, error } = await db.from('entries').insert(row).select('id').maybeSingle();
     if (error){
@@ -6827,26 +6832,20 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     entries.unshift(dbRowToEntry({ ...row, id: info.entryId, created_at: new Date().toISOString() }));
     if (typeof renderVoiceprints === 'function') renderVoiceprints();
     showToast('Saved to your Voiceprints');
-    if (host){
-      host.innerHTML = '<span class="msgvp-done">✓ Saved to Voiceprints</span>'
-        + (info.entryId ? ' <button type="button" class="msgvp-sign" onclick="alsoSignFromVoiceprint(\'' + messageId + '\')">+ Also add as a signature</button>' : '');
-    }
+    if (host) host.innerHTML = '<span class="msgvp-done">✓ Saved to Voiceprints</span>';
   }
 
-  // Optional second step: promote that saved entry so it also shows up as
-  // a real signature on the book (owner-moderation UPDATE policy covers this
-  // since it's always our own profile_id being updated here).
-  async function alsoSignFromVoiceprint(messageId){
-    const info = msgVoiceData[messageId];
-    const host = document.getElementById('msgvp-' + messageId);
-    if (!info || !info.entryId || !db) return;
-    if (host) host.innerHTML = '<span class="msgvp-busy">Adding…</span>';
-    const { error } = await db.from('entries').update({ status: 'approved' }).eq('id', info.entryId);
-    if (error){ showToast('Could not add as signature: ' + error.message); }
-    const e = entries.find(e=>e.id === info.entryId);
-    if (e) e.status = 'approved';
-    if (host) host.innerHTML = '<span class="msgvp-done">✓ Saved to Voiceprints · ✓ Added as signature</span>';
-    if (!error) showToast('Added as a signature too');
+  // Removes a saved message-voiceprint from the Voiceprints page (owner
+  // delete). Only ever called on entries of kind 'msg_voiceprint'.
+  async function removeMsgVoiceprint(entryId){
+    if (!entryId || !db) return;
+    const idx = (entries || []).findIndex(e => e.id === entryId);
+    const { error } = await db.from('entries').delete().eq('id', entryId);
+    if (error){ showToast('Could not remove: ' + error.message); return; }
+    if (idx > -1) entries.splice(idx, 1);
+    if (typeof renderVoiceprints === 'function') renderVoiceprints();
+    if (typeof refreshBookBadge === 'function') refreshBookBadge();
+    showToast('Removed from Voiceprints');
   }
   let _threadAudio = null, _threadAudioBtn = null;
   function threadVoicePlay(btn){
@@ -7149,6 +7148,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       comments: [],
       voiceUrl: row.voice_url || null,
       voiceSeconds: row.voice_seconds || null,
+      kind: row.kind || null,
       rawDate: row.created_at,
       date: new Date(row.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) + ' · ' + minimalTime(row.created_at)
     };
@@ -7934,7 +7934,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (js) js.textContent = signatures.length || '';
     renderMemoryMap('ownerMapPanel', 'ownerMap', 'ownerMapCount', entries.filter(isApproved));
     try { renderAlbumGrid(); renderAlbumMap(); } catch(err){ console.error('[EarthLive] album render failed:', err); }
-    renderPendingPanel(entries.filter(e => e.status === 'pending'));
+    renderPendingPanel(entries.filter(e => e.status === 'pending' && e.kind !== 'msg_voiceprint'));
     renderOnThisDay();
     renderBookPoll('owner', profile);
   }
@@ -16696,7 +16696,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (!badge) return;
     if (!db || !currentUser || !profile || !profile.dbId){ badge.style.display = 'none'; return; }
     const { count } = await db.from('entries').select('id', {count:'exact', head:true})
-      .eq('profile_id', profile.dbId).eq('status', 'pending');
+      .eq('profile_id', profile.dbId).eq('status', 'pending')
+      .or('kind.is.null,kind.neq.msg_voiceprint');
     if (count > 0){ badge.textContent = count; badge.style.display = 'inline-flex'; }
     else badge.style.display = 'none';
   }
@@ -18171,6 +18172,9 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       +   '<div class="vp-wave"><svg viewBox="0 0 220 34" preserveAspectRatio="none"></svg></div>'
       +   '<div class="vp-dur">0:00</div>'
       + '</div>'
+      + (e.kind === 'msg_voiceprint'
+          ? '<button type="button" class="vp-remove" onclick="removeMsgVoiceprint(\'' + (e.id || '') + '\')">Remove from Voiceprints</button>'
+          : '')
       + '</div>').join('') + '</div>';
     host.querySelectorAll('.vprint').forEach(vpAttach);
   }
