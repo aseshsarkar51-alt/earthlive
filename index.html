@@ -2105,13 +2105,22 @@
   @media (max-width:760px){ .cn-side{width:200px;} #cnCanvas{height:360px;} }
 
   /* ---- Voiceprint ---- */
-  .vp-list{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px;}
-  .vp-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px 22px;}
-  .vp-card .who{font-family:"Caveat",cursive; font-size:24px; color:var(--camel); font-weight:700;}
-  .vp-card .msg{font-family:"Caveat",cursive; font-size:20px; line-height:1.4; margin:5px 0 14px;}
-  .vp-tag{font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); font-weight:700; margin-bottom:7px; display:flex; align-items:center; gap:6px;}
+  .vp-list{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px;}
+  /* Keep the list to roughly three rows of cards, then scroll inside it —
+     so "Your song history" underneath never gets pushed off the screen. */
+  .vp-scroll{max-height:52vh; min-height:180px; overflow-y:auto; overscroll-behavior:contain; padding:2px 10px 2px 2px; margin-right:-6px;}
+  .vp-scroll::-webkit-scrollbar{width:8px;}
+  .vp-scroll::-webkit-scrollbar-thumb{background:var(--line); border-radius:999px;}
+  .vp-scroll::-webkit-scrollbar-track{background:transparent;}
+  .vp-search{max-width:420px;}
+  .vp-meta{font-size:12px; color:var(--ink-soft); margin-bottom:10px;}
+  .vp-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:13px 15px;}
+  .vp-card .who{font-family:"Caveat",cursive; font-size:20px; color:var(--camel); font-weight:700;}
+  .vp-card .msg{font-family:"Caveat",cursive; font-size:16px; line-height:1.35; margin:2px 0 9px;}
+  .vp-card .msg:empty{margin:0 0 4px;}
+  .vp-tag{font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); font-weight:700; margin-bottom:5px; display:flex; align-items:center; gap:6px;}
   .vp-tag i{width:5px; height:5px; border-radius:50%; background:var(--blush);}
-  .vprint{display:flex; align-items:center; gap:11px; background:#0B0B0A; border-radius:10px; padding:9px 14px 9px 9px;}
+  .vprint{display:flex; align-items:center; gap:9px; background:#0B0B0A; border-radius:10px; padding:7px 11px 7px 7px;}
   .vp-btn{width:34px; height:34px; border-radius:50%; background:#fff; border:none; flex:none; display:flex; align-items:center; justify-content:center; color:#0B0B0A; cursor:pointer;}
   .vp-btn svg{width:12px; height:12px;}
   .vp-wave{flex:1; height:32px; cursor:pointer;}
@@ -4561,6 +4570,11 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       <h1 class="lb-h1">Voiceprints</h1>
       <p class="lb-lede">Every voice recording left in your book, in one place. Never a plain audio player — always the barcode, so a voice is recognisable as an EarthLive object anywhere it appears.</p>
     </div>
+    <div class="sig-search vp-search" id="vpSearchBox" style="display:none;">
+      <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
+      <input type="text" id="vpSearch" placeholder="find a name…" autocomplete="off" oninput="renderVoiceprints()">
+      <button type="button" id="vpSearchClear" style="display:none;" onclick="clearVoiceprintSearch()" aria-label="Clear search">✕</button>
+    </div>
     <div id="voiceprintsBody"></div>
     <div class="vp-songs-head">
       <h3>Your song history</h3>
@@ -6789,8 +6803,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   // "Save to Voiceprints" control underneath — omitted where there's no
   // thread context (e.g. any future reuse of this renderer elsewhere).
   function msgVoiceBubbleHtml(url, seconds, messageId){
-    const saveUi = messageId ? '<div class="msgvp" id="msgvp-' + messageId + '">'
-      + '<button type="button" class="msgvp-save" onclick="saveMsgVoiceprint(\'' + messageId + '\')" title="Keep this voice in your Voiceprints">Save to Voiceprints</button>'
+    // Already in my Voiceprints? Then don't offer to save the same clip twice —
+    // show it as saved instead. Matched on the voice file itself, so it stays
+    // correct when a thread is reopened later.
+    const already = msgVoiceSavedEntry(url);
+    const saveUi = messageId ? '<div class="msgvp" id="msgvp-' + messageId + '" data-vurl="' + escapeHtml(url || '') + '">'
+      + (already
+          ? '<span class="msgvp-done">✓ Saved to Voiceprints</span>'
+          : '<button type="button" class="msgvp-save" onclick="saveMsgVoiceprint(\'' + messageId + '\')" title="Keep this voice in your Voiceprints">Save to Voiceprints</button>')
       + '</div>' : '';
     return '<div class="msg-voice" data-vsrc="' + url + '">' +
       '<button type="button" class="mv-play" onclick="threadVoicePlay(this)" aria-label="Play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>' +
@@ -6806,10 +6826,21 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   // "waiting for approval" panel and the Book notification badge. It shows
   // up only on the Voiceprints page, where it can be removed again. It has
   // no connection to signatures or the book at all.
+  // The saved Voiceprint for a given voice file, if this clip is already kept.
+  function msgVoiceSavedEntry(url){
+    if (!url) return null;
+    return (entries || []).find(e => e.kind === 'msg_voiceprint' && e.voiceUrl === url) || null;
+  }
+
   async function saveMsgVoiceprint(messageId){
     const info = msgVoiceData[messageId];
     const host = document.getElementById('msgvp-' + messageId);
     if (!info || !db || !profile || !profile.dbId){ if (host) host.innerHTML = ''; return; }
+    // Guard against saving the same clip twice (double tap, or a stale bubble).
+    if (msgVoiceSavedEntry(info.url)){
+      if (host) host.innerHTML = '<span class="msgvp-done">✓ Saved to Voiceprints</span>';
+      return;
+    }
     if (host) host.innerHTML = '<span class="msgvp-busy">Saving…</span>';
     const row = {
       profile_id: profile.dbId,
@@ -6840,11 +6871,21 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   async function removeMsgVoiceprint(entryId){
     if (!entryId || !db) return;
     const idx = (entries || []).findIndex(e => e.id === entryId);
+    const removedUrl = idx > -1 ? entries[idx].voiceUrl : null;
     const { error } = await db.from('entries').delete().eq('id', entryId);
     if (error){ showToast('Could not remove: ' + error.message); return; }
     if (idx > -1) entries.splice(idx, 1);
     if (typeof renderVoiceprints === 'function') renderVoiceprints();
     if (typeof refreshBookBadge === 'function') refreshBookBadge();
+    // If that clip's thread is open behind this screen, offer Save again.
+    if (removedUrl){
+      document.querySelectorAll('.msgvp').forEach(el=>{
+        if (el.getAttribute('data-vurl') !== removedUrl) return;
+        const mid = (el.id || '').replace(/^msgvp-/, '');
+        if (!mid) return;
+        el.innerHTML = '<button type="button" class="msgvp-save" onclick="saveMsgVoiceprint(\'' + mid + '\')" title="Keep this voice in your Voiceprints">Save to Voiceprints</button>';
+      });
+    }
     showToast('Removed from Voiceprints');
   }
   let _threadAudio = null, _threadAudioBtn = null;
@@ -18153,16 +18194,49 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     });
     paint();
   }
+  function clearVoiceprintSearch(){
+    const input = document.getElementById('vpSearch');
+    if (input) input.value = '';
+    renderVoiceprints();
+    if (input) input.focus();
+  }
+
   function renderVoiceprints(){
     const host = document.getElementById('voiceprintsBody');
     if (!host) return;
-    const withVoice = (entries || []).filter(e=> e.voiceUrl);
-    if (!withVoice.length){
+    const all = (entries || []).filter(e=> e.voiceUrl);
+
+    // Search by name (also matches the note/word) \u2014 shown once there's
+    // enough here that finding one voice by hand gets tedious.
+    const box    = document.getElementById('vpSearchBox');
+    const input  = document.getElementById('vpSearch');
+    const clearB = document.getElementById('vpSearchClear');
+    const q = (input && input.value ? input.value : '').trim().toLowerCase();
+    if (box) box.style.display = all.length > 1 ? 'flex' : 'none';
+    if (clearB) clearB.style.display = q ? 'inline' : 'none';
+
+    if (!all.length){
       host.innerHTML = '<div class="lb-empty"><b>No Voiceprints yet</b>'
         + 'When someone leaves a voice recording in your book \u2014 or you record one when signing \u2014 it shows up here, drawn as a barcode rather than a plain player.</div>';
       return;
     }
-    host.innerHTML = '<div class="vp-list">' + withVoice.map((e,i)=>
+
+    const withVoice = q
+      ? all.filter(e => [e.name, e.nickname, e.relation, e.word, e.message]
+          .join(' ').toLowerCase().includes(q))
+      : all;
+
+    if (!withVoice.length){
+      host.innerHTML = '<div class="vp-meta">Nobody matches \u201c' + escapeHtml(q) + '\u201d \u2014 try a different name.</div>';
+      return;
+    }
+
+    const meta = q
+      ? '<div class="vp-meta"><b>' + withVoice.length + '</b> of ' + all.length + ' voiceprint'
+        + (all.length === 1 ? '' : 's') + ' match \u201c' + escapeHtml(q) + '\u201d</div>'
+      : '';
+
+    host.innerHTML = meta + '<div class="vp-scroll"><div class="vp-list">' + withVoice.map((e,i)=>
       '<div class="vp-card">'
       + '<div class="who">\u2014 ' + (e.name || 'Someone') + '</div>'
       + '<div class="msg">' + (e.message || e.word || '') + '</div>'
@@ -18175,7 +18249,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       + (e.kind === 'msg_voiceprint'
           ? '<button type="button" class="vp-remove" onclick="removeMsgVoiceprint(\'' + (e.id || '') + '\')">Remove from Voiceprints</button>'
           : '')
-      + '</div>').join('') + '</div>';
+      + '</div>').join('') + '</div></div>';
     host.querySelectorAll('.vprint').forEach(vpAttach);
   }
 
