@@ -2215,6 +2215,33 @@
   /* Remove control on a saved message-voiceprint card */
   .vp-card .vp-remove{margin-top:10px; background:none; border:none; padding:0; cursor:pointer; font-size:11px; color:var(--ink-soft); text-decoration:underline; text-underline-offset:2px;}
   .vp-card .vp-remove:hover{color:var(--camel);}
+
+  /* ---------- ASK YOUR BOOK (on-device semantic search) ---------- */
+  .askbook{margin:18px 0 4px;}
+  .askbook .sig-search{background:var(--card); border:1px solid var(--line); border-bottom:1px solid var(--line); border-radius:999px; padding:9px 16px; margin-bottom:0;}
+  .askbook .sig-search:focus-within{border-color:var(--ink); border-bottom-color:var(--ink);}
+  .ab-note{font-size:11.5px; color:var(--ink-soft); margin:7px 2px 0; display:flex; align-items:center; gap:8px; flex-wrap:wrap; line-height:1.5;}
+  .ab-enable{background:none; border:none; padding:0; cursor:pointer; font-size:11.5px; font-weight:700; color:var(--camel); text-decoration:underline; text-underline-offset:2px;}
+  .ab-enable:hover{color:var(--ink);}
+  .ab-dot{width:6px; height:6px; border-radius:50%; background:var(--moss); flex:none;}
+  .ab-bar{height:3px; border-radius:999px; background:var(--line); overflow:hidden; margin-top:7px;}
+  .ab-bar i{display:block; height:100%; background:var(--camel); width:0; transition:width .25s;}
+  .ab-results{margin-top:14px; display:flex; flex-direction:column; gap:9px;}
+  .ab-card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; cursor:pointer; transition:border-color .15s, transform .12s;}
+  .ab-card:hover{border-color:var(--camel); transform:translateY(-1px);}
+  .ab-top{display:flex; align-items:center; gap:8px; margin-bottom:5px; flex-wrap:wrap;}
+  .ab-src{font-size:9.5px; letter-spacing:.09em; text-transform:uppercase; font-weight:700; color:var(--camel); background:#FBF6F0; border:1px solid var(--line); border-radius:999px; padding:2px 8px;}
+  .ab-when{font-size:10.5px; color:var(--ink-soft);}
+  .ab-strength{margin-left:auto; display:flex; gap:2px; align-items:center;}
+  .ab-strength s{width:14px; height:3px; border-radius:999px; background:var(--line); display:block;}
+  .ab-strength s.on{background:var(--camel);}
+  .ab-who{font-size:12.5px; font-weight:700; color:var(--ink); margin-bottom:2px;}
+  .ab-snip{font-size:13px; line-height:1.5; color:var(--ink);}
+  .ab-snip mark{background:#F3E7D8; color:inherit; padding:0 1px; border-radius:2px;}
+  .ab-empty{font-size:13px; color:var(--ink-soft); padding:6px 2px;}
+  .ab-tips{display:flex; gap:6px; flex-wrap:wrap; margin-top:9px;}
+  .ab-tip{background:none; border:1px solid var(--line); border-radius:999px; padding:4px 11px; font-size:11.5px; color:var(--ink-soft); cursor:pointer; font-family:inherit;}
+  .ab-tip:hover{border-color:var(--camel); color:var(--camel);}
   /* mic button in the message input row */
   .msg-mic{width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--page); color:var(--ink-soft); cursor:pointer; flex:none; display:flex; align-items:center; justify-content:center;}
   .msg-mic:hover{border-color:var(--camel); color:var(--camel);}
@@ -2652,6 +2679,18 @@
         <div class="dash-actions">
         <button class="btn-share-hdr" onclick="shareInvite()">↗ Share</button>
       </div>
+    </div>
+
+    <!-- ===== ASK YOUR BOOK ===== -->
+    <div class="askbook" id="askBookBox">
+      <div class="sig-search">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
+        <input type="text" id="askBookInput" placeholder="Ask your book anything…" autocomplete="off" oninput="askBookTyped()" onfocus="askBookTyped()" aria-label="Search everything in your book">
+        <button type="button" id="askBookClear" style="display:none;" onclick="clearAskBook()" aria-label="Clear search">✕</button>
+      </div>
+      <div class="ab-note" id="askBookNote"></div>
+      <div class="ab-bar" id="askBookBar" style="display:none;"><i id="askBookBarFill"></i></div>
+      <div class="ab-results" id="askBookResults" style="display:none;"></div>
     </div>
 
     <div class="song-box-wrap" id="ownerSongBox"></div>
@@ -7976,6 +8015,9 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     renderMemoryMap('ownerMapPanel', 'ownerMap', 'ownerMapCount', entries.filter(isApproved));
     try { renderAlbumGrid(); renderAlbumMap(); } catch(err){ console.error('[EarthLive] album render failed:', err); }
     renderPendingPanel(entries.filter(e => e.status === 'pending' && e.kind !== 'msg_voiceprint'));
+    // The book changed underneath the search index — rebuild it next search.
+    abCorpus = null;
+    abRenderNote();
     renderOnThisDay();
     renderBookPoll('owner', profile);
   }
@@ -18194,6 +18236,412 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     });
     paint();
   }
+  /* ================= ASK YOUR BOOK =================================
+     On-device semantic search over everything in this book. Two layers:
+
+       1. Keyword matching — always available, zero cost, runs instantly.
+       2. Semantic ranking — optional. Downloads a small sentence-embedding
+          model (all-MiniLM-L6-v2, ~25MB, once) and runs it in this browser
+          via WebGPU/WASM. Embeddings are computed and compared locally and
+          cached in IndexedDB. No text from this book is ever sent anywhere;
+          the only network call is fetching the model weights themselves.
+
+     Encrypted diary entries are only indexed while the diary is unlocked —
+     otherwise all we hold is ciphertext, which is the point of encrypting. */
+
+  const AB_MODEL   = 'Xenova/all-MiniLM-L6-v2';
+  const AB_TJS_URL = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.6';
+  let abCorpus     = null;    // [{key, src, who, text, date, open}]
+  let abVecs       = null;    // key -> Float32Array (normalised)
+  let abExtractor  = null;
+  let abStatus     = 'off';   // off | loading | indexing | ready | error
+  let abTimer      = null;
+  let abLastQuery  = '';
+
+  function abHash(s){
+    let h = 5381;
+    for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return String(h);
+  }
+
+  /* ---- tiny IndexedDB store so we don't re-embed on every visit ---- */
+  function abDb(){
+    return new Promise((res, rej)=>{
+      let r;
+      try { r = indexedDB.open('earthlive-ask', 1); }
+      catch(e){ return rej(e); }
+      r.onupgradeneeded = ()=>{ try { r.result.createObjectStore('vecs'); } catch(e){} };
+      r.onsuccess = ()=> res(r.result);
+      r.onerror   = ()=> rej(r.error);
+    });
+  }
+  async function abCacheGet(keys){
+    const out = {};
+    let d; try { d = await abDb(); } catch(e){ return out; }
+    await new Promise(res=>{
+      let tx;
+      try { tx = d.transaction('vecs', 'readonly'); } catch(e){ return res(); }
+      const st = tx.objectStore('vecs');
+      let left = keys.length;
+      if (!left) return res();
+      keys.forEach(k=>{
+        const rq = st.get(k);
+        rq.onsuccess = ()=>{ if (rq.result) out[k] = rq.result; if (!--left) res(); };
+        rq.onerror   = ()=>{ if (!--left) res(); };
+      });
+    });
+    try { d.close(); } catch(e){}
+    return out;
+  }
+  async function abCachePut(rows){
+    let d; try { d = await abDb(); } catch(e){ return; }
+    await new Promise(res=>{
+      let tx;
+      try { tx = d.transaction('vecs', 'readwrite'); } catch(e){ return res(); }
+      const st = tx.objectStore('vecs');
+      rows.forEach(r=>{ try { st.put({ h:r.h, v:r.v }, r.key); } catch(e){} });
+      tx.oncomplete = ()=> res();
+      tx.onerror    = ()=> res();
+      tx.onabort    = ()=> res();
+    });
+    try { d.close(); } catch(e){}
+  }
+
+  /* ---- gather every searchable thing in this book ---- */
+  async function abBuildCorpus(){
+    const out = [];
+    const push = (key, src, who, text, date, open)=>{
+      const t = String(text || '').replace(/\s+/g, ' ').trim();
+      if (t.length < 2) return;
+      out.push({ key, src, who, text: t, date: date || null, open: open || null });
+    };
+
+    // 1. Signatures, wall posts and voiceprint notes (already in memory)
+    (entries || []).forEach((e, i)=>{
+      const isMine = isWallPost(e);
+      const src = e.kind === 'msg_voiceprint' ? 'Voiceprint' : (isMine ? 'Wall' : 'Signature');
+      const answers = Array.isArray(e.answers)
+        ? e.answers.map(a=> a ? [ (a.label||a.question||a.q||''), (a.value||a.answer||a.a||'') ].join(' ') : '').join(' ')
+        : '';
+      const bits = [e.message, e.word, answers, (e.city && e.city.name) || '', e.relation].filter(Boolean).join(' · ');
+      push('e:' + e.id, src, isMine ? 'You' : (e.name || 'Someone'), bits, e.rawDate,
+           { t:'entry', id:e.id });
+    });
+
+    // 2. Diary — private, and only readable while unlocked
+    let diary = diaryEntriesCache;
+    if ((!diary || !diary.length) && db && currentUser){
+      try {
+        const { data } = await db.from('diary_entries').select('id, title, body, created_at')
+          .eq('author_user_id', currentUser.id).order('created_at', { ascending:false }).limit(1000);
+        diary = data || [];
+      } catch(err){ diary = []; }
+    }
+    (diary || []).forEach(d=>{
+      const title = String(d.title || ''), body = String(d.body || '');
+      if (e2eIsEncrypted(title) || e2eIsEncrypted(body)) return;   // locked — skip
+      push('d:' + d.id, 'Diary', 'You', (title + ' ' + body), d.created_at, { t:'diary', id:d.id });
+    });
+
+    // 3. Messages (decrypted where we hold the key)
+    if (db && profile && profile.dbId){
+      try {
+        const { data: convs } = await db.from('conversations')
+          .select('*, requester:profiles!conversations_requester_profile_id_fkey(id,name,username,ink,avatar_url,extras), recipient:profiles!conversations_recipient_profile_id_fkey(id,name,username,ink,avatar_url,extras)')
+          .or('requester_profile_id.eq.' + profile.dbId + ',recipient_profile_id.eq.' + profile.dbId)
+          .eq('status', 'accepted');
+        const myPriv = await e2eGetMyPrivateKey().catch(()=>null);
+        for (const c of (convs || [])){
+          const other = otherParty(c) || { name:'Someone' };
+          let sharedKey = null;
+          if (myPriv && other && other.extras && other.extras.msg_pubkey){
+            try { sharedKey = await e2eDeriveSharedKey(myPriv, other.extras.msg_pubkey); } catch(e){ sharedKey = null; }
+          }
+          const { data: msgs } = await db.from('messages').select('id, body, created_at, sender_profile_id')
+            .eq('conversation_id', c.id).order('created_at', { ascending:false }).limit(300);
+          for (const m of (msgs || [])){
+            let body = m.body;
+            if (e2eIsEncrypted(body)){
+              if (!sharedKey) continue;
+              try { body = await e2eDecryptWithKey(sharedKey, body); } catch(e){ continue; }
+            }
+            const mine = m.sender_profile_id === profile.dbId;
+            push('m:' + m.id, 'Message', mine ? 'You' : (other.name || 'Someone'), body, m.created_at,
+                 { t:'msg', id:c.id });
+          }
+        }
+      } catch(err){ /* messages are best-effort */ }
+    }
+
+    // 4. Event posts written by or about me
+    if (db && currentUser){
+      try {
+        const { data: evs } = await db.from('events').select('id, name').limit(60);
+        const ids = (evs || []).map(e=>e.id);
+        if (ids.length){
+          const nameById = {};
+          (evs || []).forEach(e=>{ nameById[e.id] = e.name; });
+          const { data: eents } = await db.from('event_entries')
+            .select('id, event_id, author_name, message, one_word, subject_member, city, created_at')
+            .in('event_id', ids).limit(600);
+          (eents || []).forEach(x=>{
+            const cityName = x.city && typeof x.city === 'object' ? (x.city.name || '') : (x.city || '');
+            push('v:' + x.id, 'Event', x.author_name || 'Someone',
+                 [x.message, x.one_word, x.subject_member, cityName].filter(Boolean).join(' · '), x.created_at,
+                 { t:'event', id:x.event_id, label: nameById[x.event_id] || '' });
+          });
+        }
+      } catch(err){ /* best effort */ }
+    }
+
+    abCorpus = out;
+    return out;
+  }
+
+  /* ---- load the model, then embed anything not already cached ---- */
+  async function abEnableSmart(){
+    if (abStatus === 'loading' || abStatus === 'indexing') return;
+    const bar  = document.getElementById('askBookBar');
+    const fill = document.getElementById('askBookBarFill');
+    const setPct = p=>{ if (fill) fill.style.width = Math.max(2, Math.min(100, p)) + '%'; };
+    if (bar) bar.style.display = 'block';
+    abStatus = 'loading';
+    abRenderNote('Downloading the search model — one time only…');
+    try {
+      const TJS = await import(AB_TJS_URL);
+      TJS.env.allowLocalModels = false;
+      const onProg = (p)=>{
+        if (p && p.status === 'progress' && p.total) setPct((p.loaded / p.total) * 100);
+      };
+      let webgpu = false;
+      try { webgpu = !!navigator.gpu; } catch(e){ webgpu = false; }
+      try {
+        abExtractor = await TJS.pipeline('feature-extraction', AB_MODEL,
+          webgpu ? { device:'webgpu', dtype:'fp32', progress_callback:onProg }
+                 : { dtype:'q8', progress_callback:onProg });
+      } catch(gpuErr){
+        // WebGPU can exist but fail to initialise — fall back to WASM.
+        abExtractor = await TJS.pipeline('feature-extraction', AB_MODEL, { dtype:'q8', progress_callback:onProg });
+      }
+    } catch(err){
+      abStatus = 'error';
+      if (bar) bar.style.display = 'none';
+      abRenderNote('Smart search could not load — keyword search still works.');
+      console.error('[EarthLive] ask-your-book model failed:', err);
+      return;
+    }
+
+    abStatus = 'indexing';
+    abRenderNote('Reading through your book…');
+    setPct(0);
+    try {
+      if (!abCorpus) await abBuildCorpus();
+      const cached = await abCacheGet(abCorpus.map(r=>r.key));
+      abVecs = new Map();
+      const todo = [];
+      abCorpus.forEach(r=>{
+        const h = abHash(r.text);
+        const hit = cached[r.key];
+        if (hit && hit.h === h && hit.v) abVecs.set(r.key, Float32Array.from(hit.v));
+        else todo.push({ rec:r, h });
+      });
+      const fresh = [];
+      const B = 16;
+      for (let i = 0; i < todo.length; i += B){
+        const slice = todo.slice(i, i + B);
+        const res = await abExtractor(slice.map(x=> x.rec.text.slice(0, 600)), { pooling:'mean', normalize:true });
+        const list = res.tolist();
+        slice.forEach((x, j)=>{
+          const v = Float32Array.from(list[j]);
+          abVecs.set(x.rec.key, v);
+          fresh.push({ key:x.rec.key, h:x.h, v:Array.from(list[j]) });
+        });
+        setPct(((i + slice.length) / Math.max(1, todo.length)) * 100);
+      }
+      if (fresh.length) await abCachePut(fresh);
+      abStatus = 'ready';
+      if (bar) bar.style.display = 'none';
+      abRenderNote();
+      if ((document.getElementById('askBookInput') || {}).value) runAskBook();
+    } catch(err){
+      abStatus = 'error';
+      if (bar) bar.style.display = 'none';
+      abRenderNote('Could not finish indexing — keyword search still works.');
+      console.error('[EarthLive] ask-your-book indexing failed:', err);
+    }
+  }
+
+  function abRenderNote(override){
+    const el = document.getElementById('askBookNote');
+    if (!el) return;
+    if (override){ el.innerHTML = escapeHtml(override); return; }
+    if (abStatus === 'ready'){
+      el.innerHTML = '<span class="ab-dot"></span>Smart search on — running privately on this device, nothing leaves your book.';
+      return;
+    }
+    if (abStatus === 'error'){
+      el.innerHTML = 'Smart search unavailable — keyword search still works.';
+      return;
+    }
+    el.innerHTML = 'Searching words only. '
+      + '<button type="button" class="ab-enable" onclick="abEnableSmart()">Turn on smart search</button>'
+      + ' — understands meaning, not just words. One-time 25MB download, then it runs entirely on this device.';
+  }
+
+  // Shown under the bar when it's empty, so people learn they can ask in
+  // plain language rather than guessing keywords.
+  function abRenderTips(){
+    const box = document.getElementById('askBookResults');
+    if (!box) return;
+    const tips = ['when did I last feel low', 'what people said about me', 'times I mentioned my dad', 'the happiest days'];
+    box.style.display = 'flex';
+    box.innerHTML = '<div class="ab-tips">'
+      + tips.map(t=> '<button type="button" class="ab-tip" onclick="abAsk(\'' + t.replace(/'/g, "\\'") + '\')">' + escapeHtml(t) + '</button>').join('')
+      + '</div>';
+  }
+
+  function askBookTyped(){
+    clearTimeout(abTimer);
+    abTimer = setTimeout(runAskBook, 300);
+  }
+  function clearAskBook(){
+    const i = document.getElementById('askBookInput');
+    if (i) i.value = '';
+    runAskBook();
+    if (i) i.focus();
+  }
+  function abAsk(q){
+    const i = document.getElementById('askBookInput');
+    if (!i) return;
+    i.value = q;
+    runAskBook();
+  }
+
+  function abSnippet(text, q){
+    const words = (q || '').toLowerCase().split(/\s+/).filter(w=>w.length > 2);
+    let at = -1;
+    for (const w of words){
+      const k = text.toLowerCase().indexOf(w);
+      if (k > -1){ at = k; break; }
+    }
+    let s = text;
+    if (at > 90) s = '…' + text.slice(at - 60);
+    if (s.length > 220) s = s.slice(0, 220).replace(/\s\S*$/, '') + '…';
+    let html = escapeHtml(s);
+    words.forEach(w=>{
+      try {
+        html = html.replace(new RegExp('(' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\  function clearVoiceprintSearch(){') + ')', 'ig'), '<mark>$1</mark>');
+      } catch(e){}
+    });
+    return html;
+  }
+
+  function abOpenResult(key){
+    const rec = (abCorpus || []).find(r=>r.key === key);
+    if (!rec || !rec.open) return;
+    const o = rec.open;
+    if (o.t === 'entry'){
+      const idx = (entries || []).findIndex(e=>e.id === o.id);
+      if (idx > -1 && typeof openEntryModal === 'function') openEntryModal(idx);
+      else jumpTo('sigsAnchor');
+    } else if (o.t === 'diary'){
+      if (typeof otdOpenDiary === 'function') otdOpenDiary(o.id);
+    } else if (o.t === 'msg'){
+      if (typeof openMessages === 'function') openMessages();
+      if (typeof openThread === 'function') setTimeout(()=>openThread(o.id), 60);
+    } else if (o.t === 'event'){
+      if (typeof openEventById === 'function') openEventById(o.id);
+    }
+  }
+
+  async function runAskBook(){
+    const input   = document.getElementById('askBookInput');
+    const box     = document.getElementById('askBookResults');
+    const clearB  = document.getElementById('askBookClear');
+    if (!input || !box) return;
+    const raw = (input.value || '').trim();
+    const q = raw.toLowerCase();
+    if (clearB) clearB.style.display = raw ? 'inline' : 'none';
+    abLastQuery = raw;
+
+    if (!raw){
+      abRenderNote();
+      if (document.activeElement === input) abRenderTips();
+      else { box.style.display = 'none'; box.innerHTML = ''; }
+      return;
+    }
+
+    box.style.display = 'flex';
+    if (!abCorpus){
+      box.innerHTML = '<div class="ab-empty">Gathering your book…</div>';
+      await abBuildCorpus();
+      if (abLastQuery !== raw) return;    // a newer keystroke already took over
+    }
+
+    const words = q.split(/\s+/).filter(w=>w.length > 2);
+    const scored = [];
+
+    if (abStatus === 'ready' && abVecs && abExtractor){
+      let qv;
+      try {
+        const r = await abExtractor([raw], { pooling:'mean', normalize:true });
+        qv = Float32Array.from(r.tolist()[0]);
+      } catch(err){ qv = null; }
+      if (abLastQuery !== raw) return;
+      if (qv){
+        abCorpus.forEach(rec=>{
+          const v = abVecs.get(rec.key);
+          if (!v) return;
+          let dot = 0;
+          for (let i = 0; i < v.length; i++) dot += v[i] * qv[i];
+          // a literal word match is strong evidence too — nudge those up
+          const lit = words.length && words.some(w=> rec.text.toLowerCase().includes(w)) ? 0.08 : 0;
+          scored.push({ rec, score: dot + lit });
+        });
+        scored.sort((a,b)=> b.score - a.score);
+      }
+    }
+
+    if (!scored.length){
+      abCorpus.forEach(rec=>{
+        const hay = (rec.text + ' ' + (rec.who || '')).toLowerCase();
+        let hits = 0;
+        words.forEach(w=>{ if (hay.includes(w)) hits++; });
+        if (hay.includes(q)) hits += 2;
+        if (hits) scored.push({ rec, score: hits / (words.length + 2) });
+      });
+      scored.sort((a,b)=> b.score - a.score);
+    }
+
+    const min = abStatus === 'ready' ? 0.22 : 0.01;
+    const top = scored.filter(s=> s.score > min).slice(0, 14);
+
+    if (!top.length){
+      box.innerHTML = '<div class="ab-empty">Nothing in your book matches that yet.'
+        + (abStatus !== 'ready' ? ' Turning on smart search will find things worded differently.' : '')
+        + '</div>';
+      return;
+    }
+
+    const maxS = top[0].score || 1;
+    box.innerHTML = top.map(s=>{
+      const r = s.rec;
+      const rel = Math.max(1, Math.round((s.score / maxS) * 4));
+      const bars = [1,2,3,4].map(n=> '<s class="' + (n <= rel ? 'on' : '') + '"></s>').join('');
+      const when = r.date
+        ? new Date(r.date).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
+        : '';
+      const label = r.open && r.open.label ? ' · ' + escapeHtml(r.open.label) : '';
+      return '<div class="ab-card" onclick="abOpenResult(\'' + r.key.replace(/'/g, "\\'") + '\')">'
+        + '<div class="ab-top"><span class="ab-src">' + escapeHtml(r.src) + '</span>'
+        + '<span class="ab-when">' + escapeHtml(when) + label + '</span>'
+        + '<span class="ab-strength" title="How closely this matches">' + bars + '</span></div>'
+        + '<div class="ab-who">' + escapeHtml(r.who || '') + '</div>'
+        + '<div class="ab-snip">' + abSnippet(r.text, q) + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
   function clearVoiceprintSearch(){
     const input = document.getElementById('vpSearch');
     if (input) input.value = '';
