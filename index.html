@@ -2217,12 +2217,14 @@
   .vp-card .vp-remove:hover{color:var(--camel);}
 
   /* ---------- ASK YOUR BOOK (on-device semantic search) ---------- */
-  .askbook{margin:18px 0 4px;}
-  .askbook .sig-search{background:var(--card); border:1px solid var(--line); border-bottom:1px solid var(--line); border-radius:999px; padding:9px 16px; margin-bottom:0;}
-  .askbook .sig-search:focus-within{border-color:var(--ink); border-bottom-color:var(--ink);}
-  .ab-note{font-size:11.5px; color:var(--ink-soft); margin:7px 2px 0; display:flex; align-items:center; gap:8px; flex-wrap:wrap; line-height:1.5;}
-  .ab-enable{background:none; border:none; padding:0; cursor:pointer; font-size:11.5px; font-weight:700; color:var(--camel); text-decoration:underline; text-underline-offset:2px;}
-  .ab-enable:hover{color:var(--ink);}
+  /* Same quiet underline bar as Messages / Diary search — no pill, no card. */
+  .askbook{margin:14px 0 2px; max-width:460px;}
+  .askbook .sig-search{margin-bottom:0;}
+  .ab-note{font-size:11px; color:var(--ink-soft); margin:5px 2px 0; display:flex; align-items:center; gap:6px; flex-wrap:wrap; line-height:1.45;}
+  .ab-enable, .ab-off{background:none; border:none; padding:0; cursor:pointer; font-size:11px; font-family:inherit; color:var(--camel); text-decoration:underline; text-underline-offset:2px;}
+  .ab-enable{font-weight:700;}
+  .ab-off{color:var(--ink-soft); font-weight:400;}
+  .ab-enable:hover, .ab-off:hover{color:var(--ink);}
   .ab-dot{width:6px; height:6px; border-radius:50%; background:var(--moss); flex:none;}
   .ab-bar{height:3px; border-radius:999px; background:var(--line); overflow:hidden; margin-top:7px;}
   .ab-bar i{display:block; height:100%; background:var(--camel); width:0; transition:width .25s;}
@@ -8017,7 +8019,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     renderPendingPanel(entries.filter(e => e.status === 'pending' && e.kind !== 'msg_voiceprint'));
     // The book changed underneath the search index — rebuild it next search.
     abCorpus = null;
-    abRenderNote();
+    abAutoInit();
     renderOnThisDay();
     renderBookPoll('owner', profile);
   }
@@ -18398,15 +18400,38 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     return out;
   }
 
+  /* Smart search is remembered per device. The model itself lives in the
+     browser's own HTTP cache and the vectors in IndexedDB, so switching it
+     back on after a reload costs nothing — we just have to remember that
+     it was on, otherwise it looks like the download never happened. */
+  const AB_PREF = 'el_ask_smart';
+  function abSmartWanted(){
+    try { return localStorage.getItem(AB_PREF) === '1'; } catch(e){ return false; }
+  }
+  // Called on every dashboard render: quietly restores smart search if this
+  // device already opted in, instead of showing the download offer again.
+  function abAutoInit(){
+    if (abSmartWanted() && abStatus === 'off') abEnableSmart(true);
+    else abRenderNote();
+  }
+  function abDisableSmart(){
+    try { localStorage.removeItem(AB_PREF); } catch(e){}
+    abStatus = 'off';
+    abExtractor = null;
+    abVecs = null;
+    abRenderNote();
+    if ((document.getElementById('askBookInput') || {}).value) runAskBook();
+  }
+
   /* ---- load the model, then embed anything not already cached ---- */
-  async function abEnableSmart(){
+  async function abEnableSmart(silent){
     if (abStatus === 'loading' || abStatus === 'indexing') return;
     const bar  = document.getElementById('askBookBar');
     const fill = document.getElementById('askBookBarFill');
     const setPct = p=>{ if (fill) fill.style.width = Math.max(2, Math.min(100, p)) + '%'; };
-    if (bar) bar.style.display = 'block';
+    if (bar && !silent) bar.style.display = 'block';
     abStatus = 'loading';
-    abRenderNote('Downloading the search model — one time only…');
+    abRenderNote(silent ? 'Getting smart search ready…' : 'Downloading the search model — one time only…');
     try {
       const TJS = await import(AB_TJS_URL);
       TJS.env.allowLocalModels = false;
@@ -18460,6 +18485,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       }
       if (fresh.length) await abCachePut(fresh);
       abStatus = 'ready';
+      try { localStorage.setItem(AB_PREF, '1'); } catch(e){}
       if (bar) bar.style.display = 'none';
       abRenderNote();
       if ((document.getElementById('askBookInput') || {}).value) runAskBook();
@@ -18471,21 +18497,44 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     }
   }
 
+  // Anything added to the book since the last index (a new signature, a new
+  // diary page) has no vector yet — embed just those, so fresh entries are
+  // searchable without re-indexing the whole book.
+  async function abEmbedMissing(){
+    if (abStatus !== 'ready' || !abExtractor || !abVecs || !abCorpus) return;
+    const todo = abCorpus.filter(r => !abVecs.has(r.key));
+    if (!todo.length) return;
+    const fresh = [];
+    const B = 16;
+    for (let i = 0; i < todo.length; i += B){
+      const slice = todo.slice(i, i + B);
+      try {
+        const res = await abExtractor(slice.map(x => x.text.slice(0, 600)), { pooling:'mean', normalize:true });
+        const list = res.tolist();
+        slice.forEach((r, j)=>{
+          abVecs.set(r.key, Float32Array.from(list[j]));
+          fresh.push({ key:r.key, h:abHash(r.text), v:Array.from(list[j]) });
+        });
+      } catch(err){ return; }
+    }
+    if (fresh.length) abCachePut(fresh);
+  }
+
   function abRenderNote(override){
     const el = document.getElementById('askBookNote');
     if (!el) return;
     if (override){ el.innerHTML = escapeHtml(override); return; }
     if (abStatus === 'ready'){
-      el.innerHTML = '<span class="ab-dot"></span>Smart search on — running privately on this device, nothing leaves your book.';
+      el.innerHTML = '<span class="ab-dot"></span>Smart search on · '
+        + '<button type="button" class="ab-off" onclick="abDisableSmart()">turn off</button>';
       return;
     }
     if (abStatus === 'error'){
-      el.innerHTML = 'Smart search unavailable — keyword search still works.';
+      el.innerHTML = 'Smart search unavailable — words-only search still works.';
       return;
     }
-    el.innerHTML = 'Searching words only. '
-      + '<button type="button" class="ab-enable" onclick="abEnableSmart()">Turn on smart search</button>'
-      + ' — understands meaning, not just words. One-time 25MB download, then it runs entirely on this device.';
+    el.innerHTML = '<button type="button" class="ab-enable" onclick="abEnableSmart()">Turn on smart search</button>'
+      + ' · finds by meaning, not just words · 25MB, once';
   }
 
   // Shown under the bar when it's empty, so people learn they can ask in
@@ -18576,6 +18625,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       box.innerHTML = '<div class="ab-empty">Gathering your book…</div>';
       await abBuildCorpus();
       if (abLastQuery !== raw) return;    // a newer keystroke already took over
+      await abEmbedMissing();
+      if (abLastQuery !== raw) return;
     }
 
     const words = q.split(/\s+/).filter(w=>w.length > 2);
