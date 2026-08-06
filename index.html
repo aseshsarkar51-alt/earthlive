@@ -2220,6 +2220,11 @@
   /* Same quiet underline bar as Messages / Diary search — no pill, no card. */
   .askbook{margin:14px 0 2px; max-width:460px;}
   .askbook .sig-search{margin-bottom:0;}
+  /* The dashboard is .style-a, which force-borders every input with
+     !important. That boxes in this field and breaks the underline look, so
+     override it here (higher specificity, also !important). */
+  .askbook .sig-search input{border:none !important; background:none !important; box-shadow:none !important;}
+  .askbook .sig-search input:focus{outline:none !important;}
   .ab-note{font-size:11px; color:var(--ink-soft); margin:5px 2px 0; display:flex; align-items:center; gap:6px; flex-wrap:wrap; line-height:1.45;}
   .ab-enable, .ab-off{background:none; border:none; padding:0; cursor:pointer; font-size:11px; font-family:inherit; color:var(--camel); text-decoration:underline; text-underline-offset:2px;}
   .ab-enable{font-weight:700;}
