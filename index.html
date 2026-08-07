@@ -2220,6 +2220,11 @@
   /* Same quiet underline bar as Messages / Diary search — no pill, no card. */
   .askbook{margin:14px 0 2px; max-width:460px;}
   .askbook .sig-search{margin-bottom:0;}
+  /* Black dividing lines — search-bar underlines and section rules. */
+  .sig-search{border-bottom-color:var(--ink);}
+  .shead{border-bottom-color:var(--ink);}
+  .book-jump{border-bottom-color:var(--ink);}
+  .ab-note:empty{margin:0;}
   /* The dashboard is .style-a, which force-borders every input with
      !important. That boxes in this field and breaks the underline look, so
      override it here (higher specificity, also !important). */
@@ -18416,8 +18421,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   // Called on every dashboard render: quietly restores smart search if this
   // device already opted in, instead of showing the download offer again.
   function abAutoInit(){
-    if (abSmartWanted() && abStatus === 'off') abEnableSmart(true);
-    else abRenderNote();
+    // Smart search is always on now — no opt-in text, no toggle. Load the
+    // model silently on first use (once, then cached); keyword search covers
+    // the brief gap while it loads.
+    if (abStatus === 'off') abEnableSmart(true);
   }
   function abDisableSmart(){
     try { localStorage.removeItem(AB_PREF); } catch(e){}
@@ -18525,21 +18532,12 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (fresh.length) abCachePut(fresh);
   }
 
-  function abRenderNote(override){
+  function abRenderNote(){
+    // No status/opt-in line under the bar any more — smart search is always
+    // on and silent, so this stays empty. Kept as a function because several
+    // callers still invoke it.
     const el = document.getElementById('askBookNote');
-    if (!el) return;
-    if (override){ el.innerHTML = escapeHtml(override); return; }
-    if (abStatus === 'ready'){
-      el.innerHTML = '<span class="ab-dot"></span>Smart search on · '
-        + '<button type="button" class="ab-off" onclick="abDisableSmart()">turn off</button>';
-      return;
-    }
-    if (abStatus === 'error'){
-      el.innerHTML = 'Smart search unavailable — words-only search still works.';
-      return;
-    }
-    el.innerHTML = '<button type="button" class="ab-enable" onclick="abEnableSmart()">Turn on smart search</button>'
-      + ' · finds by meaning, not just words · 25MB, once';
+    if (el) el.innerHTML = '';
   }
 
   // Shown under the bar when it's empty, so people learn they can ask in
