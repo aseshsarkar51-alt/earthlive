@@ -2243,6 +2243,28 @@
   .fl-x{background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:11px; text-decoration:underline; text-underline-offset:2px; padding:0; margin-top:6px;}
   .fl-x:hover{color:var(--camel);}
   .fl-empty{font-size:12.5px; color:var(--ink-soft); line-height:1.5;}
+  /* The year, kept */
+  .yk-card{display:flex; align-items:center; justify-content:space-between; gap:14px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:15px 18px; margin:14px 0 8px; cursor:pointer; max-width:520px; transition:border-color .15s;}
+  .yk-card:hover{border-color:var(--camel);}
+  .yk-card-ey{font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--camel); font-weight:700;}
+  .yk-card-t{font-family:"Fraunces",Georgia,serif; font-size:18px; margin-top:2px;}
+  .yk-card-s{font-size:12px; color:var(--ink-soft); margin-top:3px;}
+  .yk-card-arrow{color:var(--camel); font-size:20px; flex:none;}
+  .yk-overlay{position:fixed; inset:0; background:rgba(20,18,16,.55); z-index:9000; display:flex; align-items:flex-start; justify-content:center; overflow:auto; padding:40px 16px;}
+  .yk-sheet{background:var(--oat); max-width:560px; width:100%; border-radius:18px; padding:34px 30px 40px; box-shadow:0 30px 80px rgba(0,0,0,.35); position:relative;}
+  .yk-close{position:absolute; top:14px; right:16px; background:none; border:none; font-size:20px; color:var(--ink-soft); cursor:pointer;}
+  .yk-ey{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--camel); font-weight:700;}
+  .yk-h1{font-family:"Fraunces",Georgia,serif; font-size:34px; margin:4px 0 4px; color:var(--ink);}
+  .yk-sub{font-size:13px; color:var(--ink-soft); margin-bottom:18px;}
+  .yk-switch{display:flex; gap:8px; margin-bottom:18px;}
+  .yk-switch button{font:inherit; font-size:12.5px; border:1px solid var(--line); background:var(--card); border-radius:999px; padding:5px 13px; cursor:pointer; color:var(--ink);}
+  .yk-switch button.on{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .yk-sec{margin:20px 0;}
+  .yk-sec .t{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); font-weight:700; margin-bottom:8px;}
+  .yk-chips{display:flex; flex-wrap:wrap; gap:7px;}
+  .yk-chip{background:var(--card); border:1px solid var(--line); border-radius:999px; padding:5px 12px; font-size:13px; color:var(--ink);}
+  .yk-big{font-family:"Fraunces",Georgia,serif; font-size:22px; color:var(--ink); line-height:1.35;}
+  .yk-line{font-size:14px; color:var(--ink); line-height:1.5;}
   /* The dashboard is .style-a, which force-borders every input with
      !important. That boxes in this field and breaks the underline look, so
      override it here (higher specificity, also !important). */
@@ -2738,6 +2760,16 @@
         <div class="fl-note">🔒 Sealed and private — only you, and only after the date. Then it's here, waiting for you.</div>
       </div>
       <div id="flList"></div>
+    </div>
+
+    <!-- ===== THE YEAR, KEPT ===== -->
+    <div class="yk-card" id="yearKeptCard" onclick="openYearKept()">
+      <div>
+        <div class="yk-card-ey">A keepsake · private</div>
+        <div class="yk-card-t">Your year, kept</div>
+        <div class="yk-card-s">The people and moments of your year — no scores, just what stayed.</div>
+      </div>
+      <span class="yk-card-arrow">→</span>
     </div>
 
     <div class="song-box-wrap" id="ownerSongBox"></div>
@@ -18971,6 +19003,77 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       ${rows}
       ${words ? `<div class="hp-tone-note">Words carrying the most weight: ${words}</div>` : ''}
     </div>`;
+  }
+
+  /* ── THE YEAR, KEPT ──
+     A private annual keepsake composed from the user's own book — people,
+     places, a standout day, a recurring word, the mood, a song. No metrics,
+     no rankings; just what stayed. Entirely on-device from data in memory. */
+  function ykGather(year){
+    const yr = String(year);
+    const inY = d => d && (new Date(d)).getFullYear() === year;
+    const people = new Set(), places = new Set(), words = {}, kept = {};
+    const add = (k, l)=>{ if(!k) return; (kept[k] = kept[k] || []).push(l); };
+    (entries || []).forEach(e=>{
+      if (e.kind === 'msg_voiceprint' || !inY(e.rawDate)) return;
+      const k = calKey(new Date(e.rawDate));
+      if (!isWallPost(e) && e.name){ people.add(e.name); add(k, e.name + ' signed'); }
+      else add(k, 'a note on your wall');
+      if (e.city && e.city.name){ places.add(e.city.name); add(k, 'a memory in ' + e.city.name); }
+      if (e.word){ const w = e.word.trim(); if(w) words[w] = (words[w] || 0) + 1; }
+    });
+    const diaryArr = (typeof diaryEntriesCache !== 'undefined' && diaryEntriesCache) ? diaryEntriesCache : [];
+    diaryArr.forEach(dd=>{ const w = dd.created_at || dd.rawDate; if(inY(w)) add(calKey(new Date(w)), 'a diary page'); });
+    const albumArr = (typeof albumPhotos !== 'undefined' && albumPhotos) ? albumPhotos : [];
+    albumArr.forEach(p=>{ const w = p.takenAt || p.created_at; if(inY(w)){ if(p.place) places.add(p.place); add(calKey(new Date(w)), 'a photo' + (p.place ? ' in ' + p.place : '')); } });
+    const MS = { great:95, calm:78, okay:58, tired:40, sad:28, notgood:15 };
+    let best=null, sum=0, n=0;
+    Object.keys(moodByDate || {}).forEach(k=>{ if(k.slice(0,4)===yr){ const m=moodByDate[k]; if(MS[m]!==undefined){ sum+=MS[m]; n++; if(!best||MS[m]>best.s) best={k,s:MS[m],m}; } } });
+    let topWord=null, tw=1; Object.keys(words).forEach(w=>{ if(words[w]>tw){ tw=words[w]; topWord=w; } });
+    const tone = n ? (sum/n>=80?'bright':sum/n>=60?'hopeful':sum/n>=40?'steady':'quiet') : null;
+    const song = (profile && profile.extras && profile.extras.favorite_song) || null;
+    return { people:[...people].slice(0,12), places:[...places].slice(0,10), topWord, tone, best, kept, song };
+  }
+  function ykSheetHtml(year){
+    const g = ykGather(year);
+    const chips = arr => '<div class="yk-chips">' + arr.map(x=>'<span class="yk-chip">' + escapeHtml(x) + '</span>').join('') + '</div>';
+    const sec = (t, html) => '<div class="yk-sec"><div class="t">' + t + '</div>' + html + '</div>';
+    let secs = '';
+    if (g.people.length) secs += sec('The people in it', chips(g.people));
+    if (g.places.length) secs += sec('Where it happened', chips(g.places));
+    if (g.best){
+      const dd = new Date(g.best.k + 'T00:00:00');
+      const dstr = dd.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' });
+      const things = (g.kept[g.best.k] || []).slice(0,2);
+      const line = things.length ? 'You kept ' + things.join(' and ') + '.' : 'A bright day.';
+      secs += sec('A day that stood out', '<div class="yk-big">' + escapeHtml(dstr) + '</div><div class="yk-line" style="margin-top:6px; color:var(--ink-soft);">' + escapeHtml(line) + '</div>');
+    }
+    if (g.topWord) secs += sec('A word that kept coming up', '<div class="yk-big">“' + escapeHtml(g.topWord) + '”</div>');
+    else if (g.tone) secs += sec('The tone of it', '<div class="yk-big" style="text-transform:capitalize;">' + escapeHtml(g.tone) + '</div>');
+    if (g.song && g.song.title) secs += sec('The sound of it', '<div class="yk-line">' + escapeHtml(g.song.title) + (g.song.artist ? ' · ' + escapeHtml(g.song.artist) : '') + '</div>');
+    if (!secs) secs = '<div class="yk-line" style="color:var(--ink-soft);">Your ' + year + ' is still being written. Keep a few more moments — the people, the places, a mood — and they will gather here.</div>';
+    const thisYear = new Date().getFullYear();
+    const sw = '<div class="yk-switch">'
+      + '<button class="' + (year===thisYear?'on':'') + '" onclick="openYearKept(' + thisYear + ')">This year</button>'
+      + '<button class="' + (year===thisYear-1?'on':'') + '" onclick="openYearKept(' + (thisYear-1) + ')">' + (thisYear-1) + '</button>'
+      + '</div>';
+    return '<button class="yk-close" onclick="closeYearKept()" aria-label="Close">✕</button>'
+      + '<div class="yk-ey">A keepsake · private</div>'
+      + '<div class="yk-h1">Your ' + year + ', kept</div>'
+      + '<div class="yk-sub">The moments and the people — no scores, just what stayed.</div>'
+      + sw + secs
+      + '<div class="yk-line" style="margin-top:26px; color:var(--ink-soft); border-top:1px solid var(--line); padding-top:18px;">Kept, not scrolled past.</div>';
+  }
+  function ykEsc(e){ if(e.key === 'Escape') closeYearKept(); }
+  function closeYearKept(){ const o=document.getElementById('ykOverlay'); if(o) o.remove(); document.removeEventListener('keydown', ykEsc); }
+  function openYearKept(year){
+    year = year || new Date().getFullYear();
+    closeYearKept();
+    const ov = document.createElement('div'); ov.className='yk-overlay'; ov.id='ykOverlay';
+    ov.innerHTML = '<div class="yk-sheet">' + ykSheetHtml(year) + '</div>';
+    ov.addEventListener('click', e=>{ if(e.target===ov) closeYearKept(); });
+    document.body.appendChild(ov);
+    document.addEventListener('keydown', ykEsc);
   }
 
   /* ── LETTERS TO THE FUTURE ──
