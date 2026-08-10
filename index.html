@@ -18937,6 +18937,73 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     </div>`;
   }
 
+  /* ── HAPPINESS INSIGHTS (self-contained, on-device) ──
+     Two gentle, private reflections computed only from the user's own mood
+     log + kept moments already in memory. No network, no model, no 3rd party.
+     Framed as noticing, never diagnosis. */
+  function hpInsights(){
+    try {
+      const MS = { great:95, calm:78, okay:58, tired:40, sad:28, notgood:15 };
+      const today = new Date();
+      const kept = {};
+      const add = (k, label)=>{ if(!k) return; (kept[k] = kept[k] || []).push(label); };
+      (entries || []).forEach(e=>{
+        if(!e.rawDate || e.kind === 'msg_voiceprint') return;
+        const k = calKey(new Date(e.rawDate));
+        if (isWallPost(e)) add(k, 'a note on your wall');
+        else add(k, (e.name || 'someone') + ' signed your book');
+        if (e.city && e.city.name) add(k, 'a memory in ' + e.city.name);
+      });
+      const diaryDays = new Set();
+      const diaryArr = (typeof diaryEntriesCache !== 'undefined' && diaryEntriesCache) ? diaryEntriesCache : [];
+      diaryArr.forEach(dd=>{ const w = dd.created_at || dd.rawDate; if(!w) return; const k = calKey(new Date(w)); diaryDays.add(k); add(k, 'a diary page'); });
+      const placeDays = new Set();
+      const albumArr = (typeof albumPhotos !== 'undefined' && albumPhotos) ? albumPhotos : [];
+      albumArr.forEach(p=>{ const w = p.takenAt || p.created_at; if(!w) return; const k = calKey(new Date(w)); if(p.place) placeDays.add(k); add(k, 'a photo' + (p.place ? ' in ' + p.place : '')); });
+
+      // brightest day in the last 120
+      let best = null;
+      for (let i=0;i<120;i++){ const d=new Date(today); d.setDate(d.getDate()-i); const k=calKey(d); const mood=moodByDate[k];
+        if (mood && MS[mood]!==undefined && (!best || MS[mood]>best.score)) best = { k, score:MS[mood], mood, date:d }; }
+      let brightCard = '';
+      if (best){
+        const mo = moodOf(best.mood);
+        const dstr = best.date.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' });
+        const things = (kept[best.k] || []).slice(0,2);
+        const line = things.length ? 'You kept ' + things.join(' and ') + ' that day.'
+                                   : 'A ' + (mo ? mo.label.toLowerCase() : 'good') + ' day worth remembering.';
+        brightCard = '<div class="hp-card"><div class="hp-card-tag">\u{1F512} Only visible to you</div>'
+          + '<div class="hp-card-title">Your brightest day lately — ' + escapeHtml(dstr) + '</div>'
+          + '<div class="hp-card-sub">' + escapeHtml(line) + '</div></div>';
+      }
+
+      // what seems to lift you
+      const days = [];
+      for (let i=0;i<120;i++){ const d=new Date(today); d.setDate(d.getDate()-i); const k=calKey(d); const mood=moodByDate[k];
+        if (mood && MS[mood]!==undefined) days.push({ k, score:MS[mood] }); }
+      const avg = a => a.length ? a.reduce((s,x)=>s+x.score,0)/a.length : 0;
+      const cand = [];
+      const testSig = (label, fn)=>{ const w=days.filter(x=>fn(x.k)), wo=days.filter(x=>!fn(x.k));
+        if (w.length>=3 && wo.length>=3){ const dv=avg(w)-avg(wo); if (dv>=5) cand.push({ label, dv:Math.round(dv) }); } };
+      testSig('you write something in your diary', k=>diaryDays.has(k));
+      testSig('you keep a moment', k=>!!kept[k]);
+      testSig('a new place turns up in your day', k=>placeDays.has(k));
+      cand.sort((a,b)=>b.dv-a.dv);
+      let liftCard = '';
+      if (cand.length){
+        const c = cand[0];
+        liftCard = '<div class="hp-card"><div class="hp-card-tag">\u{1F512} A gentle pattern</div>'
+          + '<div class="hp-card-title">You tend to feel brighter on days ' + escapeHtml(c.label) + '.</div>'
+          + '<div class="hp-card-sub">About +' + c.dv + ' on your mood, looking back over recent weeks — not a rule, just something worth noticing.</div></div>';
+      } else if (days.length>=5){
+        liftCard = '<div class="hp-card"><div class="hp-card-tag">\u{1F512} Only visible to you</div>'
+          + '<div class="hp-card-title">Keep noticing.</div>'
+          + '<div class="hp-card-sub">As you log a few more moods, the small things that lift you will start to show here.</div></div>';
+      }
+      return brightCard + liftCard;
+    } catch(err){ return ''; }
+  }
+
   function renderHappiness(){
     const body = document.getElementById('happinessBody');
     if (!body) return;
@@ -19041,6 +19108,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         </div>
       </div>
       ${trendSvg}
+      ${hpInsights()}
       ${waffleSection}
       ${renderToneCard()}
       <div class="hp-card">
