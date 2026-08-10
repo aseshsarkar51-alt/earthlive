@@ -2295,9 +2295,9 @@
   .ly-card{display:grid; grid-template-columns:96px 1fr; gap:16px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; cursor:pointer; transition:border-color .15s, transform .1s;}
   .ly-card:hover{border-color:var(--camel); transform:translateY(-1px);}
   .ly-card .th{width:96px; height:74px; border-radius:9px; overflow:hidden; position:relative; background:var(--oat-deep); flex:none;}
-  .ly-card .th img{width:100%; height:100%; object-fit:cover; display:block;}
-  .ly-card .th .pl{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(30,26,22,.28); color:#fff; font-size:20px;}
-  .ly-card .th.nophoto{display:flex; align-items:center; justify-content:center; color:var(--ink-soft); font-size:11px;}
+  .ly-card .th img{width:100%; height:100%; object-fit:contain; display:block;}
+  .ly-card .th .th-n{position:absolute; right:4px; bottom:4px; background:rgba(20,18,16,.6); color:#fff; font-size:10px; padding:1px 6px; border-radius:6px;}
+  .ly-card .th.nophoto{display:flex; align-items:center; justify-content:center; color:var(--ink-soft);}
   .ly-card .cy{font-family:"Fraunces",Georgia,serif; font-size:22px; line-height:1;}
   .ly-card .ca{font-size:11px; color:var(--ink-soft); margin:3px 0 6px;}
   .ly-card .cs{font-size:13.5px; color:var(--ink); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
@@ -2308,7 +2308,8 @@
   .ly-sheet{background:var(--oat); max-width:560px; width:100%; border-radius:18px; overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,.4); position:relative;}
   .ly-sheet .x{position:absolute; top:12px; right:14px; background:rgba(0,0,0,.35); color:#fff; border:none; width:30px; height:30px; border-radius:50%; font-size:15px; cursor:pointer; z-index:2;}
   .ly-hero{width:100%; height:270px; background:var(--oat-deep); position:relative;}
-  .ly-hero img{width:100%; height:100%; object-fit:cover; display:block;}
+  .ly-hero{background:var(--oat-deep);}
+  .ly-hero img{width:100%; height:100%; object-fit:contain; display:block;}
   .ly-hero .yb{position:absolute; left:20px; bottom:12px; color:#fff; font-family:"Fraunces",Georgia,serif; font-size:38px; text-shadow:0 2px 14px rgba(0,0,0,.5);}
   .ly-hero .ab{position:absolute; left:22px; bottom:4px; color:#fff; font-size:12px; opacity:.9; transform:translateY(16px); text-shadow:0 1px 8px rgba(0,0,0,.5);}
   .ly-body{padding:22px 22px 26px;}
@@ -2324,6 +2325,11 @@
   .ly-add.rec{border-color:var(--blush); color:var(--blush);}
   @keyframes lypulse{0%{box-shadow:0 0 0 0 rgba(181,103,90,.5);}70%{box-shadow:0 0 0 10px rgba(181,103,90,0);}100%{box-shadow:0 0 0 0 rgba(181,103,90,0);}}
   .ly-trim input[type=range]{width:100%;}
+  .ly-chip svg{opacity:.75;}
+  .ly-pthumb{position:relative; display:inline-block;}
+  .ly-pthumb img{width:64px; height:46px; object-fit:cover; border-radius:6px; display:block;}
+  .ly-pthumb-x{position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%; border:none; background:var(--ink); color:#fff; font-size:10px; line-height:1; cursor:pointer;}
+  .ly-gphoto{width:100%; border-radius:12px; display:block; background:var(--oat-deep);}
   /* The dashboard is .style-a, which force-borders every input with
      !important. That boxes in this field and breaks the underline look, so
      override it here (higher specificity, also !important). */
@@ -19072,13 +19078,23 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
      A plain life timeline at the end of the book: from the birth year to now,
      up to 100 words + one photo per year. Kept in profile.extras (birth_year
      + life_years{}); photos reuse the existing image upload. Owner-only. */
-  let lyEditing = null, lyPendingPhoto = null;
+  let lyEditing = null, lyPendingPhotos = [];        // array of url|dataURL, up to 3
   let lyVoiceCtl = null, lyPendingVoice = null;      // {url,seconds} | {blob,seconds} | null
   let lyVideoRec = null, lyPendingVideo = null, lyFFmpeg = null; // video: {url} | {blob} | {file,duration,start,needsTrim} | null
   function lyExtras(){ return (profile && profile.extras) || {}; }
   function lyBirthYear(){ const b = lyExtras().birth_year; return b ? parseInt(b,10) : null; }
   function lyData(){ const d = lyExtras().life_years; return (d && typeof d === 'object') ? d : {}; }
   function lyWordCount(s){ return ((s || '').trim().match(/\S+/g) || []).length; }
+  function lyPhotosOf(d){ if(!d) return []; if(Array.isArray(d.photos)) return d.photos.filter(Boolean).slice(0,3); return d.photo ? [d.photo] : []; }
+  function lyHasContent(d){ return !!(d && (d.text || lyPhotosOf(d).length || d.voice || d.video)); }
+  // Minimal line icons, matching the site's quiet visual language.
+  function lyIco(n){
+    const a = 'width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"';
+    if (n === 'photo') return '<svg ' + a + '><rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="8.5" cy="8.5" r="1.4"/><path d="M21 15l-5-5L5 21"/></svg>';
+    if (n === 'voice') return '<svg ' + a + '><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>';
+    if (n === 'video') return '<svg ' + a + '><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg>';
+    return '';
+  }
   async function lyPersistPatch(patch){
     const extras = { ...(profile.extras || {}), ...patch };
     profile.extras = extras;
@@ -19099,12 +19115,12 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (lyVoiceCtl && lyVoiceCtl.state.recording) lyVoiceCtl.cancel();
     if (lyVideoRec && lyVideoRec.state && lyVideoRec.state.recording) lyVideoRec.stop();
     lyVideoRec = null;
-    lyEditing = null; lyPendingPhoto = null; lyPendingVoice = null; lyPendingVideo = null;
+    lyEditing = null; lyPendingPhotos = []; lyPendingVoice = null; lyPendingVideo = null;
   }
   function lyOpenEditor(year){
     const ex = lyData()[year] || {};
     lyEditing = year;
-    lyPendingPhoto = ex.photo || null;
+    lyPendingPhotos = lyPhotosOf(ex);
     lyPendingVoice = (ex.voice && ex.voice.url) ? { url: ex.voice.url, seconds: ex.voice.seconds || 0 } : null;
     lyPendingVideo = (ex.video && ex.video.url) ? { url: ex.video.url } : null;
     lyVideoRec = null;
@@ -19114,16 +19130,24 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   function lyCancelEditor(){ lyResetEditState(); lyRender(); }
   function lyCount(){ const ta = document.getElementById('lyText'), c = document.getElementById('lyCount'); if (ta && c){ const n = lyWordCount(ta.value); c.textContent = n + ' / 100'; c.style.color = n > 100 ? 'var(--blush)' : 'var(--ink-soft)'; } }
 
-  /* ---- photo (updates only its own row, so the textarea is never rebuilt) ---- */
+  /* ---- photos · up to 3 (updates only its own row, so the textarea is never rebuilt) ---- */
   function lyPhotoAreaHtml(){
-    const pv = lyPendingPhoto ? '<img class="ly-thumb" src="' + escapeHtml(lyPendingPhoto) + '">' : '';
-    return '<span style="font-size:12px; color:var(--ink-soft);">📷 One photo</span>'
-      + '<label class="ly-add" style="border-style:solid;">＋ Photo<input type="file" accept="image/*" style="display:none;" onchange="lyPhotoPick(this)"></label>'
-      + pv + (lyPendingPhoto ? '<button type="button" class="ly-edit-link" onclick="lyRemovePhoto()">remove</button>' : '');
+    const thumbs = lyPendingPhotos.map((p, i) => '<span class="ly-pthumb"><img src="' + escapeHtml(p) + '"><button type="button" class="ly-pthumb-x" onclick="lyRemovePhoto(' + i + ')" aria-label="Remove">✕</button></span>').join('');
+    const canAdd = lyPendingPhotos.length < 3;
+    const addBtn = canAdd ? '<label class="ly-add" style="border-style:solid;">' + lyIco('photo') + ' Photo<input type="file" accept="image/*" multiple style="display:none;" onchange="lyPhotoPick(this)"></label>' : '';
+    return '<span style="font-size:12px; color:var(--ink-soft);">' + lyIco('photo') + ' Photos · up to 3</span>' + thumbs + addBtn;
   }
   function lyRenderPhotoState(){ const a = document.getElementById('lyPhotoArea'); if (a) a.innerHTML = lyPhotoAreaHtml(); }
-  function lyPhotoPick(inp){ const f = inp.files && inp.files[0]; if(!f) return; const rd = new FileReader(); rd.onload = ()=>{ lyPendingPhoto = rd.result; lyRenderPhotoState(); }; rd.readAsDataURL(f); }
-  function lyRemovePhoto(){ lyPendingPhoto = null; lyRenderPhotoState(); }
+  function lyPhotoPick(inp){
+    const files = inp.files ? Array.from(inp.files) : [];
+    const slots = 3 - lyPendingPhotos.length;
+    const chosen = files.slice(0, Math.max(0, slots));
+    if (files.length > chosen.length) showToast('You can keep up to 3 photos');
+    let pending = chosen.length; if (!pending){ inp.value = ''; return; }
+    chosen.forEach(f => { const rd = new FileReader(); rd.onload = ()=>{ lyPendingPhotos.push(rd.result); pending--; if (pending <= 0) lyRenderPhotoState(); }; rd.readAsDataURL(f); });
+    inp.value = '';
+  }
+  function lyRemovePhoto(i){ lyPendingPhotos.splice(i, 1); lyRenderPhotoState(); }
 
   /* ---- voice · up to 1 minute (reuses the app's shared recorder) ---- */
   function lyVoiceAreaHtml(){
@@ -19132,7 +19156,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       return '<audio controls src="' + src + '" style="height:34px; max-width:230px;"></audio>'
         + '<button type="button" class="ly-edit-link" onclick="lyRemoveVoice()">remove</button>';
     }
-    return '<span style="font-size:12px; color:var(--ink-soft);">🎙 Voice · up to 1 min</span>'
+    return '<span style="font-size:12px; color:var(--ink-soft);">' + lyIco('voice') + ' Voice · up to 1 min</span>'
       + '<button type="button" class="ly-add" id="lyVrec" style="border-style:solid;" onclick="lyVoiceToggle()"><span class="dot"></span><span class="lab">Record</span> <span id="lyVtime" style="opacity:.6;"></span></button>'
       + '<label class="ly-add" style="border-style:solid;">Upload<input type="file" accept="audio/*" style="display:none;" onchange="lyVoicePick(this)"></label>';
   }
@@ -19169,7 +19193,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       return '<div class="ly-rec live" style="width:100%;"><video id="lyVidPreview" muted playsinline style="width:100%; max-width:260px; border-radius:8px; background:#000;"></video>'
         + '<div><span class="dot"></span>Recording… <span id="lyVidTime">0:00</span> · stops at 0:30 · <button type="button" class="ly-edit-link" onclick="lyVideoRecToggle()">stop</button></div></div>';
     }
-    return '<span style="font-size:12px; color:var(--ink-soft);">🎬 Clip · up to 30 sec</span>'
+    return '<span style="font-size:12px; color:var(--ink-soft);">' + lyIco('video') + ' Clip · up to 30 sec</span>'
       + '<button type="button" class="ly-add" style="border-style:solid;" onclick="lyVideoRecToggle()">Record</button>'
       + '<label class="ly-add" style="border-style:solid;">Upload<input type="file" accept="video/*" style="display:none;" onchange="lyVideoPick(this)"></label>';
   }
@@ -19250,8 +19274,11 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (lyWordCount(text) > 100){ showToast('Keep it to 100 words for this year.'); return; }
     const btn = document.getElementById('lySaveBtn'); if (btn){ btn.disabled = true; btn.textContent = 'Saving…'; }
     try {
-      let photo = lyPendingPhoto;
-      if (photo && photo.startsWith('data:')){ photo = await uploadImage(photo, 'entry-photos', 'life/' + profile.dbId + '/' + year + '-' + Date.now()); if (!photo) throw new Error(''); }
+      const photos = [];
+      for (const p of lyPendingPhotos){
+        if (p && p.startsWith('data:')){ const u = await uploadImage(p, 'entry-photos', 'life/' + profile.dbId + '/' + year + '-' + Date.now() + '-' + Math.random().toString(36).slice(2,6)); if (!u) throw new Error(''); photos.push(u); }
+        else if (p) photos.push(p);
+      }
 
       let voice = null;
       if (lyPendingVoice && lyPendingVoice.blob){ const url = await lyUploadBlob(lyPendingVoice.blob, 'voice'); if (!url) throw new Error(''); voice = { url, seconds: lyPendingVoice.seconds || 0 }; }
@@ -19263,8 +19290,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       else if (lyPendingVideo && lyPendingVideo.url) video = { url: lyPendingVideo.url };
 
       const data = { ...lyData() };
-      if (!text && !photo && !voice && !video) delete data[year];
-      else data[year] = { text, photo: photo || null, voice: voice || null, video: video || null, updatedAt: new Date().toISOString() };
+      if (!text && !photos.length && !voice && !video) delete data[year];
+      else data[year] = { text, photos, voice: voice || null, video: video || null, updatedAt: new Date().toISOString() };
       if (!(await lyPersistPatch({ life_years: data }))) throw new Error('');
       lyResetEditState(); lyRender(); showToast('Saved');
     } catch(e){
@@ -19285,13 +19312,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   /* ---- filled year as a tappable card ---- */
   function lyCardHtml(y, by, data){
     const d = data[y] || {}; const age = (y === by) ? 'born' : 'age ' + (y - by);
-    const th = d.photo
-      ? '<div class="th"><img src="' + escapeHtml(d.photo) + '" alt="">' + ((d.voice || d.video) ? '<div class="pl">▶</div>' : '') + '</div>'
-      : '<div class="th nophoto">no photo</div>';
+    const photos = lyPhotosOf(d); const cover = photos[0];
+    const th = cover
+      ? '<div class="th"><img src="' + escapeHtml(cover) + '" alt="">' + (photos.length > 1 ? '<span class="th-n">+' + (photos.length - 1) + '</span>' : '') + '</div>'
+      : '<div class="th nophoto">' + lyIco('photo') + '</div>';
     let chips = '';
-    if (d.photo) chips += '<span class="ly-chip">📷</span>';
-    if (d.voice) chips += '<span class="ly-chip">🎙 1:00</span>';
-    if (d.video) chips += '<span class="ly-chip">🎬 0:30</span>';
+    if (photos.length) chips += '<span class="ly-chip">' + lyIco('photo') + (photos.length > 1 ? ' ' + photos.length : '') + '</span>';
+    if (d.voice) chips += '<span class="ly-chip">' + lyIco('voice') + '</span>';
+    if (d.video) chips += '<span class="ly-chip">' + lyIco('video') + '</span>';
     return '<div class="ly-card" onclick="lyOpen(' + y + ')">' + th
       + '<div><div class="cy">' + y + '</div><div class="ca">' + age + '</div>'
       + '<div class="cs">' + escapeHtml(d.text || '') + '</div>'
@@ -19303,10 +19331,12 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   function lyOpen(year){
     const d = lyData()[year] || {}; const by = lyBirthYear(); const age = (year === by) ? 'born' : 'age ' + (year - by);
     lyClose();
-    const hero = d.photo
-      ? '<div class="ly-hero"><img src="' + escapeHtml(d.photo) + '" alt=""><div class="ab">' + age + '</div><div class="yb">' + year + '</div></div>'
+    const photos = lyPhotosOf(d); const cover = photos[0];
+    const hero = cover
+      ? '<div class="ly-hero"><img src="' + escapeHtml(cover) + '" alt=""><div class="ab">' + age + '</div><div class="yb">' + year + '</div></div>'
       : '<div class="ly-hero" style="display:flex; align-items:flex-end; padding:20px; background:var(--oat-deep);"><div class="ab" style="position:static; transform:none; color:var(--ink-soft); text-shadow:none;">' + age + '</div><div class="yb" style="position:static; color:var(--ink); text-shadow:none;">' + year + '</div></div>';
     let media = '';
+    photos.slice(1).forEach(p => { media += '<img class="ly-gphoto" src="' + escapeHtml(p) + '" alt="">'; });
     if (d.voice && d.voice.url) media += '<audio class="ly-audio" controls src="' + escapeHtml(d.voice.url) + '"></audio>';
     if (d.video && d.video.url) media += '<video class="ly-video" controls playsinline src="' + escapeHtml(d.video.url) + '"></video>';
     const ov = document.createElement('div'); ov.className = 'ly-ov'; ov.id = 'lyOv';
@@ -19347,7 +19377,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const data = lyData();
     if (lyEditing !== null){ host.innerHTML = head + lyEditorHtml(lyEditing, data); const ta = document.getElementById('lyText'); if (ta) ta.focus(); return; }
     const filledSet = new Set();
-    for (let y = by; y <= now; y++){ const d = data[y]; if (d && (d.text || d.photo || d.voice || d.video)) filledSet.add(y); }
+    for (let y = by; y <= now; y++){ if (lyHasContent(data[y])) filledSet.add(y); }
     const years = [...filledSet].sort((a, b) => a - b);
     let body = years.map(y => lyCardHtml(y, by, data)).join('');
     body = body ? '<div class="ly-cards">' + body + '</div>' : '<p class="ly-intro" style="margin:0 0 4px;">Nothing written yet — pick a year below to begin.</p>';
