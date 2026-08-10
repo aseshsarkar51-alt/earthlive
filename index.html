@@ -2335,15 +2335,28 @@
   .ly-seg{font:inherit; font-size:12px; padding:5px 14px; border:none; background:var(--card); color:var(--ink-soft); cursor:pointer;}
   .ly-seg + .ly-seg{border-left:1px solid var(--line);}
   .ly-seg.on{background:var(--ink); color:#fff;}
-  /* rolling layout */
-  .ly-roll{display:flex; gap:12px; overflow-x:auto; padding-bottom:10px; scroll-snap-type:x mandatory;}
-  .ly-rcard{flex:0 0 190px; scroll-snap-align:start; background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; cursor:pointer; transition:border-color .15s, transform .1s;}
-  .ly-rcard:hover{border-color:var(--camel); transform:translateY(-1px);}
-  .ly-rcard .rth{height:120px; background:var(--oat-deep); position:relative;}
-  .ly-rcard .rth img{width:100%; height:100%; object-fit:cover; display:block;}
-  .ly-rcard .rth.nophoto{display:flex; align-items:center; justify-content:center; color:var(--ink-soft);}
-  .ly-rcard .rth .th-n{position:absolute; right:6px; bottom:6px; background:rgba(20,18,16,.6); color:#fff; font-size:10px; padding:1px 6px; border-radius:6px;}
-  .ly-rcard .rb{padding:11px 13px 13px;}
+  /* grid layout */
+  .ly-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:10px;}
+  .ly-gcard{position:relative; aspect-ratio:1/1; border-radius:12px; overflow:hidden; cursor:pointer; background:var(--oat-deep); border:1px solid var(--line);}
+  .ly-gcard img{width:100%; height:100%; object-fit:cover; display:block;}
+  .ly-gcard.nophoto{display:flex; align-items:center; justify-content:center; color:var(--ink-soft);}
+  .ly-gcard .gover{position:absolute; left:0; right:0; bottom:0; padding:22px 12px 9px; background:linear-gradient(to top, rgba(20,18,16,.72), transparent); color:#fff;}
+  .ly-gcard.nophoto .gover{position:absolute; background:none;}
+  .ly-gcard .gyr{font-family:"Fraunces",Georgia,serif; font-size:20px; line-height:1;}
+  .ly-gcard.nophoto .gyr{color:var(--ink);}
+  .ly-gcard .gage{font-size:10px; opacity:.85; margin-top:2px;}
+  .ly-gcard.nophoto .gage{color:var(--ink-soft);}
+  .ly-gcard .gchips{position:absolute; top:7px; right:7px; display:flex; gap:5px;}
+  .ly-gcard .gc{display:inline-flex; align-items:center; gap:3px; font-size:10px; color:#fff; background:rgba(20,18,16,.5); border-radius:999px; padding:2px 7px;}
+  .ly-gcard .gc svg{color:#fff;}
+  /* lightbox photo carousel (swipe like Instagram) */
+  .ly-carousel{display:flex; overflow-x:auto; scroll-snap-type:x mandatory; height:100%; scrollbar-width:none;}
+  .ly-carousel::-webkit-scrollbar{display:none;}
+  .ly-slide{flex:0 0 100%; scroll-snap-align:center; height:100%;}
+  .ly-slide img{width:100%; height:100%; object-fit:contain; display:block; background:var(--oat-deep);}
+  .ly-dots{position:absolute; left:0; right:0; bottom:9px; display:flex; gap:6px; justify-content:center;}
+  .ly-dot{width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.55); cursor:pointer;}
+  .ly-dot.on{background:#fff;}
   /* list layout */
   .ly-list{display:flex; flex-direction:column;}
   .ly-lrow{display:flex; align-items:center; gap:12px; padding:11px 0; border-top:1px solid var(--line); cursor:pointer;}
@@ -19334,11 +19347,11 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   }
 
   /* ---- layout: how the years are shown (owner's choice, remembered) ---- */
-  function lyLayoutGet(){ const v = lyExtras().life_layout; return (v === 'rolling' || v === 'list') ? v : 'cards'; }
+  function lyLayoutGet(){ const v = lyExtras().life_layout; return (v === 'grid' || v === 'list') ? v : 'cards'; }
   async function lySetLayout(v){ if (lyLayoutGet() === v) return; if (!(await lyPersistPatch({ life_layout: v }))) return; lyRender(); }
   function lyLayoutBarHtml(cur){
     const opt = (v, l) => '<button type="button" class="ly-seg' + (cur === v ? ' on' : '') + '" onclick="lySetLayout(\'' + v + '\')">' + l + '</button>';
-    return '<div class="ly-layout">' + opt('cards', 'Cards') + opt('rolling', 'Rolling') + opt('list', 'List') + '</div>';
+    return '<div class="ly-layout">' + opt('cards', 'Cards') + opt('grid', 'Grid') + opt('list', 'List') + '</div>';
   }
   function lyChipsHtml(d){
     const photos = lyPhotosOf(d); let chips = '';
@@ -19348,17 +19361,17 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     return chips;
   }
   /* ---- filled year as a tappable card ---- */
-  function lyCardRollHtml(y, by, data){
+  function lyGridHtml(y, by, data){
     const d = data[y] || {}; const age = (y === by) ? 'born' : 'age ' + (y - by);
     const photos = lyPhotosOf(d); const cover = photos[0];
-    const th = cover
-      ? '<div class="rth"><img src="' + escapeHtml(cover) + '" alt="">' + (photos.length > 1 ? '<span class="th-n">+' + (photos.length - 1) + '</span>' : '') + '</div>'
-      : '<div class="rth nophoto">' + lyIco('photo') + '</div>';
-    const chips = lyChipsHtml(d);
-    return '<div class="ly-rcard" onclick="lyOpen(' + y + ')">' + th
-      + '<div class="rb"><div class="cy">' + y + '</div><div class="ca">' + age + '</div>'
-      + '<div class="cs">' + escapeHtml(d.text || '') + '</div>'
-      + (chips ? '<div class="ly-chips">' + chips + '</div>' : '') + '</div></div>';
+    let ov = '';
+    if (photos.length > 1) ov += '<span class="gc">' + lyIco('photo') + ' ' + photos.length + '</span>';
+    if (d.voice) ov += '<span class="gc">' + lyIco('voice') + '</span>';
+    if (d.video) ov += '<span class="gc">' + lyIco('video') + '</span>';
+    const inner = cover ? '<img src="' + escapeHtml(cover) + '" alt="">' : lyIco('photo');
+    return '<div class="ly-gcard' + (cover ? '' : ' nophoto') + '" onclick="lyOpen(' + y + ')">' + inner
+      + (ov ? '<div class="gchips">' + ov + '</div>' : '')
+      + '<div class="gover"><div class="gyr">' + y + '</div><div class="gage">' + age + '</div></div></div>';
   }
   function lyRowHtml(y, by, data){
     const d = data[y] || {}; const photos = lyPhotosOf(d); const cover = photos[0];
@@ -19388,12 +19401,16 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   function lyOpen(year){
     const d = lyData()[year] || {}; const by = lyBirthYear(); const age = (year === by) ? 'born' : 'age ' + (year - by);
     lyClose();
-    const photos = lyPhotosOf(d); const cover = photos[0];
-    const hero = cover
-      ? '<div class="ly-hero"><img src="' + escapeHtml(cover) + '" alt=""><div class="ab">' + age + '</div><div class="yb">' + year + '</div></div>'
-      : '<div class="ly-hero" style="display:flex; align-items:flex-end; padding:20px; background:var(--oat-deep);"><div class="ab" style="position:static; transform:none; color:var(--ink-soft); text-shadow:none;">' + age + '</div><div class="yb" style="position:static; color:var(--ink); text-shadow:none;">' + year + '</div></div>';
+    const photos = lyPhotosOf(d);
+    let hero;
+    if (photos.length){
+      const slides = photos.map(p => '<div class="ly-slide"><img src="' + escapeHtml(p) + '" alt=""></div>').join('');
+      const dots = photos.length > 1 ? '<div class="ly-dots">' + photos.map((p, i) => '<span class="ly-dot' + (i === 0 ? ' on' : '') + '" data-i="' + i + '"></span>').join('') + '</div>' : '';
+      hero = '<div class="ly-hero"><div class="ly-carousel">' + slides + '</div><div class="ab">' + age + '</div><div class="yb">' + year + '</div>' + dots + '</div>';
+    } else {
+      hero = '<div class="ly-hero" style="display:flex; align-items:flex-end; padding:20px; background:var(--oat-deep);"><div class="ab" style="position:static; transform:none; color:var(--ink-soft); text-shadow:none;">' + age + '</div><div class="yb" style="position:static; color:var(--ink); text-shadow:none;">' + year + '</div></div>';
+    }
     let media = '';
-    photos.slice(1).forEach(p => { media += '<img class="ly-gphoto" src="' + escapeHtml(p) + '" alt="">'; });
     if (d.voice && d.voice.url) media += '<audio class="ly-audio" controls src="' + escapeHtml(d.voice.url) + '"></audio>';
     if (d.video && d.video.url) media += '<video class="ly-video" controls playsinline src="' + escapeHtml(d.video.url) + '"></video>';
     const ov = document.createElement('div'); ov.className = 'ly-ov'; ov.id = 'lyOv';
@@ -19404,6 +19421,11 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       + '<button type="button" class="ly-edit-link ly-del" onclick="lyClose(); lyDelete(' + year + ')">Delete</button></div></div></div>';
     ov.addEventListener('click', e => { if (e.target === ov) lyClose(); });
     document.body.appendChild(ov);
+    const car = ov.querySelector('.ly-carousel'); const dotEls = [...ov.querySelectorAll('.ly-dot')];
+    if (car && dotEls.length){
+      car.addEventListener('scroll', () => { const i = Math.round(car.scrollLeft / car.clientWidth); dotEls.forEach((dd, k) => dd.classList.toggle('on', k === i)); });
+      dotEls.forEach(dd => dd.addEventListener('click', () => { car.scrollTo({ left: parseInt(dd.dataset.i, 10) * car.clientWidth, behavior: 'smooth' }); }));
+    }
     document.addEventListener('keydown', lyEsc);
   }
 
@@ -19423,8 +19445,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   }
   function lyRender(){
     const host = document.getElementById('lifeYearsBox'); if(!host) return;
-    const head = '<div class="ly-eyebrow">The end of your book</div>'
-      + '<h3 class="ly-h">My life, year by year</h3>'
+    const head = '<h3 class="ly-h" style="margin-top:0;">My life, year by year</h3>'
       + '<p class="ly-intro">One year at a time, from the year you were born — a hundred words, a photo, a voice note and a short clip. It is entirely optional; tap a year to open it, or jump to any year below.</p>';
     const by = lyBirthYear(), now = new Date().getFullYear();
     if (!by){
@@ -19441,7 +19462,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (!years.length){ body = '<p class="ly-intro" style="margin:0 0 4px;">Nothing written yet — pick a year below to begin.</p>'; }
     else {
       bar = lyLayoutBarHtml(layout);
-      if (layout === 'rolling') body = '<div class="ly-roll">' + years.map(y => lyCardRollHtml(y, by, data)).join('') + '</div>';
+      if (layout === 'grid') body = '<div class="ly-grid">' + years.map(y => lyGridHtml(y, by, data)).join('') + '</div>';
       else if (layout === 'list') body = '<div class="ly-list">' + years.map(y => lyRowHtml(y, by, data)).join('') + '</div>';
       else body = '<div class="ly-cards">' + years.map(y => lyCardHtml(y, by, data)).join('') + '</div>';
     }
