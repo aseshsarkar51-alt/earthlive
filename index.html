@@ -2278,7 +2278,9 @@
   .ly-yr.empty .ly-num, .ly-yr.empty .ly-age{opacity:.5;}
   .ly-photo{width:100%; max-width:230px; height:150px; border-radius:10px; object-fit:cover; display:block; margin-bottom:11px; background:var(--oat-deep);}
   .ly-words{font-size:14.5px; line-height:1.6; color:var(--ink); white-space:pre-wrap;}
-  .ly-meta{margin-top:8px;}
+  .ly-meta{margin-top:8px; display:flex; gap:14px;}
+  .ly-del{color:var(--ink-soft);}
+  .ly-del:hover{color:var(--blush);}
   .ly-edit-link{background:none; border:none; color:var(--camel); font-size:11px; cursor:pointer; text-decoration:underline; text-underline-offset:2px; padding:0; font-family:inherit;}
   .ly-add{display:inline-flex; align-items:center; gap:7px; font-size:13px; color:var(--camel); border:1px dashed var(--line); border-radius:10px; padding:10px 15px; cursor:pointer; background:none; font-family:inherit;}
   .ly-editor{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px;}
@@ -19105,12 +19107,20 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       const photo = d.photo ? '<img class="ly-photo" src="' + escapeHtml(d.photo) + '" alt="">' : '';
       const words = d.text ? '<div class="ly-words">' + escapeHtml(d.text) + '</div>' : '';
       return '<div class="ly-yr"><div class="k"><div class="ly-num">' + y + '</div><div class="ly-age">' + age + '</div></div>'
-        + '<div>' + photo + words + '<div class="ly-meta"><button type="button" class="ly-edit-link" onclick="lyOpenEditor(' + y + ')">Edit</button></div></div></div>';
+        + '<div>' + photo + words + '<div class="ly-meta"><button type="button" class="ly-edit-link" onclick="lyOpenEditor(' + y + ')">Edit</button><button type="button" class="ly-edit-link ly-del" onclick="lyDelete(' + y + ')">Delete</button></div></div></div>';
     }
     return '<div class="ly-yr empty"><div class="k"><div class="ly-num">' + y + '</div><div class="ly-age">' + age + '</div></div>'
       + '<div><button type="button" class="ly-add" onclick="lyOpenEditor(' + y + ')">＋ Write this year</button></div></div>';
   }
   function lyGo(){ const s = document.getElementById('lyPick'); if (s) lyOpenEditor(parseInt(s.value, 10)); }
+  async function lyDelete(year){
+    if (!confirm('Remove your entry for ' + year + '? This can\'t be undone.')) return;
+    const data = { ...lyData() };
+    delete data[year];
+    if (lyEditing === year){ lyEditing = null; lyPendingPhoto = null; }
+    if (!(await lyPersistPatch({ life_years: data }))) return;
+    lyRender(); showToast('Removed ' + year);
+  }
   function lyRender(){
     const host = document.getElementById('lifeYearsBox'); if(!host) return;
     const head = '<div class="ly-eyebrow">The end of your book</div>'
