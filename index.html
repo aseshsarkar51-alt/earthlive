@@ -2290,6 +2290,40 @@
   .ly-thumb{width:64px; height:46px; object-fit:cover; border-radius:6px;}
   .ly-pick{display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-size:13.5px; color:var(--ink-soft);}
   .ly-pick select{font-family:inherit; font-size:14px; padding:6px 9px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink); margin-left:6px;}
+  /* interactive cards */
+  .ly-cards{display:grid; gap:14px;}
+  .ly-card{display:grid; grid-template-columns:96px 1fr; gap:16px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; cursor:pointer; transition:border-color .15s, transform .1s;}
+  .ly-card:hover{border-color:var(--camel); transform:translateY(-1px);}
+  .ly-card .th{width:96px; height:74px; border-radius:9px; overflow:hidden; position:relative; background:var(--oat-deep); flex:none;}
+  .ly-card .th img{width:100%; height:100%; object-fit:cover; display:block;}
+  .ly-card .th .pl{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(30,26,22,.28); color:#fff; font-size:20px;}
+  .ly-card .th.nophoto{display:flex; align-items:center; justify-content:center; color:var(--ink-soft); font-size:11px;}
+  .ly-card .cy{font-family:"Fraunces",Georgia,serif; font-size:22px; line-height:1;}
+  .ly-card .ca{font-size:11px; color:var(--ink-soft); margin:3px 0 6px;}
+  .ly-card .cs{font-size:13.5px; color:var(--ink); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .ly-chips{display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;}
+  .ly-chip{display:inline-flex; align-items:center; gap:4px; font-size:11px; color:var(--ink-soft); background:var(--oat); border:1px solid var(--line); border-radius:999px; padding:3px 9px;}
+  /* lightbox */
+  .ly-ov{position:fixed; inset:0; background:rgba(20,18,16,.62); z-index:9000; display:flex; align-items:flex-start; justify-content:center; overflow:auto; padding:36px 14px;}
+  .ly-sheet{background:var(--oat); max-width:560px; width:100%; border-radius:18px; overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,.4); position:relative;}
+  .ly-sheet .x{position:absolute; top:12px; right:14px; background:rgba(0,0,0,.35); color:#fff; border:none; width:30px; height:30px; border-radius:50%; font-size:15px; cursor:pointer; z-index:2;}
+  .ly-hero{width:100%; height:270px; background:var(--oat-deep); position:relative;}
+  .ly-hero img{width:100%; height:100%; object-fit:cover; display:block;}
+  .ly-hero .yb{position:absolute; left:20px; bottom:12px; color:#fff; font-family:"Fraunces",Georgia,serif; font-size:38px; text-shadow:0 2px 14px rgba(0,0,0,.5);}
+  .ly-hero .ab{position:absolute; left:22px; bottom:4px; color:#fff; font-size:12px; opacity:.9; transform:translateY(16px); text-shadow:0 1px 8px rgba(0,0,0,.5);}
+  .ly-body{padding:22px 22px 26px;}
+  .ly-txt{font-size:15px; line-height:1.65; color:var(--ink); white-space:pre-wrap;}
+  .ly-media{margin-top:18px; display:grid; gap:12px;}
+  .ly-audio{width:100%;}
+  .ly-video{width:100%; border-radius:12px; background:#000; display:block; max-height:340px;}
+  .ly-acts{display:flex; gap:16px; margin-top:20px;}
+  /* recorder */
+  .ly-rec{border:1px solid var(--line); border-radius:12px; padding:12px; background:var(--card); display:grid; gap:9px;}
+  .ly-rec .dot{width:10px; height:10px; border-radius:50%; background:var(--blush); display:inline-block; margin-right:7px; vertical-align:middle;}
+  .ly-rec.live .dot{animation:lypulse 1.2s infinite;}
+  .ly-add.rec{border-color:var(--blush); color:var(--blush);}
+  @keyframes lypulse{0%{box-shadow:0 0 0 0 rgba(181,103,90,.5);}70%{box-shadow:0 0 0 10px rgba(181,103,90,0);}100%{box-shadow:0 0 0 0 rgba(181,103,90,0);}}
+  .ly-trim input[type=range]{width:100%;}
   /* The dashboard is .style-a, which force-borders every input with
      !important. That boxes in this field and breaks the underline look, so
      override it here (higher specificity, also !important). */
@@ -19038,8 +19072,9 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
      A plain life timeline at the end of the book: from the birth year to now,
      up to 100 words + one photo per year. Kept in profile.extras (birth_year
      + life_years{}); photos reuse the existing image upload. Owner-only. */
-  let lyEditing = null, lyPendingPhoto = null, lyExpanded = false;
-  function lyToggleExpand(){ lyExpanded = !lyExpanded; lyRender(); }
+  let lyEditing = null, lyPendingPhoto = null;
+  let lyVoiceCtl = null, lyPendingVoice = null;      // {url,seconds} | {blob,seconds} | null
+  let lyVideoRec = null, lyPendingVideo = null, lyFFmpeg = null; // video: {url} | {blob} | {file,duration,start,needsTrim} | null
   function lyExtras(){ return (profile && profile.extras) || {}; }
   function lyBirthYear(){ const b = lyExtras().birth_year; return b ? parseInt(b,10) : null; }
   function lyData(){ const d = lyExtras().life_years; return (d && typeof d === 'object') ? d : {}; }
@@ -19060,85 +19095,262 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (!(await lyPersistPatch({ birth_year: y }))) return;
     lyRender();
   }
-  function lyOpenEditor(year){ lyEditing = year; lyPendingPhoto = (lyData()[year] || {}).photo || null; lyRender(); const ta = document.getElementById('lyText'); if (ta) ta.focus(); }
-  function lyCancelEditor(){ lyEditing = null; lyPendingPhoto = null; lyRender(); }
-  function lyPhotoPick(inp){
-    const file = inp.files && inp.files[0]; if(!file) return;
-    const rd = new FileReader();
-    rd.onload = ()=>{ lyPendingPhoto = rd.result; const pv = document.getElementById('lyPreview'); if (pv){ pv.src = rd.result; pv.style.display = 'block'; } };
-    rd.readAsDataURL(file);
+  function lyResetEditState(){
+    if (lyVoiceCtl && lyVoiceCtl.state.recording) lyVoiceCtl.cancel();
+    if (lyVideoRec && lyVideoRec.state && lyVideoRec.state.recording) lyVideoRec.stop();
+    lyVideoRec = null;
+    lyEditing = null; lyPendingPhoto = null; lyPendingVoice = null; lyPendingVideo = null;
   }
-  function lyRemovePhoto(){ lyPendingPhoto = null; const pv = document.getElementById('lyPreview'); if (pv) pv.style.display = 'none'; lyRender(); }
+  function lyOpenEditor(year){
+    const ex = lyData()[year] || {};
+    lyEditing = year;
+    lyPendingPhoto = ex.photo || null;
+    lyPendingVoice = (ex.voice && ex.voice.url) ? { url: ex.voice.url, seconds: ex.voice.seconds || 0 } : null;
+    lyPendingVideo = (ex.video && ex.video.url) ? { url: ex.video.url } : null;
+    lyVideoRec = null;
+    lyRender();
+    const ta = document.getElementById('lyText'); if (ta) ta.focus();
+  }
+  function lyCancelEditor(){ lyResetEditState(); lyRender(); }
   function lyCount(){ const ta = document.getElementById('lyText'), c = document.getElementById('lyCount'); if (ta && c){ const n = lyWordCount(ta.value); c.textContent = n + ' / 100'; c.style.color = n > 100 ? 'var(--blush)' : 'var(--ink-soft)'; } }
+
+  /* ---- photo (updates only its own row, so the textarea is never rebuilt) ---- */
+  function lyPhotoAreaHtml(){
+    const pv = lyPendingPhoto ? '<img class="ly-thumb" src="' + escapeHtml(lyPendingPhoto) + '">' : '';
+    return '<span style="font-size:12px; color:var(--ink-soft);">📷 One photo</span>'
+      + '<label class="ly-add" style="border-style:solid;">＋ Photo<input type="file" accept="image/*" style="display:none;" onchange="lyPhotoPick(this)"></label>'
+      + pv + (lyPendingPhoto ? '<button type="button" class="ly-edit-link" onclick="lyRemovePhoto()">remove</button>' : '');
+  }
+  function lyRenderPhotoState(){ const a = document.getElementById('lyPhotoArea'); if (a) a.innerHTML = lyPhotoAreaHtml(); }
+  function lyPhotoPick(inp){ const f = inp.files && inp.files[0]; if(!f) return; const rd = new FileReader(); rd.onload = ()=>{ lyPendingPhoto = rd.result; lyRenderPhotoState(); }; rd.readAsDataURL(f); }
+  function lyRemovePhoto(){ lyPendingPhoto = null; lyRenderPhotoState(); }
+
+  /* ---- voice · up to 1 minute (reuses the app's shared recorder) ---- */
+  function lyVoiceAreaHtml(){
+    if (lyPendingVoice && (lyPendingVoice.blob || lyPendingVoice.url)){
+      const src = lyPendingVoice.url || (lyPendingVoice.blob ? URL.createObjectURL(lyPendingVoice.blob) : '');
+      return '<audio controls src="' + src + '" style="height:34px; max-width:230px;"></audio>'
+        + '<button type="button" class="ly-edit-link" onclick="lyRemoveVoice()">remove</button>';
+    }
+    return '<span style="font-size:12px; color:var(--ink-soft);">🎙 Voice · up to 1 min</span>'
+      + '<button type="button" class="ly-add" id="lyVrec" style="border-style:solid;" onclick="lyVoiceToggle()"><span class="dot"></span><span class="lab">Record</span> <span id="lyVtime" style="opacity:.6;"></span></button>'
+      + '<label class="ly-add" style="border-style:solid;">Upload<input type="file" accept="audio/*" style="display:none;" onchange="lyVoicePick(this)"></label>';
+  }
+  function lyRenderVoiceState(){ const a = document.getElementById('lyVoiceArea'); if (a){ a.className = 'ly-editor-row' + ((lyVoiceCtl && lyVoiceCtl.state.recording) ? ' ly-live' : ''); a.innerHTML = lyVoiceAreaHtml(); } }
+  function lyVoiceToggle(){
+    if (!lyVoiceCtl){
+      lyVoiceCtl = createVoiceController({
+        onStart(){ const b = document.getElementById('lyVrec'); if (b){ b.classList.add('rec'); const l = b.querySelector('.lab'); if (l) l.textContent = 'Stop'; } },
+        onTick(t){ const el = document.getElementById('lyVtime'); if (el) el.textContent = t; const p = String(t).split(':'); const secs = (+p[0]) * 60 + (+p[1]); if (secs >= 60) lyVoiceCtl.stop(); },
+        onStop(res){ lyPendingVoice = { blob: res.blob, seconds: Math.min(60, Math.round(res.seconds || 0)) }; lyRenderVoiceState(); },
+        onCancel(){ lyRenderVoiceState(); }
+      });
+    }
+    lyVoiceCtl.toggle();
+  }
+  function lyVoicePick(inp){ const f = inp.files && inp.files[0]; if(!f) return; lyPendingVoice = { blob: f, seconds: 0 }; lyRenderVoiceState(); }
+  function lyRemoveVoice(){ if (lyVoiceCtl && lyVoiceCtl.state.recording) lyVoiceCtl.cancel(); lyPendingVoice = null; lyRenderVoiceState(); }
+
+  /* ---- video · up to 30 seconds, record or upload-and-trim ---- */
+  function lyVideoAreaHtml(){
+    if (lyPendingVideo && lyPendingVideo.needsTrim){
+      const s = lyPendingVideo.start || 0, max = Math.max(0, (lyPendingVideo.duration || 30) - 30);
+      return '<div class="ly-rec ly-trim" style="width:100%;"><div style="font-size:12px; color:var(--ink-soft);">This clip is ' + fmtSecs(lyPendingVideo.duration) + '. Slide to keep the best 30 seconds:</div>'
+        + '<input type="range" min="0" max="' + max.toFixed(1) + '" step="0.5" value="' + s + '" oninput="lyTrimStart(this.value)">'
+        + '<div class="ly-editor-row"><span id="lyTrimLab" style="font-size:11px; color:var(--ink-soft);">Keeping ' + fmtSecs(s) + ' – ' + fmtSecs(s + 30) + '</span>'
+        + '<button type="button" class="ly-edit-link" onclick="lyRemoveVideo()">remove</button></div></div>';
+    }
+    if (lyPendingVideo && (lyPendingVideo.blob || lyPendingVideo.url)){
+      const src = lyPendingVideo.url || (lyPendingVideo.blob ? URL.createObjectURL(lyPendingVideo.blob) : '');
+      return '<video src="' + src + '" controls playsinline style="max-width:230px; border-radius:8px; background:#000;"></video>'
+        + '<button type="button" class="ly-edit-link" onclick="lyRemoveVideo()">remove</button>';
+    }
+    if (lyVideoRec && lyVideoRec.state && lyVideoRec.state.recording){
+      return '<div class="ly-rec live" style="width:100%;"><video id="lyVidPreview" muted playsinline style="width:100%; max-width:260px; border-radius:8px; background:#000;"></video>'
+        + '<div><span class="dot"></span>Recording… <span id="lyVidTime">0:00</span> · stops at 0:30 · <button type="button" class="ly-edit-link" onclick="lyVideoRecToggle()">stop</button></div></div>';
+    }
+    return '<span style="font-size:12px; color:var(--ink-soft);">🎬 Clip · up to 30 sec</span>'
+      + '<button type="button" class="ly-add" style="border-style:solid;" onclick="lyVideoRecToggle()">Record</button>'
+      + '<label class="ly-add" style="border-style:solid;">Upload<input type="file" accept="video/*" style="display:none;" onchange="lyVideoPick(this)"></label>';
+  }
+  function lyRenderVideoState(){ const a = document.getElementById('lyVideoArea'); if (a){ a.className = 'ly-editor-row'; a.innerHTML = lyVideoAreaHtml(); } }
+  async function lyVideoRecToggle(){
+    if (lyVideoRec && lyVideoRec.state && lyVideoRec.state.recording){ lyVideoRec.stop(); return; }
+    if (!navigator.mediaDevices || !window.MediaRecorder){ showToast('Your browser can’t record video'); return; }
+    let stream;
+    try { stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true }); }
+    catch(e){ showToast('Camera & mic permission is needed to record'); return; }
+    let mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9'
+      : (MediaRecorder.isTypeSupported('video/webm') ? 'video/webm' : '');
+    const mr = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+    const chunks = []; let ti = null; const started = Date.now();
+    mr.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+    mr.onstop = ()=>{ if (ti) clearInterval(ti); stream.getTracks().forEach(t=>t.stop());
+      const blob = new Blob(chunks, { type: mr.mimeType || 'video/webm' });
+      if (lyVideoRec) lyVideoRec.state.recording = false;
+      lyPendingVideo = blob.size ? { blob } : lyPendingVideo;
+      lyRenderVideoState();
+    };
+    lyVideoRec = { mr, state: { recording: true }, stop(){ this.state.recording = false; try { mr.stop(); } catch(e){} } };
+    mr.start();
+    lyRenderVideoState();
+    const preview = document.getElementById('lyVidPreview');
+    if (preview){ preview.srcObject = stream; const pl = preview.play(); if (pl && pl.catch) pl.catch(()=>{}); }
+    ti = setInterval(()=>{ const s = (Date.now() - started) / 1000; const el = document.getElementById('lyVidTime'); if (el) el.textContent = fmtSecs(s); if (s >= 30) lyVideoRec.stop(); }, 200);
+  }
+  function lyVideoPick(inp){
+    const f = inp.files && inp.files[0]; if(!f) return;
+    const url = URL.createObjectURL(f); const v = document.createElement('video'); v.preload = 'metadata';
+    v.onloadedmetadata = ()=>{ const dur = v.duration; URL.revokeObjectURL(url);
+      if (!isFinite(dur) || dur <= 30.5) lyPendingVideo = { blob: f };
+      else lyPendingVideo = { file: f, duration: dur, start: 0, needsTrim: true };
+      lyRenderVideoState();
+    };
+    v.onerror = ()=>{ URL.revokeObjectURL(url); showToast('Could not read that video'); };
+    v.src = url;
+  }
+  function lyTrimStart(val){ if (lyPendingVideo && lyPendingVideo.needsTrim){ lyPendingVideo.start = parseFloat(val) || 0; const el = document.getElementById('lyTrimLab'); if (el) el.textContent = 'Keeping ' + fmtSecs(lyPendingVideo.start) + ' – ' + fmtSecs(lyPendingVideo.start + 30); } }
+  function lyRemoveVideo(){ if (lyVideoRec && lyVideoRec.state && lyVideoRec.state.recording) lyVideoRec.stop(); lyVideoRec = null; lyPendingVideo = null; lyRenderVideoState(); }
+
+  /* ---- raw media upload + ffmpeg.wasm trimmer (loaded on demand) ---- */
+  async function lyUploadBlob(blob, kind){
+    if (!db){ showToast('Sign in first'); return null; }
+    if (!blob || !blob.size) return null;
+    const cap = kind === 'video' ? 45 * 1024 * 1024 : 8 * 1024 * 1024;
+    if (blob.size > cap){ showToast('That ' + kind + ' is too large to save'); return null; }
+    const isMp4 = blob.type && blob.type.indexOf('mp4') >= 0;
+    const ext = kind === 'video' ? (isMp4 ? 'mp4' : 'webm') : (isMp4 ? 'mp4' : 'webm');
+    const path = 'life/' + (profile.dbId || 'x') + '/' + kind + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,7) + '.' + ext;
+    const { error } = await db.storage.from('entry-photos').upload(path, blob, { upsert: true, contentType: blob.type || (kind === 'video' ? 'video/webm' : 'audio/webm') });
+    if (error){ showToast(kind + ' upload failed: ' + error.message); return null; }
+    const { data } = db.storage.from('entry-photos').getPublicUrl(path);
+    return data.publicUrl;
+  }
+  async function lyLoadFFmpeg(){
+    if (lyFFmpeg) return lyFFmpeg;
+    showToast('Preparing the trimmer (one-time)…');
+    const { FFmpeg } = await import('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm/index.js');
+    const { toBlobURL } = await import('https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/esm/index.js');
+    const base = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/esm';
+    const ff = new FFmpeg();
+    await ff.load({ coreURL: await toBlobURL(base + '/ffmpeg-core.js', 'text/javascript'), wasmURL: await toBlobURL(base + '/ffmpeg-core.wasm', 'application/wasm') });
+    lyFFmpeg = ff; return ff;
+  }
+  async function lyTrimVideo(file, start){
+    const { fetchFile } = await import('https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/esm/index.js');
+    const ff = await lyLoadFFmpeg();
+    await ff.writeFile('in.dat', await fetchFile(file));
+    await ff.exec(['-ss', String(start || 0), '-i', 'in.dat', '-t', '30', '-c:v', 'libx264', '-preset', 'ultrafast', '-c:a', 'aac', '-movflags', '+faststart', 'out.mp4']);
+    const d = await ff.readFile('out.mp4');
+    return new Blob([d.buffer], { type: 'video/mp4' });
+  }
+
   async function lySave(year){
     const ta = document.getElementById('lyText'); const text = ((ta && ta.value) || '').trim();
     if (lyWordCount(text) > 100){ showToast('Keep it to 100 words for this year.'); return; }
-    let photo = lyPendingPhoto;
-    if (photo && photo.startsWith('data:')){
-      photo = await uploadImage(photo, 'entry-photos', 'life/' + profile.dbId + '/' + year + '-' + Date.now());
-      if (!photo) return;
+    const btn = document.getElementById('lySaveBtn'); if (btn){ btn.disabled = true; btn.textContent = 'Saving…'; }
+    try {
+      let photo = lyPendingPhoto;
+      if (photo && photo.startsWith('data:')){ photo = await uploadImage(photo, 'entry-photos', 'life/' + profile.dbId + '/' + year + '-' + Date.now()); if (!photo) throw new Error(''); }
+
+      let voice = null;
+      if (lyPendingVoice && lyPendingVoice.blob){ const url = await lyUploadBlob(lyPendingVoice.blob, 'voice'); if (!url) throw new Error(''); voice = { url, seconds: lyPendingVoice.seconds || 0 }; }
+      else if (lyPendingVoice && lyPendingVoice.url) voice = { url: lyPendingVoice.url, seconds: lyPendingVoice.seconds || 0 };
+
+      let video = null;
+      if (lyPendingVideo && lyPendingVideo.needsTrim){ showToast('Trimming your clip to 30s…'); let blob; try { blob = await lyTrimVideo(lyPendingVideo.file, lyPendingVideo.start || 0); } catch(err){ showToast('Could not trim that video here — try a shorter clip.'); throw new Error(''); } const url = await lyUploadBlob(blob, 'video'); if (!url) throw new Error(''); video = { url }; }
+      else if (lyPendingVideo && lyPendingVideo.blob){ const url = await lyUploadBlob(lyPendingVideo.blob, 'video'); if (!url) throw new Error(''); video = { url }; }
+      else if (lyPendingVideo && lyPendingVideo.url) video = { url: lyPendingVideo.url };
+
+      const data = { ...lyData() };
+      if (!text && !photo && !voice && !video) delete data[year];
+      else data[year] = { text, photo: photo || null, voice: voice || null, video: video || null, updatedAt: new Date().toISOString() };
+      if (!(await lyPersistPatch({ life_years: data }))) throw new Error('');
+      lyResetEditState(); lyRender(); showToast('Saved');
+    } catch(e){
+      if (btn){ btn.disabled = false; btn.textContent = 'Save'; }
+      if (e && e.message) showToast('Could not save: ' + e.message);
     }
-    const data = { ...lyData() };
-    if (!text && !photo) delete data[year];
-    else data[year] = { text, photo: photo || null, updatedAt: new Date().toISOString() };
-    if (!(await lyPersistPatch({ life_years: data }))) return;
-    lyEditing = null; lyPendingPhoto = null; lyRender(); showToast('Saved');
-  }
-  function lyYearRow(y, by, data){
-    const age = (y === by) ? 'born' : 'age ' + (y - by);
-    if (lyEditing === y){
-      const ex = data[y] || {};
-      const pv = '<img id="lyPreview" class="ly-thumb" src="' + (lyPendingPhoto ? escapeHtml(lyPendingPhoto) : '') + '" style="display:' + (lyPendingPhoto ? 'block' : 'none') + ';">';
-      return '<div class="ly-yr"><div class="k"><div class="ly-num">' + y + '</div><div class="ly-age">' + age + '</div></div>'
-        + '<div class="ly-editor">'
-        + '<textarea id="lyText" rows="4" placeholder="A hundred words for ' + y + '…" oninput="lyCount()">' + escapeHtml(ex.text || '') + '</textarea>'
-        + '<div class="ly-editor-row">'
-        + '<label class="ly-add" style="border-style:solid;">＋ Photo<input type="file" accept="image/*" style="display:none;" onchange="lyPhotoPick(this)"></label>'
-        + pv
-        + (lyPendingPhoto ? '<button type="button" class="ly-edit-link" onclick="lyRemovePhoto()">remove photo</button>' : '')
-        + '<span class="ly-count" id="lyCount">' + lyWordCount(ex.text || '') + ' / 100</span>'
-        + '</div>'
-        + '<div class="ly-editor-row"><button type="button" class="btn-small" onclick="lySave(' + y + ')">Save</button>'
-        + '<button type="button" class="ly-edit-link" onclick="lyCancelEditor()">Cancel</button></div>'
-        + '</div></div>';
-    }
-    const d = data[y];
-    if (d && (d.text || d.photo)){
-      const photo = d.photo ? '<img class="ly-photo" src="' + escapeHtml(d.photo) + '" alt="">' : '';
-      const words = d.text ? '<div class="ly-words">' + escapeHtml(d.text) + '</div>' : '';
-      return '<div class="ly-yr"><div class="k"><div class="ly-num">' + y + '</div><div class="ly-age">' + age + '</div></div>'
-        + '<div>' + photo + words + '<div class="ly-meta"><button type="button" class="ly-edit-link" onclick="lyOpenEditor(' + y + ')">Edit</button><button type="button" class="ly-edit-link ly-del" onclick="lyDelete(' + y + ')">Delete</button></div></div></div>';
-    }
-    return '<div class="ly-yr empty"><div class="k"><div class="ly-num">' + y + '</div><div class="ly-age">' + age + '</div></div>'
-      + '<div><button type="button" class="ly-add" onclick="lyOpenEditor(' + y + ')">＋ Write this year</button></div></div>';
   }
   function lyGo(){ const s = document.getElementById('lyPick'); if (s) lyOpenEditor(parseInt(s.value, 10)); }
   async function lyDelete(year){
     if (!confirm('Remove your entry for ' + year + '? This can\'t be undone.')) return;
     const data = { ...lyData() };
     delete data[year];
-    if (lyEditing === year){ lyEditing = null; lyPendingPhoto = null; }
+    if (lyEditing === year) lyResetEditState();
     if (!(await lyPersistPatch({ life_years: data }))) return;
     lyRender(); showToast('Removed ' + year);
+  }
+
+  /* ---- filled year as a tappable card ---- */
+  function lyCardHtml(y, by, data){
+    const d = data[y] || {}; const age = (y === by) ? 'born' : 'age ' + (y - by);
+    const th = d.photo
+      ? '<div class="th"><img src="' + escapeHtml(d.photo) + '" alt="">' + ((d.voice || d.video) ? '<div class="pl">▶</div>' : '') + '</div>'
+      : '<div class="th nophoto">no photo</div>';
+    let chips = '';
+    if (d.photo) chips += '<span class="ly-chip">📷</span>';
+    if (d.voice) chips += '<span class="ly-chip">🎙 1:00</span>';
+    if (d.video) chips += '<span class="ly-chip">🎬 0:30</span>';
+    return '<div class="ly-card" onclick="lyOpen(' + y + ')">' + th
+      + '<div><div class="cy">' + y + '</div><div class="ca">' + age + '</div>'
+      + '<div class="cs">' + escapeHtml(d.text || '') + '</div>'
+      + (chips ? '<div class="ly-chips">' + chips + '</div>' : '') + '</div></div>';
+  }
+  /* ---- lightbox: the year, opened ---- */
+  function lyClose(){ const o = document.getElementById('lyOv'); if (o) o.remove(); document.removeEventListener('keydown', lyEsc); }
+  function lyEsc(e){ if (e.key === 'Escape') lyClose(); }
+  function lyOpen(year){
+    const d = lyData()[year] || {}; const by = lyBirthYear(); const age = (year === by) ? 'born' : 'age ' + (year - by);
+    lyClose();
+    const hero = d.photo
+      ? '<div class="ly-hero"><img src="' + escapeHtml(d.photo) + '" alt=""><div class="ab">' + age + '</div><div class="yb">' + year + '</div></div>'
+      : '<div class="ly-hero" style="display:flex; align-items:flex-end; padding:20px; background:var(--oat-deep);"><div class="ab" style="position:static; transform:none; color:var(--ink-soft); text-shadow:none;">' + age + '</div><div class="yb" style="position:static; color:var(--ink); text-shadow:none;">' + year + '</div></div>';
+    let media = '';
+    if (d.voice && d.voice.url) media += '<audio class="ly-audio" controls src="' + escapeHtml(d.voice.url) + '"></audio>';
+    if (d.video && d.video.url) media += '<video class="ly-video" controls playsinline src="' + escapeHtml(d.video.url) + '"></video>';
+    const ov = document.createElement('div'); ov.className = 'ly-ov'; ov.id = 'lyOv';
+    ov.innerHTML = '<div class="ly-sheet"><button class="x" onclick="lyClose()" aria-label="Close">✕</button>' + hero
+      + '<div class="ly-body">' + (d.text ? '<div class="ly-txt">' + escapeHtml(d.text) + '</div>' : '')
+      + (media ? '<div class="ly-media">' + media + '</div>' : '')
+      + '<div class="ly-acts"><button type="button" class="ly-edit-link" onclick="lyClose(); lyOpenEditor(' + year + ')">Edit</button>'
+      + '<button type="button" class="ly-edit-link ly-del" onclick="lyClose(); lyDelete(' + year + ')">Delete</button></div></div></div>';
+    ov.addEventListener('click', e => { if (e.target === ov) lyClose(); });
+    document.body.appendChild(ov);
+    document.addEventListener('keydown', lyEsc);
+  }
+
+  /* ---- editor for one year ---- */
+  function lyEditorHtml(year, data){
+    const ex = data[year] || {}; const by = lyBirthYear(); const age = (year === by) ? 'born' : 'age ' + (year - by);
+    return '<div class="ly-editor">'
+      + '<div class="ly-editor-row" style="margin-bottom:2px;"><strong style="font-family:\'Fraunces\',Georgia,serif; font-size:20px;">' + year + '</strong><span style="font-size:11px; color:var(--ink-soft);">' + age + '</span></div>'
+      + '<textarea id="lyText" rows="4" placeholder="A hundred words for ' + year + '…" oninput="lyCount()">' + escapeHtml(ex.text || '') + '</textarea>'
+      + '<div class="ly-editor-row"><span class="ly-count" id="lyCount">' + lyWordCount(ex.text || '') + ' / 100</span></div>'
+      + '<div class="ly-editor-row" id="lyPhotoArea">' + lyPhotoAreaHtml() + '</div>'
+      + '<div class="ly-editor-row" id="lyVoiceArea">' + lyVoiceAreaHtml() + '</div>'
+      + '<div class="ly-editor-row" id="lyVideoArea">' + lyVideoAreaHtml() + '</div>'
+      + '<div class="ly-editor-row" style="margin-top:12px;"><button type="button" class="btn-small" id="lySaveBtn" onclick="lySave(' + year + ')">Save</button>'
+      + '<button type="button" class="ly-edit-link" onclick="lyCancelEditor()">Cancel</button></div>'
+      + '</div>';
   }
   function lyRender(){
     const host = document.getElementById('lifeYearsBox'); if(!host) return;
     const head = '<div class="ly-eyebrow">The end of your book</div>'
       + '<h3 class="ly-h">My life, year by year</h3>'
-      + '<p class="ly-intro">One year at a time, from the year you were born — up to a hundred words and a single photo each. It is entirely optional; jump to any year below and add it whenever you like.</p>';
+      + '<p class="ly-intro">One year at a time, from the year you were born — a hundred words, a photo, a voice note and a short clip. It is entirely optional; tap a year to open it, or jump to any year below.</p>';
     const by = lyBirthYear(), now = new Date().getFullYear();
     if (!by){
       host.innerHTML = head + '<div class="ly-born"><label>Born in <input type="number" id="lyBirthInput" min="1900" max="' + now + '" placeholder="e.g. 1991"></label> <button type="button" class="btn-small" onclick="lySetBirthYear()">Start my timeline</button></div>';
       return;
     }
     const data = lyData();
+    if (lyEditing !== null){ host.innerHTML = head + lyEditorHtml(lyEditing, data); const ta = document.getElementById('lyText'); if (ta) ta.focus(); return; }
     const filledSet = new Set();
-    for (let y = by; y <= now; y++){ const d = data[y]; if (d && (d.text || d.photo)) filledSet.add(y); }
-    const display = new Set(filledSet);
-    if (lyEditing !== null) display.add(lyEditing);
-    const years = [...display].sort((a, b) => a - b);
-    let rows = years.map(y => lyYearRow(y, by, data)).join('');
-    if (!rows) rows = '<p class="ly-intro" style="margin:0 0 4px;">Nothing written yet — pick a year below to begin.</p>';
+    for (let y = by; y <= now; y++){ const d = data[y]; if (d && (d.text || d.photo || d.voice || d.video)) filledSet.add(y); }
+    const years = [...filledSet].sort((a, b) => a - b);
+    let body = years.map(y => lyCardHtml(y, by, data)).join('');
+    body = body ? '<div class="ly-cards">' + body + '</div>' : '<p class="ly-intro" style="margin:0 0 4px;">Nothing written yet — pick a year below to begin.</p>';
     let opts = '';
     for (let y = now; y >= by; y--){
       const mark = filledSet.has(y) ? ' · written' : (y === by ? ' · born' : '');
@@ -19146,7 +19358,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     }
     const picker = '<div class="ly-pick"><label>Go to a year <select id="lyPick">' + opts + '</select></label>'
       + '<button type="button" class="btn-small" onclick="lyGo()">Open this year</button></div>';
-    host.innerHTML = head + rows + '<div style="margin-top:18px;">' + picker + '</div>';
+    host.innerHTML = head + body + '<div style="margin-top:18px;">' + picker + '</div>';
   }
 
   /* ── THE YEAR, KEPT ──
