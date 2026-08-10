@@ -19034,7 +19034,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
      A plain life timeline at the end of the book: from the birth year to now,
      up to 100 words + one photo per year. Kept in profile.extras (birth_year
      + life_years{}); photos reuse the existing image upload. Owner-only. */
-  let lyEditing = null, lyPendingPhoto = null;
+  let lyEditing = null, lyPendingPhoto = null, lyExpanded = false;
+  function lyToggleExpand(){ lyExpanded = !lyExpanded; lyRender(); }
   function lyExtras(){ return (profile && profile.extras) || {}; }
   function lyBirthYear(){ const b = lyExtras().birth_year; return b ? parseInt(b,10) : null; }
   function lyData(){ const d = lyExtras().life_years; return (d && typeof d === 'object') ? d : {}; }
@@ -19079,49 +19080,63 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (!(await lyPersistPatch({ life_years: data }))) return;
     lyEditing = null; lyPendingPhoto = null; lyRender(); showToast('Saved');
   }
+  function lyYearRow(y, by, data){
+    const age = (y === by) ? 'born' : 'age ' + (y - by);
+    if (lyEditing === y){
+      const ex = data[y] || {};
+      const pv = '<img id="lyPreview" class="ly-thumb" src="' + (lyPendingPhoto ? escapeHtml(lyPendingPhoto) : '') + '" style="display:' + (lyPendingPhoto ? 'block' : 'none') + ';">';
+      return '<div class="ly-yr"><div class="k"><div class="ly-num">' + y + '</div><div class="ly-age">' + age + '</div></div>'
+        + '<div class="ly-editor">'
+        + '<textarea id="lyText" rows="4" placeholder="A hundred words for ' + y + '…" oninput="lyCount()">' + escapeHtml(ex.text || '') + '</textarea>'
+        + '<div class="ly-editor-row">'
+        + '<label class="ly-add" style="border-style:solid;">＋ Photo<input type="file" accept="image/*" style="display:none;" onchange="lyPhotoPick(this)"></label>'
+        + pv
+        + (lyPendingPhoto ? '<button type="button" class="ly-edit-link" onclick="lyRemovePhoto()">remove photo</button>' : '')
+        + '<span class="ly-count" id="lyCount">' + lyWordCount(ex.text || '') + ' / 100</span>'
+        + '</div>'
+        + '<div class="ly-editor-row"><button type="button" class="btn-small" onclick="lySave(' + y + ')">Save</button>'
+        + '<button type="button" class="ly-edit-link" onclick="lyCancelEditor()">Cancel</button></div>'
+        + '</div></div>';
+    }
+    const d = data[y];
+    if (d && (d.text || d.photo)){
+      const photo = d.photo ? '<img class="ly-photo" src="' + escapeHtml(d.photo) + '" alt="">' : '';
+      const words = d.text ? '<div class="ly-words">' + escapeHtml(d.text) + '</div>' : '';
+      return '<div class="ly-yr"><div class="k"><div class="ly-num">' + y + '</div><div class="ly-age">' + age + '</div></div>'
+        + '<div>' + photo + words + '<div class="ly-meta"><button type="button" class="ly-edit-link" onclick="lyOpenEditor(' + y + ')">Edit</button></div></div></div>';
+    }
+    return '<div class="ly-yr empty"><div class="k"><div class="ly-num">' + y + '</div><div class="ly-age">' + age + '</div></div>'
+      + '<div><button type="button" class="ly-add" onclick="lyOpenEditor(' + y + ')">＋ Write this year</button></div></div>';
+  }
   function lyRender(){
     const host = document.getElementById('lifeYearsBox'); if(!host) return;
     const head = '<div class="ly-eyebrow">The end of your book</div>'
       + '<h3 class="ly-h">My life, year by year</h3>'
-      + '<p class="ly-intro">One year at a time, from the year you were born — up to a hundred words and a single photo each. Only the years you fill show their story.</p>';
+      + '<p class="ly-intro">One year at a time, from the year you were born — up to a hundred words and a single photo each. It is entirely optional; add years whenever you like, and the rest stay tucked away.</p>';
     const by = lyBirthYear(), now = new Date().getFullYear();
     if (!by){
       host.innerHTML = head + '<div class="ly-born"><label>Born in <input type="number" id="lyBirthInput" min="1900" max="' + now + '" placeholder="e.g. 1991"></label> <button type="button" class="btn-small" onclick="lySetBirthYear()">Start my timeline</button></div>';
       return;
     }
     const data = lyData();
+    const filled = [];
+    for (let y = by; y <= now; y++){ const d = data[y]; if (d && (d.text || d.photo)) filled.push(y); }
+    const showAll = lyExpanded || lyEditing !== null;
     let rows = '';
-    for (let y = by; y <= now; y++){
-      const age = (y === by) ? 'born' : 'age ' + (y - by);
-      if (lyEditing === y){
-        const ex = data[y] || {};
-        const pv = '<img id="lyPreview" class="ly-thumb" src="' + (lyPendingPhoto ? escapeHtml(lyPendingPhoto) : '') + '" style="display:' + (lyPendingPhoto ? 'block' : 'none') + ';">';
-        rows += '<div class="ly-yr"><div class="k"><div class="ly-num">' + y + '</div><div class="ly-age">' + age + '</div></div>'
-          + '<div class="ly-editor">'
-          + '<textarea id="lyText" rows="4" placeholder="A hundred words for ' + y + '…" oninput="lyCount()">' + escapeHtml(ex.text || '') + '</textarea>'
-          + '<div class="ly-editor-row">'
-          + '<label class="ly-add" style="border-style:solid;">＋ Photo<input type="file" accept="image/*" style="display:none;" onchange="lyPhotoPick(this)"></label>'
-          + pv
-          + (lyPendingPhoto ? '<button type="button" class="ly-edit-link" onclick="lyRemovePhoto()">remove photo</button>' : '')
-          + '<span class="ly-count" id="lyCount">' + lyWordCount(ex.text || '') + ' / 100</span>'
-          + '</div>'
-          + '<div class="ly-editor-row"><button type="button" class="btn-small" onclick="lySave(' + y + ')">Save</button>'
-          + '<button type="button" class="ly-edit-link" onclick="lyCancelEditor()">Cancel</button></div>'
-          + '</div></div>';
-        continue;
-      }
-      const d = data[y];
-      if (d && (d.text || d.photo)){
-        const photo = d.photo ? '<img class="ly-photo" src="' + escapeHtml(d.photo) + '" alt="">' : '';
-        const words = d.text ? '<div class="ly-words">' + escapeHtml(d.text) + '</div>' : '';
-        rows += '<div class="ly-yr"><div class="k"><div class="ly-num">' + y + '</div><div class="ly-age">' + age + '</div></div>'
-          + '<div>' + photo + words + '<div class="ly-meta"><button type="button" class="ly-edit-link" onclick="lyOpenEditor(' + y + ')">Edit</button></div></div></div>';
-      } else {
-        rows += '<div class="ly-yr empty"><div class="k"><div class="ly-num">' + y + '</div><div class="ly-age">' + age + '</div></div>'
-          + '<div><button type="button" class="ly-add" onclick="lyOpenEditor(' + y + ')">＋ Write this year</button></div></div>';
-      }
+    if (showAll){
+      for (let y = by; y <= now; y++) rows += lyYearRow(y, by, data);
+    } else {
+      filled.forEach(y => { rows += lyYearRow(y, by, data); });
+      if (!filled.length) rows = '<p class="ly-intro" style="margin:0 0 4px;">Nothing written yet — start whenever you feel like it.</p>';
     }
-    host.innerHTML = head + rows;
+    let toggle;
+    if (showAll){
+      toggle = '<button type="button" class="ly-edit-link" style="font-size:12.5px;" onclick="lyToggleExpand()">Wrap up the list ↑</button>';
+    } else {
+      const left = (now - by + 1) - filled.length;
+      toggle = '<button type="button" class="ly-add" onclick="lyToggleExpand()">＋ Add a year' + (left > 0 ? ' <span style="opacity:.55; margin-left:4px;">' + left + ' still to write</span>' : '') + '</button>';
+    }
+    host.innerHTML = head + rows + '<div style="margin-top:18px;">' + toggle + '</div>';
   }
 
   /* ── THE YEAR, KEPT ──
