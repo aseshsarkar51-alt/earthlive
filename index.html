@@ -2225,6 +2225,24 @@
   .shead{border-bottom-color:var(--ink);}
   .book-jump{border-bottom-color:var(--ink);}
   .ab-note:empty{margin:0;}
+  /* Letters to the future */
+  .fl-box{margin:22px 0 8px; max-width:520px;}
+  .fl-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; gap:12px;}
+  .fl-head h3{margin:0; font-size:15px;}
+  .fl-compose{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:12px;}
+  .fl-compose textarea{width:100%; border:1px solid var(--line); border-radius:8px; padding:10px; font-family:inherit; font-size:14px; color:var(--ink); resize:vertical; background:var(--oat);}
+  .fl-row{display:flex; align-items:center; gap:12px; margin-top:10px; flex-wrap:wrap;}
+  .fl-row label{font-size:12.5px; color:var(--ink-soft); display:flex; align-items:center; gap:6px;}
+  .fl-row input[type=date]{font-family:inherit; font-size:13px; padding:5px 8px; border:1px solid var(--line); border-radius:7px; background:var(--card); color:var(--ink);}
+  .fl-note{font-size:11.5px; color:var(--ink-soft); margin-top:8px; line-height:1.5;}
+  .fl-card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:13px 15px; margin-bottom:9px;}
+  .fl-card.sealed{border-style:dashed;}
+  .fl-tag{font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; font-weight:700; color:var(--camel); display:flex; align-items:center; gap:6px; margin-bottom:5px;}
+  .fl-msg{font-family:"Caveat",cursive; font-size:19px; line-height:1.4; color:var(--ink); white-space:pre-wrap;}
+  .fl-when{font-size:11px; color:var(--ink-soft); margin-top:7px;}
+  .fl-x{background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:11px; text-decoration:underline; text-underline-offset:2px; padding:0; margin-top:6px;}
+  .fl-x:hover{color:var(--camel);}
+  .fl-empty{font-size:12.5px; color:var(--ink-soft); line-height:1.5;}
   /* The dashboard is .style-a, which force-borders every input with
      !important. That boxes in this field and breaks the underline look, so
      override it here (higher specificity, also !important). */
@@ -2703,6 +2721,23 @@
       <div class="ab-note" id="askBookNote"></div>
       <div class="ab-bar" id="askBookBar" style="display:none;"><i id="askBookBarFill"></i></div>
       <div class="ab-results" id="askBookResults" style="display:none;"></div>
+    </div>
+
+    <!-- ===== LETTERS TO THE FUTURE ===== -->
+    <div class="fl-box" id="futureLettersBox">
+      <div class="fl-head">
+        <h3>Letters to the future</h3>
+        <button type="button" class="btn-small" onclick="flToggleCompose()">＋ Write to future you</button>
+      </div>
+      <div class="fl-compose" id="flCompose" style="display:none;">
+        <textarea id="flText" placeholder="Dear future me…" rows="4"></textarea>
+        <div class="fl-row">
+          <label>Opens on <input type="date" id="flDate"></label>
+          <button type="button" class="btn-small" onclick="flSave()">Seal it</button>
+        </div>
+        <div class="fl-note">🔒 Sealed and private — only you, and only after the date. Then it's here, waiting for you.</div>
+      </div>
+      <div id="flList"></div>
     </div>
 
     <div class="song-box-wrap" id="ownerSongBox"></div>
@@ -8030,6 +8065,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     // The book changed underneath the search index — rebuild it next search.
     abCorpus = null;
     abAutoInit();
+    flRender();
     renderOnThisDay();
     renderBookPoll('owner', profile);
   }
@@ -18935,6 +18971,73 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       ${rows}
       ${words ? `<div class="hp-tone-note">Words carrying the most weight: ${words}</div>` : ''}
     </div>`;
+  }
+
+  /* ── LETTERS TO THE FUTURE ──
+     Private notes you write to your future self, sealed until a date you
+     pick. Kept in your own profile.extras — no new table, never shown to
+     anyone else. It simply waits, and arrives. */
+  function flAll(){ return (profile && profile.extras && Array.isArray(profile.extras.future_letters)) ? profile.extras.future_letters : []; }
+  function flSealed(l){ return new Date((l.openAt || '') + 'T00:00:00') > new Date(); }
+  async function flPersist(list){
+    const extras = { ...(profile.extras || {}), future_letters: list };
+    profile.extras = extras;
+    if (db && currentUser && profile.dbId){
+      const { error } = await db.from('profiles').update({ extras }).eq('id', profile.dbId);
+      if (error){ showToast('Could not save: ' + error.message); return false; }
+    }
+    return true;
+  }
+  function flToggleCompose(){
+    const c = document.getElementById('flCompose'); if(!c) return;
+    const show = c.style.display === 'none';
+    c.style.display = show ? 'block' : 'none';
+    if (show){
+      const dt = document.getElementById('flDate');
+      if (dt){
+        const t = new Date(); t.setDate(t.getDate() + 1); dt.min = t.toISOString().slice(0,10);
+        const y = new Date(); y.setFullYear(y.getFullYear() + 1); dt.value = y.toISOString().slice(0,10);
+      }
+      const ta = document.getElementById('flText'); if (ta) ta.focus();
+    }
+  }
+  async function flSave(){
+    const ta = document.getElementById('flText'), dt = document.getElementById('flDate');
+    const text = ((ta && ta.value) || '').trim(), openAt = dt && dt.value;
+    if (!text){ showToast('Write a few words first.'); return; }
+    if (!openAt || new Date(openAt + 'T00:00:00') <= new Date()){ showToast('Pick a date in the future.'); return; }
+    const list = flAll().slice();
+    list.push({ id: 'fl_' + Date.now().toString(36), text, openAt, createdAt: new Date().toISOString() });
+    if (!(await flPersist(list))) return;
+    if (ta) ta.value = '';
+    const c = document.getElementById('flCompose'); if (c) c.style.display = 'none';
+    flRender();
+    showToast('Sealed. It opens on ' + new Date(openAt + 'T00:00:00').toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) + '.');
+  }
+  async function flRemove(id){
+    if (!(await flPersist(flAll().filter(l => l.id !== id)))) return;
+    flRender(); showToast('Removed');
+  }
+  function flRender(){
+    const host = document.getElementById('flList'); if (!host) return;
+    const list = flAll().slice().sort((a,b)=> (a.openAt || '').localeCompare(b.openAt || ''));
+    if (!list.length){
+      host.innerHTML = '<div class="fl-empty">Nothing sealed yet. Write a line to the person you\'ll be — a hope, a reminder, a promise — and choose when it opens.</div>';
+      return;
+    }
+    host.innerHTML = list.map(l=>{
+      const opensStr = new Date((l.openAt || '') + 'T00:00:00').toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+      const wroteStr = l.createdAt ? new Date(l.createdAt).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '';
+      if (flSealed(l)){
+        return '<div class="fl-card sealed"><div class="fl-tag">🔒 Sealed · opens ' + escapeHtml(opensStr) + '</div>'
+          + '<div class="fl-when">A letter to yourself' + (wroteStr ? ', written ' + escapeHtml(wroteStr) : '') + '</div>'
+          + '<button type="button" class="fl-x" onclick="flRemove(\'' + l.id + '\')">Remove</button></div>';
+      }
+      return '<div class="fl-card"><div class="fl-tag">🔓 Arrived' + (wroteStr ? ' · sealed ' + escapeHtml(wroteStr) : '') + '</div>'
+        + '<div class="fl-msg">' + escapeHtml(l.text) + '</div>'
+        + '<div class="fl-when">You sealed this for ' + escapeHtml(opensStr) + '</div>'
+        + '<button type="button" class="fl-x" onclick="flRemove(\'' + l.id + '\')">Remove</button></div>';
+    }).join('');
   }
 
   /* ── HAPPINESS INSIGHTS (self-contained, on-device) ──
