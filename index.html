@@ -2265,6 +2265,27 @@
   .yk-chip{background:var(--card); border:1px solid var(--line); border-radius:999px; padding:5px 12px; font-size:13px; color:var(--ink);}
   .yk-big{font-family:"Fraunces",Georgia,serif; font-size:22px; color:var(--ink); line-height:1.35;}
   .yk-line{font-size:14px; color:var(--ink); line-height:1.5;}
+  /* My life, year by year */
+  .ly-box{margin:44px 0 10px; max-width:620px;}
+  .ly-eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); font-weight:700;}
+  .ly-h{font-family:"Fraunces",Georgia,serif; font-size:25px; margin:6px 0 6px; color:var(--ink);}
+  .ly-intro{font-size:13.5px; color:var(--ink-soft); line-height:1.55; margin:0 0 20px; max-width:520px;}
+  .ly-born{display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-size:13.5px; color:var(--ink-soft);}
+  .ly-born input{width:120px; font-family:inherit; font-size:14px; padding:6px 9px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink);}
+  .ly-yr{display:grid; grid-template-columns:74px 1fr; gap:18px; padding:22px 0; border-top:1px solid var(--line);}
+  .ly-num{font-family:"Fraunces",Georgia,serif; font-size:24px; color:var(--ink); line-height:1;}
+  .ly-age{font-size:11px; color:var(--ink-soft); margin-top:5px;}
+  .ly-yr.empty .ly-num, .ly-yr.empty .ly-age{opacity:.5;}
+  .ly-photo{width:100%; max-width:230px; height:150px; border-radius:10px; object-fit:cover; display:block; margin-bottom:11px; background:var(--oat-deep);}
+  .ly-words{font-size:14.5px; line-height:1.6; color:var(--ink); white-space:pre-wrap;}
+  .ly-meta{margin-top:8px;}
+  .ly-edit-link{background:none; border:none; color:var(--camel); font-size:11px; cursor:pointer; text-decoration:underline; text-underline-offset:2px; padding:0; font-family:inherit;}
+  .ly-add{display:inline-flex; align-items:center; gap:7px; font-size:13px; color:var(--camel); border:1px dashed var(--line); border-radius:10px; padding:10px 15px; cursor:pointer; background:none; font-family:inherit;}
+  .ly-editor{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px;}
+  .ly-editor textarea{width:100%; border:1px solid var(--line); border-radius:8px; padding:10px; font-family:inherit; font-size:14px; resize:vertical; background:var(--oat); color:var(--ink);}
+  .ly-editor-row{display:flex; align-items:center; gap:12px; margin-top:10px; flex-wrap:wrap;}
+  .ly-count{font-size:11px; color:var(--ink-soft); margin-left:auto;}
+  .ly-thumb{width:64px; height:46px; object-fit:cover; border-radius:6px;}
   /* The dashboard is .style-a, which force-borders every input with
      !important. That boxes in this field and breaks the underline look, so
      override it here (higher specificity, also !important). */
@@ -2882,6 +2903,9 @@
     <div id="ownerEntries"></div>
 
     <div class="book-poll-wrap" id="ownerPollWrap"></div>
+
+    <!-- ===== MY LIFE, YEAR BY YEAR ===== -->
+    <div class="ly-box" id="lifeYearsBox"></div>
 
   </div>
 </section>
@@ -8098,6 +8122,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     abCorpus = null;
     abAutoInit();
     flRender();
+    lyRender();
     renderOnThisDay();
     renderBookPoll('owner', profile);
   }
@@ -19003,6 +19028,100 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       ${rows}
       ${words ? `<div class="hp-tone-note">Words carrying the most weight: ${words}</div>` : ''}
     </div>`;
+  }
+
+  /* ── MY LIFE, YEAR BY YEAR ──
+     A plain life timeline at the end of the book: from the birth year to now,
+     up to 100 words + one photo per year. Kept in profile.extras (birth_year
+     + life_years{}); photos reuse the existing image upload. Owner-only. */
+  let lyEditing = null, lyPendingPhoto = null;
+  function lyExtras(){ return (profile && profile.extras) || {}; }
+  function lyBirthYear(){ const b = lyExtras().birth_year; return b ? parseInt(b,10) : null; }
+  function lyData(){ const d = lyExtras().life_years; return (d && typeof d === 'object') ? d : {}; }
+  function lyWordCount(s){ return ((s || '').trim().match(/\S+/g) || []).length; }
+  async function lyPersistPatch(patch){
+    const extras = { ...(profile.extras || {}), ...patch };
+    profile.extras = extras;
+    if (db && currentUser && profile.dbId){
+      const { error } = await db.from('profiles').update({ extras }).eq('id', profile.dbId);
+      if (error){ showToast('Could not save: ' + error.message); return false; }
+    }
+    return true;
+  }
+  async function lySetBirthYear(){
+    const el = document.getElementById('lyBirthInput'); if(!el) return;
+    const y = parseInt(el.value, 10), now = new Date().getFullYear();
+    if (!y || y < 1900 || y > now){ showToast('Enter a year between 1900 and ' + now); return; }
+    if (!(await lyPersistPatch({ birth_year: y }))) return;
+    lyRender();
+  }
+  function lyOpenEditor(year){ lyEditing = year; lyPendingPhoto = (lyData()[year] || {}).photo || null; lyRender(); const ta = document.getElementById('lyText'); if (ta) ta.focus(); }
+  function lyCancelEditor(){ lyEditing = null; lyPendingPhoto = null; lyRender(); }
+  function lyPhotoPick(inp){
+    const file = inp.files && inp.files[0]; if(!file) return;
+    const rd = new FileReader();
+    rd.onload = ()=>{ lyPendingPhoto = rd.result; const pv = document.getElementById('lyPreview'); if (pv){ pv.src = rd.result; pv.style.display = 'block'; } };
+    rd.readAsDataURL(file);
+  }
+  function lyRemovePhoto(){ lyPendingPhoto = null; const pv = document.getElementById('lyPreview'); if (pv) pv.style.display = 'none'; lyRender(); }
+  function lyCount(){ const ta = document.getElementById('lyText'), c = document.getElementById('lyCount'); if (ta && c){ const n = lyWordCount(ta.value); c.textContent = n + ' / 100'; c.style.color = n > 100 ? 'var(--blush)' : 'var(--ink-soft)'; } }
+  async function lySave(year){
+    const ta = document.getElementById('lyText'); const text = ((ta && ta.value) || '').trim();
+    if (lyWordCount(text) > 100){ showToast('Keep it to 100 words for this year.'); return; }
+    let photo = lyPendingPhoto;
+    if (photo && photo.startsWith('data:')){
+      photo = await uploadImage(photo, 'entry-photos', 'life/' + profile.dbId + '/' + year + '-' + Date.now());
+      if (!photo) return;
+    }
+    const data = { ...lyData() };
+    if (!text && !photo) delete data[year];
+    else data[year] = { text, photo: photo || null, updatedAt: new Date().toISOString() };
+    if (!(await lyPersistPatch({ life_years: data }))) return;
+    lyEditing = null; lyPendingPhoto = null; lyRender(); showToast('Saved');
+  }
+  function lyRender(){
+    const host = document.getElementById('lifeYearsBox'); if(!host) return;
+    const head = '<div class="ly-eyebrow">The end of your book</div>'
+      + '<h3 class="ly-h">My life, year by year</h3>'
+      + '<p class="ly-intro">One year at a time, from the year you were born — up to a hundred words and a single photo each. Only the years you fill show their story.</p>';
+    const by = lyBirthYear(), now = new Date().getFullYear();
+    if (!by){
+      host.innerHTML = head + '<div class="ly-born"><label>Born in <input type="number" id="lyBirthInput" min="1900" max="' + now + '" placeholder="e.g. 1991"></label> <button type="button" class="btn-small" onclick="lySetBirthYear()">Start my timeline</button></div>';
+      return;
+    }
+    const data = lyData();
+    let rows = '';
+    for (let y = by; y <= now; y++){
+      const age = (y === by) ? 'born' : 'age ' + (y - by);
+      if (lyEditing === y){
+        const ex = data[y] || {};
+        const pv = '<img id="lyPreview" class="ly-thumb" src="' + (lyPendingPhoto ? escapeHtml(lyPendingPhoto) : '') + '" style="display:' + (lyPendingPhoto ? 'block' : 'none') + ';">';
+        rows += '<div class="ly-yr"><div class="k"><div class="ly-num">' + y + '</div><div class="ly-age">' + age + '</div></div>'
+          + '<div class="ly-editor">'
+          + '<textarea id="lyText" rows="4" placeholder="A hundred words for ' + y + '…" oninput="lyCount()">' + escapeHtml(ex.text || '') + '</textarea>'
+          + '<div class="ly-editor-row">'
+          + '<label class="ly-add" style="border-style:solid;">＋ Photo<input type="file" accept="image/*" style="display:none;" onchange="lyPhotoPick(this)"></label>'
+          + pv
+          + (lyPendingPhoto ? '<button type="button" class="ly-edit-link" onclick="lyRemovePhoto()">remove photo</button>' : '')
+          + '<span class="ly-count" id="lyCount">' + lyWordCount(ex.text || '') + ' / 100</span>'
+          + '</div>'
+          + '<div class="ly-editor-row"><button type="button" class="btn-small" onclick="lySave(' + y + ')">Save</button>'
+          + '<button type="button" class="ly-edit-link" onclick="lyCancelEditor()">Cancel</button></div>'
+          + '</div></div>';
+        continue;
+      }
+      const d = data[y];
+      if (d && (d.text || d.photo)){
+        const photo = d.photo ? '<img class="ly-photo" src="' + escapeHtml(d.photo) + '" alt="">' : '';
+        const words = d.text ? '<div class="ly-words">' + escapeHtml(d.text) + '</div>' : '';
+        rows += '<div class="ly-yr"><div class="k"><div class="ly-num">' + y + '</div><div class="ly-age">' + age + '</div></div>'
+          + '<div>' + photo + words + '<div class="ly-meta"><button type="button" class="ly-edit-link" onclick="lyOpenEditor(' + y + ')">Edit</button></div></div></div>';
+      } else {
+        rows += '<div class="ly-yr empty"><div class="k"><div class="ly-num">' + y + '</div><div class="ly-age">' + age + '</div></div>'
+          + '<div><button type="button" class="ly-add" onclick="lyOpenEditor(' + y + ')">＋ Write this year</button></div></div>';
+      }
+    }
+    host.innerHTML = head + rows;
   }
 
   /* ── THE YEAR, KEPT ──
