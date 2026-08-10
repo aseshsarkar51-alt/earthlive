@@ -2311,6 +2311,7 @@
   .ly-hero{width:100%; height:400px; background:var(--oat-deep); position:relative;}
   .ly-hero{background:var(--oat-deep);}
   .ly-hero img{width:100%; height:100%; object-fit:contain; display:block;}
+  .ly-hero-scrim{position:absolute; left:0; right:0; bottom:0; height:150px; background:linear-gradient(to top, rgba(20,18,16,.62), rgba(20,18,16,0)); pointer-events:none;}
   .ly-hero .yb{position:absolute; left:20px; bottom:12px; color:#fff; font-family:"Fraunces",Georgia,serif; font-size:38px; text-shadow:0 2px 14px rgba(0,0,0,.5);}
   .ly-hero .ab{position:absolute; left:22px; bottom:4px; color:#fff; font-size:12px; opacity:.9; transform:translateY(16px); text-shadow:0 1px 8px rgba(0,0,0,.5);}
   .ly-body{padding:22px 22px 26px;}
@@ -2329,13 +2330,13 @@
   .ly-chip svg{opacity:.75;}
   .ly-pthumb{position:relative; display:inline-block;}
   .ly-pthumb img{width:64px; height:46px; object-fit:cover; border-radius:6px; display:block;}
-  .ly-pthumb-x{position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%; border:none; background:var(--ink); color:#fff; font-size:10px; line-height:1; cursor:pointer;}
+  .ly-pthumb-x{position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%; border:none; background:var(--ink); color:var(--page); font-size:10px; line-height:1; cursor:pointer;}
   .ly-gphoto{width:100%; border-radius:12px; display:block; background:var(--oat-deep);}
   /* layout selector */
   .ly-layout{display:inline-flex; margin:0 0 16px; border:1px solid var(--line); border-radius:999px; overflow:hidden;}
   .ly-seg{font:inherit; font-size:12px; padding:5px 14px; border:none; background:var(--card); color:var(--ink-soft); cursor:pointer;}
   .ly-seg + .ly-seg{border-left:1px solid var(--line);}
-  .ly-seg.on{background:var(--ink); color:#fff;}
+  .ly-seg.on{background:var(--ink); color:var(--page);}
   /* grid layout */
   .ly-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:10px; max-height:660px; overflow-y:auto; scrollbar-width:thin; padding-right:4px;}
   .ly-gcard{position:relative; aspect-ratio:1/1; border-radius:12px; overflow:hidden; cursor:pointer; background:var(--oat-deep); border:1px solid var(--line);}
@@ -19418,7 +19419,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (photos.length){
       const slides = photos.map(p => '<div class="ly-slide"><img src="' + escapeHtml(p) + '" alt=""></div>').join('');
       const dots = photos.length > 1 ? '<div class="ly-dots">' + photos.map((p, i) => '<span class="ly-dot' + (i === 0 ? ' on' : '') + '" data-i="' + i + '"></span>').join('') + '</div>' : '';
-      hero = '<div class="ly-hero"><div class="ly-carousel">' + slides + '</div><div class="ab">' + age + '</div><div class="yb">' + year + '</div>' + dots + '</div>';
+      hero = '<div class="ly-hero"><div class="ly-carousel">' + slides + '</div><div class="ly-hero-scrim"></div><div class="ab">' + age + '</div><div class="yb">' + year + '</div>' + dots + '</div>';
     } else {
       hero = '<div class="ly-hero" style="display:flex; align-items:flex-end; padding:20px; background:var(--oat-deep);"><div class="ab" style="position:static; transform:none; color:var(--ink-soft); text-shadow:none;">' + age + '</div><div class="yb" style="position:static; color:var(--ink); text-shadow:none;">' + year + '</div></div>';
     }
