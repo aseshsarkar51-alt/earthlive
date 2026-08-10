@@ -2295,7 +2295,7 @@
   .ly-card{display:grid; grid-template-columns:96px 1fr; gap:16px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; cursor:pointer; transition:border-color .15s, transform .1s;}
   .ly-card:hover{border-color:var(--camel); transform:translateY(-1px);}
   .ly-card .th{width:96px; height:74px; border-radius:9px; overflow:hidden; position:relative; background:var(--oat-deep); flex:none;}
-  .ly-card .th img{width:100%; height:100%; object-fit:contain; display:block;}
+  .ly-card .th img{width:100%; height:100%; object-fit:cover; display:block;}
   .ly-card .th .th-n{position:absolute; right:4px; bottom:4px; background:rgba(20,18,16,.6); color:#fff; font-size:10px; padding:1px 6px; border-radius:6px;}
   .ly-card .th.nophoto{display:flex; align-items:center; justify-content:center; color:var(--ink-soft);}
   .ly-card .cy{font-family:"Fraunces",Georgia,serif; font-size:22px; line-height:1;}
@@ -2330,6 +2330,30 @@
   .ly-pthumb img{width:64px; height:46px; object-fit:cover; border-radius:6px; display:block;}
   .ly-pthumb-x{position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%; border:none; background:var(--ink); color:#fff; font-size:10px; line-height:1; cursor:pointer;}
   .ly-gphoto{width:100%; border-radius:12px; display:block; background:var(--oat-deep);}
+  /* layout selector */
+  .ly-layout{display:inline-flex; margin:0 0 16px; border:1px solid var(--line); border-radius:999px; overflow:hidden;}
+  .ly-seg{font:inherit; font-size:12px; padding:5px 14px; border:none; background:var(--card); color:var(--ink-soft); cursor:pointer;}
+  .ly-seg + .ly-seg{border-left:1px solid var(--line);}
+  .ly-seg.on{background:var(--ink); color:#fff;}
+  /* rolling layout */
+  .ly-roll{display:flex; gap:12px; overflow-x:auto; padding-bottom:10px; scroll-snap-type:x mandatory;}
+  .ly-rcard{flex:0 0 190px; scroll-snap-align:start; background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; cursor:pointer; transition:border-color .15s, transform .1s;}
+  .ly-rcard:hover{border-color:var(--camel); transform:translateY(-1px);}
+  .ly-rcard .rth{height:120px; background:var(--oat-deep); position:relative;}
+  .ly-rcard .rth img{width:100%; height:100%; object-fit:cover; display:block;}
+  .ly-rcard .rth.nophoto{display:flex; align-items:center; justify-content:center; color:var(--ink-soft);}
+  .ly-rcard .rth .th-n{position:absolute; right:6px; bottom:6px; background:rgba(20,18,16,.6); color:#fff; font-size:10px; padding:1px 6px; border-radius:6px;}
+  .ly-rcard .rb{padding:11px 13px 13px;}
+  /* list layout */
+  .ly-list{display:flex; flex-direction:column;}
+  .ly-lrow{display:flex; align-items:center; gap:12px; padding:11px 0; border-top:1px solid var(--line); cursor:pointer;}
+  .ly-lrow:first-child{border-top:none;}
+  .ly-lrow .lth{width:46px; height:46px; border-radius:8px; object-fit:cover; flex:none; background:var(--oat-deep);}
+  .ly-lrow .lth.nophoto{display:flex; align-items:center; justify-content:center; color:var(--ink-soft);}
+  .ly-lrb{flex:1; min-width:0; display:flex; flex-direction:column; gap:1px;}
+  .ly-lyr{font-family:"Fraunces",Georgia,serif; font-size:16px; line-height:1.2;}
+  .ly-lsnip{font-size:12.5px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .ly-lchips{display:flex; gap:5px; flex:none;}
   /* The dashboard is .style-a, which force-borders every input with
      !important. That boxes in this field and breaks the underline look, so
      override it here (higher specificity, also !important). */
@@ -19309,7 +19333,40 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     lyRender(); showToast('Removed ' + year);
   }
 
+  /* ---- layout: how the years are shown (owner's choice, remembered) ---- */
+  function lyLayoutGet(){ const v = lyExtras().life_layout; return (v === 'rolling' || v === 'list') ? v : 'cards'; }
+  async function lySetLayout(v){ if (lyLayoutGet() === v) return; if (!(await lyPersistPatch({ life_layout: v }))) return; lyRender(); }
+  function lyLayoutBarHtml(cur){
+    const opt = (v, l) => '<button type="button" class="ly-seg' + (cur === v ? ' on' : '') + '" onclick="lySetLayout(\'' + v + '\')">' + l + '</button>';
+    return '<div class="ly-layout">' + opt('cards', 'Cards') + opt('rolling', 'Rolling') + opt('list', 'List') + '</div>';
+  }
+  function lyChipsHtml(d){
+    const photos = lyPhotosOf(d); let chips = '';
+    if (photos.length) chips += '<span class="ly-chip">' + lyIco('photo') + (photos.length > 1 ? ' ' + photos.length : '') + '</span>';
+    if (d.voice) chips += '<span class="ly-chip">' + lyIco('voice') + '</span>';
+    if (d.video) chips += '<span class="ly-chip">' + lyIco('video') + '</span>';
+    return chips;
+  }
   /* ---- filled year as a tappable card ---- */
+  function lyCardRollHtml(y, by, data){
+    const d = data[y] || {}; const age = (y === by) ? 'born' : 'age ' + (y - by);
+    const photos = lyPhotosOf(d); const cover = photos[0];
+    const th = cover
+      ? '<div class="rth"><img src="' + escapeHtml(cover) + '" alt="">' + (photos.length > 1 ? '<span class="th-n">+' + (photos.length - 1) + '</span>' : '') + '</div>'
+      : '<div class="rth nophoto">' + lyIco('photo') + '</div>';
+    const chips = lyChipsHtml(d);
+    return '<div class="ly-rcard" onclick="lyOpen(' + y + ')">' + th
+      + '<div class="rb"><div class="cy">' + y + '</div><div class="ca">' + age + '</div>'
+      + '<div class="cs">' + escapeHtml(d.text || '') + '</div>'
+      + (chips ? '<div class="ly-chips">' + chips + '</div>' : '') + '</div></div>';
+  }
+  function lyRowHtml(y, by, data){
+    const d = data[y] || {}; const photos = lyPhotosOf(d); const cover = photos[0];
+    const th = cover ? '<img class="lth" src="' + escapeHtml(cover) + '" alt="">' : '<span class="lth nophoto">' + lyIco('photo') + '</span>';
+    return '<div class="ly-lrow" onclick="lyOpen(' + y + ')">' + th
+      + '<div class="ly-lrb"><span class="ly-lyr">' + y + '</span><span class="ly-lsnip">' + escapeHtml(d.text || '') + '</span></div>'
+      + '<span class="ly-lchips">' + lyChipsHtml(d) + '</span></div>';
+  }
   function lyCardHtml(y, by, data){
     const d = data[y] || {}; const age = (y === by) ? 'born' : 'age ' + (y - by);
     const photos = lyPhotosOf(d); const cover = photos[0];
@@ -19379,8 +19436,16 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const filledSet = new Set();
     for (let y = by; y <= now; y++){ if (lyHasContent(data[y])) filledSet.add(y); }
     const years = [...filledSet].sort((a, b) => a - b);
-    let body = years.map(y => lyCardHtml(y, by, data)).join('');
-    body = body ? '<div class="ly-cards">' + body + '</div>' : '<p class="ly-intro" style="margin:0 0 4px;">Nothing written yet — pick a year below to begin.</p>';
+    const layout = lyLayoutGet();
+    let body, bar = '';
+    if (!years.length){ body = '<p class="ly-intro" style="margin:0 0 4px;">Nothing written yet — pick a year below to begin.</p>'; }
+    else {
+      bar = lyLayoutBarHtml(layout);
+      if (layout === 'rolling') body = '<div class="ly-roll">' + years.map(y => lyCardRollHtml(y, by, data)).join('') + '</div>';
+      else if (layout === 'list') body = '<div class="ly-list">' + years.map(y => lyRowHtml(y, by, data)).join('') + '</div>';
+      else body = '<div class="ly-cards">' + years.map(y => lyCardHtml(y, by, data)).join('') + '</div>';
+    }
+    body = bar + body;
     let opts = '';
     for (let y = now; y >= by; y--){
       const mark = filledSet.has(y) ? ' · written' : (y === by ? ' · born' : '');
