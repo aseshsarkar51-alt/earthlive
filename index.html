@@ -2286,6 +2286,8 @@
   .ly-editor-row{display:flex; align-items:center; gap:12px; margin-top:10px; flex-wrap:wrap;}
   .ly-count{font-size:11px; color:var(--ink-soft); margin-left:auto;}
   .ly-thumb{width:64px; height:46px; object-fit:cover; border-radius:6px;}
+  .ly-pick{display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-size:13.5px; color:var(--ink-soft);}
+  .ly-pick select{font-family:inherit; font-size:14px; padding:6px 9px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink); margin-left:6px;}
   /* The dashboard is .style-a, which force-borders every input with
      !important. That boxes in this field and breaks the underline look, so
      override it here (higher specificity, also !important). */
@@ -19108,35 +19110,33 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     return '<div class="ly-yr empty"><div class="k"><div class="ly-num">' + y + '</div><div class="ly-age">' + age + '</div></div>'
       + '<div><button type="button" class="ly-add" onclick="lyOpenEditor(' + y + ')">＋ Write this year</button></div></div>';
   }
+  function lyGo(){ const s = document.getElementById('lyPick'); if (s) lyOpenEditor(parseInt(s.value, 10)); }
   function lyRender(){
     const host = document.getElementById('lifeYearsBox'); if(!host) return;
     const head = '<div class="ly-eyebrow">The end of your book</div>'
       + '<h3 class="ly-h">My life, year by year</h3>'
-      + '<p class="ly-intro">One year at a time, from the year you were born — up to a hundred words and a single photo each. It is entirely optional; add years whenever you like, and the rest stay tucked away.</p>';
+      + '<p class="ly-intro">One year at a time, from the year you were born — up to a hundred words and a single photo each. It is entirely optional; jump to any year below and add it whenever you like.</p>';
     const by = lyBirthYear(), now = new Date().getFullYear();
     if (!by){
       host.innerHTML = head + '<div class="ly-born"><label>Born in <input type="number" id="lyBirthInput" min="1900" max="' + now + '" placeholder="e.g. 1991"></label> <button type="button" class="btn-small" onclick="lySetBirthYear()">Start my timeline</button></div>';
       return;
     }
     const data = lyData();
-    const filled = [];
-    for (let y = by; y <= now; y++){ const d = data[y]; if (d && (d.text || d.photo)) filled.push(y); }
-    const showAll = lyExpanded || lyEditing !== null;
-    let rows = '';
-    if (showAll){
-      for (let y = by; y <= now; y++) rows += lyYearRow(y, by, data);
-    } else {
-      filled.forEach(y => { rows += lyYearRow(y, by, data); });
-      if (!filled.length) rows = '<p class="ly-intro" style="margin:0 0 4px;">Nothing written yet — start whenever you feel like it.</p>';
+    const filledSet = new Set();
+    for (let y = by; y <= now; y++){ const d = data[y]; if (d && (d.text || d.photo)) filledSet.add(y); }
+    const display = new Set(filledSet);
+    if (lyEditing !== null) display.add(lyEditing);
+    const years = [...display].sort((a, b) => a - b);
+    let rows = years.map(y => lyYearRow(y, by, data)).join('');
+    if (!rows) rows = '<p class="ly-intro" style="margin:0 0 4px;">Nothing written yet — pick a year below to begin.</p>';
+    let opts = '';
+    for (let y = now; y >= by; y--){
+      const mark = filledSet.has(y) ? ' · written' : (y === by ? ' · born' : '');
+      opts += '<option value="' + y + '"' + (y === now ? ' selected' : '') + '>' + y + mark + '</option>';
     }
-    let toggle;
-    if (showAll){
-      toggle = '<button type="button" class="ly-edit-link" style="font-size:12.5px;" onclick="lyToggleExpand()">Wrap up the list ↑</button>';
-    } else {
-      const left = (now - by + 1) - filled.length;
-      toggle = '<button type="button" class="ly-add" onclick="lyToggleExpand()">＋ Add a year' + (left > 0 ? ' <span style="opacity:.55; margin-left:4px;">' + left + ' still to write</span>' : '') + '</button>';
-    }
-    host.innerHTML = head + rows + '<div style="margin-top:18px;">' + toggle + '</div>';
+    const picker = '<div class="ly-pick"><label>Go to a year <select id="lyPick">' + opts + '</select></label>'
+      + '<button type="button" class="btn-small" onclick="lyGo()">Open this year</button></div>';
+    host.innerHTML = head + rows + '<div style="margin-top:18px;">' + picker + '</div>';
   }
 
   /* ── THE YEAR, KEPT ──
