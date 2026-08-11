@@ -2401,6 +2401,7 @@
   .ql-tip.show{opacity:1;}
   .ql-tip .bn{display:block; color:#e9dcc8; font-size:10px; margin-top:3px;}
   .ql-tip .mt{display:block; color:#b9ad98; font-size:10px;}
+  .ql-hint{font-size:11.5px; color:var(--ink-soft); margin:9px 0 2px;}
   .ql-stats{display:flex; gap:26px; margin:14px 0 4px;}
   .ql-stat .n{font-family:"Fraunces",Georgia,serif; font-size:22px; color:var(--ink);}
   .ql-stat .l{display:block; font-size:11px; color:var(--ink-soft);}
@@ -19724,8 +19725,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       + '<div class="ql-toggles"><button type="button" class="ql-tog on" data-m="threads">Threads</button><button type="button" class="ql-tog" data-m="pieced">Pieced</button><button type="button" class="ql-tog' + (qlTint ? ' on' : '') + '" data-m="wash">Wash</button></div>'
       + '<div class="ql-scrub"><span class="ql-yr" id="qlYrA"></span><div class="ql-track" id="qlTrack"><div class="ql-fill" id="qlFill"></div><div class="ql-handle" id="qlHandle"></div></div><span class="ql-yr b" id="qlYrB"></span></div>'
       + '<div class="ql-frame"><canvas id="qlCanvas"></canvas><div class="ql-tip" id="qlTip"></div></div>'
+      + '<div class="ql-hint">Tap the quilt to reweave it into a new form.</div>'
       + '<div class="ql-stats"><div class="ql-stat"><span class="n" id="qlBlocks">0</span><span class="l">blocks sewn</span></div><div class="ql-stat"><span class="n" id="qlLeft">0</span><span class="l">left unfinished</span></div></div>'
-      + '<div class="ql-params"><label>Density<input type="range" id="qlDensity" min="20" max="110" value="71"></label><label>Wash<input type="range" id="qlWashS" min="0" max="30" value="9"></label><label>Stitch<input type="range" id="qlStitchS" min="4" max="22" value="10"></label></div>'
       + '<div class="ql-legend" id="qlLegend"></div>'
       + '<details class="ql-more"><summary>How your quilt decides what to stitch</summary><p class="ql-lead">The meaning lives in the geometry, not the colour — so nothing is lost by taking the fabric away. Each block is an old quilting pattern that already carried a meaning, matched to the kind of moment it was.</p><div class="ql-key" id="qlKey"></div></details>'
       + '<details class="ql-more"><summary>Why a quilt, and why this one</summary>'
@@ -19741,7 +19742,11 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const cv = document.getElementById('qlCanvas'); if (!cv) return;
     const ctx = cv.getContext('2d', { alpha:false });
     let COLS, ROWS, CELLS, PATCH, RW, RH, order, occ, atCell;
-    let qlWash = 0.09, qlStitch = 1;   // parametric: wash tint strength, thread weight
+    let qlWash = 0.09, qlStitch = 1;
+    // Tap-to-reweave: each tap advances to a different "form" (a new density
+    // and a fresh shuffle), so the quilt keeps re-forming rather than needing sliders.
+    const QL_FORMS = [71, 34, 90, 48, 20, 60];
+    let qlForm = 0, curSeed = SEED, curCols = QL_FORMS[0];
     // per-block geometry (pattern, rotation, mending) — independent of the cloth's density
     items.forEach(e => { const key=qlChoose(e); const bt=QL_BLOCKS[key]; e._bt=bt; e._key=key; e._h=qlHash(e.text+e.day); e._rot=(e._h>>5)%2; e._segs=(key==='hst')?bt.segs(e._rot):bt.segs(); e._wantsBig=((e.text||'').length>36)||e.cluster==='keepsake'; e._mend=(e._h%17===0); });
     function layout(cols){
@@ -19750,7 +19755,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       RW = PAD*2 + COLS*PATCH; RH = PAD*2 + ROWS*PATCH;
       cv.width = RW; cv.height = RH;
       order = Array.from({length:CELLS}, (_, i) => i);
-      for (let i=CELLS-1;i>0;i--){ const j=Math.floor(qlRnd(SEED+i*7.31)*(i+1)); const t=order[i]; order[i]=order[j]; order[j]=t; }
+      for (let i=CELLS-1;i>0;i--){ const j=Math.floor(qlRnd(curSeed+i*7.31)*(i+1)); const t=order[i]; order[i]=order[j]; order[j]=t; }
       occ = new Uint8Array(CELLS); atCell = new Map();
       const freeSq = (cell, n) => { const c0=cell%COLS, r0=(cell/COLS)|0; if(c0+n>COLS||r0+n>ROWS) return false; for(let r=0;r<n;r++)for(let c=0;c<n;c++) if(occ[(r0+r)*COLS+(c0+c)]) return false; return true; };
       const claim = (cell, n, idx) => { const c0=cell%COLS, r0=(cell/COLS)|0; for(let r=0;r<n;r++)for(let c=0;c<n;c++){ const cc=(r0+r)*COLS+(c0+c); occ[cc]=1; atCell.set(cc, idx); } };
@@ -19775,10 +19780,15 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const kg = document.getElementById('qlKey');
     if (kg){ kg.innerHTML=''; Object.entries(QL_BLOCKS).forEach(([k,bt])=>{ const it=document.createElement('div'); it.className='ql-key-item'; const c=document.createElement('canvas'); c.width=64; c.height=64; const cc=c.getContext('2d'); cc.fillStyle=QL_CLOTH; cc.fillRect(0,0,64,64); const sg=(k==='hst')?bt.segs(0):bt.segs(); qlDrawSegs(cc,sg,6,6,52,'rgba(245,179,1,0.75)',3); qlDrawSegs(cc,sg,6,6,52,'rgba(14,159,110,0.95)',1.4); const tx=document.createElement('div'); tx.innerHTML='<div class="kt">'+bt.name+'</div><div class="kd">'+bt.meaning+'</div>'; it.appendChild(c); it.appendChild(tx); kg.appendChild(it); }); }
     host.querySelectorAll('.ql-tog').forEach(btn => { btn.onclick = () => { const m=btn.dataset.m; if(m==='threads') qlMode='threads'; else if(m==='pieced') qlMode='pieced'; else qlTint=!qlTint; host.querySelector('.ql-tog[data-m="threads"]').classList.toggle('on', qlMode==='threads'); host.querySelector('.ql-tog[data-m="pieced"]').classList.toggle('on', qlMode==='pieced'); host.querySelector('.ql-tog[data-m="wash"]').classList.toggle('on', qlTint); full(drawn || N); }; });
-    const dS=document.getElementById('qlDensity'), wS=document.getElementById('qlWashS'), sS=document.getElementById('qlStitchS');
-    if(dS) dS.addEventListener('input', ()=>{ layout(parseInt(dS.value,10)); full(Math.min(drawn||N, N)); });
-    if(wS) wS.addEventListener('input', ()=>{ qlWash=parseInt(wS.value,10)/100; full(drawn||N); });
-    if(sS) sS.addEventListener('input', ()=>{ qlStitch=parseInt(sS.value,10)/10; full(drawn||N); });
+    // Tap the quilt itself to reweave it into a different form.
+    cv.style.cursor = 'pointer';
+    cv.addEventListener('click', () => {
+      qlForm = (qlForm + 1) % QL_FORMS.length;
+      curCols = QL_FORMS[qlForm];
+      curSeed = SEED + qlForm * 9973 + 1;
+      qlUserScrub = true;   // stop the intro animation; the tap is now in charge
+      layout(curCols); full(N);
+    });
     const tip = document.getElementById('qlTip'), frame = host.querySelector('.ql-frame');
     cv.addEventListener('mousemove', ev => { const rect=cv.getBoundingClientRect(); const x=(ev.clientX-rect.left)*(RW/rect.width), y=(ev.clientY-rect.top)*(RH/rect.height); const col=Math.floor((x-PAD)/PATCH), row=Math.floor((y-PAD)/PATCH); if(col<0||col>=COLS||row<0||row>=ROWS){ tip.classList.remove('show'); return; } const idx=atCell.get(row*COLS+col); if(idx===undefined||idx>=drawn){ tip.classList.remove('show'); return; } const en=items[idx]; const su=QL_SUBJECT[en.cluster]||QL_SUBJECT.general; const fr=frame.getBoundingClientRect(); tip.innerHTML='“'+escapeHtml((en.text||'').slice(0,120))+'”<span class="bn">'+en._bt.name+'</span><span class="mt">'+su.label+'</span>'; tip.style.left=(ev.clientX-fr.left)+'px'; tip.style.top=(ev.clientY-fr.top)+'px'; tip.classList.add('show'); });
     cv.addEventListener('mouseleave', () => tip.classList.remove('show'));
