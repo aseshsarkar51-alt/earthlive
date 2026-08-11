@@ -552,7 +552,11 @@
 
   /* ---------- "WHAT PEOPLE NOTICE" POLL ---------- */
   .book-poll-wrap{margin-top:28px; margin-bottom:36px;}
-  .book-div{max-width:620px; margin:42px auto; height:1px; border:none; background:linear-gradient(to right, transparent, var(--line) 22%, var(--line) 78%, transparent);}
+  .book-div{max-width:620px; margin:46px auto 40px; display:flex; align-items:center; gap:14px; color:var(--ink-soft); background:none; height:auto; border:none;}
+  .book-div::before, .book-div::after{content:""; flex:1; height:1px;}
+  .book-div::before{background:linear-gradient(to right, transparent, var(--line));}
+  .book-div::after{background:linear-gradient(to right, var(--line), transparent);}
+  .book-div span{font-size:10px; letter-spacing:.16em; text-transform:uppercase; white-space:nowrap;}
   .poll-card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px 24px 20px;}
   .poll-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
   .poll-eyebrow{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--camel); font-weight:700;}
@@ -2377,6 +2381,8 @@
   .ql-eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); font-weight:700;}
   .ql-h{font-family:"Fraunces",Georgia,serif; font-size:25px; margin:6px 0 6px; color:var(--ink);}
   .ql-intro{font-size:13.5px; color:var(--ink-soft); line-height:1.55; margin:0 0 16px; max-width:520px;}
+  .ql-open{display:inline-flex; align-items:center; gap:8px; font-size:13.5px; color:var(--camel); border:1px dashed var(--line); border-radius:12px; padding:13px 18px; cursor:pointer; background:none; font-family:inherit; transition:border-color .15s;}
+  .ql-open:hover{border-color:var(--camel);}
   .ql-toggles{display:inline-flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; margin-bottom:14px;}
   .ql-tog{font:inherit; font-size:12px; padding:5px 14px; border:none; background:var(--card); color:var(--ink-soft); cursor:pointer;}
   .ql-tog + .ql-tog{border-left:1px solid var(--line);}
@@ -2896,7 +2902,7 @@
       <div class="ab-results" id="askBookResults" style="display:none;"></div>
     </div>
 
-    <div class="book-div"></div>
+    <div class="book-div"><span>Letters</span></div>
 
     <!-- ===== LETTERS TO THE FUTURE ===== -->
     <div class="fl-box" id="futureLettersBox">
@@ -2936,13 +2942,16 @@
       <a onclick="jumpTo('wallAnchor')">My wall <span class="n" id="jumpWallCount"></span></a>
       <a onclick="jumpTo('mapAnchor')">Map</a>
       <a onclick="jumpTo('sigsAnchor')">Signatures <span class="n" id="jumpSigCount"></span></a>
+      <a onclick="jumpTo('lifeYearsBox')">My life</a>
+      <a onclick="jumpTo('quiltBox')">Quilt</a>
+      <a onclick="jumpTo('ownerPollWrap')">Notice</a>
       <button type="button" id="printBookBtn" class="book-jump-print" onclick="openPrintModal('book')" title="Turn every signature into a keepsake PDF">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>
         Print
       </button>
     </nav>
 
-    <div class="book-div"></div>
+    <div class="book-div"><span>My wall</span></div>
 
     <!-- ===== MY WALL ===== -->
     <div class="shead" id="wallAnchor">
@@ -3023,7 +3032,7 @@
       <div class="memory-map" id="ownerMap"></div>
     </div>
 
-    <div class="book-div"></div>
+    <div class="book-div"><span>Signatures</span></div>
 
     <div class="entries-head" id="sigsAnchor" style="gap:14px; flex-wrap:wrap; align-items:center;">
       <h3 style="flex:none;">Signatures</h3>
@@ -3038,17 +3047,17 @@
 
     <div id="ownerEntries"></div>
 
-    <div class="book-div"></div>
+    <div class="book-div"><span>My life, year by year</span></div>
 
     <!-- ===== MY LIFE, YEAR BY YEAR ===== -->
     <div class="ly-box" id="lifeYearsBox"></div>
 
-    <div class="book-div"></div>
+    <div class="book-div"><span>Your quilt</span></div>
 
     <!-- ===== YOUR QUILT ===== -->
     <div class="ql-box" id="quiltBox"></div>
 
-    <div class="book-div"></div>
+    <div class="book-div"><span>What people notice</span></div>
 
     <!-- ===== WHAT PEOPLE NOTICE · closes the book ===== -->
     <div class="book-poll-wrap" id="ownerPollWrap"></div>
@@ -19638,7 +19647,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
      bigger squares for what you said more about; visible mending for what you
      returned to; and bare cloth left on purpose. Improvisation (Gee's Bend),
      incompleteness (wabi-sabi), visible mending (boro/sashiko). On-device. */
-  let qlMode = 'threads', qlTint = true;
+  let qlMode = 'threads', qlTint = true, qlOpen = false;
+  function qlToggleOpen(){ qlOpen = true; qlRender(); }
   const QL_CLOTH = '#FAF6EC';
   const QL_SUBJECT = {
     people:{label:'People', color:'#E4572E'},
@@ -19699,11 +19709,15 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   function qlRender(){
     const host = document.getElementById('quiltBox'); if (!host) return;
     const items = qlGather();
-    if (host.__qlBuilt && host.dataset.qln === String(items.length)) return;   // avoid restarting the animation on every refresh
+    if (host.__qlBuilt && host.dataset.qln === String(items.length) && host.dataset.qlopen === String(qlOpen)) return;   // avoid restarting the animation on every refresh
     const head = '<div class="ql-eyebrow">Your quilt</div>'
       + '<h3 class="ql-h">A quilt is a life, kept warm</h3>'
       + '<p class="ql-intro">Made the way quilts always were: from what was already worn, improvised rather than planned, and never quite finished. Every moment you keep here becomes a stitched block.</p>';
-    if (!items.length){ host.innerHTML = head + '<p class="ql-intro" style="margin:0;">Nothing to stitch yet — as your book fills with entries, photos and signatures, your quilt sews itself here.</p>'; host.__qlBuilt = true; host.dataset.qln = '0'; return; }
+    if (!items.length){ host.innerHTML = head + '<p class="ql-intro" style="margin:0;">Nothing to stitch yet — as your book fills with entries, photos and signatures, your quilt sews itself here.</p>'; host.__qlBuilt = true; host.dataset.qln = '0'; host.dataset.qlopen = String(qlOpen); return; }
+    if (!qlOpen){
+      host.innerHTML = head + '<button type="button" class="ql-open" onclick="qlToggleOpen()">Weave my quilt · ' + items.length + ' moment' + (items.length === 1 ? '' : 's') + ' ready →</button>';
+      host.__qlBuilt = true; host.dataset.qln = String(items.length); host.dataset.qlopen = 'false'; return;
+    }
     host.innerHTML = head
       + '<div class="ql-toggles"><button type="button" class="ql-tog on" data-m="threads">Threads</button><button type="button" class="ql-tog" data-m="pieced">Pieced</button><button type="button" class="ql-tog' + (qlTint ? ' on' : '') + '" data-m="wash">Wash</button></div>'
       + '<div class="ql-scrub"><span class="ql-yr" id="qlYrA"></span><div class="ql-track" id="qlTrack"><div class="ql-fill" id="qlFill"></div><div class="ql-handle" id="qlHandle"></div></div><span class="ql-yr b" id="qlYrB"></span></div>'
@@ -19718,7 +19732,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         + '<p class="ql-p"><b>III. Visible mending — after <i>boro</i> and <i>sashiko</i>.</b> Cloth too precious to throw away was patched, and the mending left showing. A moment you returned to is mended here, not replaced — the running stitch laid straight across the block.</p>'
         + '<p class="ql-p ql-caveat">You may have heard quilters sew a deliberate flaw into every quilt — a “humility block.” It’s a lovely story, and untrue; historians trace it no earlier than 1949. So there is no planted flaw here. The irregularities are real ones.</p>'
       + '</details>';
-    host.__qlBuilt = true; host.dataset.qln = String(items.length);
+    host.__qlBuilt = true; host.dataset.qln = String(items.length); host.dataset.qlopen = 'true';
 
     const N = items.length;
     const SEED = 20260814 + N, PAD = 26;
