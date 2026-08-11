@@ -19785,7 +19785,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       items.forEach((e, i) => { if(e._cell>=0) return; while(c2<cells.length&&occ[cells[c2]]) c2++; if(c2>=cells.length) return; e._cell=cells[c2]; e._span=1; claim(e._cell,1,i); });
     }
     layout();
-    function drawBg(){ ctx.fillStyle=QL_CLOTH; ctx.fillRect(0,0,RW,RH); }
+    function drawBg(){ ctx.fillStyle=QL_CLOTH; ctx.fillRect(0,0,RW,RH); ctx.save(); ctx.strokeStyle='rgba(160,150,128,0.13)'; ctx.lineWidth=1; for(let c=0;c<=COLS;c++){ const x=PAD+c*PATCH; ctx.beginPath(); ctx.moveTo(x,PAD); ctx.lineTo(x,RH-PAD); ctx.stroke(); } for(let r=0;r<=ROWS;r++){ const y=PAD+r*PATCH; ctx.beginPath(); ctx.moveTo(PAD,y); ctx.lineTo(RW-PAD,y); ctx.stroke(); } ctx.restore(); }
     function drawBlock(i){ const e=items[i]; if(e._cell<0) return; const col=e._cell%COLS, row=(e._cell/COLS)|0; const x=PAD+col*PATCH, y=PAD+row*PATCH, s=PATCH*e._span; const inset=s*0.10, ss=s-inset*2, xx=x+inset, yy=y+inset; const subj=QL_SUBJECT[e.cluster]||QL_SUBJECT.general; const main=qlShade(subj.color,((e._h>>3)%15)-7); const acc=qlShade(QL_MOOD[e.mood]||'#F5B301',((e._h>>7)%15)-7);
       if(qlMode==='pieced'){ ctx.fillStyle=main; ctx.fillRect(x+0.8,y+0.8,s-1.6,s-1.6); qlDrawSegs(ctx,e._segs,xx,yy,ss,qlRgba(acc,0.95),Math.max(1.6,s*0.055)*qlStitch); ctx.save(); ctx.strokeStyle='rgba(255,252,244,0.55)'; ctx.lineWidth=0.8; ctx.strokeRect(x+0.8,y+0.8,s-1.6,s-1.6); ctx.restore(); }
       else { if(qlTint){ ctx.fillStyle=qlRgba(subj.color,qlWash); ctx.fillRect(x+1,y+1,s-2,s-2); } qlDrawSegs(ctx,e._segs,xx,yy,ss,qlRgba(main,0.92),1.5*e._span*qlStitch); qlDrawSegs(ctx,e._segs,xx,yy,ss,qlRgba(acc,0.55),3.0*e._span*qlStitch); }
