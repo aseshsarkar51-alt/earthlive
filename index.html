@@ -9105,7 +9105,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   function openPrintModal(kind){
     printContext = kind;
     const titles = {
-      book:  ['Print my book', 'Every approved signature, sealed notes listed with their open dates.', 'All signatures, clean layout'],
+      book:  ['Print my book', 'Everything in your book — signatures, wall posts, your life year by year, and what people notice.', 'Signatures, wall, life & more — with photos'],
       diary: ['Print my diary', 'Your private entries, dated, with moods \u2014 for your eyes only.', 'All entries with dates and moods'],
       event: ['Print event keepsake', 'Details, description and guest list as a one-page summary.', 'Event summary with guest list'],
       waypoints: ['Print my waypoints', 'Every pinned photo, grouped by place, with dates \u2014 your travels as an album.', 'All photos grouped by place']
@@ -9222,6 +9222,25 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       y += 6;
     }
     return y + 4;
+  }
+
+  // Lay up to 3 photos in a row across the usable width; returns the new y.
+  async function pdfPhotoRow(doc, urls, y){
+    const list = (urls || []).filter(Boolean).slice(0, 3);
+    if (!list.length) return y;
+    const n = list.length, gap = 4;
+    const w = (PDF_W - gap * (n - 1)) / n;
+    const h = Math.min(46, w * 0.72);
+    y = pdfNeed(doc, y, h + 4);
+    for (let i = 0; i < n; i++){
+      const x = PDF_M + i * (w + gap);
+      let durl = null;
+      try { durl = await dzCoverFitImage(list[i], w, h, 3); } catch(e){}
+      if (durl){ try { doc.addImage(durl, 'JPEG', x, y, w, h, undefined, 'FAST'); } catch(e){} }
+      else { doc.setFillColor(232,230,225); doc.rect(x, y, w, h, 'F'); }
+      doc.setDrawColor(229,226,219); doc.setLineWidth(0.3); doc.rect(x, y, w, h);
+    }
+    return y + h + 3;
   }
 
   async function pdfBook(JsPDF){
@@ -9375,10 +9394,13 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       doc.text('My wall \u2014 ' + walls.length + ' post' + (walls.length===1?'':'s'), PDF_M, y); y += 9;
       for (const w of walls){
         const wMsg = pdfSafe(w.message);
-        if (!wMsg) continue;
+        const wPhotos = (w.photos || []).filter(Boolean).slice(0, 3);
+        if (!wMsg && !wPhotos.length) continue;
         doc.setFont('helvetica','normal'); doc.setFontSize(10.5);
-        const wLines = doc.splitTextToSize(wMsg, PDF_W - 12);
-        const wH = 14 + wLines.length * 5.4 + 6;
+        const wLines = wMsg ? doc.splitTextToSize(wMsg, PDF_W - 12) : [];
+        const pn = wPhotos.length;
+        const photoH = pn ? (Math.min(46, ((PDF_W - 4 * (pn - 1)) / pn) * 0.72) + 4) : 0;
+        const wH = 14 + wLines.length * 5.4 + photoH + 6;
         y = pdfNeed(doc, y, wH + 4);
         doc.setFillColor(255,255,255); doc.setDrawColor(229,226,219); doc.setLineWidth(0.3);
         doc.roundedRect(PDF_M - 3, y - 5, PDF_W + 6, wH, 2.5, 2.5, 'FD');
@@ -9386,7 +9408,74 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...MOSS_C);
         doc.text(wMeta, PDF_M, y); y += 6;
         doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(...INK_C);
-        wLines.forEach(l => { doc.text(l, PDF_M, y); y += 5.4; }); y += 8;
+        wLines.forEach(l => { doc.text(l, PDF_M, y); y += 5.4; });
+        if (wPhotos.length){ y += 1; y = await pdfPhotoRow(doc, wPhotos, y); }
+        y += 8;
+      }
+    }
+
+    // ---- My life, year by year (with photos) ----
+    const lyData0 = (profile && profile.extras && profile.extras.life_years) || {};
+    const lyBirth = (profile && profile.extras && profile.extras.birth_year) ? parseInt(profile.extras.birth_year, 10) : null;
+    const lyYears = Object.keys(lyData0).map(Number)
+      .filter(yr => { const d = lyData0[yr]; return d && (d.text || (d.photos && d.photos.length) || d.photo || d.voice || d.video); })
+      .sort((a, b) => a - b);
+    if (lyYears.length){
+      doc.addPage(); y = 26;
+      doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.setTextColor(...INK_C);
+      doc.text('My life, year by year', PDF_M, y); y += 6;
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...SOFT_C);
+      doc.text('One year at a time, in ' + (pdfSafe(profile && profile.name) || 'my') + '\u2019s own words.', PDF_M, y); y += 9;
+      for (const yr of lyYears){
+        const d = lyData0[yr];
+        const age = lyBirth ? (yr === lyBirth ? 'born' : 'age ' + (yr - lyBirth)) : '';
+        const words = pdfSafe(d.text || '');
+        const wl = words ? doc.splitTextToSize(words, PDF_W) : [];
+        y = pdfNeed(doc, y, 14 + wl.length * 5.4);
+        doc.setFont('times','bold'); doc.setFontSize(17); doc.setTextColor(...INK_C);
+        doc.text(String(yr), PDF_M, y);
+        if (age){ doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...CAMEL_C); doc.text(age, PDF_M + doc.getTextWidth(String(yr)) + 5, y); }
+        y += 7;
+        if (wl.length){
+          doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(...INK_C);
+          wl.forEach(l => { y = pdfNeed(doc, y, 5.4); doc.text(l, PDF_M, y); y += 5.4; });
+        }
+        const photos = (d.photos && d.photos.length) ? d.photos : (d.photo ? [d.photo] : []);
+        if (photos.length){ y += 2; y = await pdfPhotoRow(doc, photos, y); }
+        const extra = []; if (d.voice) extra.push('voice note'); if (d.video) extra.push('short clip');
+        if (extra.length){ doc.setFont('helvetica','italic'); doc.setFontSize(8.5); doc.setTextColor(...SOFT_C); y = pdfNeed(doc, y, 5); doc.text('(' + extra.join(' \u00b7 ') + ' \u2014 in the digital book)', PDF_M, y); y += 5; }
+        y += 5;
+        doc.setDrawColor(235,232,225); doc.setLineWidth(0.2); doc.line(PDF_M, y - 2, PDF_M + PDF_W, y - 2); y += 5;
+      }
+    }
+
+    // ---- What people notice (poll results) ----
+    try { await bookPollEnsureLoaded('owner', profile); } catch(e){}
+    const pst = (typeof bookPollUI !== 'undefined') ? bookPollUI.owner : null;
+    if (pst && typeof BOOK_POLLS !== 'undefined'){
+      const prows = [];
+      BOOK_POLLS.forEach(poll => { const top = bookPollTopPick(pst, poll.key); if (top) prows.push({ poll, top }); });
+      if (prows.length){
+        prows.sort((a, b) => b.top.pct - a.top.pct);
+        if (y > 240){ doc.addPage(); y = 26; } else { y = pdfNeed(doc, y, 24); }
+        doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(...INK_C);
+        doc.text('What people notice', PDF_M, y); y += 6;
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...SOFT_C);
+        const pl = doc.splitTextToSize('Anonymous impressions from people who know ' + (pdfSafe(profile && profile.name) || 'you') + ' \u2014 only totals, never who said what.', PDF_W);
+        pl.forEach(l => { doc.text(l, PDF_M, y); y += 4.6; }); y += 4;
+        for (const r of prows){
+          y = pdfNeed(doc, y, 13);
+          const lead = r.top.indices.map(i => pdfSafe(r.poll.opts[i])).join(' and ');
+          doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...INK_C);
+          doc.text(lead, PDF_M, y);
+          doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...CAMEL_C);
+          doc.text(r.top.pct + '%', PDF_M + PDF_W, y, { align:'right' }); y += 5;
+          doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...SOFT_C);
+          doc.text(pdfSafe(r.poll.theme) + ' \u00b7 ' + r.top.total + (r.top.total === 1 ? ' answer' : ' answers'), PDF_M, y); y += 8;
+        }
+        doc.setFont('helvetica','italic'); doc.setFontSize(8); doc.setTextColor(...SOFT_C);
+        y = pdfNeed(doc, y, 6);
+        doc.text('Anonymous to the end \u2014 only totals are ever shown.', PDF_M, y); y += 6;
       }
     }
 
