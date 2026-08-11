@@ -19741,38 +19741,58 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const SEED = 20260814 + N, PAD = 26;
     const cv = document.getElementById('qlCanvas'); if (!cv) return;
     const ctx = cv.getContext('2d', { alpha:false });
-    let COLS, ROWS, CELLS, PATCH, RW, RH, order, occ, atCell;
+    let COLS, ROWS, CELLS, PATCH, RW, RH, occ, atCell, qlShapeCells=0, qlPoly=null;
     let qlWash = 0.09, qlStitch = 1;
-    // Tap-to-reweave: each tap advances to a different "form" (a new density
-    // and a fresh shuffle), so the quilt keeps re-forming rather than needing sliders.
-    const QL_FORMS = [71, 34, 90, 48, 20, 60];
-    let qlForm = 0, curSeed = SEED, curCols = QL_FORMS[0];
-    // per-block geometry (pattern, rotation, mending) — independent of the cloth's density
+    // ── Parametric form ──
+    // The blocks gather into a shape (leaf, petal, flower, star, bloom…) drawn by
+    // the Gielis superformula. Each tap silently re-forms it into a different shape.
+    // The order of shapes and the fine jitter are seeded from the owner's own
+    // moments, so no two books ever match and the form is never the same twice —
+    // and there are no visible controls; it just happens.
+    const QLGRID = 58;
+    function qlSuperR(phi,m,n1,n2,n3){ const t1=Math.pow(Math.abs(Math.cos(m*phi/4)),n2); const t2=Math.pow(Math.abs(Math.sin(m*phi/4)),n3); const d=Math.pow(t1+t2,1/n1); return d===0?0:1/d; }
+    function qlBuildPoly(m,rnd01,str01){ const n1=0.3+rnd01*7.7, nn=7.2-rnd01*6.2, ax=0.7+str01*1.1, ay=1.8-str01*1.1; const K=900, pts=[]; let mx=1e-6,my=1e-6; for(let i=0;i<K;i++){ const phi=i/K*2*Math.PI; let r=qlSuperR(phi,m,n1,nn,nn); if(!isFinite(r)||r>1e4)r=0; const x=Math.cos(phi)*r*ax, y=Math.sin(phi)*r*ay; pts.push([x,y]); if(Math.abs(x)>mx)mx=Math.abs(x); if(Math.abs(y)>my)my=Math.abs(y); } const sc=0.94/Math.max(mx,my); for(let i=0;i<pts.length;i++){ pts[i][0]*=sc; pts[i][1]*=sc; } return pts; }
+    function qlInPoly(poly,x,y){ let c=false; for(let i=0,j=poly.length-1;i<poly.length;j=i++){ const xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1]; if(((yi>y)!==(yj>y)) && (x<(xj-xi)*(y-yi)/(yj-yi)+xi)) c=!c; } return c; }
+    // form archetypes: [Points(m), Roundness 0..1, Stretch 0..1] → leaf, petal, flower, star, bloom…
+    const QL_ARCH = [ [2,0.42,0.86], [1,0.30,0.72], [6,0.20,0.50], [6,0.06,0.50], [10,0.14,0.50], [5,0.08,0.50], [8,0.10,0.50], [4,0.86,0.50], [7,0.12,0.50], [3,0.24,0.40] ];
+    // salt the seed with the book's own content, then shuffle the archetype order,
+    // so both the sequence of forms and their exact shape are unique to this owner.
+    const qlSalt = items.reduce((a,e)=>((a*31 + qlHash((e.text||'')+(e.day||'')))>>>0), 7);
+    const qlBase = (SEED ^ qlSalt) >>> 0;
+    const qlArchOrder = QL_ARCH.map((_,i)=>i);
+    for(let i=qlArchOrder.length-1;i>0;i--){ const j=Math.floor(qlRnd(qlBase*1.7+i*13.9)*(i+1)); const t=qlArchOrder[i]; qlArchOrder[i]=qlArchOrder[j]; qlArchOrder[j]=t; }
+    let qlForm = 0, curSeed = qlBase;
+    function curShape(){ const base=QL_ARCH[qlArchOrder[qlForm % qlArchOrder.length]]; const m=base[0]; const rnd=Math.max(0,Math.min(1, base[1]+(qlRnd(curSeed+11)-0.5)*0.14)); const str=Math.max(0,Math.min(1, base[2]+(qlRnd(curSeed+29)-0.5)*0.12)); return [m,rnd,str]; }
+    // per-block geometry (pattern, rotation, mending) — independent of the cloth's shape
     items.forEach(e => { const key=qlChoose(e); const bt=QL_BLOCKS[key]; e._bt=bt; e._key=key; e._h=qlHash(e.text+e.day); e._rot=(e._h>>5)%2; e._segs=(key==='hst')?bt.segs(e._rot):bt.segs(); e._wantsBig=((e.text||'').length>36)||e.cluster==='keepsake'; e._mend=(e._h%17===0); });
-    function layout(cols){
-      COLS = cols; ROWS = cols; CELLS = COLS*ROWS;
-      PATCH = Math.max(9, Math.round(1750/COLS));   // keep the canvas roughly constant regardless of density
+    function layout(){
+      COLS = QLGRID; ROWS = QLGRID; CELLS = COLS*ROWS;
+      PATCH = Math.max(9, Math.round(1750/COLS));
       RW = PAD*2 + COLS*PATCH; RH = PAD*2 + ROWS*PATCH;
       cv.width = RW; cv.height = RH;
-      order = Array.from({length:CELLS}, (_, i) => i);
-      for (let i=CELLS-1;i>0;i--){ const j=Math.floor(qlRnd(curSeed+i*7.31)*(i+1)); const t=order[i]; order[i]=order[j]; order[j]=t; }
+      const sh=curShape(); qlPoly=qlBuildPoly(sh[0],sh[1],sh[2]);
+      // cells whose centre falls inside the current parametric shape
+      const inSet = new Uint8Array(CELLS); const cells=[];
+      for(let row=0;row<ROWS;row++) for(let col=0;col<COLS;col++){ const cx=(col+0.5)/COLS*2-1, cy=(row+0.5)/ROWS*2-1; if(qlInPoly(qlPoly,cx,cy)){ const cell=row*COLS+col; inSet[cell]=1; cells.push(cell); } }
+      qlShapeCells = cells.length;
+      for(let i=cells.length-1;i>0;i--){ const j=Math.floor(qlRnd(curSeed+i*7.31)*(i+1)); const t=cells[i]; cells[i]=cells[j]; cells[j]=t; }
       occ = new Uint8Array(CELLS); atCell = new Map();
-      const freeSq = (cell, n) => { const c0=cell%COLS, r0=(cell/COLS)|0; if(c0+n>COLS||r0+n>ROWS) return false; for(let r=0;r<n;r++)for(let c=0;c<n;c++) if(occ[(r0+r)*COLS+(c0+c)]) return false; return true; };
+      const freeSq = (cell, n) => { const c0=cell%COLS, r0=(cell/COLS)|0; if(c0+n>COLS||r0+n>ROWS) return false; for(let r=0;r<n;r++)for(let c=0;c<n;c++){ const cc=(r0+r)*COLS+(c0+c); if(occ[cc]||!inSet[cc]) return false; } return true; };
       const claim = (cell, n, idx) => { const c0=cell%COLS, r0=(cell/COLS)|0; for(let r=0;r<n;r++)for(let c=0;c<n;c++){ const cc=(r0+r)*COLS+(c0+c); occ[cc]=1; atCell.set(cc, idx); } };
       items.forEach(e => { e._cell=-1; e._span=0; });
-      items.forEach((e, i) => { if(!e._wantsBig) return; let cursor=0; while(cursor<CELLS){ const cell=order[cursor]; if(!occ[cell]&&freeSq(cell,2)){ e._cell=cell; e._span=2; claim(cell,2,i); break; } cursor++; } });
+      items.forEach((e, i) => { if(!e._wantsBig) return; for(let k=0;k<cells.length;k++){ const cell=cells[k]; if(!occ[cell]&&freeSq(cell,2)){ e._cell=cell; e._span=2; claim(cell,2,i); break; } } });
       let c2=0;
-      items.forEach((e, i) => { if(e._cell>=0) return; while(c2<CELLS&&occ[order[c2]]) c2++; if(c2>=CELLS) return; e._cell=order[c2]; e._span=1; claim(e._cell,1,i); });
+      items.forEach((e, i) => { if(e._cell>=0) return; while(c2<cells.length&&occ[cells[c2]]) c2++; if(c2>=cells.length) return; e._cell=cells[c2]; e._span=1; claim(e._cell,1,i); });
     }
-    layout(71);
-    function drawBg(){ ctx.fillStyle=QL_CLOTH; ctx.fillRect(0,0,RW,RH); ctx.save(); ctx.strokeStyle='rgba(160,150,128,0.16)'; ctx.lineWidth=1; for(let c=0;c<=COLS;c++){ const x=PAD+c*PATCH; ctx.beginPath(); ctx.moveTo(x,PAD); ctx.lineTo(x,RH-PAD); ctx.stroke(); } for(let r=0;r<=ROWS;r++){ const y=PAD+r*PATCH; ctx.beginPath(); ctx.moveTo(PAD,y); ctx.lineTo(RW-PAD,y); ctx.stroke(); } ctx.restore(); ctx.save(); ctx.strokeStyle='rgba(120,108,88,0.30)'; ctx.lineWidth=1.4; ctx.setLineDash([7,6]); ctx.strokeRect(PAD*0.55,PAD*0.55,RW-PAD*1.1,RH-PAD*1.1); ctx.restore(); }
+    layout();
+    function drawBg(){ ctx.fillStyle=QL_CLOTH; ctx.fillRect(0,0,RW,RH); }
     function drawBlock(i){ const e=items[i]; if(e._cell<0) return; const col=e._cell%COLS, row=(e._cell/COLS)|0; const x=PAD+col*PATCH, y=PAD+row*PATCH, s=PATCH*e._span; const inset=s*0.10, ss=s-inset*2, xx=x+inset, yy=y+inset; const subj=QL_SUBJECT[e.cluster]||QL_SUBJECT.general; const main=qlShade(subj.color,((e._h>>3)%15)-7); const acc=qlShade(QL_MOOD[e.mood]||'#F5B301',((e._h>>7)%15)-7);
       if(qlMode==='pieced'){ ctx.fillStyle=main; ctx.fillRect(x+0.8,y+0.8,s-1.6,s-1.6); qlDrawSegs(ctx,e._segs,xx,yy,ss,qlRgba(acc,0.95),Math.max(1.6,s*0.055)*qlStitch); ctx.save(); ctx.strokeStyle='rgba(255,252,244,0.55)'; ctx.lineWidth=0.8; ctx.strokeRect(x+0.8,y+0.8,s-1.6,s-1.6); ctx.restore(); }
       else { if(qlTint){ ctx.fillStyle=qlRgba(subj.color,qlWash); ctx.fillRect(x+1,y+1,s-2,s-2); } qlDrawSegs(ctx,e._segs,xx,yy,ss,qlRgba(main,0.92),1.5*e._span*qlStitch); qlDrawSegs(ctx,e._segs,xx,yy,ss,qlRgba(acc,0.55),3.0*e._span*qlStitch); }
       if(e._mend){ ctx.save(); ctx.strokeStyle=qlMode==='pieced'?'rgba(255,250,240,0.85)':qlRgba(main,0.75); ctx.lineWidth=Math.max(1,s*0.035)*qlStitch; ctx.setLineDash([s*0.09,s*0.07]); ctx.lineCap='butt'; for(let k=1;k<=3;k++){ const ry=y+s*(k/4); ctx.beginPath(); ctx.moveTo(x+s*0.06,ry); ctx.lineTo(x+s*0.94,ry); ctx.stroke(); } ctx.restore(); }
     }
     let drawn=0, qlUserScrub=false;
-    function paintStats(cnt){ const b=document.getElementById('qlBlocks'), l=document.getElementById('qlLeft'); if(b) b.textContent=cnt; if(l) l.textContent=Math.max(0,CELLS-cnt); }
+    function paintStats(cnt){ const b=document.getElementById('qlBlocks'), l=document.getElementById('qlLeft'); if(b) b.textContent=Math.min(cnt,qlShapeCells); if(l) l.textContent=Math.max(0,qlShapeCells-cnt); }
     function setScrub(cnt){ const fl=document.getElementById('qlFill'), hd=document.getElementById('qlHandle'); const pct=N?(cnt/N)*100:0; if(fl) fl.style.width=pct+'%'; if(hd) hd.style.left=pct+'%'; }
     function full(count){ drawBg(); for(let i=0;i<count;i++) drawBlock(i); drawn=count; paintStats(count); setScrub(count); }
     const leg = document.getElementById('qlLegend');
@@ -19783,11 +19803,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     // Tap the quilt itself to reweave it into a different form.
     cv.style.cursor = 'pointer';
     cv.addEventListener('click', () => {
-      qlForm = (qlForm + 1) % QL_FORMS.length;
-      curCols = QL_FORMS[qlForm];
-      curSeed = SEED + qlForm * 9973 + 1;
+      qlForm = qlForm + 1;
+      curSeed = qlBase + qlForm * 9973 + 1;
       qlUserScrub = true;   // stop the intro animation; the tap is now in charge
-      layout(curCols); full(N);
+      layout(); full(N);
     });
     const tip = document.getElementById('qlTip'), frame = host.querySelector('.ql-frame');
     cv.addEventListener('mousemove', ev => { const rect=cv.getBoundingClientRect(); const x=(ev.clientX-rect.left)*(RW/rect.width), y=(ev.clientY-rect.top)*(RH/rect.height); const col=Math.floor((x-PAD)/PATCH), row=Math.floor((y-PAD)/PATCH); if(col<0||col>=COLS||row<0||row>=ROWS){ tip.classList.remove('show'); return; } const idx=atCell.get(row*COLS+col); if(idx===undefined||idx>=drawn){ tip.classList.remove('show'); return; } const en=items[idx]; const su=QL_SUBJECT[en.cluster]||QL_SUBJECT.general; const fr=frame.getBoundingClientRect(); tip.innerHTML='“'+escapeHtml((en.text||'').slice(0,120))+'”<span class="bn">'+en._bt.name+'</span><span class="mt">'+su.label+'</span>'; tip.style.left=(ev.clientX-fr.left)+'px'; tip.style.top=(ev.clientY-fr.top)+'px'; tip.classList.add('show'); });
