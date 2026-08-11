@@ -2378,6 +2378,12 @@
   .ql-tog{font:inherit; font-size:12px; padding:5px 14px; border:none; background:var(--card); color:var(--ink-soft); cursor:pointer;}
   .ql-tog + .ql-tog{border-left:1px solid var(--line);}
   .ql-tog.on{background:var(--ink); color:var(--page);}
+  .ql-scrub{display:flex; align-items:center; gap:12px; margin:0 0 14px;}
+  .ql-yr{font-size:11px; color:var(--ink-soft); flex:none; min-width:34px;}
+  .ql-yr.b{text-align:right;}
+  .ql-track{position:relative; flex:1; height:4px; background:var(--oat-deep); border-radius:3px; cursor:pointer; touch-action:none;}
+  .ql-fill{position:absolute; left:0; top:0; bottom:0; background:var(--camel); border-radius:3px; width:0;}
+  .ql-handle{position:absolute; top:50%; left:0; width:16px; height:16px; border-radius:50%; background:var(--card); border:2px solid var(--camel); transform:translate(-50%,-50%); box-shadow:0 1px 3px rgba(0,0,0,.2);}
   .ql-frame{position:relative; border-radius:12px; overflow:hidden; border:1px solid var(--line); background:#FAF6EC;}
   .ql-frame canvas{width:100%; height:auto; display:block;}
   .ql-tip{position:absolute; pointer-events:none; transform:translate(-50%,-120%); background:rgba(30,26,22,.92); color:#fff; font-size:11.5px; line-height:1.35; padding:7px 10px; border-radius:8px; max-width:230px; opacity:0; transition:opacity .12s; z-index:3;}
@@ -19692,6 +19698,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     if (!items.length){ host.innerHTML = head + '<p class="ql-intro" style="margin:0;">Nothing to stitch yet — as your book fills with entries, photos and signatures, your quilt sews itself here.</p>'; host.__qlBuilt = true; host.dataset.qln = '0'; return; }
     host.innerHTML = head
       + '<div class="ql-toggles"><button type="button" class="ql-tog on" data-m="threads">Threads</button><button type="button" class="ql-tog" data-m="pieced">Pieced</button><button type="button" class="ql-tog' + (qlTint ? ' on' : '') + '" data-m="wash">Wash</button></div>'
+      + '<div class="ql-scrub"><span class="ql-yr" id="qlYrA"></span><div class="ql-track" id="qlTrack"><div class="ql-fill" id="qlFill"></div><div class="ql-handle" id="qlHandle"></div></div><span class="ql-yr b" id="qlYrB"></span></div>'
       + '<div class="ql-frame"><canvas id="qlCanvas"></canvas><div class="ql-tip" id="qlTip"></div></div>'
       + '<div class="ql-stats"><div class="ql-stat"><span class="n" id="qlBlocks">0</span><span class="l">blocks sewn</span></div><div class="ql-stat"><span class="n" id="qlLeft">0</span><span class="l">left unfinished</span></div></div>'
       + '<div class="ql-legend" id="qlLegend"></div>'
@@ -19726,9 +19733,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       else { if(qlTint){ ctx.fillStyle=qlRgba(subj.color,0.09); ctx.fillRect(x+1,y+1,s-2,s-2); } qlDrawSegs(ctx,e._segs,xx,yy,ss,qlRgba(main,0.92),1.5*e._span); qlDrawSegs(ctx,e._segs,xx,yy,ss,qlRgba(acc,0.55),3.0*e._span); }
       if(e._mend){ ctx.save(); ctx.strokeStyle=qlMode==='pieced'?'rgba(255,250,240,0.85)':qlRgba(main,0.75); ctx.lineWidth=Math.max(1,s*0.035); ctx.setLineDash([s*0.09,s*0.07]); ctx.lineCap='butt'; for(let k=1;k<=3;k++){ const ry=y+s*(k/4); ctx.beginPath(); ctx.moveTo(x+s*0.06,ry); ctx.lineTo(x+s*0.94,ry); ctx.stroke(); } ctx.restore(); }
     }
-    let drawn=0;
+    let drawn=0, qlUserScrub=false;
     function paintStats(cnt){ const b=document.getElementById('qlBlocks'), l=document.getElementById('qlLeft'); if(b) b.textContent=cnt; if(l) l.textContent=Math.max(0,CELLS-cnt); }
-    function full(count){ drawBg(); for(let i=0;i<count;i++) drawBlock(i); drawn=count; paintStats(count); }
+    function setScrub(cnt){ const fl=document.getElementById('qlFill'), hd=document.getElementById('qlHandle'); const pct=N?(cnt/N)*100:0; if(fl) fl.style.width=pct+'%'; if(hd) hd.style.left=pct+'%'; }
+    function full(count){ drawBg(); for(let i=0;i<count;i++) drawBlock(i); drawn=count; paintStats(count); setScrub(count); }
     const leg = document.getElementById('qlLegend');
     if (leg){ const used=[...new Set(items.map(e=>e.cluster))]; leg.innerHTML=used.map(k=>{ const su=QL_SUBJECT[k]||QL_SUBJECT.general; return '<span><i style="background:'+su.color+'"></i>'+su.label+'</span>'; }).join(''); }
     const kg = document.getElementById('qlKey');
@@ -19737,9 +19745,20 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const tip = document.getElementById('qlTip'), frame = host.querySelector('.ql-frame');
     cv.addEventListener('mousemove', ev => { const rect=cv.getBoundingClientRect(); const x=(ev.clientX-rect.left)*(RW/rect.width), y=(ev.clientY-rect.top)*(RH/rect.height); const col=Math.floor((x-PAD)/PATCH), row=Math.floor((y-PAD)/PATCH); if(col<0||col>=COLS||row<0||row>=ROWS){ tip.classList.remove('show'); return; } const idx=atCell.get(row*COLS+col); if(idx===undefined||idx>=drawn){ tip.classList.remove('show'); return; } const en=items[idx]; const su=QL_SUBJECT[en.cluster]||QL_SUBJECT.general; const fr=frame.getBoundingClientRect(); tip.innerHTML='“'+escapeHtml((en.text||'').slice(0,120))+'”<span class="bn">'+en._bt.name+'</span><span class="mt">'+su.label+'</span>'; tip.style.left=(ev.clientX-fr.left)+'px'; tip.style.top=(ev.clientY-fr.top)+'px'; tip.classList.add('show'); });
     cv.addEventListener('mouseleave', () => tip.classList.remove('show'));
-    drawBg();
+    // time scrubber — drag to grow the quilt through the years
+    const yA=document.getElementById('qlYrA'), yB=document.getElementById('qlYrB');
+    const firstDated=items.find(x=>x.date), lastDated=[...items].reverse().find(x=>x.date);
+    if(yA) yA.textContent = firstDated ? firstDated.date.getFullYear() : 'start';
+    if(yB) yB.textContent = lastDated ? lastDated.date.getFullYear() : 'now';
+    const track=document.getElementById('qlTrack');
+    if(track){
+      const cntFrom = ev => { const r=track.getBoundingClientRect(); const f=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width)); return Math.round(f*N); };
+      track.addEventListener('pointerdown', ev => { qlUserScrub=true; try{ track.setPointerCapture(ev.pointerId); }catch(e){} full(cntFrom(ev)); });
+      track.addEventListener('pointermove', ev => { if(track.hasPointerCapture && track.hasPointerCapture(ev.pointerId)) full(cntFrom(ev)); });
+    }
+    drawBg(); setScrub(0);
     let t0=null;
-    function grow(ts){ if(!document.getElementById('qlCanvas')) return; if(t0===null) t0=ts; const cnt=Math.min(N, Math.round(((ts-t0)/2600)*N)); if(cnt>drawn){ for(let i=drawn;i<cnt;i++) drawBlock(i); drawn=cnt; paintStats(cnt); } if(cnt<N) requestAnimationFrame(grow); }
+    function grow(ts){ if(!document.getElementById('qlCanvas')) return; if(qlUserScrub) return; if(t0===null) t0=ts; const cnt=Math.min(N, Math.round(((ts-t0)/2600)*N)); if(cnt>drawn){ for(let i=drawn;i<cnt;i++) drawBlock(i); drawn=cnt; paintStats(cnt); setScrub(cnt); } if(cnt<N) requestAnimationFrame(grow); }
     requestAnimationFrame(grow);
   }
 
