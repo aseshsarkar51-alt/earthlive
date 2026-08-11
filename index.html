@@ -19766,21 +19766,26 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     // per-block geometry (pattern, rotation, mending) — independent of the cloth's shape
     items.forEach(e => { const key=qlChoose(e); const bt=QL_BLOCKS[key]; e._bt=bt; e._key=key; e._h=qlHash(e.text+e.day); e._rot=(e._h>>5)%2; e._segs=(key==='hst')?bt.segs(e._rot):bt.segs(); e._wantsBig=((e.text||'').length>36)||e.cluster==='keepsake'; e._mend=(e._h%17===0); });
     function layout(){
-      COLS = QLGRID; ROWS = QLGRID; CELLS = COLS*ROWS;
+      const sh=curShape(); qlPoly=qlBuildPoly(sh[0],sh[1],sh[2]);
+      // Measure the shape's area fraction, then size the grid so the shape fills to
+      // ~82% no matter how many moments there are: few moments make a chunky quilt,
+      // many make a fine one, but the form always reads.
+      let probe=0; const P=40; for(let r=0;r<P;r++)for(let c=0;c<P;c++){ const cx=(c+0.5)/P*2-1, cy=(r+0.5)/P*2-1; if(qlInPoly(qlPoly,cx,cy)) probe++; }
+      const frac=Math.max(0.08, probe/(P*P));
+      COLS = Math.max(7, Math.min(64, Math.round(Math.sqrt((N/0.82)/frac)))); ROWS = COLS; CELLS = COLS*ROWS;
       PATCH = Math.max(9, Math.round(1750/COLS));
       RW = PAD*2 + COLS*PATCH; RH = PAD*2 + ROWS*PATCH;
       cv.width = RW; cv.height = RH;
-      const sh=curShape(); qlPoly=qlBuildPoly(sh[0],sh[1],sh[2]);
       // cells whose centre falls inside the current parametric shape
       const inSet = new Uint8Array(CELLS); const cells=[];
-      for(let row=0;row<ROWS;row++) for(let col=0;col<COLS;col++){ const cx=(col+0.5)/COLS*2-1, cy=(row+0.5)/ROWS*2-1; if(qlInPoly(qlPoly,cx,cy)){ const cell=row*COLS+col; inSet[cell]=1; cells.push(cell); } }
+      for(let row=0;row<ROWS;row++) for(let col=0;col<COLS;col++){ const cx=(col+0.5)/COLS*2-1, cy=(row+0.5)/COLS*2-1; if(qlInPoly(qlPoly,cx,cy)){ const cell=row*COLS+col; inSet[cell]=1; cells.push(cell); } }
       qlShapeCells = cells.length;
       for(let i=cells.length-1;i>0;i--){ const j=Math.floor(qlRnd(curSeed+i*7.31)*(i+1)); const t=cells[i]; cells[i]=cells[j]; cells[j]=t; }
       occ = new Uint8Array(CELLS); atCell = new Map();
       const freeSq = (cell, n) => { const c0=cell%COLS, r0=(cell/COLS)|0; if(c0+n>COLS||r0+n>ROWS) return false; for(let r=0;r<n;r++)for(let c=0;c<n;c++){ const cc=(r0+r)*COLS+(c0+c); if(occ[cc]||!inSet[cc]) return false; } return true; };
       const claim = (cell, n, idx) => { const c0=cell%COLS, r0=(cell/COLS)|0; for(let r=0;r<n;r++)for(let c=0;c<n;c++){ const cc=(r0+r)*COLS+(c0+c); occ[cc]=1; atCell.set(cc, idx); } };
       items.forEach(e => { e._cell=-1; e._span=0; });
-      items.forEach((e, i) => { if(!e._wantsBig) return; for(let k=0;k<cells.length;k++){ const cell=cells[k]; if(!occ[cell]&&freeSq(cell,2)){ e._cell=cell; e._span=2; claim(cell,2,i); break; } } });
+      if(COLS>=16) items.forEach((e, i) => { if(!e._wantsBig) return; for(let k=0;k<cells.length;k++){ const cell=cells[k]; if(!occ[cell]&&freeSq(cell,2)){ e._cell=cell; e._span=2; claim(cell,2,i); break; } } });
       let c2=0;
       items.forEach((e, i) => { if(e._cell>=0) return; while(c2<cells.length&&occ[cells[c2]]) c2++; if(c2>=cells.length) return; e._cell=cells[c2]; e._span=1; claim(e._cell,1,i); });
     }
