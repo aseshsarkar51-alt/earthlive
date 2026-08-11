@@ -2369,6 +2369,39 @@
   .ly-lyr{font-family:"Fraunces",Georgia,serif; font-size:16px; line-height:1.2;}
   .ly-lsnip{font-size:12.5px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .ly-lchips{display:flex; gap:5px; flex:none;}
+  /* Your quilt */
+  .ql-box{margin:10px 0 6px; max-width:620px;}
+  .ql-eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); font-weight:700;}
+  .ql-h{font-family:"Fraunces",Georgia,serif; font-size:25px; margin:6px 0 6px; color:var(--ink);}
+  .ql-intro{font-size:13.5px; color:var(--ink-soft); line-height:1.55; margin:0 0 16px; max-width:520px;}
+  .ql-toggles{display:inline-flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; margin-bottom:14px;}
+  .ql-tog{font:inherit; font-size:12px; padding:5px 14px; border:none; background:var(--card); color:var(--ink-soft); cursor:pointer;}
+  .ql-tog + .ql-tog{border-left:1px solid var(--line);}
+  .ql-tog.on{background:var(--ink); color:var(--page);}
+  .ql-frame{position:relative; border-radius:12px; overflow:hidden; border:1px solid var(--line); background:#FAF6EC;}
+  .ql-frame canvas{width:100%; height:auto; display:block;}
+  .ql-tip{position:absolute; pointer-events:none; transform:translate(-50%,-120%); background:rgba(30,26,22,.92); color:#fff; font-size:11.5px; line-height:1.35; padding:7px 10px; border-radius:8px; max-width:230px; opacity:0; transition:opacity .12s; z-index:3;}
+  .ql-tip.show{opacity:1;}
+  .ql-tip .bn{display:block; color:#e9dcc8; font-size:10px; margin-top:3px;}
+  .ql-tip .mt{display:block; color:#b9ad98; font-size:10px;}
+  .ql-stats{display:flex; gap:26px; margin:14px 0 4px;}
+  .ql-stat .n{font-family:"Fraunces",Georgia,serif; font-size:22px; color:var(--ink);}
+  .ql-stat .l{display:block; font-size:11px; color:var(--ink-soft);}
+  .ql-legend{display:flex; flex-wrap:wrap; gap:6px 14px; margin:8px 0 4px; font-size:11.5px; color:var(--ink-soft);}
+  .ql-legend span{display:inline-flex; align-items:center; gap:6px;}
+  .ql-legend i{width:11px; height:11px; border-radius:3px; display:inline-block;}
+  .ql-more{margin-top:14px; border-top:1px solid var(--line); padding-top:10px;}
+  .ql-more summary{font-size:13px; color:var(--camel); cursor:pointer; font-weight:600; list-style:none;}
+  .ql-more summary::-webkit-details-marker{display:none;}
+  .ql-more summary::before{content:"+ ";}
+  .ql-more[open] summary::before{content:"\2013 ";}
+  .ql-lead, .ql-p{font-size:13px; color:var(--ink); line-height:1.6; margin:10px 0;}
+  .ql-caveat{color:var(--ink-soft); font-size:12.5px;}
+  .ql-key{display:grid; gap:12px; margin-top:10px;}
+  .ql-key-item{display:flex; gap:12px; align-items:center;}
+  .ql-key-item canvas{width:48px; height:48px; border-radius:6px; border:1px solid var(--line); flex:none;}
+  .ql-key-item .kt{font-size:13px; font-weight:600; color:var(--ink);}
+  .ql-key-item .kd{font-size:12px; color:var(--ink-soft); line-height:1.45;}
   /* The dashboard is .style-a, which force-borders every input with
      !important. That boxes in this field and breaks the underline look, so
      override it here (higher specificity, also !important). */
@@ -2995,6 +3028,11 @@
 
     <!-- ===== MY LIFE, YEAR BY YEAR ===== -->
     <div class="ly-box" id="lifeYearsBox"></div>
+
+    <div class="book-div"></div>
+
+    <!-- ===== YOUR QUILT ===== -->
+    <div class="ql-box" id="quiltBox"></div>
 
     <div class="book-div"></div>
 
@@ -8217,6 +8255,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     abAutoInit();
     flRender();
     lyRender();
+    qlRender();
     renderOnThisDay();
     renderBookPoll('owner', profile);
   }
@@ -19577,6 +19616,131 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const picker = '<div class="ly-pick"><label>Go to a year <select id="lyPick">' + opts + '</select></label>'
       + '<button type="button" class="btn-small" onclick="lyGo()">Open this year</button></div>';
     host.innerHTML = head + body + '<div style="margin-top:18px;">' + picker + '</div>';
+  }
+
+  /* ── YOUR QUILT ──
+     A life kept warm: all the user's activity, stitched as an heirloom quilt.
+     Each block is an old quilting pattern matched to the kind of moment;
+     bigger squares for what you said more about; visible mending for what you
+     returned to; and bare cloth left on purpose. Improvisation (Gee's Bend),
+     incompleteness (wabi-sabi), visible mending (boro/sashiko). On-device. */
+  let qlMode = 'threads', qlTint = true;
+  const QL_CLOTH = '#FAF6EC';
+  const QL_SUBJECT = {
+    people:{label:'People', color:'#E4572E'},
+    home:{label:'Home', color:'#C43B62'},
+    travel:{label:'Places', color:'#0FA3B1'},
+    work:{label:'Work', color:'#7B4FB0'},
+    diary:{label:'Diary', color:'#2FA84F'},
+    keepsake:{label:'The years', color:'#E8A33D'},
+    general:{label:'Ordinary days', color:'#7D8AA0'}
+  };
+  const QL_MOOD = { sage:'#2FA84F', camel:'#F5B301', coral:'#EF476F', blue:'#118AB2' };
+  function qlShade(col, amt){ const n=parseInt(col.slice(1),16); let r=(n>>16)+amt,g=((n>>8)&255)+amt,b=(n&255)+amt; r=Math.max(0,Math.min(255,r)); g=Math.max(0,Math.min(255,g)); b=Math.max(0,Math.min(255,b)); return 'rgb('+r+','+g+','+b+')'; }
+  function qlRgba(col, a){ if(col[0]==='#'){ const n=parseInt(col.slice(1),16); return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+','+a+')'; } const m=col.match(/-?\d+/g); return 'rgba('+m[0]+','+m[1]+','+m[2]+','+a+')'; }
+  function qlHash(s){ let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0; return h; }
+  function qlRnd(s){ const x=Math.sin(s)*10000; return x-Math.floor(x); }
+  function qlHST(rot){ const s=[[0,0.5,1,0.5],[0.5,0,0.5,1]]; const q=[[0,0],[0.5,0],[0,0.5],[0.5,0.5]]; q.forEach(p=>{ if(rot===0) s.push([p[0],p[1],p[0]+0.5,p[1]+0.5]); else s.push([p[0]+0.5,p[1],p[0],p[1]+0.5]); }); return s; }
+  function qlNine(){ const s=[]; for(let i=1;i<3;i++){ s.push([i/3,0,i/3,1]); s.push([0,i/3,1,i/3]); } return s; }
+  function qlPin(){ return [[0.5,0,0.5,1],[0,0.5,1,0.5],[0,0,0.5,0.5],[1,0,0.5,0.5],[1,1,0.5,0.5],[0,1,0.5,0.5]]; }
+  function qlGeese(){ const s=[]; for(let i=0;i<3;i++){ const y0=i/3,y1=(i+1)/3; s.push([0,y1,1,y1]); s.push([0,y1,0.5,y0]); s.push([0.5,y0,1,y1]); } return s; }
+  function qlLog(){ const s=[]; const step=0.115; for(let i=0;i<4;i++){ const o=step*(i+1); s.push([o,o,1-o,o],[1-o,o,1-o,1-o],[1-o,1-o,o,1-o],[o,1-o,o,o]); } return s; }
+  function qlSqSq(){ return [[0.5,0,1,0.5],[1,0.5,0.5,1],[0.5,1,0,0.5],[0,0.5,0.5,0],[0.5,0.18,0.82,0.5],[0.82,0.5,0.5,0.82],[0.5,0.82,0.18,0.5],[0.18,0.5,0.5,0.18]]; }
+  function qlFour(){ return [[0.5,0,0.5,1],[0,0.5,1,0.5]]; }
+  const QL_BLOCKS = {
+    logcabin:{segs:qlLog, name:'Log Cabin', meaning:'Home and hearth. Stitched for your wall and days about where you live.'},
+    geese:{segs:qlGeese, name:'Flying Geese', meaning:'Journeys and movement. Stitched for photos and places on your map.'},
+    hst:{segs:qlHST, name:'Half-Square Triangles', meaning:'Two people meeting. Stitched for signatures and days about someone.'},
+    sqinsq:{segs:qlSqSq, name:'Square in a Square', meaning:'Something held carefully. Stitched for the heavier days.'},
+    pinwheel:{segs:qlPin, name:'Pinwheel', meaning:'Energy and turning. Stitched for work and a year kept.'},
+    ninepatch:{segs:qlNine, name:'Nine-Patch', meaning:'The ordinary. The first block any quilter learns.'},
+    fourpatch:{segs:qlFour, name:'Four-Patch', meaning:'Few words. The smallest honest block there is.'}
+  };
+  function qlChoose(e){
+    if ((e.text||'').length < 26) return 'fourpatch';
+    if (e.mood === 'blue') return 'sqinsq';
+    if (e.cluster === 'people') return 'hst';
+    if (e.cluster === 'home') return 'logcabin';
+    if (e.cluster === 'travel') return 'geese';
+    if (e.cluster === 'work' || e.cluster === 'keepsake') return 'pinwheel';
+    return 'ninepatch';
+  }
+  function qlMoodKey(m){ return ({great:'sage', calm:'sage', okay:'camel', tired:'camel', sad:'blue', notgood:'coral'})[m] || null; }
+  function qlGather(){
+    const items = [];
+    const add = (date, mood, cluster, text) => { items.push({ date: date ? new Date(date) : null, mood: mood, cluster: cluster, text: (text || '').trim() }); };
+    const diary = (typeof diaryEntriesCache !== 'undefined' && diaryEntriesCache) ? diaryEntriesCache : [];
+    diary.forEach(d => { const dt = d.created_at || d.rawDate; let md = null; try { md = moodByDate[calKey(new Date(dt))]; } catch(e){} add(dt, qlMoodKey(d.mood || md), 'diary', d.text || d.body || d.note || ''); });
+    (entries || []).forEach(e => { if (e.kind === 'msg_voiceprint') return; if (isWallPost(e)) add(e.rawDate, null, 'home', e.message || ''); else add(e.rawDate, null, 'people', (e.name ? e.name + ' — ' : '') + (e.message || e.word || 'signed your book')); });
+    const alb = (typeof albumPhotos !== 'undefined' && albumPhotos) ? albumPhotos : [];
+    alb.forEach(p => { add(p.takenAt || p.created_at, null, p.place ? 'travel' : 'home', p.place ? ('a photo in ' + p.place) : 'a photo on your map'); });
+    const ly = (profile && profile.extras && profile.extras.life_years) || {};
+    Object.keys(ly).forEach(yr => { const d = ly[yr]; if (d && (d.text || (d.photos && d.photos.length) || d.photo)) add(yr + '-06-15', null, 'keepsake', d.text || ('the year ' + yr)); });
+    items.sort((a, b) => (a.date ? a.date.getTime() : Infinity) - (b.date ? b.date.getTime() : Infinity));
+    const cm = { diary:'sage', people:'coral', home:'camel', travel:'blue', work:'camel', keepsake:'camel', general:'camel' };
+    items.forEach((it, i) => { it.day = i + 1; if (!it.mood) it.mood = cm[it.cluster] || 'camel'; if (!it.text) it.text = 'a moment kept'; });
+    return items;
+  }
+  function qlDrawSegs(c, segs, x, y, s, style, w){ c.save(); c.strokeStyle=style; c.lineWidth=w; c.lineCap='round'; c.beginPath(); segs.forEach(sg=>{ c.moveTo(x+sg[0]*s, y+sg[1]*s); c.lineTo(x+sg[2]*s, y+sg[3]*s); }); c.stroke(); c.restore(); }
+  function qlRender(){
+    const host = document.getElementById('quiltBox'); if (!host) return;
+    const items = qlGather();
+    if (host.__qlBuilt && host.dataset.qln === String(items.length)) return;   // avoid restarting the animation on every refresh
+    const head = '<div class="ql-eyebrow">Your quilt</div>'
+      + '<h3 class="ql-h">A quilt is a life, kept warm</h3>'
+      + '<p class="ql-intro">Made the way quilts always were: from what was already worn, improvised rather than planned, and never quite finished. Every moment you keep here becomes a stitched block.</p>';
+    if (!items.length){ host.innerHTML = head + '<p class="ql-intro" style="margin:0;">Nothing to stitch yet — as your book fills with entries, photos and signatures, your quilt sews itself here.</p>'; host.__qlBuilt = true; host.dataset.qln = '0'; return; }
+    host.innerHTML = head
+      + '<div class="ql-toggles"><button type="button" class="ql-tog on" data-m="threads">Threads</button><button type="button" class="ql-tog" data-m="pieced">Pieced</button><button type="button" class="ql-tog' + (qlTint ? ' on' : '') + '" data-m="wash">Wash</button></div>'
+      + '<div class="ql-frame"><canvas id="qlCanvas"></canvas><div class="ql-tip" id="qlTip"></div></div>'
+      + '<div class="ql-stats"><div class="ql-stat"><span class="n" id="qlBlocks">0</span><span class="l">blocks sewn</span></div><div class="ql-stat"><span class="n" id="qlLeft">0</span><span class="l">left unfinished</span></div></div>'
+      + '<div class="ql-legend" id="qlLegend"></div>'
+      + '<details class="ql-more"><summary>How your quilt decides what to stitch</summary><p class="ql-lead">The meaning lives in the geometry, not the colour — so nothing is lost by taking the fabric away. Each block is an old quilting pattern that already carried a meaning, matched to the kind of moment it was.</p><div class="ql-key" id="qlKey"></div></details>'
+      + '<details class="ql-more"><summary>Why a quilt, and why this one</summary>'
+        + '<p class="ql-p"><b>I. Improvisation — after the quiltmakers of Gee’s Bend, Alabama.</b> Four generations pieced quilts from worn-out work clothes, refusing a rigid repeating grid — they called them “my way” quilts. Here, a moment you said more about claims a larger square, and the grid gives way around it.</p>'
+        + '<p class="ql-p"><b>II. Incompleteness — after <i>wabi-sabi</i>.</b> Your cloth is cut larger than your entries will ever fill, on purpose. There is always bare calico left at the edges. A finished quilt would mean a finished life.</p>'
+        + '<p class="ql-p"><b>III. Visible mending — after <i>boro</i> and <i>sashiko</i>.</b> Cloth too precious to throw away was patched, and the mending left showing. A moment you returned to is mended here, not replaced — the running stitch laid straight across the block.</p>'
+        + '<p class="ql-p ql-caveat">You may have heard quilters sew a deliberate flaw into every quilt — a “humility block.” It’s a lovely story, and untrue; historians trace it no earlier than 1949. So there is no planted flaw here. The irregularities are real ones.</p>'
+      + '</details>';
+    host.__qlBuilt = true; host.dataset.qln = String(items.length);
+
+    const N = items.length;
+    const COLS = Math.max(6, Math.min(22, Math.round(Math.sqrt(N / 0.45))));
+    const ROWS = COLS, CELLS = COLS * ROWS, PAD = 26, PATCH = 42, RW = PAD*2 + COLS*PATCH, RH = PAD*2 + ROWS*PATCH;
+    const SEED = 20260814 + N;
+    const cv = document.getElementById('qlCanvas'); if (!cv) return;
+    cv.width = RW; cv.height = RH;
+    const ctx = cv.getContext('2d', { alpha:false });
+    const order = Array.from({length:CELLS}, (_, i) => i);
+    for (let i=CELLS-1;i>0;i--){ const j=Math.floor(qlRnd(SEED+i*7.31)*(i+1)); const t=order[i]; order[i]=order[j]; order[j]=t; }
+    const occ = new Uint8Array(CELLS), atCell = new Map();
+    const freeSq = (cell, n) => { const c0=cell%COLS, r0=(cell/COLS)|0; if(c0+n>COLS||r0+n>ROWS) return false; for(let r=0;r<n;r++)for(let c=0;c<n;c++) if(occ[(r0+r)*COLS+(c0+c)]) return false; return true; };
+    const claim = (cell, n, idx) => { const c0=cell%COLS, r0=(cell/COLS)|0; for(let r=0;r<n;r++)for(let c=0;c<n;c++){ const cc=(r0+r)*COLS+(c0+c); occ[cc]=1; atCell.set(cc, idx); } };
+    items.forEach(e => { const key=qlChoose(e); const bt=QL_BLOCKS[key]; e._bt=bt; e._key=key; e._h=qlHash(e.text+e.day); e._rot=(e._h>>5)%2; e._segs=(key==='hst')?bt.segs(e._rot):bt.segs(); e._wantsBig=((e.text||'').length>36)||e.cluster==='keepsake'; e._mend=(e._h%17===0); e._cell=-1; e._span=0; });
+    items.forEach((e, i) => { if(!e._wantsBig) return; let cursor=0; while(cursor<CELLS){ const cell=order[cursor]; if(!occ[cell]&&freeSq(cell,2)){ e._cell=cell; e._span=2; claim(cell,2,i); break; } cursor++; } });
+    let c2=0;
+    items.forEach((e, i) => { if(e._cell>=0) return; while(c2<CELLS&&occ[order[c2]]) c2++; if(c2>=CELLS) return; e._cell=order[c2]; e._span=1; claim(e._cell,1,i); });
+    function drawBg(){ ctx.fillStyle=QL_CLOTH; ctx.fillRect(0,0,RW,RH); ctx.save(); ctx.strokeStyle='rgba(160,150,128,0.16)'; ctx.lineWidth=1; for(let c=0;c<=COLS;c++){ const x=PAD+c*PATCH; ctx.beginPath(); ctx.moveTo(x,PAD); ctx.lineTo(x,RH-PAD); ctx.stroke(); } for(let r=0;r<=ROWS;r++){ const y=PAD+r*PATCH; ctx.beginPath(); ctx.moveTo(PAD,y); ctx.lineTo(RW-PAD,y); ctx.stroke(); } ctx.restore(); ctx.save(); ctx.strokeStyle='rgba(120,108,88,0.30)'; ctx.lineWidth=1.4; ctx.setLineDash([7,6]); ctx.strokeRect(PAD*0.55,PAD*0.55,RW-PAD*1.1,RH-PAD*1.1); ctx.restore(); }
+    function drawBlock(i){ const e=items[i]; if(e._cell<0) return; const col=e._cell%COLS, row=(e._cell/COLS)|0; const x=PAD+col*PATCH, y=PAD+row*PATCH, s=PATCH*e._span; const inset=s*0.10, ss=s-inset*2, xx=x+inset, yy=y+inset; const subj=QL_SUBJECT[e.cluster]||QL_SUBJECT.general; const main=qlShade(subj.color,((e._h>>3)%15)-7); const acc=qlShade(QL_MOOD[e.mood]||'#F5B301',((e._h>>7)%15)-7);
+      if(qlMode==='pieced'){ ctx.fillStyle=main; ctx.fillRect(x+0.8,y+0.8,s-1.6,s-1.6); qlDrawSegs(ctx,e._segs,xx,yy,ss,qlRgba(acc,0.95),Math.max(1.6,s*0.055)); ctx.save(); ctx.strokeStyle='rgba(255,252,244,0.55)'; ctx.lineWidth=0.8; ctx.strokeRect(x+0.8,y+0.8,s-1.6,s-1.6); ctx.restore(); }
+      else { if(qlTint){ ctx.fillStyle=qlRgba(subj.color,0.09); ctx.fillRect(x+1,y+1,s-2,s-2); } qlDrawSegs(ctx,e._segs,xx,yy,ss,qlRgba(main,0.92),1.5*e._span); qlDrawSegs(ctx,e._segs,xx,yy,ss,qlRgba(acc,0.55),3.0*e._span); }
+      if(e._mend){ ctx.save(); ctx.strokeStyle=qlMode==='pieced'?'rgba(255,250,240,0.85)':qlRgba(main,0.75); ctx.lineWidth=Math.max(1,s*0.035); ctx.setLineDash([s*0.09,s*0.07]); ctx.lineCap='butt'; for(let k=1;k<=3;k++){ const ry=y+s*(k/4); ctx.beginPath(); ctx.moveTo(x+s*0.06,ry); ctx.lineTo(x+s*0.94,ry); ctx.stroke(); } ctx.restore(); }
+    }
+    let drawn=0;
+    function paintStats(cnt){ const b=document.getElementById('qlBlocks'), l=document.getElementById('qlLeft'); if(b) b.textContent=cnt; if(l) l.textContent=Math.max(0,CELLS-cnt); }
+    function full(count){ drawBg(); for(let i=0;i<count;i++) drawBlock(i); drawn=count; paintStats(count); }
+    const leg = document.getElementById('qlLegend');
+    if (leg){ const used=[...new Set(items.map(e=>e.cluster))]; leg.innerHTML=used.map(k=>{ const su=QL_SUBJECT[k]||QL_SUBJECT.general; return '<span><i style="background:'+su.color+'"></i>'+su.label+'</span>'; }).join(''); }
+    const kg = document.getElementById('qlKey');
+    if (kg){ kg.innerHTML=''; Object.entries(QL_BLOCKS).forEach(([k,bt])=>{ const it=document.createElement('div'); it.className='ql-key-item'; const c=document.createElement('canvas'); c.width=64; c.height=64; const cc=c.getContext('2d'); cc.fillStyle=QL_CLOTH; cc.fillRect(0,0,64,64); const sg=(k==='hst')?bt.segs(0):bt.segs(); qlDrawSegs(cc,sg,6,6,52,'rgba(245,179,1,0.75)',3); qlDrawSegs(cc,sg,6,6,52,'rgba(14,159,110,0.95)',1.4); const tx=document.createElement('div'); tx.innerHTML='<div class="kt">'+bt.name+'</div><div class="kd">'+bt.meaning+'</div>'; it.appendChild(c); it.appendChild(tx); kg.appendChild(it); }); }
+    host.querySelectorAll('.ql-tog').forEach(btn => { btn.onclick = () => { const m=btn.dataset.m; if(m==='threads') qlMode='threads'; else if(m==='pieced') qlMode='pieced'; else qlTint=!qlTint; host.querySelector('.ql-tog[data-m="threads"]').classList.toggle('on', qlMode==='threads'); host.querySelector('.ql-tog[data-m="pieced"]').classList.toggle('on', qlMode==='pieced'); host.querySelector('.ql-tog[data-m="wash"]').classList.toggle('on', qlTint); full(drawn || N); }; });
+    const tip = document.getElementById('qlTip'), frame = host.querySelector('.ql-frame');
+    cv.addEventListener('mousemove', ev => { const rect=cv.getBoundingClientRect(); const x=(ev.clientX-rect.left)*(RW/rect.width), y=(ev.clientY-rect.top)*(RH/rect.height); const col=Math.floor((x-PAD)/PATCH), row=Math.floor((y-PAD)/PATCH); if(col<0||col>=COLS||row<0||row>=ROWS){ tip.classList.remove('show'); return; } const idx=atCell.get(row*COLS+col); if(idx===undefined||idx>=drawn){ tip.classList.remove('show'); return; } const en=items[idx]; const su=QL_SUBJECT[en.cluster]||QL_SUBJECT.general; const fr=frame.getBoundingClientRect(); tip.innerHTML='“'+escapeHtml((en.text||'').slice(0,120))+'”<span class="bn">'+en._bt.name+'</span><span class="mt">'+su.label+'</span>'; tip.style.left=(ev.clientX-fr.left)+'px'; tip.style.top=(ev.clientY-fr.top)+'px'; tip.classList.add('show'); });
+    cv.addEventListener('mouseleave', () => tip.classList.remove('show'));
+    drawBg();
+    let t0=null;
+    function grow(ts){ if(!document.getElementById('qlCanvas')) return; if(t0===null) t0=ts; const cnt=Math.min(N, Math.round(((ts-t0)/2600)*N)); if(cnt>drawn){ for(let i=drawn;i<cnt;i++) drawBlock(i); drawn=cnt; paintStats(cnt); } if(cnt<N) requestAnimationFrame(grow); }
+    requestAnimationFrame(grow);
   }
 
   /* ── THE YEAR, KEPT ──
