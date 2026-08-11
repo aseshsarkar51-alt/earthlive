@@ -2393,6 +2393,11 @@
   .ql-stats{display:flex; gap:26px; margin:14px 0 4px;}
   .ql-stat .n{font-family:"Fraunces",Georgia,serif; font-size:22px; color:var(--ink);}
   .ql-stat .l{display:block; font-size:11px; color:var(--ink-soft);}
+  .ql-params{display:flex; gap:20px; flex-wrap:wrap; margin:14px 0 2px;}
+  .ql-params label{display:flex; flex-direction:column; gap:6px; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); flex:1; min-width:110px;}
+  .ql-params input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:2px; background:var(--line); border-radius:2px; outline:none; cursor:pointer;}
+  .ql-params input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; appearance:none; width:12px; height:12px; border-radius:50%; background:var(--camel); cursor:pointer;}
+  .ql-params input[type=range]::-moz-range-thumb{width:12px; height:12px; border:none; border-radius:50%; background:var(--camel); cursor:pointer;}
   .ql-legend{display:flex; flex-wrap:wrap; gap:6px 14px; margin:8px 0 4px; font-size:11.5px; color:var(--ink-soft);}
   .ql-legend span{display:inline-flex; align-items:center; gap:6px;}
   .ql-legend i{width:11px; height:11px; border-radius:3px; display:inline-block;}
@@ -19701,6 +19706,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       + '<div class="ql-scrub"><span class="ql-yr" id="qlYrA"></span><div class="ql-track" id="qlTrack"><div class="ql-fill" id="qlFill"></div><div class="ql-handle" id="qlHandle"></div></div><span class="ql-yr b" id="qlYrB"></span></div>'
       + '<div class="ql-frame"><canvas id="qlCanvas"></canvas><div class="ql-tip" id="qlTip"></div></div>'
       + '<div class="ql-stats"><div class="ql-stat"><span class="n" id="qlBlocks">0</span><span class="l">blocks sewn</span></div><div class="ql-stat"><span class="n" id="qlLeft">0</span><span class="l">left unfinished</span></div></div>'
+      + '<div class="ql-params"><label>Density<input type="range" id="qlDensity" min="20" max="110" value="71"></label><label>Wash<input type="range" id="qlWashS" min="0" max="30" value="9"></label><label>Stitch<input type="range" id="qlStitchS" min="4" max="22" value="10"></label></div>'
       + '<div class="ql-legend" id="qlLegend"></div>'
       + '<details class="ql-more"><summary>How your quilt decides what to stitch</summary><p class="ql-lead">The meaning lives in the geometry, not the colour — so nothing is lost by taking the fabric away. Each block is an old quilting pattern that already carried a meaning, matched to the kind of moment it was.</p><div class="ql-key" id="qlKey"></div></details>'
       + '<details class="ql-more"><summary>Why a quilt, and why this one</summary>'
@@ -19712,26 +19718,34 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     host.__qlBuilt = true; host.dataset.qln = String(items.length);
 
     const N = items.length;
-    const COLS = 71;   // a very large fixed cloth (~5000 pieces) — tiny blocks, mostly bare calico (wabi-sabi)
-    const ROWS = COLS, CELLS = COLS * ROWS, PAD = 26, PATCH = 25, RW = PAD*2 + COLS*PATCH, RH = PAD*2 + ROWS*PATCH;
-    const SEED = 20260814 + N;
+    const SEED = 20260814 + N, PAD = 26;
     const cv = document.getElementById('qlCanvas'); if (!cv) return;
-    cv.width = RW; cv.height = RH;
     const ctx = cv.getContext('2d', { alpha:false });
-    const order = Array.from({length:CELLS}, (_, i) => i);
-    for (let i=CELLS-1;i>0;i--){ const j=Math.floor(qlRnd(SEED+i*7.31)*(i+1)); const t=order[i]; order[i]=order[j]; order[j]=t; }
-    const occ = new Uint8Array(CELLS), atCell = new Map();
-    const freeSq = (cell, n) => { const c0=cell%COLS, r0=(cell/COLS)|0; if(c0+n>COLS||r0+n>ROWS) return false; for(let r=0;r<n;r++)for(let c=0;c<n;c++) if(occ[(r0+r)*COLS+(c0+c)]) return false; return true; };
-    const claim = (cell, n, idx) => { const c0=cell%COLS, r0=(cell/COLS)|0; for(let r=0;r<n;r++)for(let c=0;c<n;c++){ const cc=(r0+r)*COLS+(c0+c); occ[cc]=1; atCell.set(cc, idx); } };
-    items.forEach(e => { const key=qlChoose(e); const bt=QL_BLOCKS[key]; e._bt=bt; e._key=key; e._h=qlHash(e.text+e.day); e._rot=(e._h>>5)%2; e._segs=(key==='hst')?bt.segs(e._rot):bt.segs(); e._wantsBig=((e.text||'').length>36)||e.cluster==='keepsake'; e._mend=(e._h%17===0); e._cell=-1; e._span=0; });
-    items.forEach((e, i) => { if(!e._wantsBig) return; let cursor=0; while(cursor<CELLS){ const cell=order[cursor]; if(!occ[cell]&&freeSq(cell,2)){ e._cell=cell; e._span=2; claim(cell,2,i); break; } cursor++; } });
-    let c2=0;
-    items.forEach((e, i) => { if(e._cell>=0) return; while(c2<CELLS&&occ[order[c2]]) c2++; if(c2>=CELLS) return; e._cell=order[c2]; e._span=1; claim(e._cell,1,i); });
+    let COLS, ROWS, CELLS, PATCH, RW, RH, order, occ, atCell;
+    let qlWash = 0.09, qlStitch = 1;   // parametric: wash tint strength, thread weight
+    // per-block geometry (pattern, rotation, mending) — independent of the cloth's density
+    items.forEach(e => { const key=qlChoose(e); const bt=QL_BLOCKS[key]; e._bt=bt; e._key=key; e._h=qlHash(e.text+e.day); e._rot=(e._h>>5)%2; e._segs=(key==='hst')?bt.segs(e._rot):bt.segs(); e._wantsBig=((e.text||'').length>36)||e.cluster==='keepsake'; e._mend=(e._h%17===0); });
+    function layout(cols){
+      COLS = cols; ROWS = cols; CELLS = COLS*ROWS;
+      PATCH = Math.max(9, Math.round(1750/COLS));   // keep the canvas roughly constant regardless of density
+      RW = PAD*2 + COLS*PATCH; RH = PAD*2 + ROWS*PATCH;
+      cv.width = RW; cv.height = RH;
+      order = Array.from({length:CELLS}, (_, i) => i);
+      for (let i=CELLS-1;i>0;i--){ const j=Math.floor(qlRnd(SEED+i*7.31)*(i+1)); const t=order[i]; order[i]=order[j]; order[j]=t; }
+      occ = new Uint8Array(CELLS); atCell = new Map();
+      const freeSq = (cell, n) => { const c0=cell%COLS, r0=(cell/COLS)|0; if(c0+n>COLS||r0+n>ROWS) return false; for(let r=0;r<n;r++)for(let c=0;c<n;c++) if(occ[(r0+r)*COLS+(c0+c)]) return false; return true; };
+      const claim = (cell, n, idx) => { const c0=cell%COLS, r0=(cell/COLS)|0; for(let r=0;r<n;r++)for(let c=0;c<n;c++){ const cc=(r0+r)*COLS+(c0+c); occ[cc]=1; atCell.set(cc, idx); } };
+      items.forEach(e => { e._cell=-1; e._span=0; });
+      items.forEach((e, i) => { if(!e._wantsBig) return; let cursor=0; while(cursor<CELLS){ const cell=order[cursor]; if(!occ[cell]&&freeSq(cell,2)){ e._cell=cell; e._span=2; claim(cell,2,i); break; } cursor++; } });
+      let c2=0;
+      items.forEach((e, i) => { if(e._cell>=0) return; while(c2<CELLS&&occ[order[c2]]) c2++; if(c2>=CELLS) return; e._cell=order[c2]; e._span=1; claim(e._cell,1,i); });
+    }
+    layout(71);
     function drawBg(){ ctx.fillStyle=QL_CLOTH; ctx.fillRect(0,0,RW,RH); ctx.save(); ctx.strokeStyle='rgba(160,150,128,0.16)'; ctx.lineWidth=1; for(let c=0;c<=COLS;c++){ const x=PAD+c*PATCH; ctx.beginPath(); ctx.moveTo(x,PAD); ctx.lineTo(x,RH-PAD); ctx.stroke(); } for(let r=0;r<=ROWS;r++){ const y=PAD+r*PATCH; ctx.beginPath(); ctx.moveTo(PAD,y); ctx.lineTo(RW-PAD,y); ctx.stroke(); } ctx.restore(); ctx.save(); ctx.strokeStyle='rgba(120,108,88,0.30)'; ctx.lineWidth=1.4; ctx.setLineDash([7,6]); ctx.strokeRect(PAD*0.55,PAD*0.55,RW-PAD*1.1,RH-PAD*1.1); ctx.restore(); }
     function drawBlock(i){ const e=items[i]; if(e._cell<0) return; const col=e._cell%COLS, row=(e._cell/COLS)|0; const x=PAD+col*PATCH, y=PAD+row*PATCH, s=PATCH*e._span; const inset=s*0.10, ss=s-inset*2, xx=x+inset, yy=y+inset; const subj=QL_SUBJECT[e.cluster]||QL_SUBJECT.general; const main=qlShade(subj.color,((e._h>>3)%15)-7); const acc=qlShade(QL_MOOD[e.mood]||'#F5B301',((e._h>>7)%15)-7);
-      if(qlMode==='pieced'){ ctx.fillStyle=main; ctx.fillRect(x+0.8,y+0.8,s-1.6,s-1.6); qlDrawSegs(ctx,e._segs,xx,yy,ss,qlRgba(acc,0.95),Math.max(1.6,s*0.055)); ctx.save(); ctx.strokeStyle='rgba(255,252,244,0.55)'; ctx.lineWidth=0.8; ctx.strokeRect(x+0.8,y+0.8,s-1.6,s-1.6); ctx.restore(); }
-      else { if(qlTint){ ctx.fillStyle=qlRgba(subj.color,0.09); ctx.fillRect(x+1,y+1,s-2,s-2); } qlDrawSegs(ctx,e._segs,xx,yy,ss,qlRgba(main,0.92),1.5*e._span); qlDrawSegs(ctx,e._segs,xx,yy,ss,qlRgba(acc,0.55),3.0*e._span); }
-      if(e._mend){ ctx.save(); ctx.strokeStyle=qlMode==='pieced'?'rgba(255,250,240,0.85)':qlRgba(main,0.75); ctx.lineWidth=Math.max(1,s*0.035); ctx.setLineDash([s*0.09,s*0.07]); ctx.lineCap='butt'; for(let k=1;k<=3;k++){ const ry=y+s*(k/4); ctx.beginPath(); ctx.moveTo(x+s*0.06,ry); ctx.lineTo(x+s*0.94,ry); ctx.stroke(); } ctx.restore(); }
+      if(qlMode==='pieced'){ ctx.fillStyle=main; ctx.fillRect(x+0.8,y+0.8,s-1.6,s-1.6); qlDrawSegs(ctx,e._segs,xx,yy,ss,qlRgba(acc,0.95),Math.max(1.6,s*0.055)*qlStitch); ctx.save(); ctx.strokeStyle='rgba(255,252,244,0.55)'; ctx.lineWidth=0.8; ctx.strokeRect(x+0.8,y+0.8,s-1.6,s-1.6); ctx.restore(); }
+      else { if(qlTint){ ctx.fillStyle=qlRgba(subj.color,qlWash); ctx.fillRect(x+1,y+1,s-2,s-2); } qlDrawSegs(ctx,e._segs,xx,yy,ss,qlRgba(main,0.92),1.5*e._span*qlStitch); qlDrawSegs(ctx,e._segs,xx,yy,ss,qlRgba(acc,0.55),3.0*e._span*qlStitch); }
+      if(e._mend){ ctx.save(); ctx.strokeStyle=qlMode==='pieced'?'rgba(255,250,240,0.85)':qlRgba(main,0.75); ctx.lineWidth=Math.max(1,s*0.035)*qlStitch; ctx.setLineDash([s*0.09,s*0.07]); ctx.lineCap='butt'; for(let k=1;k<=3;k++){ const ry=y+s*(k/4); ctx.beginPath(); ctx.moveTo(x+s*0.06,ry); ctx.lineTo(x+s*0.94,ry); ctx.stroke(); } ctx.restore(); }
     }
     let drawn=0, qlUserScrub=false;
     function paintStats(cnt){ const b=document.getElementById('qlBlocks'), l=document.getElementById('qlLeft'); if(b) b.textContent=cnt; if(l) l.textContent=Math.max(0,CELLS-cnt); }
@@ -19742,6 +19756,10 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const kg = document.getElementById('qlKey');
     if (kg){ kg.innerHTML=''; Object.entries(QL_BLOCKS).forEach(([k,bt])=>{ const it=document.createElement('div'); it.className='ql-key-item'; const c=document.createElement('canvas'); c.width=64; c.height=64; const cc=c.getContext('2d'); cc.fillStyle=QL_CLOTH; cc.fillRect(0,0,64,64); const sg=(k==='hst')?bt.segs(0):bt.segs(); qlDrawSegs(cc,sg,6,6,52,'rgba(245,179,1,0.75)',3); qlDrawSegs(cc,sg,6,6,52,'rgba(14,159,110,0.95)',1.4); const tx=document.createElement('div'); tx.innerHTML='<div class="kt">'+bt.name+'</div><div class="kd">'+bt.meaning+'</div>'; it.appendChild(c); it.appendChild(tx); kg.appendChild(it); }); }
     host.querySelectorAll('.ql-tog').forEach(btn => { btn.onclick = () => { const m=btn.dataset.m; if(m==='threads') qlMode='threads'; else if(m==='pieced') qlMode='pieced'; else qlTint=!qlTint; host.querySelector('.ql-tog[data-m="threads"]').classList.toggle('on', qlMode==='threads'); host.querySelector('.ql-tog[data-m="pieced"]').classList.toggle('on', qlMode==='pieced'); host.querySelector('.ql-tog[data-m="wash"]').classList.toggle('on', qlTint); full(drawn || N); }; });
+    const dS=document.getElementById('qlDensity'), wS=document.getElementById('qlWashS'), sS=document.getElementById('qlStitchS');
+    if(dS) dS.addEventListener('input', ()=>{ layout(parseInt(dS.value,10)); full(Math.min(drawn||N, N)); });
+    if(wS) wS.addEventListener('input', ()=>{ qlWash=parseInt(wS.value,10)/100; full(drawn||N); });
+    if(sS) sS.addEventListener('input', ()=>{ qlStitch=parseInt(sS.value,10)/10; full(drawn||N); });
     const tip = document.getElementById('qlTip'), frame = host.querySelector('.ql-frame');
     cv.addEventListener('mousemove', ev => { const rect=cv.getBoundingClientRect(); const x=(ev.clientX-rect.left)*(RW/rect.width), y=(ev.clientY-rect.top)*(RH/rect.height); const col=Math.floor((x-PAD)/PATCH), row=Math.floor((y-PAD)/PATCH); if(col<0||col>=COLS||row<0||row>=ROWS){ tip.classList.remove('show'); return; } const idx=atCell.get(row*COLS+col); if(idx===undefined||idx>=drawn){ tip.classList.remove('show'); return; } const en=items[idx]; const su=QL_SUBJECT[en.cluster]||QL_SUBJECT.general; const fr=frame.getBoundingClientRect(); tip.innerHTML='“'+escapeHtml((en.text||'').slice(0,120))+'”<span class="bn">'+en._bt.name+'</span><span class="mt">'+su.label+'</span>'; tip.style.left=(ev.clientX-fr.left)+'px'; tip.style.top=(ev.clientY-fr.top)+'px'; tip.classList.add('show'); });
     cv.addEventListener('mouseleave', () => tip.classList.remove('show'));
