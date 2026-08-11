@@ -557,6 +557,8 @@
   .book-div::before{background:linear-gradient(to right, transparent, var(--line));}
   .book-div::after{background:linear-gradient(to right, var(--line), transparent);}
   .book-div span{font-size:10px; letter-spacing:.16em; text-transform:uppercase; white-space:nowrap;}
+  .book-div:empty{gap:0;}
+  .book-div:empty::before, .book-div:empty::after{background:var(--line);}
   .poll-card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px 24px 20px;}
   .poll-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
   .poll-eyebrow{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--camel); font-weight:700;}
@@ -2902,7 +2904,7 @@
       <div class="ab-results" id="askBookResults" style="display:none;"></div>
     </div>
 
-    <div class="book-div"><span>Letters</span></div>
+    <div class="book-div"></div>
 
     <!-- ===== LETTERS TO THE FUTURE ===== -->
     <div class="fl-box" id="futureLettersBox">
