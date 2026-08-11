@@ -19705,8 +19705,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     host.__qlBuilt = true; host.dataset.qln = String(items.length);
 
     const N = items.length;
-    const COLS = 34;   // a large fixed cloth — small blocks, plenty of bare calico left (wabi-sabi)
-    const ROWS = COLS, CELLS = COLS * ROWS, PAD = 26, PATCH = 42, RW = PAD*2 + COLS*PATCH, RH = PAD*2 + ROWS*PATCH;
+    const COLS = 71;   // a very large fixed cloth (~5000 pieces) — tiny blocks, mostly bare calico (wabi-sabi)
+    const ROWS = COLS, CELLS = COLS * ROWS, PAD = 26, PATCH = 25, RW = PAD*2 + COLS*PATCH, RH = PAD*2 + ROWS*PATCH;
     const SEED = 20260814 + N;
     const cv = document.getElementById('qlCanvas'); if (!cv) return;
     cv.width = RW; cv.height = RH;
