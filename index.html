@@ -17848,7 +17848,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         photos:(e.photos || []).length > 0,
         voice:!!e.voiceUrl, voiceUrl:e.voiceUrl || null,
         reacts:(e.likes || 0) + ((e.comments || []).length),
-        city:e.city || null, relation:e.relation || null, ref:e
+        city:(e.city && typeof e.city === 'object') ? (e.city.name || e.city.city || null) : (e.city || null), relation:e.relation || null, ref:e
       });
     });
     (albumPhotos || []).forEach(p=>{
