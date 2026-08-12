@@ -12080,9 +12080,8 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       diary.id = 'navDiaryBtn';
       navRight.appendChild(diary);
       navRight.appendChild(navBtn('wpts',  'Waypoints', ()=>{ showScreen('waypoints'); wptsOpen(); }));
-      // "Look back" is the single labelled door to the reflect lenses (Life Ribbon,
-      // Constellation, Happiness, Voiceprints, Anchor People) that live in the left rail.
-      navRight.appendChild(navBtn('lookback', 'Look back', ()=>{ railGo('ribbon'); }));
+      // Reflect lenses (Life Ribbon, Constellation, Happiness, Voiceprints, Anchor
+      // People) live in the left icon rail, not the header.
     }
 
     navRight.appendChild(navBtn('events', 'Events', ()=>{ renderMyEvents(); showScreen('events'); markEventsActivitySeen(); },
