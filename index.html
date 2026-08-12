@@ -19702,8 +19702,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     const host = document.getElementById('quiltBox'); if (!host) return;
     const items = qlGather();
     if (host.__qlBuilt && host.dataset.qln === String(items.length) && host.dataset.qlopen === String(qlOpen)) return;   // avoid restarting the animation on every refresh
-    const head = '<div class="ql-eyebrow">Your quilt</div>'
-      + '<h3 class="ql-h">A quilt is a life, kept warm</h3>'
+    const head = '<h3 class="ql-h">A quilt is a life, kept warm</h3>'
       + '<p class="ql-intro">Made the way quilts always were: from what was already worn, improvised rather than planned, and never quite finished. Every moment you keep here becomes a stitched block.</p>';
     if (!items.length){ host.innerHTML = head + '<p class="ql-intro" style="margin:0;">Nothing to stitch yet — as your book fills with entries, photos and signatures, your quilt sews itself here.</p>'; host.__qlBuilt = true; host.dataset.qln = '0'; host.dataset.qlopen = String(qlOpen); return; }
     if (!qlOpen){
