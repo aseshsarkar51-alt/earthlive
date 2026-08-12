@@ -10287,6 +10287,104 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
       }
     }
 
+    // ---- My life, year by year ----
+    try {
+      const dzLy = (profile && profile.extras && profile.extras.life_years) || {};
+      const dzBirth = (profile && profile.extras && profile.extras.birth_year) ? parseInt(profile.extras.birth_year,10) : null;
+      const dzYears = Object.keys(dzLy).map(Number).filter(yr=>{ const d=dzLy[yr]; return d && (d.text || (d.photos&&d.photos.length) || d.photo || d.voice || d.video); }).sort((a,b)=>a-b);
+      if (dzYears.length){
+        doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...CAMEL_C);
+        doc.text('—   M Y   L I F E ,   Y E A R   B Y   Y E A R   —', 105, 30, { align:'center' });
+        let ly = 46;
+        for (const yr of dzYears){
+          const d = dzLy[yr];
+          const age = dzBirth ? (yr===dzBirth ? 'born' : 'age ' + (yr-dzBirth)) : '';
+          const words = pdfSafe(d.text || '');
+          const wl = words ? doc.splitTextToSize(words, PDF_W) : [];
+          if (ly + 16 + wl.length*5.4 > 278){ doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F'); ly = 30; }
+          doc.setFont('times','bold'); doc.setFontSize(17); doc.setTextColor(...INK_C);
+          doc.text(String(yr), PDF_M, ly);
+          if (age){ doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...CAMEL_C); doc.text(age, PDF_M + doc.getTextWidth(String(yr)) + 5, ly); }
+          ly += 7;
+          if (wl.length){ doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(...INK_C); for (const l of wl){ if(ly>282){ doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F'); ly=30; } doc.text(l, PDF_M, ly); ly += 5.4; } }
+          const lyPh = (d.photos && d.photos.length) ? d.photos : (d.photo ? [d.photo] : []);
+          if (lyPh.length){
+            if (ly + 34 > 282){ doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F'); ly=30; }
+            let ix = PDF_M;
+            for (const u of lyPh.slice(0,3)){ const durl = await dzCoverFitImage(u, 42, 30, 3); if(!durl) continue; try{ doc.addImage(durl, 'JPEG', ix, ly+1, 42, 30, undefined, 'FAST'); ix += 47; }catch(e){} }
+            ly += 34;
+          }
+          doc.setDrawColor(224,220,210); doc.setLineWidth(0.2); doc.line(PDF_M, ly-1, PDF_M+PDF_W, ly-1); ly += 6;
+        }
+      }
+    } catch(e){}
+
+    // ---- What people notice ----
+    try {
+      try { await bookPollEnsureLoaded('owner', profile); } catch(e){}
+      const dzPst = (typeof bookPollUI !== 'undefined') ? bookPollUI.owner : null;
+      if (dzPst && typeof BOOK_POLLS !== 'undefined'){
+        const dzRows = [];
+        BOOK_POLLS.forEach(poll => { const top = bookPollTopPick(dzPst, poll.key); if (top) dzRows.push({ poll, top }); });
+        if (dzRows.length){
+          dzRows.sort((a,b)=> b.top.pct - a.top.pct);
+          doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F');
+          doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...CAMEL_C);
+          doc.text('—   W H A T   P E O P L E   N O T I C E   —', 105, 30, { align:'center' });
+          doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...SOFT_C);
+          doc.text('Anonymous impressions — only totals, never who said what.', 105, 37, { align:'center' });
+          let py = 52;
+          for (const r of dzRows){
+            if (py > 270){ doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F'); py = 30; }
+            const lead = r.top.indices.map(i=>pdfSafe(r.poll.opts[i])).join(' and ');
+            doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...INK_C);
+            doc.text(lead, PDF_M, py);
+            doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...CAMEL_C);
+            doc.text(r.top.pct + '%', PDF_M + PDF_W, py, { align:'right' }); py += 5;
+            doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...SOFT_C);
+            doc.text(pdfSafe(r.poll.theme) + ' · ' + r.top.total + (r.top.total===1?' answer':' answers'), PDF_M, py); py += 9;
+          }
+        }
+      }
+    } catch(e){}
+
+    // ---- Waypoints (photos by place) ----
+    try {
+      if (albumPhotos && albumPhotos.length){
+        const wg = {};
+        albumPhotos.forEach(p=>{ const k=(p.place||'Somewhere'); (wg[k]=wg[k]||[]).push(p); });
+        const wpn = Object.keys(wg).sort((a,b)=> a==='Somewhere'?1 : (b==='Somewhere'?-1 : a.localeCompare(b)));
+        doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...CAMEL_C);
+        doc.text('—   W A Y P O I N T S   —', 105, 30, { align:'center' });
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...SOFT_C);
+        doc.text('Every pinned photo, grouped by place.', 105, 37, { align:'center' });
+        const colW = (PDF_W - 6)/2, imgH = 58;
+        let wy = 50;
+        for (const place of wpn){
+          const photos = wg[place];
+          if (wy + 14 + imgH > 284){ doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F'); wy = 30; }
+          doc.setFont('times','italic'); doc.setFontSize(13); doc.setTextColor(...INK_C);
+          doc.text(pdfSafe(place), PDF_M, wy); wy += 6;
+          doc.setDrawColor(224,220,210); doc.setLineWidth(0.25); doc.line(PDF_M, wy, PDF_M+PDF_W, wy); wy += 6;
+          for (let i=0;i<photos.length;i+=2){
+            if (wy + imgH + 8 > 284){ doc.addPage(); doc.setFillColor(...DZ_CREAM); doc.rect(0,0,210,297,'F'); wy = 30; }
+            for (let c=0;c<2;c++){
+              const ph = photos[i+c]; if(!ph) continue;
+              const x = PDF_M + c*(colW+6);
+              const durl = await dzCoverFitImage(ph.url, colW, imgH, 3);
+              if (durl){ try{ doc.addImage(durl, 'JPEG', x, wy, colW, imgH, undefined, 'FAST'); }catch(e){} }
+              else { doc.setFillColor(232,230,225); doc.rect(x, wy, colW, imgH, 'F'); }
+              doc.setDrawColor(229,226,219); doc.setLineWidth(0.3); doc.rect(x, wy, colW, imgH);
+            }
+            wy += imgH + 8;
+          }
+          wy += 4;
+        }
+      }
+    } catch(e){}
+
     dzCredit(doc);
     doc.save('earthlive-designed-book-' + (((profile && profile.name) || 'my').toLowerCase().replace(/[^a-z0-9]+/g,'-')) + '.pdf');
     showToast('Your designed book is ready \u2713');
