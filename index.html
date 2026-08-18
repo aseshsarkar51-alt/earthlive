@@ -5061,7 +5061,7 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     <button class="modal-close" onclick="closeCreatorHandoff()" aria-label="Close">✕</button>
     <p style="font-size:17px; font-weight:600; margin:6px 0 8px;" id="handoffTitle">Your words are on their way.</p>
     <p style="font-size:14px; color:var(--ink-soft); margin:0 0 20px;" id="handoffSub">Want a memory book of your own? Your people write in it. You keep it forever.</p>
-    <button class="btn btn-primary" style="width:100%; margin-bottom:8px;" onclick="closeCreatorHandoff(); guestStartOwnBook();">Create my book — it's free</button>
+    <button class="btn btn-primary" style="width:100%; margin-bottom:8px;" onclick="handoffResolved=true; logGrowthEvent('handoff_create_clicked'); closeCreatorHandoff(); guestStartOwnBook();">Create my book — it's free</button>
     <button class="btn btn-ghost" style="width:100%;" onclick="closeCreatorHandoff()">Maybe later</button>
     <p style="font-size:11.5px; color:var(--ink-soft); margin:12px 0 0; display:none;" id="handoffNote"></p>
   </div>
@@ -11133,6 +11133,23 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
   /* Contributor \u2192 creator: someone just wrote on a friend's page but has no page of their own yet. */
   let creatorHandoffShown = false;
+  let handoffResolved = false;
+
+  /* Lightweight, write-only growth analytics — logs to public.growth_events.
+     No third-party script, no PII beyond the signed-in user's own id.
+     Silently no-ops if it fails; never blocks the UI it's attached to. */
+  function logGrowthEvent(name, props){
+    try {
+      if (db && currentUser){
+        db.from('growth_events').insert({
+          event_name: name,
+          user_id: currentUser.id,
+          properties: props || {}
+        }).then(()=>{}, ()=>{});
+      }
+    } catch(e){}
+  }
+
   function maybeOfferCreatorHandoff(){
     if (creatorHandoffShown) return;      // once per session \u2014 don't nag
     if (profile && profile.dbId) return;  // already has their own page
@@ -11162,9 +11179,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         }
       }
     } catch(e){}
+    handoffResolved = false;
     setTimeout(()=>{
       const overlay = document.getElementById('creatorHandoffOverlay');
       if (overlay) overlay.classList.add('open');
+      logGrowthEvent('handoff_shown', {
+        owner_username: (fillTarget && fillTarget.profileObj) ? fillTarget.profileObj.username : null,
+        guest_signs: parseInt(localStorage.getItem('el_guest_signs') || '0', 10)
+      });
     }, 900);
   }
 
@@ -11186,6 +11208,11 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   }
 
   function closeCreatorHandoff(){
+    // Any dismissal that isn't the "Create my book" click counts as a pass —
+    // covers the "Maybe later" button, the ✕, and clicking the backdrop,
+    // without needing a separate handler wired to each of them.
+    if (!handoffResolved){ logGrowthEvent('handoff_dismissed'); }
+    handoffResolved = true;
     const overlay = document.getElementById('creatorHandoffOverlay');
     if (overlay) overlay.classList.remove('open');
   }
