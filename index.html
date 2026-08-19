@@ -1516,6 +1516,20 @@
   .diary-thumbs .dt{position:relative; width:78px; height:78px; border-radius:10px; overflow:hidden; border:1px solid var(--line);}
   .diary-thumbs .dt img{width:100%; height:100%; object-fit:cover; display:block;}
   .diary-thumbs .dt button{position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%; border:none; background:rgba(46,42,34,.75); color:#fff; font-size:11px; cursor:pointer; line-height:1; padding:0;}
+  /* ---------- DIARY view toggle (Write / Your entries) ---------- */
+  .d-view-toggle{display:inline-flex; gap:4px; background:var(--oat); border-radius:999px; padding:3px; margin:14px 0 20px;}
+  .d-view-btn{border:none; background:none; font-family:inherit; font-size:13px; font-weight:600; padding:8px 18px; border-radius:999px; cursor:pointer; color:var(--ink-soft); transition:background .15s, color .15s;}
+  .d-view-btn.active{background:var(--card); color:var(--ink); box-shadow:var(--shadow);}
+  .diary-split.dv-write, .diary-split.dv-browse{grid-template-columns:1fr;}
+  .diary-split.dv-write #diaryReadPane{display:none;}
+  .diary-split.dv-browse #diaryWritePane{display:none;}
+  .diary-split.dv-write #diaryWritePane{border:none; box-shadow:none; background:transparent;}
+  .diary-split.dv-write #diaryWritePane .d-pane-head{border-bottom:none; background:transparent;}
+  .diary-split.dv-write #diaryWritePane .mood-card{max-width:720px; margin:0 auto; border-bottom:none; padding:20px 0 4px;}
+  .diary-split.dv-write #diaryWritePane .d-pane-body{max-width:720px; margin:0 auto; padding:24px 0 18px;}
+  .diary-split.dv-write .d-title-input{font-size:24px;}
+  .diary-split.dv-write .d-body-input{min-height:max(52vh, 320px); font-size:16.5px; line-height:1.9;}
+  @media(max-width:760px){.diary-split.dv-write #diaryWritePane .d-pane-body{padding:18px 4px;}}
   /* ---------- HOW IT WORKS (interactive guide) ---------- */
   .hiw-line{position:absolute; left:19px; top:20px; bottom:20px; width:2px; background:var(--line);}
   .hiw-step{display:flex; gap:16px; margin-bottom:14px; position:relative;}
@@ -3084,10 +3098,15 @@
         <button type="button" class="cal-toggle" onclick="openPrintModal('diary')" style="flex:none;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;" aria-hidden="true"><path d="M6 9V4h12v5"/><path d="M6 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg> Print diary</button>
       </div>
 
-      <div class="diary-split">
+      <div class="d-view-toggle" role="tablist" aria-label="Diary view">
+        <button type="button" class="d-view-btn active" id="dvWriteBtn" onclick="setDiaryView('write')">Write</button>
+        <button type="button" class="d-view-btn" id="dvBrowseBtn" onclick="setDiaryView('browse')">Your entries</button>
+      </div>
+
+      <div class="diary-split dv-write" id="diarySplit">
 
         <!-- ── LEFT: WRITE ── -->
-        <div class="d-pane">
+        <div class="d-pane" id="diaryWritePane">
           <div class="d-pane-head">
             <b id="dWriteTitle">Write</b>
             <span class="d-tag" id="dWriteTag">today · editable</span>
@@ -3135,7 +3154,7 @@
         </div>
 
         <!-- ── RIGHT: READ ── -->
-        <div class="d-pane">
+        <div class="d-pane" id="diaryReadPane">
           <div class="d-pane-head">
             <b>Your diary</b>
             <div style="display:flex; align-items:center; gap:10px;">
@@ -15251,8 +15270,22 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
 
   /* ── Notes on sealed entries (the original text never changes) ── */
 
+  /* ── Write / Your entries view toggle ── */
+  let diaryView = 'write';
+  function setDiaryView(view){
+    diaryView = (view === 'browse') ? 'browse' : 'write';
+    const split = document.getElementById('diarySplit');
+    if (split) split.classList.toggle('dv-browse', diaryView === 'browse');
+    if (split) split.classList.toggle('dv-write', diaryView === 'write');
+    const writeBtn = document.getElementById('dvWriteBtn');
+    const browseBtn = document.getElementById('dvBrowseBtn');
+    if (writeBtn) writeBtn.classList.toggle('active', diaryView === 'write');
+    if (browseBtn) browseBtn.classList.toggle('active', diaryView === 'browse');
+  }
+
   /* ── Editor (left pane) ── */
   async function openDiaryEditor(entryId){
+    setDiaryView('write');
     diaryStopVoice();
     diaryEditingId = entryId;
     diarySharedWithUserId = null;
