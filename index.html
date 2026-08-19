@@ -28,7 +28,7 @@
 <meta property="og:description" content="Everyone's got something to say about you. Create a free memory book, send it to your people, and watch it fill up — export it as a printable PDF keepsake anytime.">
 <meta property="og:url" content="https://earthlive.in/">
 <meta property="og:site_name" content="EarthLive">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="EarthLive — Memory Book">
 <meta name="twitter:description" content="A free memory book that never stops filling up. Create a page and let your people add their memories.">
 <script type="application/ld+json">
@@ -8151,6 +8151,14 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
         if (!profile.avatar && localAvatar) profile.avatar = localAvatar;
         if (!profile.cover && localCover) profile.cover = localCover;
         if (!wasEdit) entries = [];
+        if (!wasEdit){
+          // First-time page creation only — never fires again on later edits/saves,
+          // so it stays a clean count of new-page events, not total saves.
+          logGrowthEvent('profile_created', {
+            referred_by: referralExtras.referred_by || null,
+            template_id: selectedTemplateId
+          });
+        }
         if (referralExtras.referred_by){ try { localStorage.removeItem('el_ref'); } catch(err){} }
         editMode = false;
         resetCreateFormUI();
