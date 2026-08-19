@@ -1530,6 +1530,15 @@
   .diary-split.dv-write .d-title-input{font-size:24px;}
   .diary-split.dv-write .d-body-input{min-height:max(52vh, 320px); font-size:16.5px; line-height:1.9;}
   @media(max-width:760px){.diary-split.dv-write #diaryWritePane .d-pane-body{padding:18px 4px;}}
+  /* Browse mode ("Your entries") now spans the full split width, so keep the
+     card itself narrow and centered instead of letting it stretch edge to
+     edge — that's what was blowing up the calendar day boxes. */
+  .diary-split.dv-browse #diaryReadPane{max-width:560px; margin:0 auto;}
+  .diary-split.dv-browse #diaryReadPane .cal-top,
+  .diary-split.dv-browse #diaryReadPane .cal-grid,
+  .diary-split.dv-browse #diaryReadPane .cal-legend,
+  .diary-split.dv-browse #diaryReadPane .mood-tools{max-width:300px; margin-left:auto; margin-right:auto;}
+  .diary-split.dv-browse #diaryReadPane .cal-day{font-size:11.5px;}
   /* ---------- HOW IT WORKS (interactive guide) ---------- */
   .hiw-line{position:absolute; left:19px; top:20px; bottom:20px; width:2px; background:var(--line);}
   .hiw-step{display:flex; gap:16px; margin-bottom:14px; position:relative;}
