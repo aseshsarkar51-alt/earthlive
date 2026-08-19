@@ -5933,9 +5933,26 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
             showScreen(s);
             return;
           }
+          if (pendingNewEventType && EVENT_TYPES[pendingNewEventType]){
+            const t = pendingNewEventType;
+            pendingNewEventType = null;
+            try{ sessionStorage.removeItem('elPendingNewEventType'); }catch(e){}
+            showScreen('create-event');
+            applyPendingEventType(t);
+            return;
+          }
           if (found){
             renderDashboard();
             showScreen('dashboard');
+          } else if (pendingTemplateId && TEMPLATES.find(x=>x.id===pendingTemplateId)){
+            // New user arriving via a marketing deep link (e.g. the
+            // yearbook landing page) — take them straight into Create my
+            // page with the matching question set already selected.
+            const t = pendingTemplateId;
+            pendingTemplateId = null;
+            try{ sessionStorage.removeItem('elPendingTemplateId'); }catch(e){}
+            startNewBook();
+            selectTemplate(t);
           } else {
             // New user, no page yet — take them straight to creating one.
             startNewBook();
@@ -5969,8 +5986,23 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
               showScreen(s);
               return;
             }
+            if (pendingNewEventType && EVENT_TYPES[pendingNewEventType]){
+              const t = pendingNewEventType;
+              pendingNewEventType = null;
+              try{ sessionStorage.removeItem('elPendingNewEventType'); }catch(e){}
+              showScreen('create-event');
+              applyPendingEventType(t);
+              return;
+            }
             if (found){
               restoreLastScreen();
+            } else if (pendingTemplateId && TEMPLATES.find(x=>x.id===pendingTemplateId)){
+              // Same reasoning as the SIGNED_IN branch above.
+              const t = pendingTemplateId;
+              pendingTemplateId = null;
+              try{ sessionStorage.removeItem('elPendingTemplateId'); }catch(e){}
+              startNewBook();
+              selectTemplate(t);
             } else {
               // Signed in but no page yet (first visit, OAuth redirect, or
               // email-confirmation return): take them straight to Create my
@@ -7330,6 +7362,37 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
     else {
       const savedSlug = sessionStorage.getItem('elPendingEventSlug');
       if (savedSlug) pendingEventSlug = savedSlug;
+    }
+  } catch(e){}
+
+  /* ---------- MARKETING DEEP LINKS (earthlive.in/?template=yearbook or
+     earthlive.in/?newevent=wedding) ----------
+     Lets an external page (an SEO landing page, an ad, a shared post) send
+     someone straight into the right flow with the right option
+     pre-selected, instead of dropping them on the generic homepage to
+     hunt for it themselves. `template` matches a TEMPLATES id (personal
+     page flow); `newevent` matches an EVENT_TYPES id (group Events flow).
+     Both are validated against the real id lists before use (see
+     beginFlow()'s callers below), so a stale or mistyped value just falls
+     back to today's default behavior — this never overrides anything for
+     visitors who arrive without the param. Persisted the same way as the
+     event slug above, since a new visitor from a landing page is almost
+     always signed out and has to go through the Google OAuth round trip
+     first. */
+  let pendingTemplateId = new URLSearchParams(location.search).get('template') || null;
+  let pendingNewEventType = new URLSearchParams(location.search).get('newevent') || null;
+  try {
+    if (pendingTemplateId) sessionStorage.setItem('elPendingTemplateId', pendingTemplateId);
+    else {
+      const savedTemplate = sessionStorage.getItem('elPendingTemplateId');
+      if (savedTemplate) pendingTemplateId = savedTemplate;
+    }
+  } catch(e){}
+  try {
+    if (pendingNewEventType) sessionStorage.setItem('elPendingNewEventType', pendingNewEventType);
+    else {
+      const savedType = sessionStorage.getItem('elPendingNewEventType');
+      if (savedType) pendingNewEventType = savedType;
     }
   } catch(e){}
 
@@ -15721,6 +15784,18 @@ document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
   };
   let evSelectedType = 'farewell';
   let evActiveFeats = new Set(EVENT_TYPES.farewell.feats);
+
+  // Deep-link support: pre-select an event type card by id (e.g. from a
+  // marketing landing page's ?newevent=wedding param — see
+  // pendingNewEventType and its consumers below). The type cards are
+  // static markup already in the DOM, so this is just finding the
+  // matching button and reusing the normal click handler. Silently does
+  // nothing if the type doesn't match a real card, so an invalid or
+  // stale value just leaves the screen on its default selection.
+  function applyPendingEventType(type){
+    const card = document.querySelector('#evTypeGrid .ev-type-card[data-type="' + type + '"]');
+    if (card) evPickType(card);
+  }
 
   function evPickType(el){
     document.querySelectorAll('#evTypeGrid .ev-type-card').forEach(c=>c.classList.remove('sel'));
