@@ -1525,20 +1525,24 @@
   .diary-split.dv-browse #diaryWritePane{display:none;}
   .diary-split.dv-write #diaryWritePane{border:none; box-shadow:none; background:transparent;}
   .diary-split.dv-write #diaryWritePane .d-pane-head{border-bottom:none; background:transparent;}
-  .diary-split.dv-write #diaryWritePane .mood-card{max-width:720px; margin:0 auto; border-bottom:none; padding:20px 0 4px;}
-  .diary-split.dv-write #diaryWritePane .d-pane-body{max-width:720px; margin:0 auto; padding:24px 0 18px;}
+  .diary-split.dv-write #diaryWritePane .mood-card{border-bottom:none; padding:20px 4px 4px;}
+  .diary-split.dv-write #diaryWritePane .d-pane-body{padding:20px 4px 18px;}
   .diary-split.dv-write .d-title-input{font-size:24px;}
   .diary-split.dv-write .d-body-input{min-height:max(52vh, 320px); font-size:16.5px; line-height:1.9;}
   @media(max-width:760px){.diary-split.dv-write #diaryWritePane .d-pane-body{padding:18px 4px;}}
-  /* Browse mode ("Your entries") now spans the full split width, so keep the
-     card itself narrow and centered instead of letting it stretch edge to
-     edge — that's what was blowing up the calendar day boxes. */
-  .diary-split.dv-browse #diaryReadPane{max-width:560px; margin:0 auto;}
-  .diary-split.dv-browse #diaryReadPane .cal-top,
-  .diary-split.dv-browse #diaryReadPane .cal-grid,
-  .diary-split.dv-browse #diaryReadPane .cal-legend,
-  .diary-split.dv-browse #diaryReadPane .mood-tools{max-width:300px; margin-left:auto; margin-right:auto;}
+  /* Browse mode ("Your entries") now uses the full split width — the entries
+     list and search get that space, and the calendar sits as a small,
+     minimalist widget with its legend beside it instead of stretching the
+     day boxes across the whole row. */
+  .diary-split.dv-browse #diaryReadPane .cal{display:flex; flex-wrap:wrap; align-items:flex-start; gap:28px;}
+  .diary-split.dv-browse #diaryReadPane .cal-widget{flex:none; width:280px;}
+  .diary-split.dv-browse #diaryReadPane .cal-legend{flex:none; width:200px; flex-direction:column; align-items:flex-start; gap:10px; margin-top:2px;}
+  .diary-split.dv-browse #diaryReadPane .mood-tools{flex-basis:100%; margin-top:4px;}
   .diary-split.dv-browse #diaryReadPane .cal-day{font-size:11.5px;}
+  @media(max-width:640px){
+    .diary-split.dv-browse #diaryReadPane .cal-widget,
+    .diary-split.dv-browse #diaryReadPane .cal-legend{width:100%;}
+  }
   /* ---------- HOW IT WORKS (interactive guide) ---------- */
   .hiw-line{position:absolute; left:19px; top:20px; bottom:20px; width:2px; background:var(--line);}
   .hiw-step{display:flex; gap:16px; margin-bottom:14px; position:relative;}
@@ -3176,19 +3180,21 @@
           </div>
 
           <div class="cal hidden" id="diaryCal">
-            <div class="cal-top">
-              <span class="cal-month" id="calMonth"></span>
-              <div class="cal-nav">
-                <button type="button" onclick="moveDiaryMonth(-1)" aria-label="Previous month">‹</button>
-                <button type="button" onclick="moveDiaryMonth(1)" aria-label="Next month">›</button>
-              </div>
-            </div>
-            <div class="cal-grid" id="calGrid"></div>
             <div class="cal-legend">
               <span><i></i> wrote that day</span>
               <span><span class="box"></span> today</span>
               <span>🎂 follower's birthday</span>
               <button class="cal-clear" id="calClear" style="display:none;" onclick="clearDiaryFilter()">Show all</button>
+            </div>
+            <div class="cal-widget">
+              <div class="cal-top">
+                <span class="cal-month" id="calMonth"></span>
+                <div class="cal-nav">
+                  <button type="button" onclick="moveDiaryMonth(-1)" aria-label="Previous month">‹</button>
+                  <button type="button" onclick="moveDiaryMonth(1)" aria-label="Next month">›</button>
+                </div>
+              </div>
+              <div class="cal-grid" id="calGrid"></div>
             </div>
             <div class="mood-tools" id="moodTools">
               <div class="mood-min-head"><b>Mood</b><span id="moodMinCount"></span></div>
